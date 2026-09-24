@@ -14,7 +14,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,8 +25,18 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Reconcile lockfile from package manifest
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Save reconciled lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: reconciled-package-lock
+          path: package-lock.json
+          if-no-files-found: error
+
       - name: Install exact dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       - name: Validate canonical REC Mama Made assets
         run: npm run check:assets
