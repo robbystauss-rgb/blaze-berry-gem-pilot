@@ -20,6 +20,7 @@ import {
 } from "@/lib/catalog";
 import { resizeImage, useOrder } from "@/lib/order-store";
 import { familyHero, stageThumb } from "@/lib/stage-photos";
+import { MASTER } from "@/lib/studio-store";
 import { cn } from "@/lib/utils";
 
 type StepId = "hat" | "color" | "material" | "shape" | "design" | "position" | "review";
@@ -38,6 +39,10 @@ function stepsFor(patchOnly: boolean): StepId[] {
   return patchOnly
     ? ["material", "shape", "design", "review"]
     : ["hat", "color", "material", "shape", "design", "position", "review"];
+}
+
+function isReadyFamily(id: FamilyId) {
+  return MASTER.models.find((model) => model.id === id)?.bucket === "ready";
 }
 
 function tooLarge(size: PatchSize, placement: Placement) {
@@ -65,11 +70,15 @@ export function Builder({ focus }: { focus?: StepId }) {
     family: draft.family,
     promo: draft.promo,
   });
-  const shape = draft.patchShape === "Louisiana" ? "Rounded Rectangle" : draft.patchShape;
+  const shape: PatchShape = PATCH_SHAPES.includes(draft.patchShape as PatchShape) ? (draft.patchShape as PatchShape) : "Rounded Rectangle";
 
   useEffect(() => {
-    if (draft.patchShape === "Louisiana") draft.set("patchShape", "Rounded Rectangle");
+    if (!PATCH_SHAPES.includes(draft.patchShape as PatchShape)) draft.set("patchShape", "Rounded Rectangle");
   }, [draft.patchShape, draft]);
+
+  useEffect(() => {
+    if (!patchOnly && !isReadyFamily(draft.family)) draft.setFamily("112");
+  }, [draft.family, patchOnly]);
 
   useEffect(() => {
     if (focus) setStep(focus);
@@ -238,10 +247,12 @@ export function Builder({ focus }: { focus?: StepId }) {
             ${est.total.toFixed(2)}
           </p>
         </div>
-        <p className="px-3 text-xs text-stage-muted">Heat adhesive only. Laser holes are fine. No sewing and no thread.</p>
+        {patchOnly && (
+          <p className="px-3 text-xs text-stage-muted">Patch only means a finished loose patch — no hat and no stitching/application.</p>
+        )}
         {active === "hat" && (
           <div className="flex gap-3 overflow-x-auto px-3 py-3">
-            {FAMILY_ORDER.map((id) => {
+            {FAMILY_ORDER.filter(isReadyFamily).map((id) => {
               const item = FAMILIES[id];
               const photo = familyHero(id);
               const count = colorsForFamily(id).length;
@@ -331,8 +342,8 @@ export function Builder({ focus }: { focus?: StepId }) {
                     on ? "ring-2 ring-primary" : "ring-stage-line hover:-translate-y-0.5",
                   )}
                 >
-                  <div className="grid h-24 place-items-center bg-stage px-3 text-center text-xs text-stage-muted">
-                    Image being updated
+                  <div className="h-24 overflow-hidden bg-stage">
+                    <img src={item.texture} alt={`${item.name} material`} className="h-full w-full object-cover" />
                   </div>
                   <span className="flex items-start justify-between gap-2 px-3 py-2">
                     <span>
@@ -587,7 +598,9 @@ export function Builder({ focus }: { focus?: StepId }) {
       {materialOpen && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-bg/70 p-4" role="dialog" aria-modal="true">
           <div className="w-[min(560px,100%)] overflow-hidden rounded-3xl bg-stage text-stage-ink">
-            <div className="grid aspect-[4/3] place-items-center bg-stage text-sm text-stage-muted">Image being updated</div>
+            <div className="aspect-[4/3] overflow-hidden bg-stage">
+              <img src={leather.detail} alt={`${leather.name} material detail`} className="h-full w-full object-cover" />
+            </div>
             <div className="p-5">
               <h2 className="font-display text-4xl">{leather.name}</h2>
               <p className="mt-1 text-sm">{leather.engrave}</p>
