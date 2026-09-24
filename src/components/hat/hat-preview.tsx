@@ -1,8 +1,7 @@
 import type { CSSProperties, PointerEvent } from "react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FamilyId, LeatheretteId, PatchShape, PatchSize, Placement } from "@/lib/catalog";
 import { FAMILIES, getLeatherette } from "@/lib/catalog";
-import { parseColorway } from "@/lib/colorways";
 import { familyHero, stageViews } from "@/lib/stage-photos";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +83,6 @@ export function HatPreview({
   placementMode,
   onPlacement,
 }: Props) {
-  const colors = parseColorway(colorway || "Black");
   const leather = getLeatherette(leatherette);
   const named = colorway.trim();
   const matched = stageViews(family, named || "none");
@@ -94,7 +92,6 @@ export function HatPreview({
   const [view, setView] = useState<ViewName>("front");
   const [zoom, setZoom] = useState(false);
   const drag = useRef<{ x: number } | null>(null);
-  const uid = useId().replace(/:/g, "");
   const active = available.includes(view) ? view : available[0] ?? "front";
   const src = shots[active];
   const showPatch = patchOnly || !src || patchOnView(placement, active);
@@ -136,13 +133,16 @@ export function HatPreview({
                 <PatchCard
                   key={`${leatherette}-${shape}-${size}`}
                   leatherette={leatherette}
-                  shape={shape === "Louisiana" ? "Rounded Rectangle" : shape}
+                  shape={shape}
                   size={size}
                   patchText={patchText}
                   artworkUrl={artworkUrl}
                 />
               ) : (
-                <HatSvg uid={uid} silhouette={FAMILIES[family].silhouette} colors={colors} />
+                <div className="max-w-sm rounded-3xl bg-stage-photo/90 px-6 py-5 text-center ring-1 ring-stage-line">
+                  <p className="font-semibold text-stage-ink">Verified product photo unavailable</p>
+                  <p className="mt-1 text-sm leading-6 text-stage-muted">We do not substitute a different hat or generate a missing angle.</p>
+                </div>
               )}
             </div>
           ) : (
@@ -156,7 +156,7 @@ export function HatPreview({
           {!patchOnly && showPatch && (
             <PatchOverlay
               leather={leather}
-              shape={shape === "Louisiana" ? "Rounded Rectangle" : shape}
+              shape={shape}
               size={size}
               placement={placement}
               patchText={patchText}
@@ -282,70 +282,6 @@ function PatchOverlay({
   );
 }
 
-export function MiniHat({
-  family,
-  colorway,
-  className,
-}: {
-  family: FamilyId;
-  colorway: string;
-  className?: string;
-}) {
-  const colors = parseColorway(colorway);
-  const uid = useId().replace(/:/g, "");
-  return (
-    <div className={cn("overflow-hidden bg-stage-photo", className)}>
-      <HatSvg uid={uid} silhouette={FAMILIES[family].silhouette} colors={colors} />
-    </div>
-  );
-}
-
-function HatSvg({
-  uid,
-  silhouette,
-  colors,
-}: {
-  uid: string;
-  silhouette: "trucker" | "seven" | "gramps";
-  colors: ReturnType<typeof parseColorway>;
-}) {
-  const mesh = silhouette === "trucker";
-  const rope = silhouette === "gramps";
-  const seams = silhouette === "seven" ? 6 : silhouette === "gramps" ? 4 : 3;
-
-  return (
-    <svg viewBox="0 0 320 240" className="h-full w-full" aria-hidden>
-      <defs>
-        <linearGradient id={`crown-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={colors.front} />
-          <stop offset="100%" stopColor={colors.front} stopOpacity="0.85" />
-        </linearGradient>
-        <linearGradient id={`visor-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={colors.visor} />
-          <stop offset="100%" stopColor={colors.visor} stopOpacity="0.75" />
-        </linearGradient>
-        <pattern id={`mesh-${uid}`} width="7" height="7" patternUnits="userSpaceOnUse">
-          <circle cx="3.5" cy="3.5" r="1.55" fill={colors.mesh} opacity="0.55" />
-        </pattern>
-      </defs>
-      <ellipse cx="160" cy="214" rx="92" ry="10" fill="rgba(44,33,30,0.12)" />
-      <path d="M58 168 C70 118, 100 72, 160 68 C220 72, 250 118, 262 168 C240 176, 80 176, 58 168 Z" fill={mesh ? colors.mesh : `url(#crown-${uid})`} />
-      {mesh && <path d="M168 76 C230 82, 252 130, 258 166 C200 174, 176 150, 168 76 Z" fill={`url(#mesh-${uid})`} />}
-      <path d="M62 166 C78 108, 112 78, 160 74 C152 118, 120 150, 78 166 Z" fill={`url(#crown-${uid})`} />
-      <path d="M160 74 C208 78, 242 108, 258 166 C216 150, 176 118, 160 74 Z" fill={colors.front} opacity="0.92" />
-      {Array.from({ length: seams }).map((_, i) => {
-        const t = (i + 1) / (seams + 1);
-        return (
-          <path key={i} d={`M160 76 Q ${70 + t * 180} 120 ${58 + t * 204} 166`} fill="none" stroke="rgba(44,33,30,0.18)" strokeWidth="1" />
-        );
-      })}
-      {rope && <path d="M78 158 C120 148, 200 148, 242 158" fill="none" stroke={colors.rope} strokeWidth="4" strokeLinecap="round" />}
-      <ellipse cx="160" cy="74" rx="9" ry="5" fill={colors.visor} />
-      <path d="M52 168 C90 186, 230 186, 268 168 C250 198, 70 198, 52 168 Z" fill={`url(#visor-${uid})`} />
-    </svg>
-  );
-}
-
 export function PatchCard({
   leatherette,
   shape,
@@ -362,7 +298,7 @@ export function PatchCard({
   className?: string;
 }) {
   const leather = getLeatherette(leatherette);
-  const safe = shape === "Louisiana" ? "Rounded Rectangle" : shape;
+  const safe = shape;
   const style: CSSProperties = {
     clipPath: clipFor(safe),
     backgroundColor: leather.hex,
@@ -393,7 +329,7 @@ export function ShapeMark({ shape, className, texture }: { shape: PatchShape; cl
     <span
       className={cn("block", texture ? "bg-stage-photo" : "bg-primary/80", className)}
       style={{
-        clipPath: clipFor(shape === "Louisiana" ? "Rounded Rectangle" : shape),
+        clipPath: clipFor(shape),
         aspectRatio: shape === "Circle" ? "1" : shape === "Oval" ? "1.4 / 1" : "1.3 / 1",
         backgroundImage: texture ? `url(${texture})` : undefined,
         backgroundSize: "cover",
