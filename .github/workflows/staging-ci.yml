@@ -9,7 +9,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: staging
 
       - name: Use Node 22
         uses: actions/setup-node@v4
@@ -28,15 +30,23 @@ jobs:
       - name: Reconcile lockfile from package manifest
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
-      - name: Save reconciled lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: reconciled-package-lock
-          path: package-lock.json
-          if-no-files-found: error
+      - name: Persist reconciled lockfile on staging
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name "REC Mama Made staging bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "Reconcile package lock for staging"
+            git push origin HEAD:staging
+          fi
 
       - name: Install exact dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Apply canonical REC Mama Made source fixes
+        run: npm run fix:rec-assets
 
       - name: Validate canonical REC Mama Made assets
         run: npm run check:assets
