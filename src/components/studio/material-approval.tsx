@@ -54,9 +54,9 @@ export function MaterialApproval() {
   return (
     <div>
       <p className="text-xs font-semibold tracking-[0.16em] text-stage-muted uppercase">Studio · Materials · Visual approval</p>
-      <h2 className="mt-2 font-display text-4xl text-stage-ink">Your sheet, cropped. Not the builder.</h2>
+      <h2 className="mt-2 font-display text-4xl text-stage-ink">Your real source sheet, cleanly cropped.</h2>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-stage-muted">
-        Every swatch is a native crop from My leatherette options.PNG. No internet textures, no old shop swatches, and no enlargement. Names are the words printed on each card. Two cards have no printed name, so they are blank on purpose. Nothing here is on the customer picker.
+        Every swatch is a native crop from My leatherette options.PNG. No internet textures, no supplier substitutions, no generated leather, and no enlargement. Names are the words printed on each card. Two cards have no printed name, so they stay unnamed. These exact clean crops are the only material images the customer picker is allowed to use.
       </p>
       <p className="mt-3 text-sm text-stage-ink">
         {records.length} materials · {counts.waiting} waiting · {counts.approved} approved · {counts.fix} need a fix
