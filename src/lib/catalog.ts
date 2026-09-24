@@ -1,4 +1,4 @@
-import data from "./catalog-data.json";
+import materialReview from "@/data/material-review.json";
 import { MASTER } from "@/lib/studio-store";
 
 export type ColorCategory = "Solid" | "Split" | "Combo" | "Tri" | "Alternate" | "Printed";
@@ -20,15 +20,7 @@ export type FamilyId =
   | "168P"
   | "256P";
 
-export type LeatheretteId =
-  | "buckskin"
-  | "heritage"
-  | "saddle"
-  | "carbon"
-  | "gold"
-  | "white"
-  | "camo"
-  | "topo";
+export type LeatheretteId = string;
 
 export type PatchShape =
   | "Rectangle"
@@ -37,7 +29,6 @@ export type PatchShape =
   | "Oval"
   | "Hexagon"
   | "Shield"
-  | "Louisiana"
   | "Custom Die-Cut";
 
 export type PatchSize = "small" | "medium" | "large";
@@ -77,9 +68,9 @@ export const FAMILIES: Record<
   },
   "112FP": {
     id: "112FP",
-    label: "Five-Panel Trucker",
+    label: "Five Panel Trucker",
     short: "Richardson 112FP",
-    blurb: "Five-panel trucker. The family is real. Colorways stay held until the front files are named.",
+    blurb: "Five-panel trucker with 19 supplied complete photo sets in the audited catalog.",
     tier: "premium",
     kind: "solid",
     silhouette: "gramps",
@@ -95,25 +86,25 @@ export const FAMILIES: Record<
   },
   "168": {
     id: "168",
-    label: "Seven Panel Trucker Cap",
+    label: "7 Panel Mesh Back",
     short: "Richardson 168",
-    blurb: "Seven-panel trucker. The color library is not in Drive yet.",
+    blurb: "Seven-panel mesh-back cap with 17 recovered complete front, side, and back photo sets.",
     tier: "premium",
     kind: "solid",
     silhouette: "seven",
   },
   "256": {
     id: "256",
-    label: "Umpqua",
+    label: "Umpqua Gramps Cap",
     short: "Richardson 256",
-    blurb: "Five-panel rope cap. Model number 256. Gramps is a nickname, not the model name.",
+    blurb: "Richardson 256 Umpqua Gramps Cap with supplied real product photography.",
     tier: "premium",
     kind: "solid",
     silhouette: "gramps",
   },
   "112PM": {
     id: "112PM",
-    label: "Printed Mesh",
+    label: "Printed Mesh Trucker",
     short: "Richardson 112PM",
     blurb: "Printed mesh trucker. No dedicated photo folder yet, so no extra colors were added.",
     tier: "premium",
@@ -140,18 +131,18 @@ export const FAMILIES: Record<
   },
   "168P": {
     id: "168P",
-    label: "Printed Seven Panel",
+    label: "Printed 7 Panel Mesh Back",
     short: "Richardson 168P",
-    blurb: "Printed seven-panel. No printed color folder yet.",
+    blurb: "Printed 7 Panel Mesh Back. Kept in the master catalog; product-photo assets are still incomplete.",
     tier: "premium",
     kind: "printed",
     silhouette: "seven",
   },
   "256P": {
     id: "256P",
-    label: "Printed Umpqua",
+    label: "Printed Umpqua Gramps Cap",
     short: "Richardson 256P",
-    blurb: "Printed five-panel Umpqua. Not the solid 256 colors.",
+    blurb: "Printed Umpqua Gramps Cap. Its color library stays separate from the solid 256.",
     tier: "premium",
     kind: "printed",
     silhouette: "gramps",
@@ -181,16 +172,50 @@ export const LEATHERETTES: Array<{
   ink: string;
   engrave: string;
   texture: string;
-}> = [
-  { id: "buckskin", name: "Buckskin", note: "Shop sheet", hex: "#C4A06A", hi: "#E4C48A", lo: "#8A6840", ink: "#1C140C", engrave: "Engraves black", texture: "" },
-  { id: "heritage", name: "Heritage Black", note: "Gold core", hex: "#1A120C", hi: "#3A2A1C", lo: "#0C0806", ink: "#C6A15A", engrave: "Engraves gold", texture: "" },
-  { id: "saddle", name: "Saddle Tan", note: "Shop sheet", hex: "#A87848", hi: "#D0A070", lo: "#6A4828", ink: "#1C140C", engrave: "Engraves black", texture: "" },
-  { id: "carbon", name: "Black Carbon Fiber", note: "Silver core", hex: "#161616", hi: "#3A3A3A", lo: "#080808", ink: "#D8D8D8", engrave: "Engraves silver", texture: "" },
-  { id: "gold", name: "Black / Gold", note: "Metallic", hex: "#1A140C", hi: "#4A3A22", lo: "#0C0A08", ink: "#E0C070", engrave: "Engraves gold", texture: "" },
-  { id: "white", name: "Matte White", note: "Black core", hex: "#F4F1EC", hi: "#FFFFFF", lo: "#D4D0C8", ink: "#1C140C", engrave: "Engraves black", texture: "" },
-  { id: "camo", name: "Duck Camo", note: "Shop sheet", hex: "#6A6840", hi: "#8A8860", lo: "#3A3820", ink: "#1C140C", engrave: "Engraves black", texture: "" },
-  { id: "topo", name: "Stealth Topo", note: "Shop sheet", hex: "#2A2A2A", hi: "#4A4A4A", lo: "#141414", ink: "#F4F1EC", engrave: "Engraves white", texture: "" },
-];
+  detail: string;
+}> = materialReview
+  .filter((item) => item.named && item.name && item.swatch)
+  .map((item) => {
+    const legacyId: Record<string, string> = {
+      "Matte White": "white",
+      "Saddle Tan": "saddle",
+      Buckskin: "buckskin",
+      "Heritage Black": "heritage",
+      "Duck Camo": "camo",
+      "Black Carbon Fiber": "carbon",
+      "Stealth Topo": "topo",
+    };
+    const palette: Record<string, { hex: string; hi: string; lo: string }> = {
+      leatherette: { hex: "#9d7a58", hi: "#d5b38b", lo: "#5d4634" },
+      camo: { hex: "#68634f", hi: "#989079", lo: "#3f3c31" },
+      carbon: { hex: "#171717", hi: "#3b3b3b", lo: "#080808" },
+      topo: { hex: "#5d5145", hi: "#9b846b", lo: "#2d2824" },
+      metallic: { hex: "#b6b0a3", hi: "#e5dfd1", lo: "#777165" },
+      acrylic: { hex: "#4d8ca8", hi: "#7fc5df", lo: "#28566c" },
+      sport: { hex: "#e8e5df", hi: "#ffffff", lo: "#bdb8af" },
+      specialty: { hex: "#8d8a88", hi: "#c8c5c1", lo: "#545250" },
+    };
+    const base = palette[item.category] ?? palette.leatherette;
+    const ink = item.engrave.toLowerCase().includes("white")
+      ? "#f7f4ee"
+      : item.engrave.toLowerCase().includes("silver")
+        ? "#d8d8d8"
+        : item.engrave.toLowerCase().includes("gold")
+          ? "#d7b465"
+          : "#17120e";
+    return {
+      id: legacyId[item.name] ?? item.id,
+      name: item.name,
+      note: "Actual REC Mama Made material source",
+      hex: base.hex,
+      hi: base.hi,
+      lo: base.lo,
+      ink,
+      engrave: item.engrave,
+      texture: item.swatch,
+      detail: item.detail,
+    };
+  });
 
 export const PATCH_SHAPES: PatchShape[] = [
   "Rectangle",
@@ -210,15 +235,9 @@ export const PLACEMENTS: Array<{ id: Placement; label: string; hint: string }> =
   { id: "rear", label: "Rear", hint: "Back of hat" },
 ];
 
-export const COLOR_112: Colorway[] = data.color112;
-export const COLOR_168: string[] = data.collection168;
-export const COLOR_256: string[] = data.collection256;
-export const PRINTED = data.printed as Record<string, string[]>;
-
 export function colorsForFamily(id: FamilyId): string[] {
   const model = MASTER.models.find((item) => item.id === id);
   if (!model || model.bucket !== "ready") return [];
-  if (id === "112FP") return [];
   return model.colorways.filter((color) => color.views.front).map((color) => color.officialName);
 }
 
@@ -266,5 +285,7 @@ export function estimateTotal(opts: {
 }
 
 export function getLeatherette(id: string) {
-  return LEATHERETTES.find((l) => l.id === id) ?? LEATHERETTES[0]!;
+  const legacyAlias: Record<string, string> = { gold: "heritage" };
+  const normalized = legacyAlias[id] ?? id;
+  return LEATHERETTES.find((l) => l.id === normalized) ?? LEATHERETTES.find((l) => l.id === "buckskin") ?? LEATHERETTES[0]!;
 }
