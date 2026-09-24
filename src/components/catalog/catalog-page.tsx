@@ -57,11 +57,17 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
             </Link>
           </div>
         </div>
-        <img
-          src={(printedMode ? familyHero("112P") : familyHero(family)) ?? "/products/hat-112-black.jpg"}
-          alt=""
-          className="w-full rounded-[28px] bg-stage-photo object-contain shadow-stage ring-1 ring-stage-line"
-        />
+        {(printedMode ? familyHero("112P") : familyHero(family)) ? (
+          <img
+            src={(printedMode ? familyHero("112P") : familyHero(family)) ?? ""}
+            alt=""
+            className="w-full rounded-[28px] bg-stage-photo object-contain shadow-stage ring-1 ring-stage-line"
+          />
+        ) : (
+          <div className="grid min-h-72 place-items-center rounded-[28px] bg-stage-photo text-sm text-stage-muted shadow-stage ring-1 ring-stage-line">
+            Product photo assets incomplete
+          </div>
+        )}
       </div>
 
       {printedMode ? (
