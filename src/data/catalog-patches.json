@@ -1,0 +1,190 @@
+{
+  "source": "REC Mama Made verified catalog corrections applied over Grok export",
+  "models": {
+    "112FP": {
+      "officialName": "Five Panel Trucker",
+      "bucket": "ready",
+      "suppliedCount": 19,
+      "note": "19 supplied complete front/side/back photo sets. Keep all in the master catalog; none are automatically offered until REC Mama Made approves store availability."
+    },
+    "112FPR": {
+      "officialName": "Five Panel Trucker with Rope",
+      "bucket": "incomplete",
+      "suppliedCount": 10,
+      "note": "10 supplied front photos. SIDE and BACK are missing, so this model stays asset-incomplete and must not be customer-selectable until completed or intentionally overridden."
+    },
+    "112PM": {
+      "officialName": "Printed Mesh Trucker",
+      "bucket": "incomplete",
+      "suppliedCount": 0,
+      "note": "No dedicated 112PM folder in the library. Do not invent colors.",
+      "heroDriveId": null,
+      "colorways": []
+    },
+    "168": {
+      "officialName": "7 Panel Mesh Back",
+      "bucket": "ready",
+      "suppliedCount": 17,
+      "note": "17 supplied colorways recovered from the canonical Richardson 168 Drive library. Each has verified FRONT, SIDE, and BACK files. Nothing is automatically offered for sale.",
+      "heroDriveId": "10-he64AHKvwZERIQCZvuic1xDMgMN595",
+      "colorways": [
+        {
+          "id": "168:white",
+          "officialName": "White",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1ifmSLO_7hwlrASs7w1iDXg3_GLznYwLf", "side": "1oXKvq7EPaj_Zvij1ImeIP3myAPB4jXnW", "back": "1YsBSys8l-muGEpLsAtTvnLfz95kCpiwe"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:royal-black",
+          "officialName": "Royal/Black",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1kpIQq0hYAeWnMSzJawG_gNuNAlFLev6D", "side": "13JrpywQ3Y92W58vhnOoj2SAqTjxeN655", "back": "1ZHkgD5x2aNGYh7O0dM6YvUSV46cOEq-O"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:red-black",
+          "officialName": "Red/Black",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1kwDhctnTuJjPjDBBt57x1EJ6TMXdbejQ", "side": "123TqCJl-yedkhJq08vA-4K25Qn1MtrM8", "back": "1HcO9kJHWtSW-V7uf26hAVJ3vWMzBwBdC"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:pale-khaki-loden-green",
+          "officialName": "Pale Khaki/Loden Green",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "169L_vsenXsDPrT9Xodo6g9NlY0Eas4qz", "side": "1WBX_pqIRYaBNr0i8cUXLu2RwAU9-2bD_", "back": "1f_QQcUiZ4HGlvwTL-M1GLv0Y5_vE4L33"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:navy",
+          "officialName": "Navy",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1AibmqL5P9n3gTATgRO4hrug8LHoEcAhi", "side": "1_WDirbpi_38CZ7ScUm0d2RYye4GA1Mco", "back": "1oe8tZc8UBMk506_cKuoHyoeusM1Irgsy"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:loden-green",
+          "officialName": "Loden Green",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1MZGjTZF4ig9xOv8QBld3CBpZm1ccMMjA", "side": "1448GPD0-86AZLQxvAFjLgjlmFhQBc9rb", "back": "17ybrWkMX3N0WHrbQh8oGGgxmHXYzjsRc"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:heather-grey-black",
+          "officialName": "Heather Grey/Black",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1-gpCs6rev8arle1KFPdKYQNmMJLL-tjO", "side": "1saZjoa8Q_6_Rs6VvVRw8OrlZ9e9S8Zla", "back": "1AQ3tfD4dmTqGdfgwZJVYqiChh6tDWGHA"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:dark-green-black",
+          "officialName": "Dark Green/Black",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1YmkfvYuzGm94Mli-HjlcTuX0Th1I55sw", "side": "1N6IPey8eqZIv9vgb_J0xvu2eGVk_mjfR", "back": "1pPVQ8JT2pccVB1_EWYmIEiHej8EBEJ_4"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:charcoal",
+          "officialName": "Charcoal",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1h4iPhXkLNpxi0LAgV7ZFbutkUTEFCFAy", "side": "1ZXpVuv1wF00yCdrIvU6AXLBZIEBjkFNh", "back": "1K54FZPHC_PF8nWhOKdbF6mjeHBfyAscG"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:charcoal-old-gold",
+          "officialName": "Charcoal/Old Gold",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "13LGq79u8uR78aV0j6nC2seSwaq_AMfVS", "side": "1NHk1cvjtfPeQOK4XpAGUmPNMGH9ZD3os", "back": "1t83ACFIFiJM6t0RCHvMsLewcqe1-cowT"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:charcoal-burnt-orange-black",
+          "officialName": "Charcoal/Burnt Orange/Black",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1g9kf2aPGQlz8ruVGk4Ui46GaiDcxBDsR", "side": "1zwExwISsgHJ3iNSbrTAplFbUbxWzzFYM", "back": "1qvgGna5q2n4Mo8SZnG8kI5MdTojbxY_B"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:charcoal-black-white",
+          "officialName": "Charcoal/Black/White",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "13qhNWO1rZr4NbaXrDx9d0ccGV-9__B0S", "side": "1TFsJ0cXf39oM4UBEcRLColKenwmsxkmb", "back": "1tadTJM7sz0_-rOZ8MVTwE5New_GeegrB"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:charcoal-black",
+          "officialName": "Charcoal/Black",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1-sqW9tF8J3cxI3uA-dyhkI7d8YloQSAd", "side": "1KFvJ3TtlV1BnzjXGgThIUrkHTI8JBs1h", "back": "1A9az--O5VE6MDfk_bWgOqZqkK5ZyT2Uu"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:caramel",
+          "officialName": "Caramel",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1jGjeTHqjmzEtvHQcHwVJQ0D-Y23DRnJW", "side": "1vkp9KHXNkd0iTc2wP0B-iBWcLx6XSnHl", "back": "1FwEj5jTMlkUXu3OJqkNXqUOG-thVhqZV"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:brown-khaki",
+          "officialName": "Brown/Khaki",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "14bQBb7N-kNIrKX-Ch9fWxjV_456atIhu", "side": "1ifaq5c4bCxHGUP8fxadYgQuSB6PTgHJj", "back": "1i5EtZIqBsnAXYcHflrq9qFz3I30xABD6"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:black-camo-loden",
+          "officialName": "Black/Camo/Loden",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "1mTjCaBFgV2TdVqW8YE33sDJf-7_sJFfA", "side": "1sho_HjRHgBOralMzNHk9lvNKw-l4Ii2I", "back": "14u8IdZy1NIAQ4GM_XkrHF4sE1TgqriJF"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        },
+        {
+          "id": "168:black",
+          "officialName": "Black",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {"front": "10-he64AHKvwZERIQCZvuic1xDMgMN595", "side": "1JkFk6JcXV5Wj-5ZIFtMbePCuZhsLMn35", "back": "16ZHFYQ-47AehpOC0F5Y-Rk1VNq79vtRZ"},
+          "notes": "Recovered from Richardson 168 / FRONT, SIDE, BACK folders."
+        }
+      ]
+    },
+    "168P": {
+      "officialName": "Printed 7 Panel Mesh Back",
+      "bucket": "incomplete",
+      "suppliedCount": 0,
+      "note": "Official model retained. No canonical REC Mama Made 168P color-photo library has been located yet.",
+      "heroDriveId": null,
+      "colorways": []
+    },
+    "256": {
+      "officialName": "Umpqua Gramps Cap",
+      "bucket": "ready",
+      "suppliedCount": 19,
+      "note": "19 supplied complete photo sets. Official store name: Umpqua Gramps Cap."
+    },
+    "256P": {
+      "officialName": "Printed Umpqua Gramps Cap",
+      "bucket": "ready",
+      "suppliedCount": 7,
+      "note": "7 supplied complete printed photo sets. Official store name: Printed Umpqua Gramps Cap. Keep this catalog separate from the solid 256."
+    }
+  }
+}
