@@ -1,0 +1,350 @@
+REC MAMA MADE — FIX THE LEATHERETTE / MATERIAL PICKER
+STOP using the current material images in the customer picker.
+The material picker is currently pulling incorrect crops and images that do not properly represent my actual REC Mama Made leatherette options.
+I am seeing:
+* pieces of another company’s/sample-sheet text
+* partial logos
+* material names burned into the image
+* white empty areas
+* neighboring swatches
+* weird crops
+* images that are not clean photographs of the material itself
+This is not acceptable.
+I want the material selector rebuilt using ONLY my real approved REC Mama Made material images.
+ 
+⸻
+ 
+ABSOLUTE SOURCE-OF-TRUTH RULE
+Do not search the internet for leatherette images.
+Do not scrape supplier websites.
+Do not use Google Image results.
+Do not generate replacement leather textures with AI.
+Do not use a photo simply because its filename contains “leatherette.”
+Do not use old cached swatches already in the website.
+Do not use supplier swatch sheets unless I explicitly approve that exact image as a source.
+My approved REC Mama Made images are the only source of truth.
+You have access to my Google Drive.
+In Drive, locate the most recent approved file:
+My leatherette options.PNG
+Treat that as an approved source for my real available materials.
+If I provide additional approved material photos later, add those to the same approved material library.
+Create a dedicated internal source collection:
+Studio → Materials → APPROVED REC MAMA MADE MATERIALS
+The website material picker must ONLY render materials from that approved collection.
+Everything else is excluded unless I explicitly approve it.
+ 
+⸻
+ 
+USE A WHITELIST — NOT A SEARCH
+This is extremely important.
+Do not dynamically search my Drive for “leather,” “leatherette,” “swatch,” “material,” etc. every time the website needs an image.
+That is how unrelated supplier images and old assets get mixed into the site.
+Instead:
+approved source image → approved material record → website
+Nothing else.
+Once a material record is created and approved, store its exact image/source reference in Studio.
+The customer website should never decide on its own which image represents a material.
+ 
+⸻
+ 
+REBUILD EVERY MATERIAL SWATCH
+For every real material I offer, create a clean individual material swatch.
+The swatch image should show ONLY THE ACTUAL MATERIAL SURFACE.
+The image itself should contain:
+NO text
+NO supplier logo
+NO REC Mama Made text
+NO material name
+NO neighboring swatches
+NO price
+NO engraving description
+NO sample-card hole if a clean crop can avoid it
+NO white margins
+NO pieces of the background/table
+NO other company’s branding
+The website itself will render the material name and engraving result underneath the image.
+ 
+⸻
+ 
+DO NOT CROP THROUGH PRINTED TEXT
+This is one of the problems in the current published version.
+For example, a Buckskin card should NOT contain pieces of words such as:
+HERITAGE
+BUCK…
+TO BLACK
+or any other printed sample-sheet text.
+The Buckskin tile should simply look like:
+a clean close-up of Buckskin material texture.
+Same rule for every material.
+If a source photo has printed lettering over part of the sample, crop from a clean section of that same real sample.
+If there is not enough clean material visible to make an accurate crop, do NOT invent or reconstruct the texture.
+Mark that material internally:
+NEEDS CLEAN SOURCE IMAGE
+and keep the existing real source available for my review.
+Accuracy is more important than filling every card.
+ 
+⸻
+ 
+DO NOT STRETCH SMALL CLEAN AREAS
+If only a small clean area of material exists, do not stretch it until it becomes blurry or fake-looking.
+Preserve the real:
+grain,
+weave,
+camouflage scale,
+topo scale,
+metallic grain,
+basketball/football texture,
+holographic pattern,
+carbon-fiber weave.
+Cropping must not materially change what the real material looks like.
+ 
+⸻
+ 
+MATERIAL IMAGE FORMAT
+Normalize every customer-facing material tile to the same aspect ratio.
+Prefer a clean square or slightly portrait swatch that works well on mobile.
+Generate:
+thumbnail,
+standard,
+high-resolution detail
+versions from the same approved master.
+Use WebP/AVIF for the website where appropriate while retaining the high-resolution approved source.
+Do not overcompress the textures.
+ 
+⸻
+ 
+WHAT THE CUSTOMER CARD SHOULD LOOK LIKE
+The swatch image should be approximately 70–75% of the material card.
+Underneath it, render normal website text:
+BUCKSKIN
+Engraves to Black
+Or:
+HERITAGE BLACK
+Engraves to Gold
+Do not bake those words into the photograph.
+This lets the image remain clean and lets me change material names later without editing the image.
+ 
+⸻
+ 
+MODERN HIGH-TECH VISUAL STYLE
+Upgrade this section visually while fixing the assets.
+Use a clean light premium surface.
+Material tiles should have:
+soft white/light-neutral cards,
+subtle thin borders,
+controlled shadow,
+rounded corners,
+large detailed material photography,
+generous spacing,
+clean typography.
+When a material is selected:
+add a sophisticated animated outline,
+small checkmark,
+and subtle elevation.
+Do not use giant neon outlines.
+The material should remain the hero.
+ 
+⸻
+ 
+HOVER / TAP DETAIL
+Desktop:
+hovering should subtly enlarge the material texture.
+Show:
+VIEW MATERIAL
+Mobile:
+tapping the image or a small detail button opens a larger material viewer.
+The detail viewer should show:
+large high-resolution real texture,
+material name,
+engraving result,
+optional finished REC Mama Made example if I have one.
+Include:
+USE THIS MATERIAL
+ 
+⸻
+ 
+MY MATERIAL CATEGORIES
+Do not invent categories based on external suppliers.
+Use categories based only on the materials I actually have.
+Possible categories can include:
+ALL
+LEATHERETTE
+CAMO
+CARBON FIBER
+METALLIC
+TOPO
+SPORT TEXTURES
+ACRYLIC
+SPECIALTY
+Only display a category if approved material records exist in it.
+ 
+⸻
+ 
+MATERIAL DATABASE
+Create one Material record per actual REC Mama Made option.
+Each record needs:
+Official/store material name
+Approved source image
+Clean web swatch
+High-resolution detail image
+Engraving result/color
+Category
+Offered
+Stock/availability
+Upgrade price
+Featured
+Sort order
+Needs Review
+Source provenance
+Store the actual approved source so we always know where a swatch came from.
+ 
+⸻
+ 
+CRITICAL: PURGE THE WRONG IMAGES
+Audit the existing material picker and identify every image currently being used.
+Anything that came from:
+old supplier sheets,
+third-party material images,
+random Drive search results,
+old website assets,
+cached placeholder assets,
+generated textures,
+or unknown provenance
+must be removed from the customer-facing picker.
+Do not necessarily delete the original file from storage.
+Just disconnect it from the customer material records.
+I do not want an old cached URL continuing to appear because the material name happens to match.
+ 
+⸻
+ 
+PREVENT FALLBACK TO THIRD-PARTY IMAGES
+This is mandatory.
+If an approved REC Mama Made swatch image is missing or fails to load:
+DO NOT fall back to another supplier’s image.
+Show a neutral:
+Image being updated
+placeholder internally/customer-facing if absolutely necessary.
+Never silently substitute an unrelated image.
+ 
+⸻
+ 
+PREVENT NAME-BASED IMAGE MATCHING
+Do not use logic like:
+if materialName contains "Buckskin", search for Buckskin image
+or:
+find closest matching image filename
+That can connect the wrong company’s Buckskin photo to my Buckskin material.
+Every material must point to an explicit approved asset ID.
+Example:
+material.id = buckskin
+→
+approvedSwatchAssetId = [specific REC Mama Made asset]
+There should be no fuzzy image matching in production.
+ 
+⸻
+ 
+DRIVE RULE
+Google Drive can be used to find my source photographs during setup.
+But after the approved records are created, production should reference the exact approved assets.
+Do not treat my entire Google Drive as a live image database.
+My Drive contains historical files, supplier references, tests, old projects and unrelated images.
+Only approved REC Mama Made material records belong in the website.
+ 
+⸻
+ 
+KEEP MY REAL MATERIAL NAMES
+Do not rename my options to supplier names unless I explicitly request it.
+If an engraving result is known, display it separately.
+Example:
+MATTE WHITE
+Engraves to Black
+Do not alter that into a different supplier’s marketing name.
+ 
+⸻
+ 
+QUALITY CONTROL SCREEN
+Before these materials appear publicly, create:
+Studio → Materials → Visual Approval
+Show every swatch in the exact card design customers will see.
+I need to visually confirm:
+image,
+name,
+engraving result,
+category,
+price,
+availability.
+Give each one:
+APPROVE
+NEEDS FIX
+No material marked Needs Fix should be customer-visible.
+ 
+⸻
+ 
+SIDE-BY-SIDE QA
+For each approved material, internally show:
+SOURCE IMAGE
+beside:
+CUSTOMER SWATCH
+so I can verify that the customer image actually came from my real material.
+This is especially important for camouflage, carbon fiber, metallic and specialty materials.
+ 
+⸻
+ 
+DO NOT CHANGE THE MATERIAL ITSELF
+You may improve:
+exposure,
+white balance,
+crop,
+sharpness,
+perspective,
+consistency.
+You may NOT substantially change:
+color,
+grain,
+texture,
+pattern,
+weave,
+engraving color,
+or pattern scale.
+Customers need an honest representation of what REC Mama Made actually uses.
+ 
+⸻
+ 
+CONNECT TO THE CUSTOM HAT BUILDER
+Once approved:
+the Custom Hat builder must read directly from the approved Material database.
+It should show only:
+Offered = Yes
+and:
+Approved image = Yes
+materials.
+The builder must never maintain a separate hard-coded material list.
+Patch Only must use this exact same approved material source.
+This prevents the two ordering paths from getting different materials.
+ 
+⸻
+ 
+LIVE PREVIEW
+When a customer selects a real material:
+update:
+selected material name,
+engraving result,
+pricing,
+Your Build,
+Live Build Dock,
+cart,
+order,
+proof details.
+Where the customization preview supports it, use the approved clean material swatch to texture the approximate patch preview.
+ 
+⸻
+ 
+FINAL RULE
+I only want materials I physically offer and have supplied/approved photographs for.
+I would rather have 20 completely accurate options than 100 inaccurate options pulled from other companies.
+The customer should never see a supplier logo, supplier wording, random swatch-sheet crop, neighboring material, or fabricated leather texture.
+Use my real REC Mama Made material images only.
+The next preview I want to see is the rebuilt Material Approval screen using the actual approved REC Mama Made sources — not the current public swatches and not third-party crops.
+Do not publish the corrected material picker until I visually approve it.
+
+Start with the most recent My leatherette options.PNG in my Google Drive as an approved source, and show me the extracted clean swatches beside that original source image before you connect anything to the live builder.

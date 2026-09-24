@@ -1,0 +1,8 @@
+{
+  "model": "grok-imagine-image-2.0",
+  "prompt": "A luxury 2:1 catalog cover still-life for a custom hat boutique named REC Mama Made. Cream linen table, espresso shadows, warm champagne rim light. Three Richardson-style trucker hats sit in a shallow triangle around a centered title block: a khaki-and-coffee split with a rose-gold leather oval patch, a black mesh-back, and a pale cream hat; a few blank leather patches rest nearby. Centered two-line logo lockup with generous margins on every side, lettering spanning about half the frame width: the word \"REC\" in small elegant rose-gold serif capitals stacked above \"MAMA MADE\" in larger cream-gold serif, a thin rose-gold rule between them, and a smaller line of lettering beneath reading \"Custom leather-patch hats\". Palette of rose gold #C9897A, espresso #1A100F, champagne #E8D0B8, blush #D4A0A4, and cream #F6EDE4. Editorial product photography, shallow depth of field, no border text, title fully inside the frame and perfectly spelled.",
+  "n": 1,
+  "aspect_ratio": "2:1",
+  "resolution": "2k",
+  "response_format": "b64_json"
+}

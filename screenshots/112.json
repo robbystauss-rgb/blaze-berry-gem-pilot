@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/112",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "REC Mama Made",
+      "hasCanvas": false,
+      "bodyTextLen": 2897,
+      "bodyTextHash": "a292f749dadf5179f620c757e8800331e0e96a9db2fa0894c39f94f4c7a637d2",
+      "bodyTextPrefix": "Skip to main content REC MAMA MADE Custom leather patch hats Hom",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/112.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "REC Mama Made",
+      "hasCanvas": false,
+      "bodyTextLen": 2831,
+      "bodyTextHash": "40d2514a057b17be6f3a166ea4fe79f88c7733bd27d106fea4048b43a0477600",
+      "bodyTextPrefix": "Skip to main content REC MAMA MADE Custom leather patch hats CLA",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/112-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/112.json"
+}

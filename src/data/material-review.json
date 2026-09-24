@@ -1,0 +1,926 @@
+[
+  {
+    "id": "r0c0",
+    "row": 0,
+    "col": 0,
+    "name": "Matte White",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c0.webp",
+    "detail": "/materials/review/r0c0-detail.webp",
+    "card": [
+      22,
+      9,
+      165,
+      314
+    ],
+    "texture": [
+      30,
+      57,
+      157,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c1",
+    "row": 0,
+    "col": 1,
+    "name": "Neon Pink",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c1.webp",
+    "detail": "/materials/review/r0c1-detail.webp",
+    "card": [
+      171,
+      9,
+      314,
+      314
+    ],
+    "texture": [
+      179,
+      57,
+      306,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c2",
+    "row": 0,
+    "col": 2,
+    "name": "Violet",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c2.webp",
+    "detail": "/materials/review/r0c2-detail.webp",
+    "card": [
+      319,
+      9,
+      462,
+      314
+    ],
+    "texture": [
+      327,
+      57,
+      454,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c3",
+    "row": 0,
+    "col": 3,
+    "name": "Seafoam Green",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c3.webp",
+    "detail": "/materials/review/r0c3-detail.webp",
+    "card": [
+      468,
+      9,
+      611,
+      314
+    ],
+    "texture": [
+      476,
+      57,
+      603,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c4",
+    "row": 0,
+    "col": 4,
+    "name": "OD Green",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c4.webp",
+    "detail": "/materials/review/r0c4-detail.webp",
+    "card": [
+      617,
+      9,
+      760,
+      314
+    ],
+    "texture": [
+      625,
+      57,
+      752,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c5",
+    "row": 0,
+    "col": 5,
+    "name": "Saddle Tan",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c5.webp",
+    "detail": "/materials/review/r0c5-detail.webp",
+    "card": [
+      765,
+      9,
+      908,
+      314
+    ],
+    "texture": [
+      773,
+      57,
+      900,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c6",
+    "row": 0,
+    "col": 6,
+    "name": "Buckskin",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c6.webp",
+    "detail": "/materials/review/r0c6-detail.webp",
+    "card": [
+      914,
+      9,
+      1057,
+      314
+    ],
+    "texture": [
+      922,
+      57,
+      1049,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c7",
+    "row": 0,
+    "col": 7,
+    "name": "Walnut",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c7.webp",
+    "detail": "/materials/review/r0c7-detail.webp",
+    "card": [
+      1063,
+      9,
+      1206,
+      314
+    ],
+    "texture": [
+      1071,
+      57,
+      1198,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c8",
+    "row": 0,
+    "col": 8,
+    "name": "Dark Brown",
+    "engrave": "Engraves to Black",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c8.webp",
+    "detail": "/materials/review/r0c8-detail.webp",
+    "card": [
+      1212,
+      9,
+      1355,
+      314
+    ],
+    "texture": [
+      1220,
+      57,
+      1347,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c9",
+    "row": 0,
+    "col": 9,
+    "name": "",
+    "engrave": "",
+    "category": "leatherette",
+    "note": "No name is printed on this card. It was not guessed.",
+    "named": false,
+    "swatch": "/materials/review/r0c9.webp",
+    "detail": "/materials/review/r0c9-detail.webp",
+    "card": [
+      1359,
+      9,
+      1502,
+      314
+    ],
+    "texture": [
+      1367,
+      57,
+      1494,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r0c10",
+    "row": 0,
+    "col": 10,
+    "name": "Heritage Black",
+    "engrave": "Engraves to Gold",
+    "category": "leatherette",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r0c10.webp",
+    "detail": "/materials/review/r0c10-detail.webp",
+    "card": [
+      1509,
+      9,
+      1652,
+      314
+    ],
+    "texture": [
+      1517,
+      57,
+      1644,
+      196
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c0",
+    "row": 1,
+    "col": 0,
+    "name": "Moonland Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c0.webp",
+    "detail": "/materials/review/r1c0-detail.webp",
+    "card": [
+      22,
+      322,
+      165,
+      623
+    ],
+    "texture": [
+      30,
+      370,
+      157,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c1",
+    "row": 1,
+    "col": 1,
+    "name": "Clayland Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c1.webp",
+    "detail": "/materials/review/r1c1-detail.webp",
+    "card": [
+      171,
+      322,
+      314,
+      623
+    ],
+    "texture": [
+      179,
+      370,
+      306,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c2",
+    "row": 1,
+    "col": 2,
+    "name": "Irisland Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c2.webp",
+    "detail": "/materials/review/r1c2-detail.webp",
+    "card": [
+      319,
+      322,
+      462,
+      623
+    ],
+    "texture": [
+      327,
+      370,
+      454,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c3",
+    "row": 1,
+    "col": 3,
+    "name": "Low Tide Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c3.webp",
+    "detail": "/materials/review/r1c3-detail.webp",
+    "card": [
+      468,
+      322,
+      611,
+      623
+    ],
+    "texture": [
+      476,
+      370,
+      603,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c4",
+    "row": 1,
+    "col": 4,
+    "name": "Duck Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c4.webp",
+    "detail": "/materials/review/r1c4-detail.webp",
+    "card": [
+      617,
+      322,
+      760,
+      623
+    ],
+    "texture": [
+      625,
+      370,
+      752,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c5",
+    "row": 1,
+    "col": 5,
+    "name": "Fowl Play Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c5.webp",
+    "detail": "/materials/review/r1c5-detail.webp",
+    "card": [
+      765,
+      322,
+      908,
+      623
+    ],
+    "texture": [
+      773,
+      370,
+      900,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c6",
+    "row": 1,
+    "col": 6,
+    "name": "Ocean Land Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c6.webp",
+    "detail": "/materials/review/r1c6-detail.webp",
+    "card": [
+      914,
+      322,
+      1057,
+      623
+    ],
+    "texture": [
+      922,
+      370,
+      1049,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c7",
+    "row": 1,
+    "col": 7,
+    "name": "Woodland Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c7.webp",
+    "detail": "/materials/review/r1c7-detail.webp",
+    "card": [
+      1063,
+      322,
+      1206,
+      623
+    ],
+    "texture": [
+      1071,
+      370,
+      1198,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c8",
+    "row": 1,
+    "col": 8,
+    "name": "Crimson Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c8.webp",
+    "detail": "/materials/review/r1c8-detail.webp",
+    "card": [
+      1212,
+      322,
+      1355,
+      623
+    ],
+    "texture": [
+      1220,
+      370,
+      1347,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c9",
+    "row": 1,
+    "col": 9,
+    "name": "Pebble Land Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c9.webp",
+    "detail": "/materials/review/r1c9-detail.webp",
+    "card": [
+      1359,
+      322,
+      1502,
+      623
+    ],
+    "texture": [
+      1367,
+      370,
+      1494,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r1c10",
+    "row": 1,
+    "col": 10,
+    "name": "Black Storm Camo",
+    "engrave": "Engraves to Silver",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r1c10.webp",
+    "detail": "/materials/review/r1c10-detail.webp",
+    "card": [
+      1509,
+      322,
+      1652,
+      623
+    ],
+    "texture": [
+      1517,
+      370,
+      1644,
+      505
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c0",
+    "row": 2,
+    "col": 0,
+    "name": "Golf Ball Texture",
+    "engrave": "Engraves to Black",
+    "category": "sport",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c0.webp",
+    "detail": "/materials/review/r2c0-detail.webp",
+    "card": [
+      22,
+      629,
+      165,
+      922
+    ],
+    "texture": [
+      30,
+      677,
+      157,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c1",
+    "row": 2,
+    "col": 1,
+    "name": "Tan Topo",
+    "engrave": "Engraves to Black",
+    "category": "topo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c1.webp",
+    "detail": "/materials/review/r2c1-detail.webp",
+    "card": [
+      171,
+      629,
+      314,
+      922
+    ],
+    "texture": [
+      179,
+      677,
+      306,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c2",
+    "row": 2,
+    "col": 2,
+    "name": "Concrete",
+    "engrave": "Engraves to Black",
+    "category": "specialty",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c2.webp",
+    "detail": "/materials/review/r2c2-detail.webp",
+    "card": [
+      319,
+      629,
+      462,
+      922
+    ],
+    "texture": [
+      327,
+      677,
+      454,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c3",
+    "row": 2,
+    "col": 3,
+    "name": "Moss Camo",
+    "engrave": "Engraves to Black",
+    "category": "camo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c3.webp",
+    "detail": "/materials/review/r2c3-detail.webp",
+    "card": [
+      468,
+      629,
+      611,
+      922
+    ],
+    "texture": [
+      476,
+      677,
+      603,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c4",
+    "row": 2,
+    "col": 4,
+    "name": "Black Carbon Fiber",
+    "engrave": "Engraves to Silver",
+    "category": "carbon",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c4.webp",
+    "detail": "/materials/review/r2c4-detail.webp",
+    "card": [
+      617,
+      629,
+      760,
+      922
+    ],
+    "texture": [
+      625,
+      677,
+      752,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c5",
+    "row": 2,
+    "col": 5,
+    "name": "Stealth Topo",
+    "engrave": "Engraves to White",
+    "category": "topo",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c5.webp",
+    "detail": "/materials/review/r2c5-detail.webp",
+    "card": [
+      765,
+      629,
+      908,
+      922
+    ],
+    "texture": [
+      773,
+      677,
+      900,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c6",
+    "row": 2,
+    "col": 6,
+    "name": "Holographic",
+    "engrave": "Engraves to Black",
+    "category": "specialty",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c6.webp",
+    "detail": "/materials/review/r2c6-detail.webp",
+    "card": [
+      914,
+      629,
+      1057,
+      922
+    ],
+    "texture": [
+      922,
+      677,
+      1049,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c7",
+    "row": 2,
+    "col": 7,
+    "name": "Brushed Silver",
+    "engrave": "Engraves to Black",
+    "category": "metallic",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c7.webp",
+    "detail": "/materials/review/r2c7-detail.webp",
+    "card": [
+      1063,
+      629,
+      1206,
+      922
+    ],
+    "texture": [
+      1071,
+      677,
+      1198,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c8",
+    "row": 2,
+    "col": 8,
+    "name": "",
+    "engrave": "",
+    "category": "metallic",
+    "note": "No name is printed on this card. It was not guessed.",
+    "named": false,
+    "swatch": "/materials/review/r2c8.webp",
+    "detail": "/materials/review/r2c8-detail.webp",
+    "card": [
+      1212,
+      629,
+      1355,
+      922
+    ],
+    "texture": [
+      1220,
+      677,
+      1347,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c9",
+    "row": 2,
+    "col": 9,
+    "name": "Brushed Gold",
+    "engrave": "Engraves to Black",
+    "category": "metallic",
+    "note": "",
+    "named": true,
+    "swatch": "/materials/review/r2c9.webp",
+    "detail": "/materials/review/r2c9-detail.webp",
+    "card": [
+      1359,
+      629,
+      1502,
+      922
+    ],
+    "texture": [
+      1367,
+      677,
+      1494,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  },
+  {
+    "id": "r2c10",
+    "row": 2,
+    "col": 10,
+    "name": "Tri Acrylic",
+    "engrave": "Silver/Black/Teal",
+    "category": "acrylic",
+    "note": "The printed second line is Silver/Black/Teal. The visible surface is a blue brushed gradient, not three separate stripes.",
+    "named": true,
+    "swatch": "/materials/review/r2c10.webp",
+    "detail": "/materials/review/r2c10-detail.webp",
+    "card": [
+      1509,
+      629,
+      1652,
+      922
+    ],
+    "texture": [
+      1517,
+      677,
+      1644,
+      804
+    ],
+    "status": "needs-review",
+    "offered": false,
+    "source": "My leatherette options.PNG",
+    "sourceFileId": "15zmpsoRUBMsIs7q1luA6j53Q_QVpEl74"
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "REC Mama Made",
+      "hasCanvas": false,
+      "bodyTextLen": 1140,
+      "bodyTextHash": "08297d3afb459444abf13b88aa782eb67c21552ca8506212ddf1538490a5930f",
+      "bodyTextPrefix": "Skip to content Independent shop · Heat-adhesive patches · Hat +",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "REC Mama Made",
+      "hasCanvas": false,
+      "bodyTextLen": 1102,
+      "bodyTextHash": "19a2f12441c10cf311a827c91d6d6dfefdf5460ab014ab4205dd3db6572b391b",
+      "bodyTextPrefix": "Skip to content Independent shop · Heat-adhesive patches · Hat +",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
