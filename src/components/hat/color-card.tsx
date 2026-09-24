@@ -1,8 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { MiniHat } from "@/components/hat/hat-preview";
 import { stageThumb } from "@/lib/stage-photos";
 import type { FamilyId } from "@/lib/catalog";
-import { parseColorway } from "@/lib/colorways";
 import { cn } from "@/lib/utils";
 
 export function ColorCard({
@@ -15,7 +13,6 @@ export function ColorCard({
   category?: string;
 }) {
   const photo = stageThumb(family, name);
-  const colors = parseColorway(name);
   return (
     <Link
       to="/order"
@@ -23,9 +20,11 @@ export function ColorCard({
       className="group block overflow-hidden rounded-2xl bg-stage-photo p-3 shadow-stage ring-1 ring-stage-line transition-transform duration-150 hover:-translate-y-0.5"
     >
       {photo ? (
-        <img src={photo} alt="" className="aspect-[4/3] w-full object-contain" />
+        <img src={photo} alt={`${family} ${name}`} className="aspect-[4/3] w-full object-contain" />
       ) : (
-        <MiniHat family={family} colorway={name} className="aspect-[4/3] rounded-xl" />
+        <div className="grid aspect-[4/3] w-full place-items-center rounded-xl bg-stage text-center text-xs text-stage-muted">
+          Verified product photo unavailable
+        </div>
       )}
       <div className="mt-3 flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -35,15 +34,6 @@ export function ColorCard({
             </p>
           )}
           <p className="truncate font-medium text-stage-ink">{name}</p>
-        </div>
-        <div className="flex shrink-0 gap-1 pt-1">
-          {[colors.front, colors.visor, colors.mesh].map((c, i) => (
-            <span
-              key={`${c}-${i}`}
-              className="size-3.5 rounded-full ring-1 ring-black/20"
-              style={{ background: c }}
-            />
-          ))}
         </div>
       </div>
     </Link>
