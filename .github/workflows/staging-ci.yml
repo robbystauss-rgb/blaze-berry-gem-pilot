@@ -48,6 +48,20 @@ jobs:
       - name: Apply canonical REC Mama Made source fixes
         run: npm run fix:rec-assets
 
+      - name: Persist canonical source fixes on staging
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet; then
+            git config user.name "REC Mama Made staging bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add src public scripts package.json package-lock.json CORRECT_ASSETS.md 2>/dev/null || true
+            if ! git diff --cached --quiet; then
+              git commit -m "Apply canonical REC Mama Made asset fixes"
+              git push origin HEAD:staging
+            fi
+          fi
+
       - name: Validate canonical REC Mama Made assets
         run: npm run check:assets
 
