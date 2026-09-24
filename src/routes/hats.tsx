@@ -25,7 +25,7 @@ function HatsPage() {
         {FAMILY_ORDER.map((id) => {
           const model = MASTER.models.find((item) => item.id === id);
           const photos = model?.colorways.filter((color) => color.views.front).length ?? 0;
-          const incomplete = model?.bucket === "incomplete" || id === "112FP";
+          const incomplete = model?.bucket === "incomplete";
           const photo = familyHero(id);
           const search = id === "112FP" || id === "112FPR" ? { type: "hat" as const, family: id } : undefined;
           return (
