@@ -9,7 +9,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -27,6 +27,25 @@ jobs:
 
       - name: Install exact dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Apply canonical REC Mama Made staging fixes
+        run: npm run fix:rec-assets
+
+      - name: Persist canonical source fixes on staging
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet; then
+            git config user.name "REC Mama Made staging bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add src scripts
+            if ! git diff --cached --quiet; then
+              git commit -m "Apply validated REC staging QA fixes"
+              git pull --rebase origin staging
+              git push origin HEAD:staging
+            fi
+          fi
 
       - name: Validate canonical REC Mama Made assets
         run: npm run check:assets
