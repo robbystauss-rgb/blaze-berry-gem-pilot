@@ -193,6 +193,7 @@ const homeChanged = patchFile("src/routes/index.tsx", [
     oldText: 'The material photos are in Studio for a visual check. They are not on the builder until you approve each one.',
     newText: 'The staging builder uses the 31 named swatches from My leatherette options.PNG. Two unnamed source cards stay excluded until they can be identified.',
     label: "accurate staging material copy",
+    alreadyText: "The staging builder uses the 31 named swatches",
   },
 ]);
 
