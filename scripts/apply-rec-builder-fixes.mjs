@@ -57,6 +57,12 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
     oldText: 'export function Builder({ focus }: { focus?: StepId }) {\n  const draft = useOrder();\n  const patchOnly = draft.orderType === "patch";',
     newText: 'export function Builder({\n  focus,\n  initialOrderType,\n  initialFamily,\n  initialColor,\n}: {\n  focus?: StepId;\n  initialOrderType?: "hat" | "patch";\n  initialFamily?: FamilyId;\n  initialColor?: string;\n}) {\n  const draft = useOrder();\n  const [prefillPending, setPrefillPending] = useState(() => Boolean(initialOrderType || initialFamily || initialColor));\n  const orderType = prefillPending && initialOrderType ? initialOrderType : draft.orderType;\n  const familyId = prefillPending && initialFamily ? initialFamily : draft.family;\n  const colorway = prefillPending && initialColor !== undefined ? initialColor : draft.colorway;\n  const patchOnly = orderType === "patch";',
     label: "SSR-safe builder deep-link prefill",
+    alreadyText: 'const [prefillPending, setPrefillPending] = useState',
+  },
+  {
+    oldText: '  const colorway = prefillPending && initialColor !== undefined ? initialColor : draft.colorway;',
+    newText: '  const colorway = prefillPending\n    ? initialColor !== undefined\n      ? initialColor\n      : initialFamily\n        ? ""\n        : draft.colorway\n    : draft.colorway;',
+    label: "clear stale color on family-only deep links",
   },
   {
     oldText: '  const family = FAMILIES[draft.family];\n  const colors = colorsForFamily(draft.family);',
@@ -65,8 +71,14 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
   },
   {
     oldText: '    orderType: draft.orderType,\n    tier: draft.tier,\n    quantity: qty,\n    family: draft.family,',
-    newText: '    orderType,\n    tier: draft.tier,\n    quantity: qty,\n    family: familyId,',
+    newText: '    orderType,\n    tier: family.tier,\n    quantity: qty,\n    family: familyId,',
     label: "effective pricing inputs",
+    alreadyText: '    orderType,\n    tier: draft.tier,\n    quantity: qty,\n    family: familyId,',
+  },
+  {
+    oldText: '    orderType,\n    tier: draft.tier,\n    quantity: qty,\n    family: familyId,',
+    newText: '    orderType,\n    tier: family.tier,\n    quantity: qty,\n    family: familyId,',
+    label: "effective family tier pricing",
   },
   {
     oldText: '  const shape: PatchShape = PATCH_SHAPES.includes(draft.patchShape as PatchShape) ? (draft.patchShape as PatchShape) : "Rounded Rectangle";\n\n  useEffect(() => {\n    if (!PATCH_SHAPES.includes(draft.patchShape as PatchShape)) draft.set("patchShape", "Rounded Rectangle");',
@@ -107,6 +119,12 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
     oldText: '            {draft.colorway ? ` · ${draft.colorway}` : ""}',
     newText: '            {colorway ? ` · ${colorway}` : ""}',
     label: "effective builder heading color",
+    alreadyText: '{patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}',
+  },
+  {
+    oldText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}`}\n            {colorway ? ` · ${colorway}` : ""}',
+    newText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}',
+    label: "remove hat color from patch-only heading",
   },
   {
     oldText: '              const on = draft.family === id;',
@@ -122,6 +140,11 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
     oldText: 'value={patchOnly ? "Loose patch" : `${family.label}${draft.colorway ? ` · ${draft.colorway}` : ""}`}',
     newText: 'value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` · ${colorway}` : ""}`}',
     label: "effective review color",
+  },
+  {
+    oldText: '{patchOnly ? "Patch only" : draft.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each',
+    newText: '{patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each',
+    label: "effective family tier review copy",
   },
   {
     oldText: 'stageThumb(draft.family, draft.colorway) ?? familyHero(draft.family)',
