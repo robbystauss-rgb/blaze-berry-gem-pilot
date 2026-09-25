@@ -64,7 +64,13 @@ export function Builder({
   const [prefillPending, setPrefillPending] = useState(() => Boolean(initialOrderType || initialFamily || initialColor));
   const orderType = prefillPending && initialOrderType ? initialOrderType : draft.orderType;
   const familyId = prefillPending && initialFamily ? initialFamily : draft.family;
-  const colorway = prefillPending && initialColor !== undefined ? initialColor : draft.colorway;
+  const colorway = prefillPending
+    ? initialColor !== undefined
+      ? initialColor
+      : initialFamily
+        ? ""
+        : draft.colorway
+    : draft.colorway;
   const patchOnly = orderType === "patch";
   const steps = stepsFor(patchOnly);
   const [step, setStep] = useState<StepId>(focus ?? (patchOnly ? "material" : "hat"));
@@ -79,7 +85,7 @@ export function Builder({
   const qty = Math.max(1, Number(draft.quantity) || 1);
   const est = estimateTotal({
     orderType,
-    tier: draft.tier,
+    tier: family.tier,
     quantity: qty,
     family: familyId,
     promo: draft.promo,
@@ -260,8 +266,7 @@ export function Builder({
         <div className="min-h-0 flex-1 overflow-auto">
         <div className="flex items-center justify-between gap-3 px-3 pt-2">
           <p className="truncate text-sm font-semibold text-stage-ink">
-            {patchOnly ? "Patch only" : `${family.id} ${family.label}`}
-            {colorway ? ` · ${colorway}` : ""}
+            {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}
             {` · ${leather.name}`}
           </p>
           <p key={est.total} className="price-tick shrink-0 text-lg font-semibold tabular-nums">
@@ -504,7 +509,7 @@ export function Builder({
               />
             </div>
             <p className="mt-2 text-sm text-stage-muted">
-              {patchOnly ? "Patch only" : draft.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each
+              {patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each
               {est.bonus ? ` · ${est.bonus} bonus hat${est.bonus === 1 ? "" : "s"}` : ""} · Proof included before engraving.
             </p>
             <input
