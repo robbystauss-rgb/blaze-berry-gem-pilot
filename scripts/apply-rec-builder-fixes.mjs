@@ -40,7 +40,7 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
   },
   {
     oldText: '        <p className="px-3 text-xs text-stage-muted">Heat adhesive only. Laser holes are fine. No sewing and no thread.</p>\n        {active === "hat" && (\n          <div className="flex gap-3 overflow-x-auto px-3 py-3">\n            {FAMILY_ORDER.map((id) => {',
-    newText: '        {patchOnly && (\n          <p className="px-3 text-xs text-stage-muted">Patch only means a finished loose patch — no hat and no stitching/application.</p>\n        )}\n        {active === "hat" && (\n          <div className="flex gap-3 overflow-x-auto px-3 py-3">\n            {FAMILY_ORDER.filter(isReadyFamily).map((id) => {',
+    newText: '        {patchOnly && (\n          <p className="px-3 text-xs text-stage-muted">Patch only means a finished loose patch â no hat and no stitching/application.</p>\n        )}\n        {active === "hat" && (\n          <div className="flex gap-3 overflow-x-auto px-3 py-3">\n            {FAMILY_ORDER.filter(isReadyFamily).map((id) => {',
     label: "patch-only copy and ready-family filtering",
   },
   {
@@ -116,14 +116,14 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
     label: "effective preview hat",
   },
   {
-    oldText: '            {draft.colorway ? ` · ${draft.colorway}` : ""}',
-    newText: '            {colorway ? ` · ${colorway}` : ""}',
+    oldText: '            {draft.colorway ? ` Â· ${draft.colorway}` : ""}',
+    newText: '            {colorway ? ` Â· ${colorway}` : ""}',
     label: "effective builder heading color",
-    alreadyText: '{patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}',
+    alreadyText: '{patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` Â· ${colorway}` : ""}`}',
   },
   {
-    oldText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}`}\n            {colorway ? ` · ${colorway}` : ""}',
-    newText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}',
+    oldText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}`}\n            {colorway ? ` Â· ${colorway}` : ""}',
+    newText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` Â· ${colorway}` : ""}`}',
     label: "remove hat color from patch-only heading",
   },
   {
@@ -137,13 +137,13 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
     label: "effective family and color thumbnails",
   },
   {
-    oldText: 'value={patchOnly ? "Loose patch" : `${family.label}${draft.colorway ? ` · ${draft.colorway}` : ""}`}',
-    newText: 'value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` · ${colorway}` : ""}`}',
+    oldText: 'value={patchOnly ? "Loose patch" : `${family.label}${draft.colorway ? ` Â· ${draft.colorway}` : ""}`}',
+    newText: 'value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` Â· ${colorway}` : ""}`}',
     label: "effective review color",
   },
   {
-    oldText: '{patchOnly ? "Patch only" : draft.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each',
-    newText: '{patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each',
+    oldText: '{patchOnly ? "Patch only" : draft.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} Â· ${est.unit} each',
+    newText: '{patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} Â· ${est.unit} each',
     label: "effective family tier review copy",
   },
   {
@@ -178,6 +178,7 @@ const orderChanged = patchFile("src/routes/order.tsx", [
     oldText: 'function OrderPage() {\n  const search = Route.useSearch();\n  useEffect(() => {\n    if (search.family && isFamily(search.family)) {\n      useOrder.getState().setFamily(search.family);\n      useOrder.getState().set("orderType", "hat");\n    }\n    if (search.type === "patch") useOrder.getState().set("orderType", "patch");\n    if (search.type === "hat") useOrder.getState().set("orderType", "hat");\n    if (search.color) useOrder.getState().set("colorway", search.color);\n  }, [search.family, search.color, search.type]);\n  return <Builder focus={search.color ? "material" : search.family ? "color" : undefined} />;\n}',
     newText: 'function OrderPage() {\n  const search = Route.useSearch();\n  const initialFamily = search.family && isFamily(search.family) ? search.family : undefined;\n  return (\n    <Builder\n      initialOrderType={search.type}\n      initialFamily={initialFamily}\n      initialColor={search.color}\n      focus={search.color ? "material" : initialFamily ? "color" : undefined}\n    />\n  );\n}',
     label: "SSR-safe order deep links",
+    alreadyText: 'const patchOnly = search.type === "patch";',
   },
 ]);
 
