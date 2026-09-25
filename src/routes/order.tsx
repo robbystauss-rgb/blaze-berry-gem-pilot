@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { Builder } from "@/components/build/builder";
 import { FAMILIES, type FamilyId } from "@/lib/catalog";
-import { useOrder } from "@/lib/order-store";
 
 type Search = { family?: string; color?: string; type?: "hat" | "patch" };
 
@@ -21,14 +19,13 @@ function isFamily(value: string): value is FamilyId {
 
 function OrderPage() {
   const search = Route.useSearch();
-  useEffect(() => {
-    if (search.family && isFamily(search.family)) {
-      useOrder.getState().setFamily(search.family);
-      useOrder.getState().set("orderType", "hat");
-    }
-    if (search.type === "patch") useOrder.getState().set("orderType", "patch");
-    if (search.type === "hat") useOrder.getState().set("orderType", "hat");
-    if (search.color) useOrder.getState().set("colorway", search.color);
-  }, [search.family, search.color, search.type]);
-  return <Builder focus={search.color ? "material" : search.family ? "color" : undefined} />;
+  const initialFamily = search.family && isFamily(search.family) ? search.family : undefined;
+  return (
+    <Builder
+      initialOrderType={search.type}
+      initialFamily={initialFamily}
+      initialColor={search.color}
+      focus={search.color ? "material" : initialFamily ? "color" : undefined}
+    />
+  );
 }

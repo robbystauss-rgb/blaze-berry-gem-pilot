@@ -49,9 +49,23 @@ function tooLarge(size: PatchSize, placement: Placement) {
   return size === "large" && (placement === "side" || placement === "rear");
 }
 
-export function Builder({ focus }: { focus?: StepId }) {
+export function Builder({
+  focus,
+  initialOrderType,
+  initialFamily,
+  initialColor,
+}: {
+  focus?: StepId;
+  initialOrderType?: "hat" | "patch";
+  initialFamily?: FamilyId;
+  initialColor?: string;
+}) {
   const draft = useOrder();
-  const patchOnly = draft.orderType === "patch";
+  const [prefillPending, setPrefillPending] = useState(() => Boolean(initialOrderType || initialFamily || initialColor));
+  const orderType = prefillPending && initialOrderType ? initialOrderType : draft.orderType;
+  const familyId = prefillPending && initialFamily ? initialFamily : draft.family;
+  const colorway = prefillPending && initialColor !== undefined ? initialColor : draft.colorway;
+  const patchOnly = orderType === "patch";
   const steps = stepsFor(patchOnly);
   const [step, setStep] = useState<StepId>(focus ?? (patchOnly ? "material" : "hat"));
   const [warn, setWarn] = useState("");
@@ -59,26 +73,33 @@ export function Builder({ focus }: { focus?: StepId }) {
   const [materialOpen, setMaterialOpen] = useState(false);
   const active: StepId = steps.includes(step) ? step : (steps[0] ?? "hat");
   const index = steps.indexOf(active);
-  const family = FAMILIES[draft.family];
-  const colors = colorsForFamily(draft.family);
+  const family = FAMILIES[familyId];
+  const colors = colorsForFamily(familyId);
   const leather = getLeatherette(draft.leatherette);
   const qty = Math.max(1, Number(draft.quantity) || 1);
   const est = estimateTotal({
-    orderType: draft.orderType,
+    orderType,
     tier: draft.tier,
     quantity: qty,
-    family: draft.family,
+    family: familyId,
     promo: draft.promo,
   });
   const shape: PatchShape = PATCH_SHAPES.includes(draft.patchShape as PatchShape) ? (draft.patchShape as PatchShape) : "Rounded Rectangle";
+
+  useEffect(() => {
+    if (initialFamily && draft.family !== initialFamily) draft.setFamily(initialFamily);
+    if (initialOrderType && draft.orderType !== initialOrderType) draft.set("orderType", initialOrderType);
+    if (initialColor !== undefined && draft.colorway !== initialColor) draft.set("colorway", initialColor);
+    setPrefillPending(false);
+  }, [initialColor, initialFamily, initialOrderType]);
 
   useEffect(() => {
     if (!PATCH_SHAPES.includes(draft.patchShape as PatchShape)) draft.set("patchShape", "Rounded Rectangle");
   }, [draft.patchShape, draft]);
 
   useEffect(() => {
-    if (!patchOnly && !isReadyFamily(draft.family)) draft.setFamily("112");
-  }, [draft.family, patchOnly]);
+    if (!patchOnly && !isReadyFamily(familyId)) draft.setFamily("112");
+  }, [familyId, patchOnly]);
 
   useEffect(() => {
     if (focus) setStep(focus);
@@ -89,9 +110,9 @@ export function Builder({ focus }: { focus?: StepId }) {
   }, [patchOnly]);
 
   useEffect(() => {
-    if (active !== "color" || !draft.colorway) return;
-    document.getElementById(`swatch-${draft.colorway}`)?.scrollIntoView({ inline: "center", block: "nearest" });
-  }, [active, draft.colorway]);
+    if (active !== "color" || !colorway) return;
+    document.getElementById(`swatch-${colorway}`)?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [active, colorway]);
 
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.customerEmail.trim());
   const missingDesign = !draft.patchText.trim() && !draft.artworkDataUrl;
@@ -106,7 +127,7 @@ export function Builder({ focus }: { focus?: StepId }) {
             : "Continue on Etsy"
       : active === "hat"
         ? "Choose color"
-        : active === "color" && !draft.colorway
+        : active === "color" && !colorway
           ? "Choose color"
           : active === "design" && missingDesign
             ? "Add a design"
@@ -119,7 +140,7 @@ export function Builder({ focus }: { focus?: StepId }) {
       `Email: ${draft.customerEmail || "(not provided)"}`,
       `Type: ${patchOnly ? "Patch only" : "Custom patch hat"}`,
       patchOnly ? "" : `Hat: Richardson ${family.id} ${family.label}`,
-      patchOnly ? "" : `Color: ${draft.colorway || "(not selected)"}`,
+      patchOnly ? "" : `Color: ${colorway || "(not selected)"}`,
       patchOnly ? "" : `Placement: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}`,
       `Material: ${leather.name} · ${leather.engrave}`,
       `Shape: ${shape}`,
@@ -133,7 +154,7 @@ export function Builder({ focus }: { focus?: StepId }) {
     ]
       .filter(Boolean)
       .join("\n");
-  }, [draft, family, leather, patchOnly, qty, shape]);
+  }, [colorway, draft, family, leather, patchOnly, qty, shape]);
 
   function go(next: number) {
     const target = steps[Math.min(steps.length - 1, Math.max(0, next))];
@@ -183,8 +204,8 @@ export function Builder({ focus }: { focus?: StepId }) {
         </p>
         <div className="h-[58vh] lg:h-full">
           <HatPreview
-            family={draft.family}
-            colorway={draft.colorway}
+            family={familyId}
+            colorway={colorway}
             leatherette={draft.leatherette}
             shape={shape}
             size={draft.patchSize}
@@ -240,7 +261,7 @@ export function Builder({ focus }: { focus?: StepId }) {
         <div className="flex items-center justify-between gap-3 px-3 pt-2">
           <p className="truncate text-sm font-semibold text-stage-ink">
             {patchOnly ? "Patch only" : `${family.id} ${family.label}`}
-            {draft.colorway ? ` · ${draft.colorway}` : ""}
+            {colorway ? ` · ${colorway}` : ""}
             {` · ${leather.name}`}
           </p>
           <p key={est.total} className="price-tick shrink-0 text-lg font-semibold tabular-nums">
@@ -256,7 +277,7 @@ export function Builder({ focus }: { focus?: StepId }) {
               const item = FAMILIES[id];
               const photo = familyHero(id);
               const count = colorsForFamily(id).length;
-              const on = draft.family === id;
+              const on = familyId === id;
               return (
                 <button
                   key={id}
@@ -296,8 +317,8 @@ export function Builder({ focus }: { focus?: StepId }) {
             </p>
             <div className="flex gap-2 overflow-x-auto px-3 py-3">
               {colors.map((name) => {
-                const thumb = stageThumb(draft.family, name);
-                const on = draft.colorway === name;
+                const thumb = stageThumb(familyId, name);
+                const on = colorway === name;
                 return (
                   <button
                     key={name}
@@ -441,7 +462,7 @@ export function Builder({ focus }: { focus?: StepId }) {
             <ul className="grid gap-2 text-sm md:grid-cols-2">
               <ReviewRow
                 label={patchOnly ? "Patch only" : `Richardson ${family.id}`}
-                value={patchOnly ? "Loose patch" : `${family.label}${draft.colorway ? ` · ${draft.colorway}` : ""}`}
+                value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` · ${colorway}` : ""}`}
                 onEdit={() => setStep(patchOnly ? "material" : "hat")}
               />
               <ReviewRow label="Material" value={`${leather.name} · ${leather.engrave}`} onEdit={() => setStep("material")} />
@@ -545,7 +566,7 @@ export function Builder({ focus }: { focus?: StepId }) {
             {patchOnly ? (
               <span className="grid h-full place-items-center text-[0.6rem]">Patch</span>
             ) : (
-              <img src={stageThumb(draft.family, draft.colorway) ?? familyHero(draft.family) ?? ""} alt="" className="h-full w-full object-contain" />
+              <img src={stageThumb(familyId, colorway) ?? familyHero(familyId) ?? ""} alt="" className="h-full w-full object-contain" />
             )}
           </div>
           <div className="min-w-0 flex-1">
@@ -572,7 +593,7 @@ export function Builder({ focus }: { focus?: StepId }) {
           <div className="max-h-[80dvh] w-full overflow-auto rounded-t-3xl bg-stage p-5 pb-24 text-stage-ink" onClick={(event) => event.stopPropagation()}>
             <h2 className="font-display text-3xl">Your build</h2>
             <p className="mt-3 text-sm">{patchOnly ? "Patch only" : `${family.id} ${family.label}`}</p>
-            <p className="text-sm">{draft.colorway || "Color not chosen"}</p>
+            <p className="text-sm">{colorway || "Color not chosen"}</p>
             <p className="text-sm">{leather.name} · {leather.engrave}</p>
             <p className="text-sm">{shape} · {draft.patchSize}</p>
             {!patchOnly && <p className="text-sm">{PLACEMENTS.find((item) => item.id === draft.placement)?.label}</p>}

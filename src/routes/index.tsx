@@ -128,7 +128,7 @@ function Home() {
         <p className="text-xs font-semibold tracking-[0.18em] text-accent uppercase">Library</p>
         <h2 className="mt-2 font-display text-4xl text-ink">Real materials</h2>
         <p className="mt-4 max-w-xl text-sm leading-6 text-bark">
-          The material photos are in Studio for a visual check. They are not on the builder until you approve each one.
+          The staging builder uses the 31 named swatches from My leatherette options.PNG. Two unnamed source cards stay excluded until they can be identified.
         </p>
       </section>
 

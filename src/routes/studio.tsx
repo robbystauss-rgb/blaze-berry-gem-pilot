@@ -51,7 +51,7 @@ function StudioPage() {
         <aside className="mt-12 border-t border-stage-line pt-6">
           <h2 className="text-sm font-semibold tracking-wide text-stage-muted uppercase">Not connected to the shop</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-stage-muted">
-            The public builder is a live showroom, still using the current color lists. Nothing here is offered until you set a model to Active and a color to Offered, then approve that preview. Publish to the live shop stays off.
+            The staging builder uses the 31 named material swatches from the approved source sheet and keeps the two unnamed cards out. This Studio panel is for visual QA and catalog review; publishing to the live shop stays off.
           </p>
         </aside>
       </div>
