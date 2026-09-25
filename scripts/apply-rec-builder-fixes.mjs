@@ -40,8 +40,9 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
   },
   {
     oldText: '        <p className="px-3 text-xs text-stage-muted">Heat adhesive only. Laser holes are fine. No sewing and no thread.</p>\n        {active === "hat" && (\n          <div className="flex gap-3 overflow-x-auto px-3 py-3">\n            {FAMILY_ORDER.map((id) => {',
-    newText: '        {patchOnly && (\n          <p className="px-3 text-xs text-stage-muted">Patch only means a finished loose patch â no hat and no stitching/application.</p>\n        )}\n        {active === "hat" && (\n          <div className="flex gap-3 overflow-x-auto px-3 py-3">\n            {FAMILY_ORDER.filter(isReadyFamily).map((id) => {',
+    newText: '        {patchOnly && (\n          <p className="px-3 text-xs text-stage-muted">Patch only means a finished loose patch Ã¢ÂÂ no hat and no stitching/application.</p>\n        )}\n        {active === "hat" && (\n          <div className="flex gap-3 overflow-x-auto px-3 py-3">\n            {FAMILY_ORDER.filter(isReadyFamily).map((id) => {',
     label: "patch-only copy and ready-family filtering",
+    alreadyText: "FAMILY_ORDER.filter(isReadyFamily).map",
   },
   {
     oldText: '                  <div className="grid h-24 place-items-center bg-stage px-3 text-center text-xs text-stage-muted">\n                    Image being updated\n                  </div>',
@@ -116,16 +117,17 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
     label: "effective preview hat",
   },
   {
-    oldText: '            {draft.colorway ? ` Â· ${draft.colorway}` : ""}',
-    newText: '            {colorway ? ` Â· ${colorway}` : ""}',
+    oldText: '            {draft.colorway ? ` ÃÂ· ${draft.colorway}` : ""}',
+    newText: '            {colorway ? ` ÃÂ· ${colorway}` : ""}',
     label: "effective builder heading color",
-    alreadyText: '{patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` Â· ${colorway}` : ""}`}',
+    alreadyText: '{patchOnly ? \"Patch only\" : `${family.id} ${family.label}${colorway ?',
   },
   {
-    oldText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}`}\n            {colorway ? ` Â· ${colorway}` : ""}',
-    newText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` Â· ${colorway}` : ""}`}',
+    oldText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}`}\n            {colorway ? ` ÃÂ· ${colorway}` : ""}',
+    newText: '            {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` ÃÂ· ${colorway}` : ""}`}',
     label: "remove hat color from patch-only heading",
-  },
+
+    alreadyText: '{patchOnly ? \"Patch only\" : `${family.id} ${family.label}${colorway ?',  },
   {
     oldText: '              const on = draft.family === id;',
     newText: '              const on = familyId === id;',
@@ -137,25 +139,29 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
     label: "effective family and color thumbnails",
   },
   {
-    oldText: 'value={patchOnly ? "Loose patch" : `${family.label}${draft.colorway ? ` Â· ${draft.colorway}` : ""}`}',
-    newText: 'value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` Â· ${colorway}` : ""}`}',
+    oldText: 'value={patchOnly ? "Loose patch" : `${family.label}${draft.colorway ? ` ÃÂ· ${draft.colorway}` : ""}`}',
+    newText: 'value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` ÃÂ· ${colorway}` : ""}`}',
     label: "effective review color",
-  },
+
+    alreadyText: 'value={patchOnly ? "Loose patch" : `${family.label}${colorway ?',  },
   {
-    oldText: '{patchOnly ? "Patch only" : draft.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} Â· ${est.unit} each',
-    newText: '{patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} Â· ${est.unit} each',
+    oldText: '{patchOnly ? "Patch only" : draft.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} ÃÂ· ${est.unit} each',
+    newText: '{patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} ÃÂ· ${est.unit} each',
     label: "effective family tier review copy",
-  },
+
+    alreadyText: 'family.tier === "premium"',  },
   {
     oldText: 'stageThumb(draft.family, draft.colorway) ?? familyHero(draft.family)',
     newText: 'stageThumb(familyId, colorway) ?? familyHero(familyId)',
     label: "effective mobile summary image",
-  },
+
+    alreadyText: 'stageThumb(familyId, colorway) ?? familyHero(familyId)',  },
   {
     oldText: '<p className="text-sm">{draft.colorway || "Color not chosen"}</p>',
     newText: '<p className="text-sm">{colorway || "Color not chosen"}</p>',
     label: "effective mobile summary color",
-  },
+
+    alreadyText: '{colorway || "Color not chosen"}',  },
 ]);
 
 const orderChanged = patchFile("src/routes/order.tsx", [
