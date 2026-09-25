@@ -137,6 +137,11 @@ const builderChanged = patchFile("src/components/build/builder.tsx", [
 
 const orderChanged = patchFile("src/routes/order.tsx", [
   {
+    oldText: '    family: typeof search.family === "string" ? search.family : undefined,',
+    newText: '    family: typeof search.family === "string" || typeof search.family === "number" ? String(search.family) : undefined,',
+    label: "preserve numeric Richardson family IDs in search",
+  },
+  {
     oldText: 'import { useEffect } from "react";\n',
     newText: '',
     label: "remove effect-only deep-link import",
