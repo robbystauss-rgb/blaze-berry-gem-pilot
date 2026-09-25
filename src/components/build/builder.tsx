@@ -122,10 +122,13 @@ export function Builder({
 
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.customerEmail.trim());
   const missingDesign = !draft.patchText.trim() && !draft.artworkDataUrl;
+  const missingColor = !patchOnly && !colorway;
   const continueLabel =
     active === "review"
-      ? !draft.customerName.trim()
-        ? "Add your name"
+      ? missingColor
+        ? "Choose a hat color"
+        : !draft.customerName.trim()
+          ? "Add your name"
         : !emailOk
           ? "Add your email"
           : missingDesign
@@ -199,7 +202,10 @@ export function Builder({
   }
 
   const next = steps[index + 1];
-  const ready = Boolean(draft.customerName.trim()) && emailOk && !missingDesign;
+  const ready = !missingColor && Boolean(draft.customerName.trim()) && emailOk && !missingDesign;
+  const canAdvance =
+    !(active === "color" && !colorway) &&
+    !(active === "design" && missingDesign);
 
   return (
     <div className="lg:grid lg:min-h-[calc(100dvh-7.25rem)] lg:grid-cols-[minmax(0,1.28fr)_minmax(320px,0.92fr)]">
@@ -556,8 +562,15 @@ export function Builder({
         </div>
         <div className="hidden items-center justify-between gap-3 border-t border-stage-line px-3 py-3 lg:flex">
           <p className="text-lg font-semibold tabular-nums">${est.total.toFixed(2)}</p>
-          <Button type="button" onClick={() => (next ? go(index + 1) : ready && window.open(ETSY_LISTING, "_blank", "noopener"))}>
-            {next ? `Continue · ${STEP_LABEL[next]}` : continueLabel}
+          <Button
+            type="button"
+            disabled={next ? !canAdvance : !ready}
+            onClick={() => {
+              if (next && canAdvance) go(index + 1);
+              else if (!next && ready) window.open(ETSY_LISTING, "_blank", "noopener");
+            }}
+          >
+            {next && canAdvance ? `Continue · ${STEP_LABEL[next]}` : continueLabel}
           </Button>
         </div>
       </section>
@@ -583,9 +596,10 @@ export function Builder({
           <Button
             type="button"
             size="sm"
+            disabled={active === "review" ? !ready : !canAdvance}
             onClick={() => {
-              if (active !== "review") go(index + 1);
-              else if (ready) window.open(ETSY_LISTING, "_blank", "noopener");
+              if (active !== "review" && canAdvance) go(index + 1);
+              else if (active === "review" && ready) window.open(ETSY_LISTING, "_blank", "noopener");
             }}
           >
             {continueLabel}
