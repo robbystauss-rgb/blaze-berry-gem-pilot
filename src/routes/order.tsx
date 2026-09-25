@@ -6,7 +6,7 @@ type Search = { family?: string; color?: string; type?: "hat" | "patch" };
 
 export const Route = createFileRoute("/order")({
   validateSearch: (search: Record<string, unknown>): Search => ({
-    family: typeof search.family === "string" ? search.family : undefined,
+    family: typeof search.family === "string" || typeof search.family === "number" ? String(search.family) : undefined,
     color: typeof search.color === "string" ? search.color : undefined,
     type: search.type === "patch" || search.type === "hat" ? search.type : undefined,
   }),
