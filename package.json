@@ -7,7 +7,7 @@
     "nf3": "0.3.17"
   },
   "scripts": {
-    "fix:rec-assets": "node scripts/apply-rec-builder-fixes.mjs",
+    "fix:rec-assets": "node scripts/apply-rec-builder-fixes.mjs && node scripts/apply-rec-deeplink-qa.mjs",
     "dev": "npm run fix:rec-assets && node scripts/with-app-env.mjs vite dev --host 0.0.0.0 --port 8080",
     "build": "npm run fix:rec-assets && npm run check:assets && node scripts/with-app-env.mjs vite build && npm run db:migrate",
     "db:migrate": "node scripts/migrate.mjs",
