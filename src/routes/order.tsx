@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Builder } from "@/components/build/builder";
-import { FAMILIES, type FamilyId } from "@/lib/catalog";
+import { FAMILIES, colorsForFamily, type FamilyId } from "@/lib/catalog";
+import { MASTER } from "@/lib/studio-store";
 
 type Search = { family?: string; color?: string; type?: "hat" | "patch" };
 
@@ -13,19 +14,24 @@ export const Route = createFileRoute("/order")({
   component: OrderPage,
 });
 
-function isFamily(value: string): value is FamilyId {
-  return value in FAMILIES;
+function isReadyFamily(value: string): value is FamilyId {
+  return value in FAMILIES && MASTER.models.some((model) => model.id === value && model.bucket === "ready");
 }
 
 function OrderPage() {
   const search = Route.useSearch();
-  const initialFamily = search.family && isFamily(search.family) ? search.family : undefined;
+  const patchOnly = search.type === "patch";
+  const initialFamily = !patchOnly && search.family && isReadyFamily(search.family) ? search.family : undefined;
+  const colorFamily: FamilyId = initialFamily ?? "112";
+  const initialColor =
+    !patchOnly && search.color && colorsForFamily(colorFamily).includes(search.color) ? search.color : undefined;
+
   return (
     <Builder
       initialOrderType={search.type}
       initialFamily={initialFamily}
-      initialColor={search.color}
-      focus={search.color ? "material" : initialFamily ? "color" : undefined}
+      initialColor={initialColor}
+      focus={initialColor ? "material" : initialFamily ? "color" : undefined}
     />
   );
 }
