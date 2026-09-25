@@ -1,1 +1,0 @@
-import{w as e}from"./studio-store-DAjHi71H.js";import{t}from"./catalog-page-BlRf6r6Q.js";var n=e();function r(){return(0,n.jsx)(t,{family:`printed`})}export{r as component};
