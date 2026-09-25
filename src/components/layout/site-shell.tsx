@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { ArrowUpRight, Menu, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { useStudio } from "@/lib/studio-store";
@@ -16,6 +16,7 @@ const LINKS = [
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+
   useEffect(() => {
     void useStudio.persist.rehydrate();
   }, []);
@@ -24,24 +25,38 @@ export function SiteShell({ children }: { children: ReactNode }) {
     <div className="min-h-dvh bg-paper text-ink">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-stage-photo focus:px-3 focus:py-2 focus:text-ink"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-stage-photo focus:px-3 focus:py-2 focus:text-ink"
       >
         Skip to content
       </a>
-      <div className="border-b border-ink/10 text-center">
-        <p className="mx-auto w-[min(1180px,94vw)] py-2 text-xs font-medium tracking-wide text-bark">
-          Independent shop · Heat-adhesive patches · Hat + patch from $30 · Buy 12, get 1 free
-        </p>
+
+      <div className="border-b border-white/[0.06] bg-black/20">
+        <div className="mx-auto flex w-[min(1240px,94vw)] items-center justify-between gap-4 py-2 text-[0.68rem] font-bold tracking-[0.12em] uppercase">
+          <div className="flex min-w-0 items-center gap-2 text-bark">
+            <span className="status-dot shrink-0" />
+            <span className="truncate">Custom build system online</span>
+          </div>
+          <p className="hidden text-bark sm:block">Hat + patch from $30 · Patch only from $5 · Buy 12, get 1 free</p>
+        </div>
       </div>
-      <header className="sticky top-0 z-40 border-b border-ink/10 bg-paper/90 backdrop-blur-md">
-        <div className="mx-auto flex w-[min(1180px,94vw)] items-center justify-between gap-4 py-3">
-          <Link to="/" className="min-w-0">
-            <span className="block font-display text-[1.35rem] leading-none font-semibold text-ink">REC Mama Made</span>
-            <span className="mt-1 block text-[0.68rem] font-medium tracking-[0.14em] text-bark uppercase">
-              Custom leather patch hats
+
+      <header className="sticky top-0 z-40 px-3 pt-3 md:px-5">
+        <div className="glass-nav mx-auto flex w-[min(1240px,100%)] items-center justify-between gap-4 rounded-2xl px-3 py-2.5 md:px-4">
+          <Link to="/" className="group flex min-w-0 items-center gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+              <Sparkles className="size-4 text-primary transition-transform duration-300 group-hover:rotate-12" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate font-display text-[1.04rem] leading-none font-bold tracking-[-0.02em] text-ink sm:text-[1.15rem]">
+                REC Mama Made
+              </span>
+              <span className="mt-1 block truncate text-[0.58rem] font-extrabold tracking-[0.18em] text-bark uppercase">
+                Custom product studio
+              </span>
             </span>
           </Link>
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+
+          <nav className="hidden items-center rounded-full border border-white/[0.07] bg-white/[0.025] p-1 md:flex" aria-label="Main">
             {LINKS.map((link) => {
               const active = link.to === "/" ? pathname === "/" : pathname === link.to || pathname.startsWith(`${link.to}/`);
               return (
@@ -50,9 +65,8 @@ export function SiteShell({ children }: { children: ReactNode }) {
                   to={link.to}
                   search={"search" in link ? link.search : undefined}
                   className={cn(
-                    "rounded-full px-3.5 py-2 text-sm font-medium text-bark",
-                    active && "bg-pill text-ink",
-                    !active && "hover:bg-pill/80",
+                    "rounded-full px-4 py-2 text-xs font-bold tracking-[0.03em] transition-colors",
+                    active ? "bg-white/[0.09] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" : "text-bark hover:bg-white/[0.045] hover:text-ink",
                   )}
                 >
                   {link.label}
@@ -60,13 +74,18 @@ export function SiteShell({ children }: { children: ReactNode }) {
               );
             })}
           </nav>
+
           <div className="flex items-center gap-2">
-            <Link to="/order" search={{ type: "hat" }} className={cn(buttonVariants({ size: "sm" }), "hidden sm:inline-flex")}>
-              Build your hat
+            <Link
+              to="/order"
+              search={{ type: "hat" }}
+              className={cn(buttonVariants({ size: "sm" }), "hidden sm:inline-flex")}
+            >
+              Build yours <ArrowUpRight className="size-3.5" />
             </Link>
             <button
               type="button"
-              className="grid size-11 place-items-center rounded-full text-ink ring-1 ring-ink/15 md:hidden"
+              className="grid size-11 place-items-center rounded-xl border border-white/10 bg-white/[0.035] text-ink md:hidden"
               aria-label={open ? "Close menu" : "Open menu"}
               onClick={() => setOpen((v) => !v)}
             >
@@ -74,8 +93,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </button>
           </div>
         </div>
+
         {open && (
-          <nav className="border-t border-ink/10 px-[4vw] py-3 md:hidden" aria-label="Mobile">
+          <nav className="glass-nav mx-auto mt-2 w-[min(1240px,100%)] rounded-2xl p-2 md:hidden" aria-label="Mobile">
             <div className="flex flex-col gap-1">
               {LINKS.map((link) => (
                 <Link
@@ -83,37 +103,55 @@ export function SiteShell({ children }: { children: ReactNode }) {
                   to={link.to}
                   search={"search" in link ? link.search : undefined}
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-3 py-3 text-sm font-medium text-ink hover:bg-pill"
+                  className="rounded-xl px-4 py-3 text-sm font-bold text-ink transition-colors hover:bg-white/[0.055]"
                 >
                   {link.label}
                 </Link>
               ))}
-              <Link to="/order" search={{ type: "hat" }} onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-sm font-semibold text-primary">
-                Build your hat
+              <Link
+                to="/order"
+                search={{ type: "hat" }}
+                onClick={() => setOpen(false)}
+                className="mt-1 flex items-center justify-between rounded-xl border border-primary/20 bg-primary/[0.08] px-4 py-3 text-sm font-bold text-primary"
+              >
+                Build your hat <ArrowUpRight className="size-4" />
               </Link>
             </div>
           </nav>
         )}
       </header>
+
       <main id="main">{children}</main>
+
       {pathname !== "/order" && (
-        <footer className="mt-8 border-t border-ink/10 py-10">
-          <div className="mx-auto flex w-[min(1180px,94vw)] flex-wrap items-start justify-between gap-6">
+        <footer className="mt-20 border-t border-white/[0.07] bg-black/20 py-12">
+          <div className="mx-auto grid w-[min(1180px,94vw)] gap-8 md:grid-cols-[1.2fr_0.8fr]">
             <div>
-              <p className="font-display text-2xl text-ink">REC Mama Made</p>
-              <p className="mt-2 max-w-sm text-sm leading-6 text-bark">
-                Custom hats and heat-adhesive leatherette patches. We can laser holes. We don’t sew and we don’t thread.
-                Hat + patch from $30 · Patch only from $5 · Buy 12, get 1 free.
+              <div className="flex items-center gap-2">
+                <span className="status-dot" />
+                <span className="tech-label">REC build system</span>
+              </div>
+              <p className="mt-4 font-display text-3xl font-bold tracking-[-0.035em] text-ink">REC Mama Made</p>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-bark">
+                Custom Richardson hats and heat-adhesive leatherette patches with real product photography, live customization preview, and a proof before production. Laser holes are available; sewing and thread are not offered.
               </p>
             </div>
-            <div className="flex flex-wrap gap-4 text-sm text-bark">
-              <Link to="/actual-work" className="hover:text-ink">Work</Link>
-              <Link to="/hats" className="hover:text-ink">Hats</Link>
-              <Link to="/order" className="hover:text-ink">Build</Link>
-              <Link to="/studio" className="hover:text-ink">Studio</Link>
-              <a href="https://www.etsy.com/shop/RECMamaMade" target="_blank" rel="noreferrer" className="hover:text-ink">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <Link to="/actual-work" className="hairline-card rounded-xl px-4 py-3 text-bark transition-colors hover:text-ink">Actual work</Link>
+              <Link to="/hats" className="hairline-card rounded-xl px-4 py-3 text-bark transition-colors hover:text-ink">Hat catalog</Link>
+              <Link to="/order" search={{ type: "hat" }} className="hairline-card rounded-xl px-4 py-3 text-bark transition-colors hover:text-ink">Build a hat</Link>
+              <Link to="/order" search={{ type: "patch" }} className="hairline-card rounded-xl px-4 py-3 text-bark transition-colors hover:text-ink">Patch only</Link>
+              <Link to="/studio" className="hairline-card rounded-xl px-4 py-3 text-bark transition-colors hover:text-ink">Studio</Link>
+              <a href="https://www.etsy.com/shop/RECMamaMade" target="_blank" rel="noreferrer" className="hairline-card rounded-xl px-4 py-3 text-bark transition-colors hover:text-ink">
                 Etsy
               </a>
+            </div>
+          </div>
+          <div className="mx-auto mt-10 w-[min(1180px,94vw)]">
+            <div className="metal-line" />
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[0.65rem] font-semibold tracking-[0.12em] text-subtle uppercase">
+              <span>REC Mama Made</span>
+              <span>Real assets · Real materials · Proof before production</span>
             </div>
           </div>
         </footer>
