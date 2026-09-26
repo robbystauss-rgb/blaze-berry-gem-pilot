@@ -465,6 +465,10 @@
     opacity: 0.045;
   }
 
+  button {
+    min-height: 2.75rem;
+  }
+
   .tech-panel::after {
     display: none;
   }
