@@ -59,7 +59,7 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
               See finished work
             </Link>
           </div>
-          <div className="mt-8 grid max-w-xl gap-3 min-[430px]:grid-cols-2 text-sm">
+          <div className="mt-8 grid max-w-xl gap-3 text-sm min-[430px]:grid-cols-2">
             <div className="hairline-card rounded-2xl p-4">
               <p className="tech-label">SOURCE</p>
               <p className="mt-2 font-semibold leading-6 text-ink">Verified product photography</p>
@@ -72,7 +72,7 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
         </div>
 
         {hero ? (
-          <div className="product-card-stage relative grid aspect-[4/3] min-h-[320px] place-items-center rounded-[34px] border border-stage-line p-6 shadow-stage sm:min-h-[420px]">
+          <div className="product-card-stage relative grid aspect-[4/3] w-full place-items-center rounded-[34px] border border-stage-line p-5 shadow-stage sm:p-6">
             <img
               src={hero}
               alt=""
@@ -81,7 +81,7 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
             />
           </div>
         ) : (
-          <div className="product-card-stage grid aspect-[4/3] min-h-[320px] place-items-center rounded-[34px] border border-stage-line p-6 text-center text-sm leading-6 text-stage-muted shadow-stage sm:min-h-[420px]">
+          <div className="product-card-stage grid aspect-[4/3] w-full place-items-center rounded-[34px] border border-stage-line p-5 text-center text-sm leading-6 text-stage-muted shadow-stage sm:p-6">
             Product photo assets incomplete
           </div>
         )}
