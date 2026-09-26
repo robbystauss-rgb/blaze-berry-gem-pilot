@@ -145,18 +145,18 @@ export function SiteShell({ children }: { children: ReactNode }) {
             <div className="grid grid-cols-2 gap-x-8 gap-y-6 text-sm">
               <div>
                 <p className="tech-label">Explore</p>
-                <div className="mt-3 flex flex-col gap-2.5">
-                  <Link to="/actual-work" className="text-bark transition-colors hover:text-ink">Actual work</Link>
-                  <Link to="/hats" className="text-bark transition-colors hover:text-ink">Hat catalog</Link>
-                  <a href="https://www.etsy.com/shop/RECMamaMade" target="_blank" rel="noreferrer" className="text-bark transition-colors hover:text-ink">Etsy shop</a>
+                <div className="mt-3 flex flex-col gap-1">
+                  <Link to="/actual-work" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Actual work</Link>
+                  <Link to="/hats" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Hat catalog</Link>
+                  <a href="https://www.etsy.com/shop/RECMamaMade" target="_blank" rel="noreferrer" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Etsy shop</a>
                 </div>
               </div>
               <div>
                 <p className="tech-label">Create</p>
-                <div className="mt-3 flex flex-col gap-2.5">
-                  <Link to="/order" search={{ type: "hat" }} className="text-bark transition-colors hover:text-ink">Build a hat</Link>
-                  <Link to="/order" search={{ type: "patch" }} className="text-bark transition-colors hover:text-ink">Patch only</Link>
-                  <Link to="/studio" className="text-bark transition-colors hover:text-ink">Studio</Link>
+                <div className="mt-3 flex flex-col gap-1">
+                  <Link to="/order" search={{ type: "hat" }} className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Build a hat</Link>
+                  <Link to="/order" search={{ type: "patch" }} className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Patch only</Link>
+                  <Link to="/studio" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Studio</Link>
                 </div>
               </div>
             </div>
