@@ -127,7 +127,7 @@ export function HatApproval() {
 
   return (
     <div className={selectedIds.length ? "space-y-6 pb-28" : "space-y-6"}>
-      <div className="sticky top-16 z-20 -mx-1 space-y-3 bg-stage/95 px-1 py-3 backdrop-blur-md">
+      <div className="sticky top-[5.75rem] z-20 -mx-1 space-y-3 bg-stage/95 px-1 py-3 backdrop-blur-md">
         <label className="block">
           <span className="sr-only">Search colors</span>
           <input
@@ -594,23 +594,23 @@ function ActionBar({
   onClear: () => void;
 }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-stage-line bg-stage/95 px-4 py-3 backdrop-blur-md">
-      <div className="mx-auto flex w-[min(1180px,100%)] flex-wrap items-center gap-2">
-        <p className="text-sm font-semibold text-stage-ink">
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-stage-line bg-stage/95 px-4 py-3 shadow-[0_-10px_30px_rgba(45,38,30,0.08)] backdrop-blur-md">
+      <div className="mx-auto flex w-[min(1180px,100%)] flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
+        <p className="shrink-0 text-sm font-semibold text-stage-ink">
           {count} selected
           {hiddenCount > 0 ? ` · ${hiddenCount} not in the current filter` : ""}
         </p>
-        <Button type="button" size="sm" onClick={onOffer}>
+        <Button type="button" size="sm" className="shrink-0" onClick={onOffer}>
           Offer selected
         </Button>
-        <Button type="button" size="sm" variant="outline" className="text-stage-ink" onClick={onHide}>
+        <Button type="button" size="sm" variant="outline" className="shrink-0 text-stage-ink" onClick={onHide}>
           Hide selected
         </Button>
         <select
           value={stockDraft}
           onChange={(event) => onStockDraft(event.target.value as StockStatus)}
           aria-label="Stock for selected hats"
-          className="min-h-11 rounded-full bg-stage-photo px-3 text-sm text-stage-ink ring-1 ring-stage-line"
+          className="min-h-11 shrink-0 rounded-full bg-stage-photo px-3 text-sm text-stage-ink ring-1 ring-stage-line"
         >
           {STOCKS.map((item) => (
             <option key={item.id} value={item.id}>
@@ -618,7 +618,7 @@ function ActionBar({
             </option>
           ))}
         </select>
-        <Button type="button" size="sm" variant="outline" className="text-stage-ink" onClick={onStock}>
+        <Button type="button" size="sm" variant="outline" className="shrink-0 text-stage-ink" onClick={onStock}>
           Set stock
         </Button>
         <input
@@ -626,15 +626,15 @@ function ActionBar({
           onChange={(event) => onPriceDraft(event.target.value)}
           inputMode="decimal"
           aria-label="Upcharge for selected hats"
-          className="min-h-11 w-20 rounded-full bg-stage-photo px-3 text-sm text-stage-ink ring-1 ring-stage-line"
+          className="min-h-11 w-20 shrink-0 rounded-full bg-stage-photo px-3 text-sm text-stage-ink ring-1 ring-stage-line"
         />
-        <Button type="button" size="sm" variant="outline" className="text-stage-ink" onClick={onPrice}>
+        <Button type="button" size="sm" variant="outline" className="shrink-0 text-stage-ink" onClick={onPrice}>
           Set price
         </Button>
-        <Button type="button" size="sm" variant="outline" className="text-stage-ink" onClick={onFeature}>
+        <Button type="button" size="sm" variant="outline" className="shrink-0 text-stage-ink" onClick={onFeature}>
           Set featured
         </Button>
-        <Button type="button" size="sm" variant="outline" className="text-stage-ink" onClick={onClear}>
+        <Button type="button" size="sm" variant="outline" className="shrink-0 text-stage-ink" onClick={onClear}>
           Clear selection
         </Button>
       </div>
@@ -675,23 +675,23 @@ function Viewer({
     <div className="fixed inset-0 z-50 grid place-items-center bg-bg/80 p-3" role="dialog" aria-modal="true" aria-label={`${color.officialName} photos`}>
       <div className="max-h-[94dvh] w-[min(980px,100%)] overflow-auto rounded-3xl bg-stage p-4 text-stage-ink">
         <div className="flex items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-semibold tracking-[0.14em] text-primary uppercase">
               Richardson {model.code} — {model.officialName}
             </p>
-            <h3 className="font-display text-4xl">{color.officialName}</h3>
+            <h3 className="font-display text-[clamp(2rem,8vw,2.8rem)] leading-tight">{color.officialName}</h3>
             <p className="text-sm text-stage-muted">
               {index + 1} of {list.length}
             </p>
           </div>
-          <Button type="button" variant="outline" size="sm" className="text-stage-ink" onClick={onClose}>
+          <Button type="button" variant="outline" size="sm" className="shrink-0 text-stage-ink" onClick={onClose}>
             Close
           </Button>
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-[1fr_9rem]">
-          <div className="rounded-2xl bg-stage-photo shadow-stage">
+          <div className="grid min-h-64 place-items-center rounded-2xl bg-stage-photo shadow-stage">
             {src ? (
-              <img src={src} alt={`${color.officialName} ${view}`} className="max-h-[62dvh] w-full object-contain" />
+              <img src={src} alt={`${color.officialName} ${view}`} className="h-auto max-h-[62dvh] w-auto max-w-full object-contain" />
             ) : (
               <p className="grid h-64 place-items-center text-sm text-stage-muted">No {view} photo supplied.</p>
             )}
