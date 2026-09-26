@@ -2,15 +2,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
 const fake = vi.hoisted(() => ({
   query: vi.fn(), account: vi.fn(), session: vi.fn(), createSession: vi.fn(), verify: vi.fn(), tax: vi.fn(),
+  taxSettings: vi.fn(), taxRegistrations: vi.fn(), taxCalculation: vi.fn(),
 }));
 vi.mock("pg", () => ({ Pool: class { query = fake.query; } }));
 vi.mock("stripe", () => ({ default: class {
   accounts = { retrieve: fake.account };
   checkout = { sessions: { retrieve: fake.session, create: fake.createSession } };
   webhooks = { constructEvent: fake.verify };
-  tax = { transactions: { createFromCalculation: fake.tax } };
+  tax = { transactions: { createFromCalculation: fake.tax }, settings: { retrieve: fake.taxSettings }, registrations: { list: fake.taxRegistrations }, calculations: { create: fake.taxCalculation } };
 } }));
-import { checkoutConfig, checkoutStatus, requireSameOrigin, stripeWebhook, createStripeSession, capturePaypalOrder } from "../src/lib/checkout.server";
+import { checkoutConfig, checkoutStatus, requireSameOrigin, stripeWebhook, createStripeSession, capturePaypalOrder, createCheckout } from "../src/lib/checkout.server";
+import { colorsForFamily, LEATHERETTES } from "../src/lib/catalog";
 const id = "11111111-1111-4111-8111-111111111111", token = "a".repeat(64);
 const row = () => ({
   id, token_hash: createHash("sha256").update(token).digest("hex"), amount_cents: 4000,
@@ -47,6 +49,43 @@ beforeEach(() => {
   fake.session.mockResolvedValue(session());
 });
 describe("checkout protection", () => {
+  it("allows only an explicit no-collection policy and still rejects invalid payment setup", () => {
+    vi.stubEnv("CHECKOUT_TAX_CONFIGURED", "false");
+    vi.stubEnv("CHECKOUT_TAX_MODE", "not_collected");
+    expect(checkoutConfig()).toMatchObject({ stripe: true, paypal: true });
+    vi.stubEnv("PAYMENT_MODE", "live");
+    expect(checkoutConfig()).toMatchObject({ stripe: false, paypal: false });
+    vi.stubEnv("PAYMENT_MODE", "sandbox");
+    vi.stubEnv("CHECKOUT_TAX_MODE", "typo");
+    expect(checkoutConfig()).toMatchObject({ stripe: false, paypal: false });
+  });
+  it("stores a zero-collection quote with original product and shipping totals without calling Tax", async () => {
+    vi.stubEnv("CHECKOUT_TAX_MODE", "not_collected");
+    vi.stubEnv("CHECKOUT_TAX_CONFIGURED", "false");
+    const result = await createCheckout({
+      customerName: "Test Buyer", customerEmail: "buyer@example.com", orderType: "hat",
+      family: "112", colorway: colorsForFamily("112")[0], tier: "standard",
+      patchShape: "Circle", patchSize: "medium", placement: "front-center",
+      leatherette: LEATHERETTES[0].id, quantity: 1, patchText: "Test",
+      artworkDataUrl: "", notes: "", promo: "",
+    }, { name: "Test Buyer", address: { line1: "123 Main St", city: "Chicago", state: "IL", postal_code: "60601", country: "US" } });
+    expect(result).toMatchObject({ subtotalCents: 3000, shippingCents: 1000, amountCents: 4000, taxCents: 0, taxMode: "not_collected" });
+    expect(fake.taxSettings).not.toHaveBeenCalled();
+    expect(fake.taxCalculation).not.toHaveBeenCalled();
+    const saved = fake.query.mock.calls.find(([sql]) => sql.startsWith("insert into rec_checkout"))![1];
+    expect(saved[7]).toBeNull();
+    expect(saved[9]).toBe("not_collected");
+  });
+  it("reconciles no-collection payments without creating a tax transaction even after settings change", async () => {
+    const record = { ...row(), tax_mode: "not_collected", tax_calculation_id: null, tax_transaction_id: null };
+    fake.query.mockImplementation(async (sql: string) => {
+      if (sql.startsWith("select")) return { rows: [{ ...record }] };
+      if (sql.includes("set status='paid'")) record.status = "paid";
+      return { rows: [] };
+    });
+    expect(await checkoutStatus(id, token)).toMatchObject({ status: "paid" });
+    expect(fake.tax).not.toHaveBeenCalled();
+  });
   it("fails closed without tax configuration, keys, or database", () => {
     for (const key of ["DATABASE_URL", "STRIPE_SECRET_KEY", "CHECKOUT_TAX_CONFIGURED"]) {
       const saved = process.env[key]!;

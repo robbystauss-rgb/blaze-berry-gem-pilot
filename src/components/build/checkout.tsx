@@ -7,7 +7,7 @@ import type { OrderDraft } from "@/lib/order-store";
 import type { Delivery } from "@/lib/checkout-validation";
 
 type Config = { stripe: boolean; paypal: boolean; sandbox: boolean; stripeKey?: string; paypalClientId?: string };
-type Receipt = { id: string; token: string; amountCents: number; subtotalCents: number; shippingCents: number; taxCents: number; provider?: "stripe" | "paypal"; summary: string };
+type Receipt = { id: string; token: string; amountCents: number; subtotalCents: number; shippingCents: number; taxCents: number; taxMode?: "automatic" | "not_collected"; provider?: "stripe" | "paypal"; summary: string };
 type PaymentStatus = { status: "pending" | "paid" | "failed" | "expired"; provider: "stripe" | "paypal" | null; amountCents: number };
 type PaypalButtons = { isEligible(): boolean; render(element: HTMLElement): Promise<void>; close(): Promise<void> };
 type PaypalSdk = { Buttons(options: {
@@ -182,7 +182,7 @@ export function Checkout({ open, onOpenChange, draft, summary }: {
         <dl className="mb-3 grid grid-cols-2 gap-2 text-sm">
           <dt>Products</dt><dd className="text-right">{money(receipt.subtotalCents)}</dd>
           <dt>Shipping &amp; packaging</dt><dd className="text-right">{money(receipt.shippingCents)}</dd>
-          <dt>Sales tax</dt><dd className="text-right">{money(receipt.taxCents)}</dd>
+          <dt>Sales tax</dt><dd className="text-right">{receipt.taxMode === "not_collected" ? "Not collected" : money(receipt.taxCents)}</dd>
         </dl>
         <p className="text-lg font-semibold">Order total: {money(receipt.amountCents)}</p>
         <p className="mt-1 text-xs break-all">Reference: {receipt.id}</p>

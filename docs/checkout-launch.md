@@ -1,5 +1,11 @@
 # Direct checkout launch notes
 
+## Updated merchant instruction
+
+The owner explicitly requested live checkout with automatic tax collection deferred. Set `CHECKOUT_TAX_MODE=not_collected` only for this chosen policy. Quotes then include products and shipping with zero tax collected; the UI says "Not collected", and each saved quote records the policy. This is not a tax exemption or settlement of the merchant's tax obligations. Existing automatic-tax quotes retain their tax calculation and reconciliation behavior. To re-enable automatic calculation, set `CHECKOUT_TAX_MODE=automatic` and complete the Tax settings described below. Missing or invalid modes never silently fall back to zero tax.
+
+The original automatic-tax setup requirements below apply only to automatic mode. The remaining live credentials, isolated production database, signed webhook delivery, sandbox validation and fulfillment requirements still apply in both modes.
+
 This change is based on production commit `3c6944a1a91b7f936fd6c324bd84a8403dd83e1b`. It preserves the existing catalog, quantity discounts, bonus-hat promotion, configurator steps and proof requirement. Payment does not approve artwork or authorize engraving.
 
 ## Current status

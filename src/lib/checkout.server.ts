@@ -10,7 +10,8 @@ type Checkout = {
   amount_cents: number; currency: string; provider: Provider | null;
   provider_id: string | null; status: "pending" | "paid" | "failed" | "expired"; created_at: Date;
   subtotal_cents: number; shipping_cents: number; tax_cents: number;
-  tax_calculation_id: string; tax_transaction_id: string | null; delivery: Delivery;
+  tax_calculation_id: string | null; tax_transaction_id: string | null; delivery: Delivery;
+  tax_mode: "automatic" | "not_collected";
 };
 let pool: Pool | undefined;
 function database() {
@@ -22,13 +23,15 @@ function stripeClient() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, { maxNetworkRetries: 2, timeout: 20000 });
 }
 function isLive() { return process.env.PAYMENT_MODE === "live"; }
+function taxMode() { return process.env.CHECKOUT_TAX_MODE ?? "automatic"; }
 function configured(provider: Provider) {
   const mode = isLive() ? "live" : "test";
-  // Tax calculation is shared by both processors. Merchant confirms product
-  // tax codes and business registrations rather than silently collecting zero.
-  const common = Boolean(process.env.DATABASE_URL && process.env.CHECKOUT_ORIGIN &&
+  // Zero collection is an explicit merchant policy, never an error fallback.
+  const taxReady = taxMode() === "not_collected" || (taxMode() === "automatic" &&
     process.env.CHECKOUT_TAX_CONFIGURED === "true" &&
-    process.env.CHECKOUT_HAT_TAX_CODE && process.env.CHECKOUT_PATCH_TAX_CODE &&
+    process.env.CHECKOUT_HAT_TAX_CODE && process.env.CHECKOUT_PATCH_TAX_CODE);
+  const common = Boolean(process.env.DATABASE_URL && process.env.CHECKOUT_ORIGIN &&
+    taxReady &&
     new RegExp(`^[sr]k_${mode}_`).test(process.env.STRIPE_SECRET_KEY ?? "") &&
     process.env.STRIPE_ACCOUNT_ID &&
     ["sandbox", "live"].includes(process.env.PAYMENT_MODE ?? ""));
@@ -112,26 +115,32 @@ export async function createCheckout(input: unknown, deliveryInput: unknown, upl
   catch { throw new CheckoutError("Please check your name, email, design, quantity, and product selections."); }
   const id = randomUUID();
   const token = randomBytes(32).toString("hex");
-  const stripe = stripeClient();
-  const [settings, registrations] = await Promise.all([
-    stripe.tax.settings.retrieve(), stripe.tax.registrations.list({ status: "active", limit: 1 }),
-  ]);
-  if (settings.status !== "active" || !registrations.data.length) throw new CheckoutError("Tax setup is not ready. Your build is saved.", 503);
   const shippingCents = shippingEstimate(validated.draft.orderType, validated.estimate.fulfilled);
-  const calculation = await stripe.tax.calculations.create({
+  const selectedTaxMode = taxMode();
+  let calculation: { id: string | null; amount_total: number; tax_amount_exclusive: number } = {
+    id: null, amount_total: validated.amountCents + shippingCents, tax_amount_exclusive: 0,
+  };
+  if (selectedTaxMode === "automatic") {
+    const stripe = stripeClient();
+    const [settings, registrations] = await Promise.all([
+      stripe.tax.settings.retrieve(), stripe.tax.registrations.list({ status: "active", limit: 1 }),
+    ]);
+    if (settings.status !== "active" || !registrations.data.length) throw new CheckoutError("Tax setup is not ready. Your build is saved.", 503);
+    calculation = await stripe.tax.calculations.create({
     currency: "usd",
     customer_details: { address: delivery.address, address_source: "shipping" },
     line_items: [{ amount: validated.amountCents, reference: id, tax_behavior: "exclusive",
       tax_code: validated.draft.orderType === "hat" ? process.env.CHECKOUT_HAT_TAX_CODE : process.env.CHECKOUT_PATCH_TAX_CODE }],
     shipping_cost: { amount: shippingCents, tax_behavior: "exclusive", tax_code: "txcd_92010001" },
-  });
+    });
+  }
   await database().query(
-    "insert into rec_checkout (id,token_hash,draft,amount_cents,subtotal_cents,shipping_cents,tax_cents,tax_calculation_id,delivery) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+    "insert into rec_checkout (id,token_hash,draft,amount_cents,subtotal_cents,shipping_cents,tax_cents,tax_calculation_id,delivery,tax_mode) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
     [id, digest(token), JSON.stringify(validated.draft), calculation.amount_total, validated.amountCents,
-      shippingCents, calculation.tax_amount_exclusive, calculation.id, JSON.stringify(delivery)],
+      shippingCents, calculation.tax_amount_exclusive, calculation.id, JSON.stringify(delivery), selectedTaxMode],
   );
   return { id, token, amountCents: calculation.amount_total, subtotalCents: validated.amountCents,
-    shippingCents, taxCents: calculation.tax_amount_exclusive };
+    shippingCents, taxCents: calculation.tax_amount_exclusive, taxMode: selectedTaxMode };
 }
 async function authorized(id: string, token: string): Promise<Checkout> {
   if (!/^[0-9a-f-]{36}$/.test(id) || !/^[0-9a-f]{64}$/.test(token)) throw new CheckoutError("Checkout not found.", 404);
@@ -173,7 +182,7 @@ export async function createStripeSession(id: string, token: string) {
         line_items: [{
           price_data: { currency: "usd", unit_amount: record.amount_cents,
             product_data: { name: record.draft.orderType === "hat" ? "REC Mama Made custom patch hats" : "REC Mama Made custom patches",
-              description: `${record.draft.quantity} purchased · includes shipping and calculated tax · proof before engraving` } },
+              description: `${record.draft.quantity} purchased · includes shipping${record.tax_mode === "not_collected" ? " · sales tax not collected" : " and calculated tax"} · proof before engraving` } },
           quantity: 1,
         }],
       }, { idempotencyKey: `rec-checkout-${id}` });
@@ -246,7 +255,8 @@ export async function capturePaypalOrder(id: string, token: string, orderId: str
 async function recordPaid(record: Checkout, paymentId: string, shipping: unknown) {
   // Required for standalone tax calculations, including off-Stripe payments.
   // A stable key makes webhook retries and concurrent status checks safe.
-  if (!record.tax_transaction_id) {
+  if (record.tax_mode !== "not_collected" && !record.tax_transaction_id) {
+    if (!record.tax_calculation_id) throw new Error("Missing saved tax calculation.");
     const transaction = await stripeClient().tax.transactions.createFromCalculation({
       calculation: record.tax_calculation_id, reference: record.id,
     }, { idempotencyKey: `rec-tax-${record.id}` });
