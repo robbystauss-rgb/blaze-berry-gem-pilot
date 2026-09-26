@@ -57,7 +57,8 @@ forbidText(builder, builderPath, "retired Etsy checkout", "Etsy");
 forbidText(builder, builderPath, "retired Etsy constant", "ETSY_");
 forbidText(catalog, catalogPath, "retired Etsy URLs", "etsy.com");
 requireText(builder, builderPath, "REC payment panel", "<CheckoutPanel");
-requireText(checkout, checkoutPath, "manual Venmo fallback", "https://venmo.com/u/Stauss_Distributing_LLC");
+requireText(checkout, checkoutPath, "manual Venmo fallback label", "Pay manually with Venmo");
+requireText(payments, paymentsPath, "manual Venmo fallback URL", "https://venmo.com/u/Stauss_Distributing_LLC");
 requireText(payments, paymentsPath, "Stripe server checkout", "STRIPE_SECRET_KEY");
 requireText(payments, paymentsPath, "PayPal server checkout", "PAYPAL_CLIENT_SECRET");
 
