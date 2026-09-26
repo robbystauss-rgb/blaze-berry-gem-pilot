@@ -29,7 +29,7 @@ function HatsPage() {
           const photo = familyHero(id);
           const search = id === "112FP" || id === "112FPR" ? { type: "hat" as const, family: id } : undefined;
           return (
-            <Link key={id} to={familyTo(id)} search={search} className="grid grid-cols-[140px_1fr] overflow-hidden rounded-3xl bg-stage-photo shadow-stage ring-1 ring-ink/10 sm:grid-cols-[180px_1fr]">
+            <Link key={id} to={familyTo(id)} search={search} className="grid grid-cols-[140px_1fr] overflow-hidden rounded-3xl bg-white shadow-stage ring-1 ring-ink/10 sm:grid-cols-[180px_1fr]">
               {photo ? (
                 <img src={photo} alt="" className="h-full min-h-36 w-full bg-white object-contain" />
               ) : (

@@ -17,10 +17,10 @@ export function ColorCard({
     <Link
       to="/order"
       search={{ family, color: name }}
-      className="group block overflow-hidden rounded-2xl bg-stage-photo p-3 shadow-stage ring-1 ring-stage-line transition-transform duration-150 hover:-translate-y-0.5"
+      className="group block overflow-hidden rounded-2xl bg-white p-3 shadow-stage ring-1 ring-stage-line transition-transform duration-150 hover:-translate-y-0.5"
     >
       {photo ? (
-        <img src={photo} alt={`${family} ${name}`} className="aspect-[4/3] w-full object-contain" />
+        <img src={photo} alt={`${family} ${name}`} className="aspect-[4/3] w-full rounded-xl bg-white object-contain" />
       ) : (
         <div className="grid aspect-[4/3] w-full place-items-center rounded-xl bg-stage text-center text-xs text-stage-muted">
           Verified product photo unavailable
