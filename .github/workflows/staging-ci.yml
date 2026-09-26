@@ -53,6 +53,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Validate checkout security and existing pricing
+        run: npm run test:checkout
+
       - name: Build
         run: npm run build
 

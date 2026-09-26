@@ -148,7 +148,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 <div className="mt-3 flex flex-col gap-1">
                   <Link to="/actual-work" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Actual work</Link>
                   <Link to="/hats" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Hat catalog</Link>
-                  <a href="https://www.etsy.com/shop/RECMamaMade" target="_blank" rel="noreferrer" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Etsy shop</a>
                 </div>
               </div>
               <div>

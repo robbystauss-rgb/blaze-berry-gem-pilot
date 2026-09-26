@@ -36,9 +36,6 @@ export type Placement = "front-center" | "left-front" | "right-front" | "side" |
 export type OrderType = "hat" | "patch";
 export type HatTier = "standard" | "premium";
 
-export const ETSY_LISTING = "https://www.etsy.com/listing/4435836820";
-export const ETSY_SHOP = "https://www.etsy.com/shop/RECMamaMade";
-
 export const PRICING = {
   standard: 30,
   premium: 35,
