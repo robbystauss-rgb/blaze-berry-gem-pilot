@@ -247,10 +247,9 @@ function PatchOverlay({
   const face: CSSProperties = {
     clipPath: clipFor(shape),
     backgroundColor: leather.hex,
-    backgroundImage: leather.texture
-      ? `linear-gradient(160deg, ${leather.hi} 0%, transparent 46%), url(${leather.texture})`
-      : `linear-gradient(160deg, ${leather.hi} 0%, ${leather.hex} 55%, ${leather.lo} 100%)`,
+    backgroundImage: leather.texture ? `url(${leather.texture})` : undefined,
     backgroundSize: "cover",
+    backgroundPosition: "center",
     color: leather.ink,
     boxShadow: "0 12px 22px rgba(44,33,30,0.32), inset 0 1px 0 rgba(255,255,255,0.4)",
     transition: "clip-path 220ms ease",
@@ -303,10 +302,9 @@ export function PatchCard({
   const style: CSSProperties = {
     clipPath: clipFor(safe),
     backgroundColor: leather.hex,
-    backgroundImage: leather.texture
-      ? `linear-gradient(160deg, ${leather.hi}, transparent 50%), url(${leather.texture})`
-      : `linear-gradient(160deg, ${leather.hi}, ${leather.hex} 55%, ${leather.lo})`,
+    backgroundImage: leather.texture ? `url(${leather.texture})` : undefined,
     backgroundSize: "cover",
+    backgroundPosition: "center",
     color: leather.ink,
     width: size === "small" ? 168 : size === "large" ? 300 : 230,
     maxWidth: "82vw",

@@ -21,11 +21,19 @@ const builderPath = "src/components/build/builder.tsx";
 const orderPath = "src/routes/order.tsx";
 const homePath = "src/routes/index.tsx";
 const studioPath = "src/routes/studio.tsx";
+const catalogPath = "src/lib/catalog.ts";
+const hatPreviewPath = "src/components/hat/hat-preview.tsx";
+const checkoutPath = "src/components/build/checkout-panel.tsx";
+const paymentsPath = "src/lib/payments.ts";
 
 const builder = read(builderPath);
 const order = read(orderPath);
 const home = read(homePath);
 const studio = read(studioPath);
+const catalog = read(catalogPath);
+const hatPreview = read(hatPreviewPath);
+const checkout = read(checkoutPath);
+const payments = read(paymentsPath);
 
 // Catalog safety: only asset-complete families belong in the customer selector.
 requireText(builder, builderPath, "catalog status import", 'import { MASTER } from "@/lib/studio-store";');
@@ -42,6 +50,20 @@ requireText(builder, builderPath, "real material library", "LEATHERETTES.map");
 requireText(builder, builderPath, "real material swatches", 'src={item.texture}');
 requireText(builder, builderPath, "real material detail", 'src={leather.detail}');
 forbidText(builder, builderPath, "material placeholder", "Image being updated");
+
+
+// Checkout safety: Etsy is retired; payment handoff stays inside the REC checkout experience.
+forbidText(builder, builderPath, "retired Etsy checkout", "Etsy");
+forbidText(builder, builderPath, "retired Etsy constant", "ETSY_");
+forbidText(catalog, catalogPath, "retired Etsy URLs", "etsy.com");
+requireText(builder, builderPath, "REC payment panel", "<CheckoutPanel");
+requireText(checkout, checkoutPath, "manual Venmo fallback", "https://venmo.com/u/Stauss_Distributing_LLC");
+requireText(payments, paymentsPath, "Stripe server checkout", "STRIPE_SECRET_KEY");
+requireText(payments, paymentsPath, "PayPal server checkout", "PAYPAL_CLIENT_SECRET");
+
+// Patch-preview safety: real leatherette texture is rendered directly, without a fake color wash.
+forbidText(hatPreview, hatPreviewPath, "fake patch material gradient", "linear-gradient(160deg");
+requireText(hatPreview, hatPreviewPath, "real patch texture", 'backgroundImage: leather.texture ? `url(${leather.texture})` : undefined');
 
 // Patch-only wording must accurately describe the physical product and application status.
 requireText(

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check } from "lucide-react";
 import { HatPreview, ShapeMark } from "@/components/hat/hat-preview";
+import { CheckoutPanel } from "@/components/build/checkout-panel";
 import { Button } from "@/components/ui/button";
 import {
-  ETSY_LISTING,
   FAMILIES,
   FAMILY_ORDER,
   LEATHERETTES,
@@ -19,6 +19,7 @@ import {
   type Placement,
 } from "@/lib/catalog";
 import { resizeImage, useOrder } from "@/lib/order-store";
+import type { PaymentBuild } from "@/lib/payments";
 import { familyHero, stageThumb } from "@/lib/stage-photos";
 import { MASTER } from "@/lib/studio-store";
 import { cn } from "@/lib/utils";
@@ -54,11 +55,15 @@ export function Builder({
   initialOrderType,
   initialFamily,
   initialColor,
+  paymentState,
+  stripeSessionId,
 }: {
   focus?: StepId;
   initialOrderType?: "hat" | "patch";
   initialFamily?: FamilyId;
   initialColor?: string;
+  paymentState?: "stripe-success" | "stripe-canceled";
+  stripeSessionId?: string;
 }) {
   const draft = useOrder();
   const [prefillPending, setPrefillPending] = useState(() => Boolean(initialOrderType || initialFamily || initialColor));
@@ -133,7 +138,7 @@ export function Builder({
           ? "Add your email"
           : missingDesign
             ? "Add a design"
-            : "Continue on Etsy"
+            : "Payment options"
       : active === "hat"
         ? "Choose color"
         : active === "color" && !colorway
@@ -206,6 +211,26 @@ export function Builder({
   const canAdvance =
     !(active === "color" && !colorway) &&
     !(active === "design" && missingDesign);
+  const paymentBuild: PaymentBuild = {
+    customerName: draft.customerName,
+    customerEmail: draft.customerEmail,
+    orderType,
+    family: familyId,
+    colorway,
+    leatherette: draft.leatherette,
+    patchShape: shape,
+    patchSize: draft.patchSize,
+    placement: draft.placement,
+    quantity: qty,
+    patchText: draft.patchText,
+    hasArtwork: Boolean(draft.artworkDataUrl),
+    notes: draft.notes,
+    promo: draft.promo,
+  };
+
+  function focusPayment() {
+    document.getElementById("checkout-payment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   return (
     <div className="safe-grid lg:grid lg:min-h-[calc(100dvh-5.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)]">
@@ -544,9 +569,7 @@ export function Builder({
               />
               <div className="mt-4 flex flex-wrap gap-2">
                 {ready ? (
-                  <a href={ETSY_LISTING} target="_blank" rel="noreferrer">
-                    <Button type="button">Continue on Etsy</Button>
-                  </a>
+                  <Button type="button" onClick={focusPayment}>Payment options</Button>
                 ) : (
                   <Button type="button" disabled>
                     {continueLabel}
@@ -561,6 +584,14 @@ export function Builder({
                   </Button>
                 </a>
               </div>
+              {ready && (
+                <CheckoutPanel
+                  build={paymentBuild}
+                  total={est.total}
+                  paymentState={paymentState}
+                  stripeSessionId={stripeSessionId}
+                />
+              )}
             </div>
           )}
 
@@ -574,7 +605,7 @@ export function Builder({
             disabled={next ? !canAdvance : !ready}
             onClick={() => {
               if (next && canAdvance) go(index + 1);
-              else if (!next && ready) window.open(ETSY_LISTING, "_blank", "noopener");
+              else if (!next && ready) focusPayment();
             }}
           >
             {next && canAdvance ? `Continue · ${STEP_LABEL[next]}` : continueLabel}
@@ -606,7 +637,7 @@ export function Builder({
             disabled={active === "review" ? !ready : !canAdvance}
             onClick={() => {
               if (active !== "review" && canAdvance) go(index + 1);
-              else if (active === "review" && ready) window.open(ETSY_LISTING, "_blank", "noopener");
+              else if (active === "review" && ready) focusPayment();
             }}
           >
             {continueLabel}
