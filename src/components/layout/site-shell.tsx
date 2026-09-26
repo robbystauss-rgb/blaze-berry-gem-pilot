@@ -25,13 +25,13 @@ export function SiteShell({ children }: { children: ReactNode }) {
     <div className="min-h-dvh bg-paper text-ink">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-stage-photo focus:px-3 focus:py-2 focus:text-ink"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-white focus:px-3 focus:py-2 focus:text-ink focus:shadow-stage"
       >
         Skip to content
       </a>
 
-      <div className="border-b border-border bg-white/65 backdrop-blur-xl">
-        <div className="mx-auto flex w-[min(1240px,94vw)] items-center justify-between gap-4 py-2 text-[0.68rem] font-bold tracking-[0.12em] uppercase">
+      <div className="border-b border-border/80 bg-white/55 backdrop-blur-xl">
+        <div className="mx-auto flex w-[min(1240px,94vw)] items-center justify-between gap-4 py-2 text-[0.66rem] font-bold tracking-[0.14em] uppercase">
           <div className="flex min-w-0 items-center gap-2 text-bark">
             <span className="status-dot shrink-0" />
             <span className="truncate">Custom build system online</span>
@@ -41,22 +41,22 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </div>
 
       <header className="sticky top-0 z-40 px-3 pt-3 md:px-5">
-        <div className="glass-nav mx-auto flex w-[min(1240px,100%)] items-center justify-between gap-4 rounded-2xl px-3 py-2.5 md:px-4">
+        <div className="glass-nav mx-auto flex w-[min(1240px,100%)] items-center justify-between gap-4 rounded-[22px] px-3 py-2.5 md:px-4">
           <Link to="/" className="group flex min-w-0 items-center gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]">
               <Sparkles className="size-4 text-primary transition-transform duration-300 group-hover:rotate-12" />
             </span>
             <span className="min-w-0">
-              <span className="block truncate font-display text-[1.04rem] leading-none font-bold tracking-[-0.02em] text-ink sm:text-[1.15rem]">
+              <span className="block truncate font-display text-[1.04rem] leading-none font-bold tracking-[-0.025em] text-ink sm:text-[1.15rem]">
                 REC Mama Made
               </span>
-              <span className="mt-1 block truncate text-[0.58rem] font-extrabold tracking-[0.18em] text-bark uppercase">
+              <span className="mt-1 block truncate text-[0.57rem] font-extrabold tracking-[0.19em] text-bark uppercase">
                 Custom product studio
               </span>
             </span>
           </Link>
 
-          <nav className="hidden items-center rounded-full border border-border bg-white/65 p-1 md:flex" aria-label="Main">
+          <nav className="hidden items-center rounded-full border border-border/80 bg-white/70 p-1 md:flex" aria-label="Main">
             {LINKS.map((link) => {
               const active = link.to === "/" ? pathname === "/" : pathname === link.to || pathname.startsWith(`${link.to}/`);
               return (
@@ -65,8 +65,10 @@ export function SiteShell({ children }: { children: ReactNode }) {
                   to={link.to}
                   search={"search" in link ? link.search : undefined}
                   className={cn(
-                    "rounded-full px-4 py-2 text-xs font-bold tracking-[0.03em] transition-colors",
-                    active ? "bg-pill text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]" : "text-bark hover:bg-pill/70 hover:text-ink",
+                    "rounded-full px-4 py-2 text-xs font-bold tracking-[0.03em] transition-[background-color,color,box-shadow] duration-200",
+                    active
+                      ? "bg-pill text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.98)]"
+                      : "text-bark hover:bg-pill/70 hover:text-ink",
                   )}
                 >
                   {link.label}
@@ -85,7 +87,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </Link>
             <button
               type="button"
-              className="grid size-11 place-items-center rounded-xl border border-border bg-white/80 text-ink shadow-sm md:hidden"
+              className="grid size-11 place-items-center rounded-xl border border-border bg-white/85 text-ink shadow-[0_8px_22px_rgba(45,38,30,0.06)] md:hidden"
               aria-label={open ? "Close menu" : "Open menu"}
               onClick={() => setOpen((v) => !v)}
             >
@@ -95,7 +97,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         </div>
 
         {open && (
-          <nav className="glass-nav mx-auto mt-2 w-[min(1240px,100%)] rounded-2xl p-2 md:hidden" aria-label="Mobile">
+          <nav className="glass-nav mx-auto mt-2 w-[min(1240px,100%)] rounded-[22px] p-2 md:hidden" aria-label="Mobile">
             <div className="flex flex-col gap-1">
               {LINKS.map((link) => (
                 <Link
@@ -112,7 +114,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 to="/order"
                 search={{ type: "hat" }}
                 onClick={() => setOpen(false)}
-                className="mt-1 flex items-center justify-between rounded-xl border border-primary/20 bg-primary/[0.08] px-4 py-3 text-sm font-bold text-primary"
+                className="mt-1 flex items-center justify-between rounded-xl border border-ink bg-ink px-4 py-3 text-sm font-bold text-white shadow-[0_12px_30px_rgba(29,29,31,0.14)]"
               >
                 Build your hat <ArrowUpRight className="size-4" />
               </Link>
@@ -124,14 +126,14 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <main id="main">{children}</main>
 
       {pathname !== "/order" && (
-        <footer className="mt-20 border-t border-border bg-white/55 py-12 backdrop-blur-xl">
-          <div className="mx-auto grid w-[min(1180px,94vw)] gap-8 md:grid-cols-[1.2fr_0.8fr]">
+        <footer className="mt-24 border-t border-border/80 bg-white/50 py-14 backdrop-blur-xl">
+          <div className="mx-auto grid w-[min(1180px,94vw)] gap-10 md:grid-cols-[1.2fr_0.8fr]">
             <div>
               <div className="flex items-center gap-2">
                 <span className="status-dot" />
                 <span className="tech-label">REC build system</span>
               </div>
-              <p className="mt-4 font-display text-3xl font-bold tracking-[-0.035em] text-ink">REC Mama Made</p>
+              <p className="mt-4 font-display text-3xl font-bold tracking-[-0.04em] text-ink">REC Mama Made</p>
               <p className="mt-3 max-w-xl text-sm leading-6 text-bark">
                 Custom Richardson hats and heat-adhesive leatherette patches with real product photography, live customization preview, and a proof before production. Laser holes are available; sewing and thread are not offered.
               </p>
@@ -149,7 +151,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           </div>
           <div className="mx-auto mt-10 w-[min(1180px,94vw)]">
             <div className="metal-line" />
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[0.65rem] font-semibold tracking-[0.12em] text-subtle uppercase">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[0.64rem] font-semibold tracking-[0.14em] text-subtle uppercase">
               <span>REC Mama Made</span>
               <span>Real assets · Real materials · Proof before production</span>
             </div>
