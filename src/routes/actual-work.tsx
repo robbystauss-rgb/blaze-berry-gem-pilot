@@ -67,7 +67,7 @@ function WorkPage() {
                 type="button"
                 className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-white px-3 text-sm font-semibold text-ink shadow-[0_8px_22px_rgba(45,38,30,0.05)]"
                 aria-label="Next finished work"
-                onClick={() => setOpen((value) => (value + 1 + photos.length) % photos.length)}
+                onClick={() => setOpen((value) => (value + 1) % photos.length)}
               >
                 <ArrowRight className="size-4" />
               </button>
