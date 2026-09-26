@@ -25,18 +25,19 @@ export function WorkLibrary() {
   if (!photo || !decision) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div>
-        <h2 className="font-display text-3xl text-stage-ink">Work library</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-stage-muted">
+        <h2 className="font-display text-[clamp(2rem,6vw,3rem)] leading-tight text-stage-ink">Work library</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-7 text-stage-muted">
           {MASTER.work.length} real finished hats. No titles were invented. Featured, recent, public, and hidden can be marked before any other field is filled in. The public gallery is unchanged.
         </p>
       </div>
-      <div className="overflow-hidden rounded-3xl bg-stage-photo shadow-stage ring-1 ring-stage-line">
+      <div className="product-card-stage grid aspect-[4/3] max-h-[720px] min-h-[300px] place-items-center rounded-3xl p-5 shadow-stage ring-1 ring-stage-line sm:aspect-[16/10] sm:p-7">
         <img
           src={drivePhoto(photo.driveId, 1400) ?? ""}
           alt={decision.title || "Untitled finished work"}
-          className="max-h-[68dvh] w-full object-contain"
+          className="h-auto max-h-[92%] w-auto max-w-[94%] object-contain"
+          decoding="async"
         />
       </div>
       <div className="flex flex-wrap gap-2">
@@ -45,10 +46,10 @@ export function WorkLibrary() {
         <Toggle on={decision.public} label="Public" onClick={() => patchWork(photo.id, { public: !decision.public })} />
         <Toggle on={decision.hidden} label="Hidden" onClick={() => patchWork(photo.id, { hidden: !decision.hidden })} />
       </div>
-      <p className="text-sm text-stage-muted">
+      <p className="text-sm leading-6 text-stage-muted">
         {decision.title ? decision.title : "Needs metadata"}. Public and hidden stay in Studio. They do not change the live gallery.
       </p>
-      <details className="rounded-2xl bg-stage p-4 ring-1 ring-stage-line">
+      <details className="rounded-2xl bg-white p-4 ring-1 ring-stage-line sm:p-5">
         <summary className="cursor-pointer text-sm font-semibold text-stage-ink">Assign metadata later</summary>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <Field label="Title">
@@ -105,9 +106,9 @@ export function WorkLibrary() {
             </select>
           </Field>
         </div>
-        <p className="mt-3 text-xs text-stage-muted">File name, not a caption: {photo.fileName}</p>
+        <p className="mt-3 break-all text-xs leading-5 text-stage-muted">File name, not a caption: {photo.fileName}</p>
       </details>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {MASTER.work.map((item, index) => {
           const meta = workDecision({ work }, item.id);
           const src = drivePhoto(item.driveId, 480);
@@ -117,11 +118,13 @@ export function WorkLibrary() {
               key={item.id}
               type="button"
               onClick={() => setActive(item.id)}
-              className={`overflow-hidden rounded-2xl bg-stage-photo text-left shadow-stage ring-2 ${on ? "ring-primary" : "ring-transparent"}`}
+              className={`overflow-hidden rounded-2xl bg-white text-left shadow-[0_10px_28px_rgba(45,38,30,0.05)] ring-2 ${on ? "ring-primary" : "ring-transparent"}`}
             >
-              {src && <img src={src} alt="" loading="lazy" className="h-52 w-full object-contain" />}
-              <span className="block px-3 py-2 text-sm text-stage-ink">{meta.title || `Needs metadata · ${index + 1}`}</span>
-              <span className="block px-3 pb-3 text-xs text-stage-muted">
+              <span className="product-card-stage grid aspect-[4/3] place-items-center p-2">
+                {src && <img src={src} alt="" loading="lazy" decoding="async" className="h-auto max-h-[90%] w-auto max-w-[94%] object-contain" />}
+              </span>
+              <span className="block px-3 py-2 text-sm leading-5 text-stage-ink">{meta.title || `Needs metadata · ${index + 1}`}</span>
+              <span className="block px-3 pb-3 text-xs leading-5 text-stage-muted">
                 {[meta.featured && "Featured", meta.recent && "Recent", meta.public && "Public", meta.hidden && "Hidden"].filter(Boolean).join(" · ") || "Unmarked"}
               </span>
             </button>
@@ -132,11 +135,11 @@ export function WorkLibrary() {
   );
 }
 
-const fieldClass = "mt-1 w-full rounded-xl bg-stage-photo px-3 py-2 text-sm text-stage-ink ring-1 ring-stage-line";
+const fieldClass = "mt-1 min-h-11 w-full rounded-xl bg-stage-photo px-3 py-2 text-sm text-stage-ink ring-1 ring-stage-line";
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="text-xs font-semibold tracking-wide text-stage-muted uppercase">
+    <label className="min-w-0 text-xs font-semibold tracking-wide text-stage-muted uppercase">
       {label}
       {children}
     </label>
