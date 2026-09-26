@@ -247,12 +247,10 @@ function PatchOverlay({
   const face: CSSProperties = {
     clipPath: clipFor(shape),
     backgroundColor: leather.hex,
-    backgroundImage: leather.texture
-      ? `linear-gradient(160deg, ${leather.hi} 0%, transparent 46%), url(${leather.texture})`
-      : `linear-gradient(160deg, ${leather.hi} 0%, ${leather.hex} 55%, ${leather.lo} 100%)`,
+    backgroundImage: `url(${leather.texture})`,
     backgroundSize: "cover",
+    backgroundPosition: "center",
     color: leather.ink,
-    boxShadow: "0 12px 22px rgba(44,33,30,0.32), inset 0 1px 0 rgba(255,255,255,0.4)",
     transition: "clip-path 220ms ease",
   };
 
@@ -271,7 +269,7 @@ function PatchOverlay({
             src={artworkUrl}
             alt=""
             className="relative z-10 max-h-[82%] max-w-[82%] object-contain"
-            style={{ filter: "grayscale(1) contrast(1.4)", mixBlendMode: "multiply" }}
+            style={{ filter: "grayscale(1)", mixBlendMode: "multiply", opacity: 0.85 }}
           />
         ) : (
           <span className="relative z-10 line-clamp-3 px-1 font-display text-[clamp(0.7rem,1.5vw,1.15rem)] leading-tight font-semibold tracking-wide">
@@ -303,21 +301,19 @@ export function PatchCard({
   const style: CSSProperties = {
     clipPath: clipFor(safe),
     backgroundColor: leather.hex,
-    backgroundImage: leather.texture
-      ? `linear-gradient(160deg, ${leather.hi}, transparent 50%), url(${leather.texture})`
-      : `linear-gradient(160deg, ${leather.hi}, ${leather.hex} 55%, ${leather.lo})`,
+    backgroundImage: `url(${leather.texture})`,
     backgroundSize: "cover",
+    backgroundPosition: "center",
     color: leather.ink,
     width: size === "small" ? 168 : size === "large" ? 300 : 230,
     maxWidth: "82vw",
     aspectRatio: safe === "Oval" ? "1.45 / 1" : safe === "Circle" ? "1" : "1.35 / 1",
-    boxShadow: "0 16px 30px rgba(44,33,30,0.16)",
   };
   return (
     <div className={cn("grid place-items-center", className)}>
       <div className="flex items-center justify-center px-3 text-center" style={style}>
         {artworkUrl && !artworkUrl.startsWith("data:application/pdf") ? (
-          <img src={artworkUrl} alt="" className="max-h-[78%] max-w-[78%] object-contain" style={{ filter: "grayscale(1) contrast(1.35)", mixBlendMode: "multiply" }} />
+          <img src={artworkUrl} alt="" className="max-h-[78%] max-w-[78%] object-contain" style={{ filter: "grayscale(1)", mixBlendMode: "multiply", opacity: 0.85 }} />
         ) : (
           <span className="font-display text-lg leading-tight font-semibold">{artworkUrl ? "PDF artwork" : patchText.trim() || "Your patch"}</span>
         )}

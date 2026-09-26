@@ -57,14 +57,14 @@ replaceOnce(
 );
 
 replaceOnce(
-  '          <Button type="button" onClick={() => (next ? go(index + 1) : ready && window.open(ETSY_LISTING, "_blank", "noopener"))}>\n            {next ? `Continue · ${STEP_LABEL[next]}` : continueLabel}\n          </Button>',
-  '          <Button\n            type="button"\n            disabled={next ? !canAdvance : !ready}\n            onClick={() => {\n              if (next && canAdvance) go(index + 1);\n              else if (!next && ready) window.open(ETSY_LISTING, "_blank", "noopener");\n            }}\n          >\n            {next && canAdvance ? `Continue · ${STEP_LABEL[next]}` : continueLabel}\n          </Button>',
+  '          <Button type="button" onClick={() => (next ? go(index + 1) : ready && setCheckoutOpen(true))}>\n            {next ? `Continue · ${STEP_LABEL[next]}` : continueLabel}\n          </Button>',
+  '          <Button\n            type="button"\n            disabled={next ? !canAdvance : !ready}\n            onClick={() => {\n              if (next && canAdvance) go(index + 1);\n              else if (!next && ready) setCheckoutOpen(true);\n            }}\n          >\n            {next && canAdvance ? `Continue · ${STEP_LABEL[next]}` : continueLabel}\n          </Button>',
   "block desktop advance when color or design is missing",
 );
 
 replaceOnce(
-  '          <Button\n            type="button"\n            size="sm"\n            onClick={() => {\n              if (active !== "review") go(index + 1);\n              else if (ready) window.open(ETSY_LISTING, "_blank", "noopener");\n            }}\n          >\n            {continueLabel}\n          </Button>',
-  '          <Button\n            type="button"\n            size="sm"\n            disabled={active === "review" ? !ready : !canAdvance}\n            onClick={() => {\n              if (active !== "review" && canAdvance) go(index + 1);\n              else if (active === "review" && ready) window.open(ETSY_LISTING, "_blank", "noopener");\n            }}\n          >\n            {continueLabel}\n          </Button>',
+  '          <Button\n            type="button"\n            size="sm"\n            onClick={() => {\n              if (active !== "review") go(index + 1);\n              else if (ready) setCheckoutOpen(true);\n            }}\n          >\n            {continueLabel}\n          </Button>',
+  '          <Button\n            type="button"\n            size="sm"\n            disabled={active === "review" ? !ready : !canAdvance}\n            onClick={() => {\n              if (active !== "review" && canAdvance) go(index + 1);\n              else if (active === "review" && ready) setCheckoutOpen(true);\n            }}\n          >\n            {continueLabel}\n          </Button>',
   "block mobile advance when color or design is missing",
 );
 

@@ -76,7 +76,7 @@ const sourceFiles = [];
 function walk(dir) { if (!fs.existsSync(dir)) return; for (const e of fs.readdirSync(dir,{withFileTypes:true})) { const p=path.join(dir,e.name); if(e.isDirectory()) walk(p); else if(/\.(ts|tsx|js|jsx)$/.test(p)) sourceFiles.push(p); } }
 walk(path.join(root,"src"));
 for (const file of sourceFiles) {
-  const relFile = path.relative(root, file);
+  const relFile = path.relative(root, file).split(path.sep).join("/");
   if (relFile === "src/lib/colorways.ts") continue;
   const text = fs.readFileSync(file,"utf8");
   if (text.includes("/products/hat-")) fail.push(`${relFile} still references unverified hat art`);

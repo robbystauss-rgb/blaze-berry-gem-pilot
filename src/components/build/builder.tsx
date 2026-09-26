@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Check } from "lucide-react";
 import { HatPreview, ShapeMark } from "@/components/hat/hat-preview";
 import { Button } from "@/components/ui/button";
+import { Checkout } from "./checkout";
 import {
-  ETSY_LISTING,
   FAMILIES,
   FAMILY_ORDER,
   LEATHERETTES,
@@ -77,6 +77,10 @@ export function Builder({
   const [warn, setWarn] = useState("");
   const [drawer, setDrawer] = useState(false);
   const [materialOpen, setMaterialOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("payment_return")) setCheckoutOpen(true);
+  }, []);
   const active: StepId = steps.includes(step) ? step : (steps[0] ?? "hat");
   const index = steps.indexOf(active);
   const family = FAMILIES[familyId];
@@ -133,7 +137,7 @@ export function Builder({
           ? "Add your email"
           : missingDesign
             ? "Add a design"
-            : "Continue on Etsy"
+            : "Secure checkout"
       : active === "hat"
         ? "Choose color"
         : active === "color" && !colorway
@@ -544,9 +548,7 @@ export function Builder({
               />
               <div className="mt-4 flex flex-wrap gap-2">
                 {ready ? (
-                  <a href={ETSY_LISTING} target="_blank" rel="noreferrer">
-                    <Button type="button">Continue on Etsy</Button>
-                  </a>
+                  <Button type="button" onClick={() => setCheckoutOpen(true)}>Secure checkout</Button>
                 ) : (
                   <Button type="button" disabled>
                     {continueLabel}
@@ -574,7 +576,7 @@ export function Builder({
             disabled={next ? !canAdvance : !ready}
             onClick={() => {
               if (next && canAdvance) go(index + 1);
-              else if (!next && ready) window.open(ETSY_LISTING, "_blank", "noopener");
+              else if (!next && ready) setCheckoutOpen(true);
             }}
           >
             {next && canAdvance ? `Continue · ${STEP_LABEL[next]}` : continueLabel}
@@ -606,13 +608,15 @@ export function Builder({
             disabled={active === "review" ? !ready : !canAdvance}
             onClick={() => {
               if (active !== "review" && canAdvance) go(index + 1);
-              else if (active === "review" && ready) window.open(ETSY_LISTING, "_blank", "noopener");
+              else if (active === "review" && ready) setCheckoutOpen(true);
             }}
           >
             {continueLabel}
           </Button>
         </div>
       </div>
+
+      <Checkout open={checkoutOpen} onOpenChange={setCheckoutOpen} draft={{ ...draft, orderType, family: familyId, colorway, tier: family.tier, patchShape: shape }} summary={summary} />
 
       {drawer && (
         <div className="fixed inset-0 z-50 flex items-end bg-bg/50 p-0 lg:hidden" onClick={() => setDrawer(false)}>
