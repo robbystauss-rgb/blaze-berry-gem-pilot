@@ -20,27 +20,29 @@ export function ColorCard({
       search={{ family, color: name }}
       className="premium-card group block overflow-hidden rounded-[26px] bg-white"
     >
-      <div className="product-card-stage grid aspect-[4/3] w-full place-items-center overflow-hidden">
+      <div className="product-card-stage grid aspect-[4/3] w-full place-items-center p-4 sm:p-5">
         {photo ? (
           <img
             src={photo}
             alt={`${family} ${name}`}
-            className="relative z-10 h-[86%] w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.035]"
+            className="relative z-10 h-auto max-h-[82%] w-auto max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
-          <div className="grid h-full w-full place-items-center px-5 text-center text-xs text-stage-muted">
+          <div className="grid h-full w-full place-items-center px-5 text-center text-xs leading-5 text-stage-muted">
             Verified product photo unavailable
           </div>
         )}
       </div>
-      <div className="flex items-start justify-between gap-3 px-4 py-4">
+      <div className="flex min-h-[84px] items-start justify-between gap-3 border-t border-border/70 px-4 py-4">
         <div className="min-w-0">
           {category && (
-            <p className="text-[0.62rem] font-extrabold tracking-[0.15em] text-primary uppercase">
+            <p className="text-[0.62rem] font-extrabold tracking-[0.14em] text-primary uppercase">
               {category}
             </p>
           )}
-          <p className="mt-1 truncate font-display text-[1.02rem] font-semibold tracking-[-0.025em] text-stage-ink">{name}</p>
+          <p className="mt-1 font-display text-[1.02rem] font-semibold leading-snug tracking-[-0.025em] text-stage-ink">{name}</p>
         </div>
         <span className="mt-1 grid size-7 shrink-0 place-items-center rounded-full border border-border bg-surface text-subtle transition-colors group-hover:border-primary/40 group-hover:text-primary">
           <span aria-hidden="true">→</span>
@@ -73,10 +75,10 @@ export function LeatherSwatch({
       )}
     >
       <span
-        className="relative block aspect-square w-full overflow-hidden bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.025]"
+        className="relative block aspect-square w-full overflow-hidden bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.02]"
         style={{ backgroundColor: hex, backgroundImage: `url(${texture})` }}
       />
-      <span className="flex items-center justify-between gap-2 px-3 py-3 text-sm font-semibold text-stage-ink">
+      <span className="flex min-h-12 items-center justify-between gap-2 px-3 py-3 text-sm font-semibold leading-5 text-stage-ink">
         <span>{name}</span>
         {selected && <Check className="size-4 shrink-0 text-primary" />}
       </span>
