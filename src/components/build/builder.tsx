@@ -208,13 +208,13 @@ export function Builder({
     !(active === "design" && missingDesign);
 
   return (
-    <div className="lg:grid lg:min-h-[calc(100dvh-7.25rem)] lg:grid-cols-[minmax(0,1.28fr)_minmax(320px,0.92fr)]">
-      <div className="relative min-h-[58vh] bg-[radial-gradient(90%_70%_at_50%_32%,#fff_0%,#f6f1ea_58%,#e8e0d4_100%)] lg:sticky lg:top-[7.25rem] lg:h-[calc(100dvh-7.25rem)]">
-        <p className="absolute top-4 left-5 text-[11px] font-semibold tracking-[0.16em] text-stage-muted uppercase">Customization preview</p>
-        <p className="absolute top-4 right-5 max-w-[240px] text-right text-[11px] leading-snug text-stage-muted">
+    <div className="safe-grid lg:grid lg:min-h-[calc(100dvh-5.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)]">
+      <div className="relative min-h-[52vh] overflow-hidden bg-[radial-gradient(90%_70%_at_50%_32%,#fff_0%,#f6f1ea_58%,#e8e0d4_100%)] lg:sticky lg:top-[5.5rem] lg:h-[calc(100dvh-5.5rem)]">
+        <p className="absolute left-5 top-4 z-20 text-[10px] font-semibold tracking-[0.15em] text-stage-muted uppercase sm:text-[11px]">Customization preview</p>
+        <p className="absolute right-5 top-4 z-20 hidden max-w-[240px] text-right text-[11px] leading-snug text-stage-muted sm:block">
           Final engraving and placement are confirmed in your digital proof.
         </p>
-        <div className="h-[58vh] lg:h-full">
+        <div className="h-[52vh] min-h-[360px] sm:h-[58vh] lg:h-full lg:min-h-0">
           <HatPreview
             family={familyId}
             colorway={colorway}
@@ -231,8 +231,8 @@ export function Builder({
         </div>
       </div>
 
-      <section className="flex flex-col border-t border-stage-line bg-stage-photo pb-28 lg:max-h-[calc(100dvh-7.25rem)] lg:overflow-hidden lg:border-t-0 lg:border-l lg:pb-0">
-        <div className="flex items-center gap-2 overflow-x-auto px-3 py-2">
+      <section className="flex min-w-0 flex-col border-t border-stage-line bg-white/92 pb-28 lg:max-h-[calc(100dvh-5.5rem)] lg:overflow-hidden lg:border-l lg:border-t-0 lg:pb-0">
+        <div className="sticky top-0 z-20 flex items-center gap-2 overflow-x-auto border-b border-stage-line bg-white/94 px-5 py-3 backdrop-blur-xl sm:px-6">
           <div className="flex shrink-0 rounded-full bg-stage p-1 ring-1 ring-stage-line">
             <button
               type="button"
@@ -269,298 +269,305 @@ export function Builder({
             </button>
           ))}
         </div>
-        <div className="min-h-0 flex-1 overflow-auto">
-        <div className="flex items-center justify-between gap-3 px-3 pt-2">
-          <p className="truncate text-sm font-semibold text-stage-ink">
-            {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}
-            {` · ${leather.name}`}
-          </p>
-          <p key={est.total} className="price-tick shrink-0 text-lg font-semibold tabular-nums">
-            ${est.total.toFixed(2)}
-          </p>
-        </div>
-        {patchOnly && (
-          <p className="px-3 text-xs text-stage-muted">Patch only means a finished loose patch — no hat and no stitching/application.</p>
-        )}
-        {active === "hat" && (
-          <div className="flex gap-3 overflow-x-auto px-3 py-3">
-            {FAMILY_ORDER.filter(isReadyFamily).map((id) => {
-              const item = FAMILIES[id];
-              const photo = familyHero(id);
-              const count = colorsForFamily(id).length;
-              const on = familyId === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => draft.setFamily(id)}
-                  className={cn(
-                    "w-44 shrink-0 overflow-hidden rounded-2xl bg-stage-photo text-left ring-1 transition-transform duration-150",
-                    on ? "ring-2 ring-primary" : "ring-stage-line hover:-translate-y-0.5",
-                  )}
-                >
-                  {photo ? (
-                    <img src={photo} alt="" className="h-28 w-full object-contain" />
-                  ) : (
-                    <span className="grid h-28 place-items-center text-xs text-stage-muted">Photos coming</span>
-                  )}
-                  <span className="flex items-start justify-between gap-2 px-3 py-2">
-                    <span>
-                      <span className="block text-sm font-semibold">
-                        {id} {item.label}
-                      </span>
-                      <span className="text-xs text-stage-muted">
-                        {count ? `${count} colors` : "Colors later"} · ${item.tier === "premium" ? PRICING.premium : PRICING.standard}
-                      </span>
-                    </span>
-                    {on && <Check className="mt-0.5 size-4 shrink-0 text-primary" />}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )}
 
-        {active === "color" && (
-          <div>
-            <p className="px-3 pt-3 text-sm text-stage-muted">
-              {colors.length ? `${colors.length} colors` : "No colors listed yet"} · tap one and the hat changes
+        <div className="min-h-0 flex-1 overflow-auto">
+          <div className="flex items-start justify-between gap-4 px-5 pt-5 sm:px-6">
+            <p className="min-w-0 flex-1 text-sm font-semibold leading-5 text-stage-ink">
+              {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}
+              {` · ${leather.name}`}
             </p>
-            <div className="flex gap-2 overflow-x-auto px-3 py-3">
-              {colors.map((name) => {
-                const thumb = stageThumb(familyId, name);
-                const on = colorway === name;
+            <p key={est.total} className="price-tick shrink-0 text-lg font-semibold tabular-nums">
+              ${est.total.toFixed(2)}
+            </p>
+          </div>
+          {patchOnly && (
+            <p className="px-5 pt-1 text-xs leading-5 text-stage-muted sm:px-6">Patch only means a finished loose patch — no hat and no stitching/application.</p>
+          )}
+
+          {active === "hat" && (
+            <div className="flex gap-3 overflow-x-auto px-5 py-4 sm:px-6">
+              {FAMILY_ORDER.filter(isReadyFamily).map((id) => {
+                const item = FAMILIES[id];
+                const photo = familyHero(id);
+                const count = colorsForFamily(id).length;
+                const on = familyId === id;
                 return (
                   <button
-                    key={name}
-                    id={`swatch-${name}`}
+                    key={id}
                     type="button"
-                    onClick={() => draft.set("colorway", name)}
+                    onClick={() => draft.setFamily(id)}
                     className={cn(
-                      "w-32 shrink-0 rounded-2xl bg-stage-photo p-1.5 text-left ring-1",
-                      on ? "ring-2 ring-primary" : "ring-stage-line",
+                      "w-44 shrink-0 overflow-hidden rounded-2xl bg-white text-left shadow-[0_10px_28px_rgba(45,38,30,0.05)] ring-1 transition-transform duration-150",
+                      on ? "ring-2 ring-primary" : "ring-stage-line hover:-translate-y-0.5",
                     )}
                   >
-                    {thumb ? (
-                      <img src={thumb} alt="" className="h-20 w-full object-contain" />
-                    ) : (
-                      <span className="grid h-20 place-items-center text-xs text-stage-muted">No photo yet</span>
-                    )}
-                    <span className="mt-1 flex items-start justify-between gap-1 px-1 pb-1 text-xs font-semibold">
-                      <span className="line-clamp-2">{name}</span>
-                      {on && <Check className="size-3.5 shrink-0 text-primary" />}
+                    <span className="product-card-stage grid aspect-[4/3] place-items-center p-3">
+                      {photo ? (
+                        <img src={photo} alt="" className="h-auto max-h-[82%] w-auto max-w-[90%] object-contain" loading="lazy" decoding="async" />
+                      ) : (
+                        <span className="grid h-full place-items-center text-xs text-stage-muted">Photos coming</span>
+                      )}
+                    </span>
+                    <span className="flex min-h-[74px] items-start justify-between gap-2 px-3 py-3">
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold leading-5">
+                          {id} {item.label}
+                        </span>
+                        <span className="mt-1 block text-xs leading-5 text-stage-muted">
+                          {count ? `${count} colors` : "Colors later"} · ${item.tier === "premium" ? PRICING.premium : PRICING.standard}
+                        </span>
+                      </span>
+                      {on && <Check className="mt-0.5 size-4 shrink-0 text-primary" />}
                     </span>
                   </button>
                 );
               })}
             </div>
-          </div>
-        )}
+          )}
 
-        {active === "material" && (
-          <div className="flex gap-3 overflow-x-auto px-3 py-3">
-            {LEATHERETTES.map((item) => {
-              const on = draft.leatherette === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    if (on) setMaterialOpen(true);
-                    else draft.set("leatherette", item.id);
-                  }}
-                  className={cn(
-                    "w-40 shrink-0 overflow-hidden rounded-2xl text-left ring-1 transition-transform duration-150",
-                    on ? "ring-2 ring-primary" : "ring-stage-line hover:-translate-y-0.5",
-                  )}
-                >
-                  <div className="h-24 overflow-hidden bg-stage">
-                    <img src={item.texture} alt={`${item.name} material`} className="h-full w-full object-cover" />
-                  </div>
-                  <span className="flex items-start justify-between gap-2 px-3 py-2">
-                    <span>
-                      <span className="block text-sm font-semibold">{item.name}</span>
-                      <span className="text-xs text-stage-muted">{on ? "Tap again to inspect" : item.engrave}</span>
+          {active === "color" && (
+            <div>
+              <p className="px-5 pt-4 text-sm leading-6 text-stage-muted sm:px-6">
+                {colors.length ? `${colors.length} colors` : "No colors listed yet"} · tap one and the hat changes
+              </p>
+              <div className="flex gap-3 overflow-x-auto px-5 py-4 sm:px-6">
+                {colors.map((name) => {
+                  const thumb = stageThumb(familyId, name);
+                  const on = colorway === name;
+                  return (
+                    <button
+                      key={name}
+                      id={`swatch-${name}`}
+                      type="button"
+                      onClick={() => draft.set("colorway", name)}
+                      className={cn(
+                        "w-36 shrink-0 overflow-hidden rounded-2xl bg-white text-left shadow-[0_10px_28px_rgba(45,38,30,0.05)] ring-1",
+                        on ? "ring-2 ring-primary" : "ring-stage-line",
+                      )}
+                    >
+                      <span className="product-card-stage grid aspect-[4/3] place-items-center p-2.5">
+                        {thumb ? (
+                          <img src={thumb} alt="" className="h-auto max-h-[84%] w-auto max-w-[92%] object-contain" loading="lazy" decoding="async" />
+                        ) : (
+                          <span className="grid h-full place-items-center text-xs text-stage-muted">No photo yet</span>
+                        )}
+                      </span>
+                      <span className="flex min-h-14 items-start justify-between gap-1 px-3 py-2.5 text-xs font-semibold leading-5">
+                        <span>{name}</span>
+                        {on && <Check className="size-3.5 shrink-0 text-primary" />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {active === "material" && (
+            <div className="flex gap-3 overflow-x-auto px-5 py-4 sm:px-6">
+              {LEATHERETTES.map((item) => {
+                const on = draft.leatherette === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      if (on) setMaterialOpen(true);
+                      else draft.set("leatherette", item.id);
+                    }}
+                    className={cn(
+                      "w-44 shrink-0 overflow-hidden rounded-2xl bg-white text-left shadow-[0_10px_28px_rgba(45,38,30,0.05)] ring-1 transition-transform duration-150",
+                      on ? "ring-2 ring-primary" : "ring-stage-line hover:-translate-y-0.5",
+                    )}
+                  >
+                    <div className="aspect-[4/3] overflow-hidden bg-stage">
+                      <img src={item.texture} alt={`${item.name} material`} className="h-full w-full object-cover object-center" loading="lazy" decoding="async" />
+                    </div>
+                    <span className="flex min-h-[74px] items-start justify-between gap-2 px-3 py-3">
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold leading-5">{item.name}</span>
+                        <span className="mt-1 block text-xs leading-5 text-stage-muted">{on ? "Tap again to inspect" : item.engrave}</span>
+                      </span>
+                      {on && <Check className="size-4 shrink-0 text-primary" />}
                     </span>
-                    {on && <Check className="size-4 shrink-0 text-primary" />}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {active === "shape" && (
-          <div className="px-3 py-3">
-            <div className="flex gap-2 overflow-x-auto">
-              {PATCH_SHAPES.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => draft.set("patchShape", item)}
-                  className={cn(
-                    "w-28 shrink-0 rounded-2xl bg-stage px-2 py-3 text-center ring-1",
-                    shape === item ? "ring-2 ring-primary" : "ring-stage-line",
-                  )}
-                >
-                  <ShapeMark shape={item} texture={leather.texture} className="mx-auto w-14" />
-                  <span className="mt-2 block text-xs font-semibold">{item}</span>
-                  {shape === item && <Check className="mx-auto mt-1 size-3.5 text-primary" />}
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {(["small", "medium", "large"] as const).map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => {
-                    if (tooLarge(item, draft.placement)) {
-                      setWarn("This patch size is too large for this position.");
-                      return;
-                    }
-                    setWarn("");
-                    draft.set("patchSize", item);
-                  }}
-                  className={cn(
-                    "min-h-11 rounded-full px-4 text-sm font-semibold capitalize",
-                    draft.patchSize === item ? "bg-primary text-primary-fg" : "bg-stage ring-1 ring-stage-line",
-                  )}
-                >
-                  {item}
-                </button>
-              ))}
+          )}
+
+          {active === "shape" && (
+            <div className="px-5 py-4 sm:px-6">
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {PATCH_SHAPES.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => draft.set("patchShape", item)}
+                    className={cn(
+                      "w-28 shrink-0 rounded-2xl bg-stage px-2 py-3 text-center ring-1",
+                      shape === item ? "ring-2 ring-primary" : "ring-stage-line",
+                    )}
+                  >
+                    <ShapeMark shape={item} texture={leather.texture} className="mx-auto w-14" />
+                    <span className="mt-2 block text-xs font-semibold leading-5">{item}</span>
+                    {shape === item && <Check className="mx-auto mt-1 size-3.5 text-primary" />}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {(["small", "medium", "large"] as const).map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => {
+                      if (tooLarge(item, draft.placement)) {
+                        setWarn("This patch size is too large for this position.");
+                        return;
+                      }
+                      setWarn("");
+                      draft.set("patchSize", item);
+                    }}
+                    className={cn(
+                      "min-h-11 rounded-full px-4 text-sm font-semibold capitalize",
+                      draft.patchSize === item ? "bg-primary text-primary-fg" : "bg-stage ring-1 ring-stage-line",
+                    )}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {active === "design" && (
-          <div className="grid gap-3 px-3 py-3 md:grid-cols-2">
-            <label className="block">
-              <span className="text-sm font-semibold">Text on the patch</span>
-              <input
-                value={draft.patchText}
-                onChange={(event) => draft.set("patchText", event.target.value)}
-                placeholder="Type it. It shows on the hat."
-                className="mt-2 w-full rounded-xl bg-stage px-3 py-3 text-base ring-1 ring-stage-line"
-              />
-            </label>
-            <label className="block rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line">
-              <span className="text-sm font-semibold">Upload artwork</span>
-              <span className="mt-1 block text-xs text-stage-muted">PNG, JPG, WEBP, SVG, or PDF</span>
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/svg+xml,application/pdf"
-                className="mt-2 block w-full text-sm"
-                onChange={(event) => void onUpload(event.target.files?.[0])}
-              />
-            </label>
-            <p className="text-sm text-stage-muted md:col-span-2">No REC Mama Made designs are in the library yet.</p>
-          </div>
-        )}
-
-        {active === "position" && (
-          <div className="px-3 py-4">
-            <p className="text-sm text-stage-ink">
-              Tap a spot on the hat. The patch moves there.
-              {draft.placement ? ` Now: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}.` : ""}
-            </p>
-          </div>
-        )}
-
-        {active === "review" && (
-          <div className="px-3 py-3">
-            <ul className="grid gap-2 text-sm md:grid-cols-2">
-              <ReviewRow
-                label={patchOnly ? "Patch only" : `Richardson ${family.id}`}
-                value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` · ${colorway}` : ""}`}
-                onEdit={() => setStep(patchOnly ? "material" : "hat")}
-              />
-              <ReviewRow label="Material" value={`${leather.name} · ${leather.engrave}`} onEdit={() => setStep("material")} />
-              <ReviewRow label="Shape" value={`${shape} · ${draft.patchSize}`} onEdit={() => setStep("shape")} />
-              <ReviewRow
-                label="Design"
-                value={draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "Not added")}
-                onEdit={() => setStep("design")}
-              />
-              {!patchOnly && (
-                <ReviewRow
-                  label="Position"
-                  value={PLACEMENTS.find((item) => item.id === draft.placement)?.label ?? ""}
-                  onEdit={() => setStep("position")}
+          {active === "design" && (
+            <div className="grid gap-4 px-5 py-4 sm:px-6 md:grid-cols-2">
+              <label className="block min-w-0">
+                <span className="text-sm font-semibold">Text on the patch</span>
+                <input
+                  value={draft.patchText}
+                  onChange={(event) => draft.set("patchText", event.target.value)}
+                  placeholder="Type it. It shows on the hat."
+                  className="mt-2 w-full rounded-xl bg-stage px-3 py-3 text-base ring-1 ring-stage-line"
                 />
-              )}
-            </ul>
-            <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_6rem]">
-              <input
-                value={draft.customerName}
-                onChange={(event) => draft.set("customerName", event.target.value)}
-                placeholder="Name"
-                className="rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line"
-              />
-              <input
-                value={draft.customerEmail}
-                onChange={(event) => draft.set("customerEmail", event.target.value)}
-                placeholder="Email"
-                type="email"
-                className="rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line"
-              />
-              <input
-                type="number"
-                min={1}
-                aria-label="Quantity"
-                value={draft.quantity}
-                onChange={(event) => draft.set("quantity", Number(event.target.value) || 1)}
-                className="rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line"
-              />
+              </label>
+              <label className="block min-w-0 rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line">
+                <span className="text-sm font-semibold">Upload artwork</span>
+                <span className="mt-1 block text-xs leading-5 text-stage-muted">PNG, JPG, WEBP, SVG, or PDF</span>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml,application/pdf"
+                  className="mt-2 block w-full max-w-full text-sm"
+                  onChange={(event) => void onUpload(event.target.files?.[0])}
+                />
+              </label>
+              <p className="text-sm leading-6 text-stage-muted md:col-span-2">No REC Mama Made designs are in the library yet.</p>
             </div>
-            <p className="mt-2 text-sm text-stage-muted">
-              {patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each
-              {est.bonus ? ` · ${est.bonus} bonus hat${est.bonus === 1 ? "" : "s"}` : ""} · Proof included before engraving.
-            </p>
-            <input
-              value={draft.promo}
-              onChange={(event) => draft.set("promo", event.target.value)}
-              placeholder="Promo code"
-              aria-label="Promo code"
-              className="mt-2 w-full rounded-xl bg-stage px-3 py-3 text-sm ring-1 ring-stage-line"
-            />
-            {est.zaddy && <p className="mt-1 text-sm text-stage-ink">ZADDY applied. Classic 112 is $25.</p>}
-            {draft.promo.trim().toUpperCase() === "ZADDY" && !est.zaddy && (
-              <p className="mt-1 text-sm text-stage-muted">ZADDY only prices the classic 112. Premium hats and patch only stay at full price.</p>
-            )}
-            <textarea
-              value={draft.notes}
-              onChange={(event) => draft.set("notes", event.target.value)}
-              rows={2}
-              placeholder="Notes for the proof"
-              className="mt-2 w-full rounded-xl bg-stage px-3 py-3 text-sm ring-1 ring-stage-line"
-            />
-            <div className="mt-3 flex flex-wrap gap-2">
-              {ready ? (
-                <a href={ETSY_LISTING} target="_blank" rel="noreferrer">
-                  <Button type="button">Continue on Etsy</Button>
-                </a>
-              ) : (
-                <Button type="button" disabled>
-                  {continueLabel}
-                </Button>
-              )}
-              <Button type="button" variant="outline" onClick={() => void navigator.clipboard.writeText(summary)}>
-                Copy build
-              </Button>
-              <a href={`mailto:?subject=${encodeURIComponent("REC Mama Made order")}&body=${encodeURIComponent(summary)}`}>
-                <Button type="button" variant="outline">
-                  Email this build
-                </Button>
-              </a>
-            </div>
-          </div>
-        )}
+          )}
 
-        {warn && <p className="px-3 pb-2 text-sm text-stage-ink">{warn}</p>}
+          {active === "position" && (
+            <div className="px-5 py-5 sm:px-6">
+              <p className="max-w-xl text-sm leading-6 text-stage-ink">
+                Tap a spot on the hat. The patch moves there.
+                {draft.placement ? ` Now: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}.` : ""}
+              </p>
+            </div>
+          )}
+
+          {active === "review" && (
+            <div className="px-5 py-4 sm:px-6">
+              <ul className="grid gap-2 text-sm md:grid-cols-2">
+                <ReviewRow
+                  label={patchOnly ? "Patch only" : `Richardson ${family.id}`}
+                  value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` · ${colorway}` : ""}`}
+                  onEdit={() => setStep(patchOnly ? "material" : "hat")}
+                />
+                <ReviewRow label="Material" value={`${leather.name} · ${leather.engrave}`} onEdit={() => setStep("material")} />
+                <ReviewRow label="Shape" value={`${shape} · ${draft.patchSize}`} onEdit={() => setStep("shape")} />
+                <ReviewRow
+                  label="Design"
+                  value={draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "Not added")}
+                  onEdit={() => setStep("design")}
+                />
+                {!patchOnly && (
+                  <ReviewRow
+                    label="Position"
+                    value={PLACEMENTS.find((item) => item.id === draft.placement)?.label ?? ""}
+                    onEdit={() => setStep("position")}
+                  />
+                )}
+              </ul>
+              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_6rem]">
+                <input
+                  value={draft.customerName}
+                  onChange={(event) => draft.set("customerName", event.target.value)}
+                  placeholder="Name"
+                  className="min-w-0 rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line"
+                />
+                <input
+                  value={draft.customerEmail}
+                  onChange={(event) => draft.set("customerEmail", event.target.value)}
+                  placeholder="Email"
+                  type="email"
+                  className="min-w-0 rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line"
+                />
+                <input
+                  type="number"
+                  min={1}
+                  aria-label="Quantity"
+                  value={draft.quantity}
+                  onChange={(event) => draft.set("quantity", Number(event.target.value) || 1)}
+                  className="min-w-0 rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line"
+                />
+              </div>
+              <p className="mt-3 text-sm leading-6 text-stage-muted">
+                {patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each
+                {est.bonus ? ` · ${est.bonus} bonus hat${est.bonus === 1 ? "" : "s"}` : ""} · Proof included before engraving.
+              </p>
+              <input
+                value={draft.promo}
+                onChange={(event) => draft.set("promo", event.target.value)}
+                placeholder="Promo code"
+                aria-label="Promo code"
+                className="mt-3 w-full rounded-xl bg-stage px-3 py-3 text-sm ring-1 ring-stage-line"
+              />
+              {est.zaddy && <p className="mt-2 text-sm text-stage-ink">ZADDY applied. Classic 112 is $25.</p>}
+              {draft.promo.trim().toUpperCase() === "ZADDY" && !est.zaddy && (
+                <p className="mt-2 text-sm leading-6 text-stage-muted">ZADDY only prices the classic 112. Premium hats and patch only stay at full price.</p>
+              )}
+              <textarea
+                value={draft.notes}
+                onChange={(event) => draft.set("notes", event.target.value)}
+                rows={3}
+                placeholder="Notes for the proof"
+                className="mt-3 w-full resize-y rounded-xl bg-stage px-3 py-3 text-sm ring-1 ring-stage-line"
+              />
+              <div className="mt-4 flex flex-wrap gap-2">
+                {ready ? (
+                  <a href={ETSY_LISTING} target="_blank" rel="noreferrer">
+                    <Button type="button">Continue on Etsy</Button>
+                  </a>
+                ) : (
+                  <Button type="button" disabled>
+                    {continueLabel}
+                  </Button>
+                )}
+                <Button type="button" variant="outline" onClick={() => void navigator.clipboard.writeText(summary)}>
+                  Copy build
+                </Button>
+                <a href={`mailto:?subject=${encodeURIComponent("REC Mama Made order")}&body=${encodeURIComponent(summary)}`}>
+                  <Button type="button" variant="outline">
+                    Email this build
+                  </Button>
+                </a>
+              </div>
+            </div>
+          )}
+
+          {warn && <p className="px-5 pb-3 text-sm leading-6 text-stage-ink sm:px-6">{warn}</p>}
         </div>
-        <div className="hidden items-center justify-between gap-3 border-t border-stage-line px-3 py-3 lg:flex">
+
+        <div className="hidden items-center justify-between gap-3 border-t border-stage-line bg-white px-5 py-4 sm:px-6 lg:flex">
           <p className="text-lg font-semibold tabular-nums">${est.total.toFixed(2)}</p>
           <Button
             type="button"
@@ -575,16 +582,16 @@ export function Builder({
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-stage-line bg-stage/95 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
-        <button type="button" className="mb-1 text-xs font-semibold text-stage-muted" onClick={() => setDrawer((value) => !value)}>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-stage-line bg-white/94 px-5 pt-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-[0_-12px_34px_rgba(45,38,30,0.08)] backdrop-blur-xl lg:hidden">
+        <button type="button" className="mb-1 min-h-6 text-xs font-semibold text-stage-muted" onClick={() => setDrawer((value) => !value)}>
           Your build
         </button>
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-16 overflow-hidden rounded-lg bg-stage-photo ring-1 ring-stage-line">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid h-12 w-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-stage-photo ring-1 ring-stage-line">
             {patchOnly ? (
               <span className="grid h-full place-items-center text-[0.6rem]">Patch</span>
             ) : (
-              <img src={stageThumb(familyId, colorway) ?? familyHero(familyId) ?? ""} alt="" className="h-full w-full object-contain" />
+              <img src={stageThumb(familyId, colorway) ?? familyHero(familyId) ?? ""} alt="" className="h-auto max-h-[90%] w-auto max-w-[92%] object-contain" />
             )}
           </div>
           <div className="min-w-0 flex-1">
@@ -608,16 +615,18 @@ export function Builder({
       </div>
 
       {drawer && (
-        <div className="fixed inset-0 z-50 flex items-end bg-bg/50 lg:hidden" onClick={() => setDrawer(false)}>
-          <div className="max-h-[80dvh] w-full overflow-auto rounded-t-3xl bg-stage p-5 pb-24 text-stage-ink" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end bg-bg/50 p-0 lg:hidden" onClick={() => setDrawer(false)}>
+          <div className="max-h-[82dvh] w-full overflow-auto rounded-t-3xl bg-white p-5 pb-24 text-stage-ink shadow-[0_-18px_50px_rgba(45,38,30,0.14)]" onClick={(event) => event.stopPropagation()}>
             <h2 className="font-display text-3xl">Your build</h2>
-            <p className="mt-3 text-sm">{patchOnly ? "Patch only" : `${family.id} ${family.label}`}</p>
-            <p className="text-sm">{colorway || "Color not chosen"}</p>
-            <p className="text-sm">{leather.name} · {leather.engrave}</p>
-            <p className="text-sm">{shape} · {draft.patchSize}</p>
-            {!patchOnly && <p className="text-sm">{PLACEMENTS.find((item) => item.id === draft.placement)?.label}</p>}
-            <p className="text-sm">{draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "No design yet")}</p>
-            <p className="mt-2 text-lg font-semibold">${est.total.toFixed(2)}</p>
+            <div className="mt-4 space-y-1 text-sm leading-6">
+              <p>{patchOnly ? "Patch only" : `${family.id} ${family.label}`}</p>
+              <p>{colorway || "Color not chosen"}</p>
+              <p>{leather.name} · {leather.engrave}</p>
+              <p>{shape} · {draft.patchSize}</p>
+              {!patchOnly && <p>{PLACEMENTS.find((item) => item.id === draft.placement)?.label}</p>}
+              <p>{draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "No design yet")}</p>
+            </div>
+            <p className="mt-3 text-lg font-semibold">${est.total.toFixed(2)}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {!patchOnly && (
                 <Button type="button" variant="outline" size="sm" onClick={() => { setStep("color"); setDrawer(false); }}>
@@ -637,14 +646,14 @@ export function Builder({
 
       {materialOpen && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-bg/70 p-4" role="dialog" aria-modal="true">
-          <div className="w-[min(560px,100%)] overflow-hidden rounded-3xl bg-stage text-stage-ink">
+          <div className="max-h-[90dvh] w-[min(560px,100%)] overflow-auto rounded-3xl bg-white text-stage-ink shadow-[0_24px_70px_rgba(45,38,30,0.18)]">
             <div className="aspect-[4/3] overflow-hidden bg-stage">
-              <img src={leather.detail} alt={`${leather.name} material detail`} className="h-full w-full object-cover" />
+              <img src={leather.detail} alt={`${leather.name} material detail`} className="h-full w-full object-cover object-center" />
             </div>
-            <div className="p-5">
-              <h2 className="font-display text-4xl">{leather.name}</h2>
-              <p className="mt-1 text-sm">{leather.engrave}</p>
-              <div className="mt-4 flex gap-2">
+            <div className="p-5 sm:p-6">
+              <h2 className="font-display text-[clamp(2rem,8vw,3rem)] leading-tight">{leather.name}</h2>
+              <p className="mt-2 text-sm leading-6">{leather.engrave}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
                 <Button type="button" onClick={() => setMaterialOpen(false)}>
                   Use this material
                 </Button>
@@ -662,12 +671,12 @@ export function Builder({
 
 function ReviewRow({ label, value, onEdit }: { label: string; value: string; onEdit: () => void }) {
   return (
-    <li className="flex items-center justify-between gap-3 rounded-xl bg-stage px-3 py-2">
-      <span>
+    <li className="flex min-w-0 items-center justify-between gap-3 rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line/70">
+      <span className="min-w-0">
         <span className="block text-xs text-stage-muted">{label}</span>
-        <span className="font-medium">{value}</span>
+        <span className="mt-0.5 block break-words font-medium leading-5">{value}</span>
       </span>
-      <button type="button" className="text-sm font-semibold text-primary" onClick={onEdit}>
+      <button type="button" className="min-h-11 shrink-0 px-2 text-sm font-semibold text-primary" onClick={onEdit}>
         Edit
       </button>
     </li>
