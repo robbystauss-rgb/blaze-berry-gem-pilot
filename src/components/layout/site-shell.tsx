@@ -30,7 +30,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         Skip to content
       </a>
 
-      <div className="border-b border-white/[0.06] bg-black/20">
+      <div className="border-b border-border bg-white/65 backdrop-blur-xl">
         <div className="mx-auto flex w-[min(1240px,94vw)] items-center justify-between gap-4 py-2 text-[0.68rem] font-bold tracking-[0.12em] uppercase">
           <div className="flex min-w-0 items-center gap-2 text-bark">
             <span className="status-dot shrink-0" />
@@ -43,7 +43,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 px-3 pt-3 md:px-5">
         <div className="glass-nav mx-auto flex w-[min(1240px,100%)] items-center justify-between gap-4 rounded-2xl px-3 py-2.5 md:px-4">
           <Link to="/" className="group flex min-w-0 items-center gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
               <Sparkles className="size-4 text-primary transition-transform duration-300 group-hover:rotate-12" />
             </span>
             <span className="min-w-0">
@@ -56,7 +56,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </span>
           </Link>
 
-          <nav className="hidden items-center rounded-full border border-white/[0.07] bg-white/[0.025] p-1 md:flex" aria-label="Main">
+          <nav className="hidden items-center rounded-full border border-border bg-white/65 p-1 md:flex" aria-label="Main">
             {LINKS.map((link) => {
               const active = link.to === "/" ? pathname === "/" : pathname === link.to || pathname.startsWith(`${link.to}/`);
               return (
@@ -66,7 +66,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                   search={"search" in link ? link.search : undefined}
                   className={cn(
                     "rounded-full px-4 py-2 text-xs font-bold tracking-[0.03em] transition-colors",
-                    active ? "bg-white/[0.09] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" : "text-bark hover:bg-white/[0.045] hover:text-ink",
+                    active ? "bg-pill text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]" : "text-bark hover:bg-pill/70 hover:text-ink",
                   )}
                 >
                   {link.label}
@@ -85,7 +85,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </Link>
             <button
               type="button"
-              className="grid size-11 place-items-center rounded-xl border border-white/10 bg-white/[0.035] text-ink md:hidden"
+              className="grid size-11 place-items-center rounded-xl border border-border bg-white/80 text-ink shadow-sm md:hidden"
               aria-label={open ? "Close menu" : "Open menu"}
               onClick={() => setOpen((v) => !v)}
             >
@@ -103,7 +103,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                   to={link.to}
                   search={"search" in link ? link.search : undefined}
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-4 py-3 text-sm font-bold text-ink transition-colors hover:bg-white/[0.055]"
+                  className="rounded-xl px-4 py-3 text-sm font-bold text-ink transition-colors hover:bg-pill/70"
                 >
                   {link.label}
                 </Link>
@@ -124,7 +124,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <main id="main">{children}</main>
 
       {pathname !== "/order" && (
-        <footer className="mt-20 border-t border-white/[0.07] bg-black/20 py-12">
+        <footer className="mt-20 border-t border-border bg-white/55 py-12 backdrop-blur-xl">
           <div className="mx-auto grid w-[min(1180px,94vw)] gap-8 md:grid-cols-[1.2fr_0.8fr]">
             <div>
               <div className="flex items-center gap-2">
