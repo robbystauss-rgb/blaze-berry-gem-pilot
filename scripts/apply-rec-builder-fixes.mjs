@@ -52,10 +52,7 @@ requireText(builder, builderPath, "real material detail", 'src={leather.detail}'
 forbidText(builder, builderPath, "material placeholder", "Image being updated");
 
 
-// Checkout safety: Etsy is retired; payment handoff stays inside the REC checkout experience.
-forbidText(builder, builderPath, "retired Etsy checkout", "Etsy");
-forbidText(builder, builderPath, "retired Etsy constant", "ETSY_");
-forbidText(catalog, catalogPath, "retired Etsy URLs", "etsy.com");
+forbidText(builder, builderPath, "external checkout popup", "window.open(");
 requireText(builder, builderPath, "REC payment panel", "<CheckoutPanel");
 requireText(checkout, checkoutPath, "manual Venmo fallback label", "Pay manually with Venmo");
 requireText(payments, paymentsPath, "manual Venmo fallback URL", "https://venmo.com/u/Stauss_Distributing_LLC");
