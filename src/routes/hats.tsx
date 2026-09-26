@@ -46,7 +46,7 @@ function HatsPage() {
               className="premium-card group overflow-hidden rounded-[30px] bg-white"
             >
               <div className="safe-grid grid sm:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
-                <div className="product-card-stage relative grid aspect-[4/3] min-h-64 place-items-center p-6 sm:aspect-auto sm:min-h-[360px]">
+                <div className="product-card-stage relative grid aspect-[4/3] w-full place-items-center p-5 sm:aspect-auto sm:min-h-[360px] sm:p-6">
                   <div className="absolute left-5 top-5 z-20 rounded-full border border-border bg-white/88 px-3 py-1.5 text-[0.62rem] font-extrabold tracking-[0.13em] text-bark uppercase backdrop-blur-md">
                     Richardson {id}
                   </div>
