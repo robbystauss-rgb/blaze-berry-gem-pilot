@@ -8,13 +8,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "border border-primary/60 bg-primary text-primary-fg shadow-[0_14px_34px_rgba(213,170,106,0.18),inset_0_1px_0_rgba(255,255,255,0.34)] hover:-translate-y-0.5 hover:bg-primary-2 hover:shadow-[0_18px_44px_rgba(213,170,106,0.25),inset_0_1px_0_rgba(255,255,255,0.36)]",
+          "border border-primary/60 bg-primary text-primary-fg shadow-[0_14px_34px_rgba(159,113,53,0.18),inset_0_1px_0_rgba(255,255,255,0.34)] hover:-translate-y-0.5 hover:bg-primary-2 hover:shadow-[0_18px_44px_rgba(159,113,53,0.25),inset_0_1px_0_rgba(255,255,255,0.36)]",
         secondary:
-          "border border-white/10 bg-white/[0.055] text-stage-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.085]",
+          "border border-border bg-white/82 text-ink shadow-[0_10px_28px_rgba(31,35,42,0.08),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl hover:-translate-y-0.5 hover:border-primary/25 hover:bg-white",
         ghost:
-          "border border-transparent text-stage-ink hover:border-white/10 hover:bg-white/[0.045]",
+          "border border-transparent text-ink hover:border-border hover:bg-white/72",
         outline:
-          "border border-white/12 bg-white/[0.025] text-stage-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl hover:-translate-y-0.5 hover:border-primary/35 hover:bg-white/[0.06]",
+          "border border-border bg-white/72 text-ink shadow-[0_10px_26px_rgba(31,35,42,0.07),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl hover:-translate-y-0.5 hover:border-primary/35 hover:bg-white",
       },
       size: {
         default: "",
