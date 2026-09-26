@@ -34,11 +34,11 @@ const PLACE: Record<Placement, { left: string; top: string }> = {
 };
 
 const HOT: Record<Placement, { left: string; top: string; label: string }> = {
-  "front-center": { left: "50%", top: "10%", label: "Center" },
-  "left-front": { left: "10%", top: "42%", label: "Left" },
-  "right-front": { left: "90%", top: "42%", label: "Right" },
-  side: { left: "90%", top: "68%", label: "Side" },
-  rear: { left: "10%", top: "68%", label: "Rear" },
+  "front-center": { left: "50%", top: "13%", label: "Center" },
+  "left-front": { left: "16%", top: "42%", label: "Left" },
+  "right-front": { left: "84%", top: "42%", label: "Right" },
+  side: { left: "84%", top: "68%", label: "Side" },
+  rear: { left: "16%", top: "68%", label: "Rear" },
 };
 
 type ViewName = "front" | "side" | "back";
@@ -117,9 +117,9 @@ export function HatPreview({
   }
 
   return (
-    <div className={cn("relative h-full min-h-[46vh] lg:min-h-0", className)}>
+    <div className={cn("relative h-full min-h-[46vh] overflow-hidden lg:min-h-0", className)}>
       <div
-        className="relative h-full min-h-[46vh] touch-pan-y lg:min-h-0"
+        className="relative h-full min-h-[46vh] overflow-hidden touch-pan-y lg:min-h-0"
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
       >
@@ -128,7 +128,7 @@ export function HatPreview({
           style={{ transform: zoom ? "scale(1.35)" : "scale(1)" }}
         >
           {patchOnly || !src ? (
-            <div className="grid h-full place-items-center">
+            <div className="grid h-full place-items-center p-5">
               {patchOnly ? (
                 <PatchCard
                   key={`${leatherette}-${shape}-${size}`}
@@ -139,7 +139,7 @@ export function HatPreview({
                   artworkUrl={artworkUrl}
                 />
               ) : (
-                <div className="max-w-sm rounded-3xl bg-stage-photo/90 px-6 py-5 text-center ring-1 ring-stage-line">
+                <div className="max-w-sm rounded-3xl bg-stage-photo/94 px-6 py-5 text-center shadow-[0_14px_36px_rgba(45,38,30,0.08)] ring-1 ring-stage-line">
                   <p className="font-semibold text-stage-ink">Verified product photo unavailable</p>
                   <p className="mt-1 text-sm leading-6 text-stage-muted">We do not substitute a different hat or generate a missing angle.</p>
                 </div>
@@ -150,7 +150,8 @@ export function HatPreview({
               key={src}
               src={src}
               alt={`${FAMILIES[family].label} ${named || "model"} ${active}`}
-              className="stage-in h-full w-full object-contain"
+              className="stage-in h-full w-full object-contain object-center"
+              decoding="async"
             />
           )}
           {!patchOnly && showPatch && (
@@ -164,7 +165,7 @@ export function HatPreview({
             />
           )}
         </div>
-        <div className="pointer-events-none absolute bottom-[14%] left-1/2 h-8 w-[46%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse,rgba(44,33,30,0.16),transparent_70%)]" />
+        <div className="pointer-events-none absolute bottom-[14%] left-1/2 h-8 w-[46%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse,rgba(44,33,30,0.14),transparent_70%)]" />
         {placementMode && onPlacement && !patchOnly && (
           <div className="absolute inset-0 z-20">
             {(Object.keys(HOT) as Placement[]).map((id) => {
@@ -175,7 +176,7 @@ export function HatPreview({
                   type="button"
                   onClick={() => onPlacement(id)}
                   className={cn(
-                    "absolute min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full px-3 text-xs font-semibold",
+                    "absolute min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full px-3 text-xs font-semibold shadow-[0_8px_22px_rgba(45,38,30,0.08)]",
                     placement === id && !blocked ? "bg-primary text-primary-fg" : "bg-stage-photo/95 text-stage-ink ring-1 ring-stage-line",
                     blocked && "opacity-50",
                   )}
@@ -188,15 +189,15 @@ export function HatPreview({
           </div>
         )}
       </div>
-      <div className="absolute bottom-2 left-2 z-30 flex gap-1">
+      <div className="absolute bottom-3 left-3 z-30 flex flex-wrap gap-1.5">
         {available.map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setView(item)}
             className={cn(
-              "min-h-11 rounded-full px-3 text-xs font-semibold capitalize",
-              active === item ? "bg-primary text-primary-fg" : "bg-stage-photo/90 text-stage-ink",
+              "min-h-11 rounded-full px-3 text-xs font-semibold capitalize shadow-[0_8px_22px_rgba(45,38,30,0.06)]",
+              active === item ? "bg-primary text-primary-fg" : "bg-stage-photo/92 text-stage-ink ring-1 ring-stage-line",
             )}
           >
             {item}
@@ -206,12 +207,12 @@ export function HatPreview({
       <button
         type="button"
         onClick={() => setZoom((value) => !value)}
-        className="absolute right-2 bottom-2 z-30 min-h-11 rounded-full bg-stage-photo/90 px-3 text-xs font-semibold text-stage-ink"
+        className="absolute bottom-3 right-3 z-30 min-h-11 rounded-full bg-stage-photo/92 px-3 text-xs font-semibold text-stage-ink shadow-[0_8px_22px_rgba(45,38,30,0.06)] ring-1 ring-stage-line"
       >
         {zoom ? "Fit" : "Zoom"}
       </button>
       {showCaption && (
-        <p className="pointer-events-none absolute top-3 right-4 left-4 z-10 text-center text-sm text-stage-muted">
+        <p className="pointer-events-none absolute left-4 right-4 top-3 z-10 text-center text-sm leading-6 text-stage-muted">
           Customization preview. Final engraving and placement are confirmed in your digital proof.
         </p>
       )}
@@ -308,6 +309,7 @@ export function PatchCard({
     backgroundSize: "cover",
     color: leather.ink,
     width: size === "small" ? 168 : size === "large" ? 300 : 230,
+    maxWidth: "82vw",
     aspectRatio: safe === "Oval" ? "1.45 / 1" : safe === "Circle" ? "1" : "1.35 / 1",
     boxShadow: "0 16px 30px rgba(44,33,30,0.16)",
   };
@@ -333,6 +335,7 @@ export function ShapeMark({ shape, className, texture }: { shape: PatchShape; cl
         aspectRatio: shape === "Circle" ? "1" : shape === "Oval" ? "1.4 / 1" : "1.3 / 1",
         backgroundImage: texture ? `url(${texture})` : undefined,
         backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     />
   );
