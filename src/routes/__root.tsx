@@ -17,7 +17,7 @@ export const Route = createRootRoute({
         content:
           "REC Mama Made — custom leather patch hats and loose patches with real Richardson color photos, live customization preview, and digital proofing.",
       },
-      { name: "theme-color", content: "#07090D" },
+      { name: "theme-color", content: "#F8F6F1" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
