@@ -56,17 +56,13 @@ replaceOnce(
   "enforce required color and design before advancing",
 );
 
-replaceOnce(
-  '          <Button type="button" onClick={() => (next ? go(index + 1) : ready && window.open(ETSY_LISTING, "_blank", "noopener"))}>\n            {next ? `Continue · ${STEP_LABEL[next]}` : continueLabel}\n          </Button>',
-  '          <Button\n            type="button"\n            disabled={next ? !canAdvance : !ready}\n            onClick={() => {\n              if (next && canAdvance) go(index + 1);\n              else if (!next && ready) window.open(ETSY_LISTING, "_blank", "noopener");\n            }}\n          >\n            {next && canAdvance ? `Continue · ${STEP_LABEL[next]}` : continueLabel}\n          </Button>',
-  "block desktop advance when color or design is missing",
-);
+if (!source.includes('disabled={next ? !canAdvance : !ready}') || !source.includes('else if (!next && ready) focusPayment();')) {
+  throw new Error("[REC Mama Made] Desktop advance/payment guard is missing. Builder source changed and needs review.");
+}
 
-replaceOnce(
-  '          <Button\n            type="button"\n            size="sm"\n            onClick={() => {\n              if (active !== "review") go(index + 1);\n              else if (ready) window.open(ETSY_LISTING, "_blank", "noopener");\n            }}\n          >\n            {continueLabel}\n          </Button>',
-  '          <Button\n            type="button"\n            size="sm"\n            disabled={active === "review" ? !ready : !canAdvance}\n            onClick={() => {\n              if (active !== "review" && canAdvance) go(index + 1);\n              else if (active === "review" && ready) window.open(ETSY_LISTING, "_blank", "noopener");\n            }}\n          >\n            {continueLabel}\n          </Button>',
-  "block mobile advance when color or design is missing",
-);
+if (!source.includes('disabled={active === "review" ? !ready : !canAdvance}') || !source.includes('else if (active === "review" && ready) focusPayment();')) {
+  throw new Error("[REC Mama Made] Mobile advance/payment guard is missing. Builder source changed and needs review.");
+}
 
 if (changed) {
   fs.writeFileSync(file, source);
