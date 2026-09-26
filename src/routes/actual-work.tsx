@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { FAMILIES, type FamilyId } from "@/lib/catalog";
@@ -23,28 +24,51 @@ function WorkPage() {
     : undefined;
 
   return (
-    <section className="mx-auto w-[min(1240px,94vw)] py-8 pb-16">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="font-display text-5xl">Actual work</h1>
+    <section className="mx-auto w-[min(1240px,94vw)] py-14 pb-24">
+      <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+        <div>
+          <p className="tech-label">ACTUAL REC WORK / PORTFOLIO</p>
+          <h1 className="mt-4 font-display text-[clamp(3.4rem,6vw,6rem)] font-semibold leading-[0.92] tracking-[-0.06em] text-ink">Actual work</h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-bark">
+            Real finished REC Mama Made work presented as a portfolio, using the original photography without artificial product substitutions.
+          </p>
+        </div>
         <Link to="/order" className={buttonVariants()}>
-          Build your hat
+          Build your hat <ArrowRight className="size-4" />
         </Link>
       </div>
+
       {current && (
-        <figure className="mt-6 overflow-hidden rounded-[28px] bg-stage-photo shadow-stage ring-1 ring-stage-line">
-          <img
-            src={drivePhoto(current.item.driveId, 1600) ?? ""}
-            alt={current.decision.title || "Finished REC Mama Made hat"}
-            className="max-h-[78dvh] w-full object-contain"
-          />
-          <figcaption className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-            <p className="text-sm text-stage-muted">{current.decision.title || "Finished build"}</p>
+        <figure className="editorial-stage mt-10 overflow-hidden rounded-[34px]">
+          <div className="relative grid min-h-[520px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_35%,#fff_0%,#f5f3ef_58%,#e9e5de_100%)] px-4 py-6 md:min-h-[680px]">
+            <div className="pointer-events-none absolute inset-[10%] rounded-full border border-border/60" />
+            <img
+              src={drivePhoto(current.item.driveId, 1600) ?? ""}
+              alt={current.decision.title || "Finished REC Mama Made hat"}
+              className="relative z-10 max-h-[72dvh] w-full object-contain drop-shadow-[0_28px_28px_rgba(45,38,30,0.14)]"
+            />
+          </div>
+          <figcaption className="grid gap-4 border-t border-border bg-white/88 px-5 py-5 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <p className="tech-label">FINISHED BUILD / {String(open + 1).padStart(2, "0")}</p>
+              <p className="mt-2 text-sm text-stage-muted">{current.decision.title || "Finished build"}</p>
+            </div>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="min-h-11 px-3 text-sm font-semibold" onClick={() => setOpen((value) => (value - 1 + photos.length) % photos.length)}>
-                Previous
+              <button
+                type="button"
+                className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-white px-3 text-sm font-semibold text-ink shadow-[0_8px_22px_rgba(45,38,30,0.05)]"
+                aria-label="Previous finished work"
+                onClick={() => setOpen((value) => (value - 1 + photos.length) % photos.length)}
+              >
+                <ArrowLeft className="size-4" />
               </button>
-              <button type="button" className="min-h-11 px-3 text-sm font-semibold" onClick={() => setOpen((value) => (value + 1) % photos.length)}>
-                Next
+              <button
+                type="button"
+                className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-white px-3 text-sm font-semibold text-ink shadow-[0_8px_22px_rgba(45,38,30,0.05)]"
+                aria-label="Next finished work"
+                onClick={() => setOpen((value) => (value + 1) % photos.length)}
+              >
+                <ArrowRight className="size-4" />
               </button>
               <Link
                 to="/order"
@@ -62,15 +86,16 @@ function WorkPage() {
           </figcaption>
         </figure>
       )}
-      <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+
+      <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
         {photos.map((entry, index) => (
           <button
             key={entry.item.id}
             type="button"
             onClick={() => setOpen(index)}
-            className={`w-28 shrink-0 overflow-hidden rounded-2xl bg-stage-photo ring-2 ${index === open ? "ring-primary" : "ring-transparent"}`}
+            className={`group overflow-hidden rounded-[20px] bg-stage-photo ring-1 transition-[transform,box-shadow,ring-color] duration-200 ${index === open ? "ring-2 ring-primary shadow-[0_12px_30px_rgba(45,38,30,0.10)]" : "ring-border hover:-translate-y-0.5 hover:ring-primary/35"}`}
           >
-            <img src={drivePhoto(entry.item.driveId, 320) ?? ""} alt="" className="h-36 w-full object-cover" />
+            <img src={drivePhoto(entry.item.driveId, 320) ?? ""} alt="" className="aspect-[4/5] w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" />
           </button>
         ))}
       </div>
