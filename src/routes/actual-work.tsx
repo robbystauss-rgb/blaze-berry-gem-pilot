@@ -40,7 +40,7 @@ function WorkPage() {
 
       {current && (
         <figure className="editorial-stage mt-10 overflow-hidden rounded-[30px] sm:rounded-[34px]">
-          <div className="relative grid aspect-[4/3] max-h-[760px] min-h-[300px] place-items-center bg-[radial-gradient(circle_at_50%_35%,#fff_0%,#f5f3ef_58%,#e9e5de_100%)] p-5 sm:aspect-[16/10] sm:p-8 lg:aspect-[16/9]">
+          <div className="relative grid aspect-[4/3] w-full place-items-center bg-[radial-gradient(circle_at_50%_35%,#fff_0%,#f5f3ef_58%,#e9e5de_100%)] p-5 sm:aspect-[16/10] sm:p-8 lg:aspect-[16/9]">
             <div className="pointer-events-none absolute inset-[10%] rounded-full border border-border/55" />
             <img
               src={drivePhoto(current.item.driveId, 1600) ?? ""}
@@ -67,7 +67,7 @@ function WorkPage() {
                 type="button"
                 className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-white px-3 text-sm font-semibold text-ink shadow-[0_8px_22px_rgba(45,38,30,0.05)]"
                 aria-label="Next finished work"
-                onClick={() => setOpen((value) => (value + 1) % photos.length)}
+                onClick={() => setOpen((value) => (value + 1 + photos.length) % photos.length)}
               >
                 <ArrowRight className="size-4" />
               </button>
