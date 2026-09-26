@@ -24,12 +24,12 @@ function WorkPage() {
     : undefined;
 
   return (
-    <section className="mx-auto w-[min(1240px,94vw)] py-14 pb-24">
-      <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+    <section className="site-container page-top-space page-bottom-space">
+      <div className="safe-grid grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div>
           <p className="tech-label">ACTUAL REC WORK / PORTFOLIO</p>
-          <h1 className="mt-4 font-display text-[clamp(3.4rem,6vw,6rem)] font-semibold leading-[0.92] tracking-[-0.06em] text-ink">Actual work</h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-bark">
+          <h1 className="mt-4 font-display text-[clamp(2.8rem,8vw,5.8rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-ink">Actual work</h1>
+          <p className="mt-4 max-w-[62ch] text-base leading-7 text-bark">
             Real finished REC Mama Made work presented as a portfolio, using the original photography without artificial product substitutions.
           </p>
         </div>
@@ -39,21 +39,22 @@ function WorkPage() {
       </div>
 
       {current && (
-        <figure className="editorial-stage mt-10 overflow-hidden rounded-[34px]">
-          <div className="relative grid min-h-[520px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_35%,#fff_0%,#f5f3ef_58%,#e9e5de_100%)] px-4 py-6 md:min-h-[680px]">
-            <div className="pointer-events-none absolute inset-[10%] rounded-full border border-border/60" />
+        <figure className="editorial-stage mt-10 overflow-hidden rounded-[30px] sm:rounded-[34px]">
+          <div className="relative grid aspect-[4/3] max-h-[760px] min-h-[300px] place-items-center bg-[radial-gradient(circle_at_50%_35%,#fff_0%,#f5f3ef_58%,#e9e5de_100%)] p-5 sm:aspect-[16/10] sm:p-8 lg:aspect-[16/9]">
+            <div className="pointer-events-none absolute inset-[10%] rounded-full border border-border/55" />
             <img
               src={drivePhoto(current.item.driveId, 1600) ?? ""}
               alt={current.decision.title || "Finished REC Mama Made hat"}
-              className="relative z-10 max-h-[72dvh] w-full object-contain drop-shadow-[0_28px_28px_rgba(45,38,30,0.14)]"
+              className="relative z-10 h-auto max-h-[90%] w-auto max-w-[94%] object-contain drop-shadow-[0_28px_28px_rgba(45,38,30,0.14)]"
+              decoding="async"
             />
           </div>
-          <figcaption className="grid gap-4 border-t border-border bg-white/88 px-5 py-5 md:grid-cols-[1fr_auto] md:items-center">
-            <div>
+          <figcaption className="safe-grid grid gap-4 border-t border-border bg-white/90 px-5 py-5 sm:px-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+            <div className="min-w-0">
               <p className="tech-label">FINISHED BUILD / {String(open + 1).padStart(2, "0")}</p>
-              <p className="mt-2 text-sm text-stage-muted">{current.decision.title || "Finished build"}</p>
+              <p className="mt-2 text-sm leading-6 text-stage-muted">{current.decision.title || "Finished build"}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 md:justify-end">
               <button
                 type="button"
                 className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-white px-3 text-sm font-semibold text-ink shadow-[0_8px_22px_rgba(45,38,30,0.05)]"
@@ -87,15 +88,22 @@ function WorkPage() {
         </figure>
       )}
 
-      <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+      <div className="mt-6 grid grid-cols-2 gap-3 min-[430px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
         {photos.map((entry, index) => (
           <button
             key={entry.item.id}
             type="button"
             onClick={() => setOpen(index)}
-            className={`group overflow-hidden rounded-[20px] bg-stage-photo ring-1 transition-[transform,box-shadow,ring-color] duration-200 ${index === open ? "ring-2 ring-primary shadow-[0_12px_30px_rgba(45,38,30,0.10)]" : "ring-border hover:-translate-y-0.5 hover:ring-primary/35"}`}
+            aria-label={`View finished work ${index + 1}`}
+            className={`group overflow-hidden rounded-[18px] bg-stage-photo ring-1 transition-[transform,box-shadow,ring-color] duration-200 ${index === open ? "ring-2 ring-primary shadow-[0_12px_30px_rgba(45,38,30,0.10)]" : "ring-border hover:-translate-y-0.5 hover:ring-primary/35"}`}
           >
-            <img src={drivePhoto(entry.item.driveId, 320) ?? ""} alt="" className="aspect-[4/5] w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" />
+            <img
+              src={drivePhoto(entry.item.driveId, 320) ?? ""}
+              alt=""
+              className="aspect-[4/5] w-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.02]"
+              loading="lazy"
+              decoding="async"
+            />
           </button>
         ))}
       </div>
