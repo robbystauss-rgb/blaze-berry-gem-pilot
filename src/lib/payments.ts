@@ -14,6 +14,7 @@ import {
   type PatchSize,
   type Placement,
 } from "@/lib/catalog";
+import { CURRENT_LEGAL_ACCEPTANCE, type LegalAcceptanceInput } from "@/lib/legal-policies";
 
 export const MANUAL_VENMO_URL = "https://venmo.com/u/Stauss_Distributing_LLC";
 
@@ -32,10 +33,13 @@ export type PaymentBuild = {
   hasArtwork: boolean;
   notes: string;
   promo: string;
+  legal?: LegalAcceptanceInput;
 };
 
+type NormalizedPaymentBuild = Omit<PaymentBuild, "legal"> & { legal: LegalAcceptanceInput };
+
 type Quote = {
-  build: PaymentBuild;
+  build: NormalizedPaymentBuild;
   family: FamilyId;
   lineName: string;
   description: string;
@@ -50,6 +54,27 @@ function requireEmail(value: string) {
   const email = value.trim().slice(0, 254);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email before checkout.");
   return email;
+}
+
+function normalizeLegal(input: PaymentBuild["legal"], hasArtwork: boolean): LegalAcceptanceInput {
+  if (!input?.termsAccepted) throw new Error("Accept the Terms & Conditions and Custom Order Policy before checkout.");
+  if (hasArtwork && !input.artworkAuthorized) throw new Error("Confirm that you own or are authorized to reproduce the submitted artwork before checkout.");
+  if (
+    input.termsVersion !== CURRENT_LEGAL_ACCEPTANCE.termsVersion ||
+    input.artworkPolicyVersion !== CURRENT_LEGAL_ACCEPTANCE.artworkPolicyVersion ||
+    input.customOrderPolicyVersion !== CURRENT_LEGAL_ACCEPTANCE.customOrderPolicyVersion ||
+    input.privacyPolicyVersion !== CURRENT_LEGAL_ACCEPTANCE.privacyPolicyVersion ||
+    input.proofPolicyVersion !== CURRENT_LEGAL_ACCEPTANCE.proofPolicyVersion
+  ) {
+    throw new Error("The legal policy version changed. Refresh the page and review the current terms before checkout.");
+  }
+  return {
+    ...CURRENT_LEGAL_ACCEPTANCE,
+    termsAccepted: true,
+    artworkAuthorized: hasArtwork ? true : Boolean(input.artworkAuthorized),
+    portfolioConsent: Boolean(input.portfolioConsent),
+    acceptedAt: new Date().toISOString(),
+  };
 }
 
 function normalizeBuild(input: PaymentBuild): Quote {
@@ -79,6 +104,7 @@ function normalizeBuild(input: PaymentBuild): Quote {
   if (!patchText && !hasArtwork) throw new Error("Add a design before checkout.");
   const notes = String(input.notes ?? "").trim().slice(0, 500);
   const promo = String(input.promo ?? "").trim().slice(0, 40);
+  const legal = normalizeLegal(input.legal, hasArtwork);
   const est = estimateTotal({ orderType, tier: familyInfo.tier, quantity, family, promo });
   const leather = getLeatherette(leatherette);
   const lineName = orderType === "patch" ? "REC Mama Made custom leatherette patch" : `REC Mama Made ${family} ${familyInfo.label} custom patch hat`;
@@ -94,7 +120,7 @@ function normalizeBuild(input: PaymentBuild): Quote {
   ].filter(Boolean).join(" · ").slice(0, 480);
 
   return {
-    build: { customerName, customerEmail, orderType, family, colorway, leatherette, patchShape, patchSize, placement, quantity, patchText, hasArtwork, notes, promo },
+    build: { customerName, customerEmail, orderType, family, colorway, leatherette, patchShape, patchSize, placement, quantity, patchText, hasArtwork, notes, promo, legal },
     family,
     lineName,
     description,
@@ -169,6 +195,15 @@ async function validCaptureToken(orderId: string, token: string) {
   return mismatch === 0 ? amount : null;
 }
 
+async function saveLegalAcceptance(paymentMethod: "stripe" | "paypal" | "manual-venmo", providerOrderId: string, quote: Quote) {
+  try {
+    const { recordLegalAcceptance } = await import("@/lib/legal-records.server");
+    await recordLegalAcceptance({ paymentMethod, providerOrderId, hasArtwork: quote.build.hasArtwork, legal: quote.build.legal });
+  } catch (error) {
+    console.error("[legal] Could not persist supplemental acceptance record:", error);
+  }
+}
+
 function appendStripeMetadata(form: URLSearchParams, quote: Quote) {
   const pairs: Record<string, string> = {
     order_type: quote.build.orderType,
@@ -183,8 +218,30 @@ function appendStripeMetadata(form: URLSearchParams, quote: Quote) {
     promo: quote.build.promo,
     customer_name: quote.build.customerName,
     design: quote.build.patchText || "uploaded-artwork",
+    legal_terms_version: quote.build.legal.termsVersion,
+    legal_artwork_version: quote.build.legal.artworkPolicyVersion,
+    legal_custom_order_version: quote.build.legal.customOrderPolicyVersion,
+    legal_privacy_version: quote.build.legal.privacyPolicyVersion,
+    legal_proof_version: quote.build.legal.proofPolicyVersion,
+    legal_acceptance_utc: quote.build.legal.acceptedAt,
+    legal_artwork_ack: quote.build.legal.artworkAuthorized ? "true" : "false",
+    legal_portfolio_consent: quote.build.legal.portfolioConsent ? "true" : "false",
+    proof_status: "pending",
   };
   Object.entries(pairs).forEach(([key, value]) => form.set(`metadata[${key}]`, value.slice(0, 490)));
+}
+
+function paypalLegalId(quote: Quote) {
+  const legal = quote.build.legal;
+  return [
+    "REC",
+    `T${legal.termsVersion}`,
+    `A${legal.artworkPolicyVersion}`,
+    `C${legal.customOrderPolicyVersion}`,
+    `AA${legal.artworkAuthorized ? 1 : 0}`,
+    `M${legal.portfolioConsent ? 1 : 0}`,
+    legal.acceptedAt,
+  ].join("|").slice(0, 120);
 }
 
 export const getPaymentConfig = createServerFn({ method: "GET" }).handler(async () => ({
@@ -219,6 +276,7 @@ export const createStripeCheckoutSession = createServerFn({ method: "POST" })
     });
     const payload = (await response.json()) as { id?: string; url?: string; error?: { message?: string } };
     if (!response.ok || !payload.id || !payload.url) throw new Error(payload.error?.message || "Card checkout could not start. Please try again.");
+    await saveLegalAcceptance("stripe", payload.id, quote);
     return { id: payload.id, url: payload.url };
   });
 
@@ -288,7 +346,7 @@ export const createPayPalOrder = createServerFn({ method: "POST" })
           {
             reference_id: "REC-MAMA-MADE",
             description: quote.description,
-            custom_id: `${quote.build.orderType}:${quote.family}:${quote.purchased}`.slice(0, 120),
+            custom_id: paypalLegalId(quote),
             amount: { currency_code: "USD", value: amount },
           },
         ],
@@ -296,8 +354,18 @@ export const createPayPalOrder = createServerFn({ method: "POST" })
     });
     const payload = (await response.json()) as { id?: string; message?: string };
     if (!response.ok || !payload.id) throw new Error(payload.message || "PayPal checkout could not start. Please try again.");
+    await saveLegalAcceptance("paypal", payload.id, quote);
     const signature = await captureSignature(payload.id, amount);
     return { orderId: payload.id, captureToken: `${amount}:${signature}` };
+  });
+
+export const recordManualVenmoAcceptance = createServerFn({ method: "POST" })
+  .validator((data: PaymentBuild) => data)
+  .handler(async ({ data }) => {
+    const quote = normalizeBuild(data);
+    const id = `manual-${crypto.randomUUID()}`;
+    await saveLegalAcceptance("manual-venmo", id, quote);
+    return { acceptanceId: id };
   });
 
 export const capturePayPalOrder = createServerFn({ method: "POST" })
