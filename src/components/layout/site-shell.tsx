@@ -167,6 +167,14 @@ export function SiteShell({ children }: { children: ReactNode }) {
               <span>REC Mama Made</span>
               <span>Real assets · Real materials · Proof before production</span>
             </div>
+            <nav className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-subtle" aria-label="Legal">
+              <span>© {new Date().getFullYear()} REC Mama Made. All rights reserved.</span>
+              <a href="/legal/privacy" className="hover:text-ink">Privacy Policy</a>
+              <a href="/legal/terms" className="hover:text-ink">Terms & Conditions</a>
+              <a href="/legal/artwork" className="hover:text-ink">Artwork & Trademark Policy</a>
+              <a href="/legal/shipping" className="hover:text-ink">Shipping / Returns</a>
+              <a href="/legal/terms#contact" className="hover:text-ink">Contact</a>
+            </nav>
           </div>
         </footer>
       )}
