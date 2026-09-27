@@ -9,6 +9,7 @@ import {
   getPayPalBrowserToken,
   getPaymentConfig,
   getStripeCheckoutStatus,
+  recordManualVenmoAcceptance,
   type PaymentBuild,
 } from "@/lib/payments";
 
@@ -302,7 +303,15 @@ export function CheckoutPanel({
         <summary className="cursor-pointer text-sm font-semibold text-stage-ink">Manual Venmo fallback</summary>
         <p className="mt-2 text-xs leading-5 text-stage-muted">Use this only if the automated payment buttons are unavailable. Manual Venmo payments do not update checkout status automatically.</p>
         {legalReady ? (
-          <a className="mt-2 inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4" href={MANUAL_VENMO_URL} target="_blank" rel="noreferrer">Pay manually with Venmo</a>
+          <a
+            className="mt-2 inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4"
+            href={MANUAL_VENMO_URL}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => void recordManualVenmoAcceptance({ data: buildWithLegal() })}
+          >
+            Pay manually with Venmo
+          </a>
         ) : (
           <p className="mt-2 text-xs leading-5 text-stage-muted">Accept the required acknowledgements before using manual Venmo.</p>
         )}
