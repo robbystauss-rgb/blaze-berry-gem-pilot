@@ -23,14 +23,77 @@ type Props = {
   onPlacement?: (placement: Placement) => void;
 };
 
-const SIZE_PCT: Record<PatchSize, number> = { small: 22, medium: 30, large: 38 };
+type ViewName = "front" | "side" | "back";
+type ImageBox = { left: number; top: number; width: number; height: number };
+type Surface = {
+  anchorX: number;
+  anchorY: number;
+  spreadX: number;
+  sizeScale: number;
+  maxWidth: number;
+  rotateX: number;
+  rotateY: number;
+  rotateZ: number;
+  skewX: number;
+  skewY: number;
+  scaleX: number;
+};
 
-const PLACE: Record<Placement, { left: string; top: string }> = {
-  "front-center": { left: "50%", top: "44%" },
-  "left-front": { left: "37%", top: "46%" },
-  "right-front": { left: "63%", top: "46%" },
-  side: { left: "62%", top: "44%" },
-  rear: { left: "50%", top: "40%" },
+const SIZE_PCT: Record<PatchSize, number> = { small: 18, medium: 24, large: 30 };
+
+const DEFAULT_SURFACE: Record<ViewName, Surface> = {
+  front: {
+    anchorX: 50,
+    anchorY: 44,
+    spreadX: 12.5,
+    sizeScale: 1,
+    maxWidth: 31,
+    rotateX: -2.4,
+    rotateY: 0,
+    rotateZ: 0,
+    skewX: 0,
+    skewY: 0,
+    scaleX: 0.985,
+  },
+  side: {
+    anchorX: 62,
+    anchorY: 44,
+    spreadX: 0,
+    sizeScale: 0.84,
+    maxWidth: 24,
+    rotateX: -1,
+    rotateY: -8,
+    rotateZ: 1.2,
+    skewX: -1.4,
+    skewY: 0,
+    scaleX: 0.96,
+  },
+  back: {
+    anchorX: 50,
+    anchorY: 40,
+    spreadX: 0,
+    sizeScale: 0.82,
+    maxWidth: 23,
+    rotateX: -2,
+    rotateY: 0,
+    rotateZ: 0,
+    skewX: 0,
+    skewY: 0,
+    scaleX: 0.98,
+  },
+};
+
+const FAMILY_SURFACE: Partial<Record<FamilyId, Partial<Record<ViewName, Partial<Surface>>>>> = {
+  "112": { front: { anchorY: 43.5, spreadX: 12, maxWidth: 31 } },
+  "112FP": { front: { anchorY: 44.5, spreadX: 11, sizeScale: 1.02, rotateX: -3 } },
+  "112FPR": { front: { anchorY: 44.5, spreadX: 11, sizeScale: 1.02, rotateX: -3 } },
+  "112P": { front: { anchorY: 43.5, spreadX: 12, maxWidth: 31 } },
+  "112PFP": { front: { anchorY: 44.5, spreadX: 11, sizeScale: 1.02, rotateX: -3 } },
+  "112PM": { front: { anchorY: 43.5, spreadX: 12, maxWidth: 31 } },
+  "168": { front: { anchorY: 44.2, spreadX: 11.5, sizeScale: 0.95, maxWidth: 29 } },
+  "168P": { front: { anchorY: 44.2, spreadX: 11.5, sizeScale: 0.95, maxWidth: 29 } },
+  "256": { front: { anchorY: 47, spreadX: 10.5, sizeScale: 0.88, maxWidth: 27, rotateX: -1.2 } },
+  "256P": { front: { anchorY: 47, spreadX: 10.5, sizeScale: 0.88, maxWidth: 27, rotateX: -1.2 } },
 };
 
 const HOT: Record<Placement, { left: string; top: string; label: string }> = {
@@ -40,8 +103,6 @@ const HOT: Record<Placement, { left: string; top: string; label: string }> = {
   side: { left: "84%", top: "68%", label: "Side" },
   rear: { left: "16%", top: "68%", label: "Rear" },
 };
-
-type ViewName = "front" | "side" | "back";
 
 function clipFor(shape: PatchShape): string {
   switch (shape) {
@@ -62,10 +123,40 @@ function clipFor(shape: PatchShape): string {
   }
 }
 
+function aspectFor(shape: PatchShape) {
+  if (shape === "Oval") return "1.45 / 1";
+  if (shape === "Circle") return "1 / 1";
+  return "1.35 / 1";
+}
+
 function patchOnView(placement: Placement, view: ViewName) {
   if (view === "side") return placement === "side";
   if (view === "back") return placement === "rear";
   return placement === "front-center" || placement === "left-front" || placement === "right-front";
+}
+
+function surfaceFor(family: FamilyId, view: ViewName, placement: Placement) {
+  const base = DEFAULT_SURFACE[view];
+  const override = FAMILY_SURFACE[family]?.[view];
+  const surface = { ...base, ...override };
+  let anchorX = surface.anchorX;
+  let anchorY = surface.anchorY;
+  let rotateY = surface.rotateY;
+  let rotateZ = surface.rotateZ;
+
+  if (view === "front" && placement === "left-front") {
+    anchorX -= surface.spreadX;
+    anchorY += 1.2;
+    rotateY += 3.2;
+    rotateZ -= 1.2;
+  } else if (view === "front" && placement === "right-front") {
+    anchorX += surface.spreadX;
+    anchorY += 1.2;
+    rotateY -= 3.2;
+    rotateZ += 1.2;
+  }
+
+  return { ...surface, anchorX, anchorY, rotateY, rotateZ };
 }
 
 export function HatPreview({
@@ -91,7 +182,10 @@ export function HatPreview({
   const available = (["front", "side", "back"] as const).filter((view) => shots[view]);
   const [view, setView] = useState<ViewName>("front");
   const [zoom, setZoom] = useState(false);
+  const [imageBox, setImageBox] = useState<ImageBox | null>(null);
   const drag = useRef<{ x: number } | null>(null);
+  const imageStage = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const active = available.includes(view) ? view : available[0] ?? "front";
   const src = shots[active];
   const showPatch = patchOnly || !src || patchOnView(placement, active);
@@ -102,6 +196,40 @@ export function HatPreview({
     else if (placement === "rear" && shots.back) setView("back");
     else if (shots.front) setView("front");
   }, [viewKey, placement, shots.front, shots.side, shots.back]);
+
+  useEffect(() => {
+    const stage = imageStage.current;
+    const image = imageRef.current;
+    if (!src || !stage || !image) {
+      setImageBox(null);
+      return;
+    }
+
+    const measure = () => {
+      if (!image.naturalWidth || !image.naturalHeight) return;
+      const width = stage.clientWidth;
+      const height = stage.clientHeight;
+      if (!width || !height) return;
+      const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+      const renderedWidth = image.naturalWidth * scale;
+      const renderedHeight = image.naturalHeight * scale;
+      setImageBox({
+        left: (width - renderedWidth) / 2,
+        top: (height - renderedHeight) / 2,
+        width: renderedWidth,
+        height: renderedHeight,
+      });
+    };
+
+    measure();
+    image.addEventListener("load", measure);
+    const observer = new ResizeObserver(measure);
+    observer.observe(stage);
+    return () => {
+      image.removeEventListener("load", measure);
+      observer.disconnect();
+    };
+  }, [src]);
 
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     drag.current = { x: event.clientX };
@@ -124,6 +252,7 @@ export function HatPreview({
         onPointerUp={onPointerUp}
       >
         <div
+          ref={imageStage}
           className="absolute inset-0 transition-transform duration-300 ease-out"
           style={{ transform: zoom ? "scale(1.35)" : "scale(1)" }}
         >
@@ -147,6 +276,7 @@ export function HatPreview({
             </div>
           ) : (
             <img
+              ref={imageRef}
               key={src}
               src={src}
               alt={`${FAMILIES[family].label} ${named || "model"} ${active}`}
@@ -154,15 +284,22 @@ export function HatPreview({
               decoding="async"
             />
           )}
-          {!patchOnly && showPatch && (
-            <PatchOverlay
-              leather={leather}
-              shape={shape}
-              size={size}
-              placement={placement}
-              patchText={patchText}
-              artworkUrl={artworkUrl}
-            />
+          {!patchOnly && showPatch && imageBox && (
+            <div
+              className="pointer-events-none absolute z-10"
+              style={{ left: imageBox.left, top: imageBox.top, width: imageBox.width, height: imageBox.height }}
+            >
+              <PatchOverlay
+                family={family}
+                view={active}
+                leather={leather}
+                shape={shape}
+                size={size}
+                placement={placement}
+                patchText={patchText}
+                artworkUrl={artworkUrl}
+              />
+            </div>
           )}
         </div>
         <div className="pointer-events-none absolute bottom-[14%] left-1/2 h-8 w-[46%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse,rgba(44,33,30,0.14),transparent_70%)]" />
@@ -221,6 +358,8 @@ export function HatPreview({
 }
 
 function PatchOverlay({
+  family,
+  view,
   leather,
   shape,
   size,
@@ -228,6 +367,8 @@ function PatchOverlay({
   patchText,
   artworkUrl,
 }: {
+  family: FamilyId;
+  view: ViewName;
   leather: ReturnType<typeof getLeatherette>;
   shape: PatchShape;
   size: PatchSize;
@@ -235,14 +376,19 @@ function PatchOverlay({
   patchText: string;
   artworkUrl?: string;
 }) {
-  const pct = SIZE_PCT[size];
-  const pos = PLACE[placement];
+  const surface = surfaceFor(family, view, placement);
+  const pct = Math.min(SIZE_PCT[size] * surface.sizeScale, surface.maxWidth);
   const frame: CSSProperties = {
     width: `${pct}%`,
-    aspectRatio: shape === "Oval" ? "1.45 / 1" : shape === "Circle" ? "1 / 1" : "1.35 / 1",
-    left: pos.left,
-    top: pos.top,
+    aspectRatio: aspectFor(shape),
+    left: `${surface.anchorX}%`,
+    top: `${surface.anchorY}%`,
     transition: "left 220ms ease, top 220ms ease, width 220ms ease",
+  };
+  const mount: CSSProperties = {
+    transform: `perspective(760px) rotateX(${surface.rotateX}deg) rotateY(${surface.rotateY}deg) rotateZ(${surface.rotateZ}deg) skewX(${surface.skewX}deg) skewY(${surface.skewY}deg) scaleX(${surface.scaleX})`,
+    transformOrigin: "50% 58%",
+    filter: "drop-shadow(0 2px 2px rgba(44,33,30,0.18)) drop-shadow(0 5px 7px rgba(44,33,30,0.08))",
   };
   const face: CSSProperties = {
     clipPath: clipFor(shape),
@@ -251,7 +397,7 @@ function PatchOverlay({
     backgroundSize: "cover",
     backgroundPosition: "center",
     color: leather.ink,
-    boxShadow: "0 12px 22px rgba(44,33,30,0.32), inset 0 1px 0 rgba(255,255,255,0.4)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(44,33,30,0.12)",
     transition: "clip-path 220ms ease",
   };
 
@@ -260,23 +406,25 @@ function PatchOverlay({
       className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2"
       style={frame}
     >
-      <div
-        key={`${leather.id}-${shape}-${size}`}
-        className="patch-pop flex h-full w-full items-center justify-center overflow-hidden px-1.5 text-center"
-        style={face}
-      >
-        {artworkUrl && !artworkUrl.startsWith("data:application/pdf") ? (
-          <img
-            src={artworkUrl}
-            alt=""
-            className="relative z-10 max-h-[82%] max-w-[82%] object-contain"
-            style={{ filter: "grayscale(1) contrast(1.4)", mixBlendMode: "multiply" }}
-          />
-        ) : (
-          <span className="relative z-10 line-clamp-3 px-1 font-display text-[clamp(0.7rem,1.5vw,1.15rem)] leading-tight font-semibold tracking-wide">
-            {artworkUrl ? "PDF" : patchText.trim() || "Your patch"}
-          </span>
-        )}
+      <div className="h-full w-full" style={mount}>
+        <div
+          key={`${leather.id}-${shape}-${size}`}
+          className="patch-pop flex h-full w-full items-center justify-center overflow-hidden px-1.5 text-center"
+          style={face}
+        >
+          {artworkUrl && !artworkUrl.startsWith("data:application/pdf") ? (
+            <img
+              src={artworkUrl}
+              alt=""
+              className="relative z-10 max-h-[82%] max-w-[82%] object-contain"
+              style={{ filter: "grayscale(1) contrast(1.4)", mixBlendMode: "multiply" }}
+            />
+          ) : (
+            <span className="relative z-10 line-clamp-3 px-1 font-display text-[clamp(0.7rem,1.5vw,1.15rem)] leading-tight font-semibold tracking-wide">
+              {artworkUrl ? "PDF" : patchText.trim() || "Your patch"}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -308,7 +456,7 @@ export function PatchCard({
     color: leather.ink,
     width: size === "small" ? 168 : size === "large" ? 300 : 230,
     maxWidth: "82vw",
-    aspectRatio: safe === "Oval" ? "1.45 / 1" : safe === "Circle" ? "1" : "1.35 / 1",
+    aspectRatio: aspectFor(safe),
     boxShadow: "0 16px 30px rgba(44,33,30,0.16)",
   };
   return (
