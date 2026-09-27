@@ -50,12 +50,12 @@ function Home() {
     <>
       <section className="site-container page-top-space page-bottom-space safe-grid grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
         <div className="relative z-10 min-w-0">
-          <div className="kicker"><span className="status-dot" /> REC CUSTOM SYSTEM / 01</div>
+          <div className="kicker"><span className="status-dot" /> CUSTOM HATS + PATCHES / MADE TO ORDER</div>
           <h1 className="hero-title mt-6 max-w-[9ch] font-display text-[clamp(3rem,12vw,6.65rem)] leading-[0.9] font-bold tracking-[-0.06em] sm:max-w-none sm:text-[clamp(4.2rem,8vw,6.65rem)]">
             Design it.<br />See it.<br />Make it yours.
           </h1>
           <p className="mt-6 max-w-[62ch] text-base leading-7 text-bark sm:text-lg sm:leading-8">
-            A modern custom-build experience for Richardson hats and loose leatherette patches—using real product photography, real REC material samples, and a live preview before production.
+            Custom Richardson hats and loose leatherette patches built from real REC material samples and real product photography, with a digital proof before production.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
@@ -65,7 +65,7 @@ function Home() {
               onClick={() => useOrder.getState().set("orderType", "hat")}
               className={buttonVariants({ size: "lg" })}
             >
-              Launch hat builder <ArrowRight className="size-4" />
+              Build your hat <ArrowRight className="size-4" />
             </Link>
             <Link
               to="/order"
@@ -73,15 +73,15 @@ function Home() {
               onClick={() => useOrder.getState().set("orderType", "patch")}
               className={buttonVariants({ variant: "outline", size: "lg" })}
             >
-              Patch only
+              Order a patch
             </Link>
           </div>
 
           <div className="mt-9 grid max-w-2xl gap-2 min-[430px]:grid-cols-3">
             {[
-              ["VERIFIED", "Richardson product photos"],
-              ["REAL", "31 named material swatches"],
-              ["PROOFED", "Before production"],
+              ["REAL PRODUCT", "Richardson product photos"],
+              ["REAL MATERIALS", "31 named material swatches"],
+              ["PROOF FIRST", "Before production"],
             ].map(([top, bottom]) => (
               <div key={top} className="metric-card rounded-2xl px-4 py-3">
                 <p className="text-[0.64rem] font-extrabold tracking-[0.14em] text-accent uppercase">{top}</p>
@@ -94,17 +94,15 @@ function Home() {
         <div className="tech-panel flex min-w-0 flex-col rounded-[2rem]">
           <div className="relative z-20 flex min-w-0 items-start justify-between gap-4 border-b border-border/80 px-5 py-4 sm:items-center sm:px-6">
             <div className="min-w-0">
-              <p className="tech-label">REC / ACTUAL WORK</p>
-              <p className="mt-1 text-xs leading-5 text-bark">Live showcase from your real work library</p>
+              <p className="tech-label">REC / FINISHED WORK</p>
+              <p className="mt-1 text-xs leading-5 text-bark">Real custom work from REC Mama Made</p>
             </div>
             <div className="hidden shrink-0 items-center gap-2 text-[0.64rem] font-bold tracking-[0.11em] text-bark uppercase sm:flex">
-              <ScanLine className="size-4 text-accent" /> Live view
+              <BadgeCheck className="size-4 text-accent" /> Made by REC
             </div>
           </div>
 
           <div className="product-stage relative grid aspect-[4/3] min-h-[330px] place-items-center p-6 sm:min-h-[440px] lg:min-h-[560px]">
-            <div className="pointer-events-none absolute inset-[13%] rounded-full border border-border/40" />
-            <div className="pointer-events-none absolute inset-[22%] rounded-full border border-border/25" />
             {current ? (
               <img
                 key={current.item.id}
@@ -138,7 +136,7 @@ function Home() {
       <section className="site-container section-space">
         <div className="safe-grid grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(240px,0.42fr)] md:items-end">
           <div>
-            <p className="tech-label">BUILD PROTOCOL / 02</p>
+            <p className="tech-label">HOW IT'S MADE / 02</p>
             <h2 className="mt-3 max-w-3xl font-display text-[clamp(2.35rem,7vw,4.8rem)] font-bold leading-[0.98] tracking-[-0.05em] text-ink">
               Your idea, translated into a production-ready build.
             </h2>
@@ -165,7 +163,7 @@ function Home() {
       <section className="site-container section-space pt-0">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="tech-label">VERIFIED CATALOG / 03</p>
+            <p className="tech-label">HAT CATALOG / 03</p>
             <h2 className="mt-3 font-display text-[clamp(2.3rem,6vw,4rem)] font-bold leading-tight text-ink">Start with the right hat.</h2>
           </div>
           <Link to="/hats" className="flex min-h-11 items-center gap-2 self-start text-sm font-bold text-primary transition-colors hover:text-primary-2 sm:self-auto">
@@ -214,7 +212,7 @@ function Home() {
             <div className="flex size-11 items-center justify-center rounded-xl border border-primary/20 bg-primary/[0.07]">
               <Layers3 className="size-5 text-primary" />
             </div>
-            <p className="mt-8 tech-label">REAL MATERIAL LIBRARY / 04</p>
+            <p className="mt-8 tech-label">MATERIALS / 04</p>
             <h2 className="mt-3 font-display text-[clamp(2.15rem,5vw,3.4rem)] font-bold leading-[1.02] text-ink">Actual material samples. No fake swatches.</h2>
             <p className="mt-5 max-w-[58ch] text-sm leading-7 text-bark">
               The staging builder uses the 31 named swatches taken from your real “My leatherette options.PNG” source sheet. The two unnamed cards remain excluded until they can be identified.
@@ -239,7 +237,7 @@ function Home() {
               ))}
             </div>
             <div className="mt-4 rounded-2xl border border-primary/15 bg-primary/[0.045] p-5">
-              <div className="flex items-center gap-2 text-primary"><Sparkles className="size-4" /><span className="text-xs font-extrabold tracking-[0.12em] uppercase">REC standard</span></div>
+              <div className="flex items-center gap-2 text-primary"><Sparkles className="size-4" /><span className="text-xs font-extrabold tracking-[0.12em] uppercase">REC promise</span></div>
               <p className="mt-3 text-sm leading-6 text-bark">Real product photography stays the source of truth. Missing product angles are shown as unavailable instead of being generated or substituted.</p>
             </div>
           </div>
@@ -249,7 +247,7 @@ function Home() {
       <section className="site-container section-space pt-0">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="tech-label">ACTUAL WORK / 05</p>
+            <p className="tech-label">FINISHED WORK / 05</p>
             <h2 className="mt-3 font-display text-[clamp(2.3rem,6vw,4rem)] font-bold leading-tight text-ink">Built in the real world.</h2>
           </div>
           <Link to="/actual-work" className="flex min-h-11 items-center gap-2 self-start text-sm font-bold text-primary hover:text-primary-2 sm:self-auto">
@@ -277,14 +275,14 @@ function Home() {
       </section>
 
       <section className="site-container page-bottom-space">
-        <div className="tech-panel tech-grid rounded-[2rem] px-6 py-12 text-center sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-          <p className="tech-label">READY / 06</p>
+        <div className="tech-panel rounded-[2rem] px-6 py-12 text-center sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+          <p className="tech-label">CREATE YOURS / 06</p>
           <h2 className="hero-title mx-auto mt-4 max-w-4xl font-display text-[clamp(2.7rem,8vw,5.8rem)] font-bold leading-[0.94] tracking-[-0.055em]">
             Build something worth wearing.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-bark sm:text-base">Start with a real hat, pick your actual material, add your design, and see the build take shape before it goes to production.</p>
           <div className="mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-            <Link to="/order" search={{ type: "hat" }} className={buttonVariants({ size: "lg" })}>Launch builder <ArrowRight className="size-4" /></Link>
+            <Link to="/order" search={{ type: "hat" }} className={buttonVariants({ size: "lg" })}>Build your hat <ArrowRight className="size-4" /></Link>
             <Link to="/actual-work" className={buttonVariants({ variant: "outline", size: "lg" })}>See finished work</Link>
           </div>
         </div>
