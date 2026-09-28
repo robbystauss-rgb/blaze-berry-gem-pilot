@@ -323,12 +323,96 @@
     backdrop-filter: blur(18px) saturate(112%);
   }
 
+  .home-reveal {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(720px 360px at 50% 26%, rgb(255 255 255 / 0.98), transparent 72%),
+      radial-gradient(900px 520px at 50% 76%, rgb(199 164 107 / 0.11), transparent 72%);
+  }
+
+  .home-reveal::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.58), transparent 34%, rgb(255 255 255 / 0.2));
+  }
+
+  .home-reveal-eyebrow {
+    font-size: 0.68rem;
+    line-height: 1.3;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8b724d;
+  }
+
+  .home-reveal-title {
+    font-size: clamp(4rem, 12vw, 9.5rem);
+    line-height: 0.86;
+    letter-spacing: -0.075em;
+    color: #1d1d1f;
+    background: linear-gradient(118deg, #111214 8%, #303033 62%, #9a7d50 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
   .hero-title {
     color: #1d1d1f;
     background: linear-gradient(105deg, #1d1d1f 0%, #2a2a2a 76%, #7b674d 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  .home-reveal-stage {
+    position: relative;
+    display: grid;
+    min-height: clamp(360px, 52vw, 680px);
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgb(55 48 40 / 0.08);
+    border-radius: clamp(1.75rem, 4vw, 3.5rem);
+    background: radial-gradient(circle at 50% 34%, #ffffff 0%, #f7f5f1 58%, #e9e4dc 100%);
+    box-shadow: 0 34px 90px rgb(45 38 30 / 0.11), inset 0 1px 0 rgb(255 255 255 / 0.98);
+  }
+
+  .home-reveal-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(125deg, rgb(255 255 255 / 0.75), transparent 36% 64%, rgb(199 164 107 / 0.05));
+  }
+
+  .home-reveal-stage > img {
+    filter: drop-shadow(0 34px 38px rgb(45 38 30 / 0.16));
+  }
+
+  .home-reveal-orbit {
+    position: absolute;
+    border-radius: 999px;
+    border: 1px solid rgb(55 48 40 / 0.07);
+  }
+
+  .home-reveal-orbit-one { inset: 12% 18%; }
+  .home-reveal-orbit-two { inset: 23% 28%; border-color: rgb(185 149 95 / 0.12); }
+
+  .home-reveal-caption {
+    position: absolute;
+    inset-inline: 1.25rem;
+    bottom: 1rem;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #77716a;
   }
 
   .metric-card {
