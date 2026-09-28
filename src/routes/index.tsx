@@ -48,87 +48,35 @@ function Home() {
 
   return (
     <>
-      <section className="site-container page-top-space page-bottom-space safe-grid grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
-        <div className="relative z-10 min-w-0">
-          <div className="kicker"><span className="status-dot" /> REC CUSTOM SYSTEM / 01</div>
-          <h1 className="hero-title mt-6 max-w-[9ch] font-display text-[clamp(3rem,12vw,6.65rem)] leading-[0.9] font-bold tracking-[-0.06em] sm:max-w-none sm:text-[clamp(4.2rem,8vw,6.65rem)]">
-            Design it.<br />See it.<br />Make it yours.
-          </h1>
-          <p className="mt-6 max-w-[62ch] text-base leading-7 text-bark sm:text-lg sm:leading-8">
-            A modern custom-build experience for Richardson hats and loose leatherette patches—using real product photography, real REC material samples, and a live preview before production.
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-            <Link
-              to="/order"
-              search={{ type: "hat" }}
-              onClick={() => useOrder.getState().set("orderType", "hat")}
-              className={buttonVariants({ size: "lg" })}
-            >
-              Launch hat builder <ArrowRight className="size-4" />
-            </Link>
-            <Link
-              to="/order"
-              search={{ type: "patch" }}
-              onClick={() => useOrder.getState().set("orderType", "patch")}
-              className={buttonVariants({ variant: "outline", size: "lg" })}
-            >
-              Patch only
-            </Link>
-          </div>
-
-          <div className="mt-9 grid max-w-2xl gap-2 min-[430px]:grid-cols-3">
-            {[
-              ["VERIFIED", "Richardson product photos"],
-              ["REAL", "31 named material swatches"],
-              ["PROOFED", "Before production"],
-            ].map(([top, bottom]) => (
-              <div key={top} className="metric-card rounded-2xl px-4 py-3">
-                <p className="text-[0.64rem] font-extrabold tracking-[0.14em] text-accent uppercase">{top}</p>
-                <p className="mt-1 text-sm font-semibold leading-5 text-ink">{bottom}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="tech-panel flex min-w-0 flex-col rounded-[2rem]">
-          <div className="relative z-20 flex min-w-0 items-start justify-between gap-4 border-b border-border/80 px-5 py-4 sm:items-center sm:px-6">
-            <div className="min-w-0">
-              <p className="tech-label">REC / ACTUAL WORK</p>
-              <p className="mt-1 text-xs leading-5 text-bark">Live showcase from your real work library</p>
-            </div>
-            <div className="hidden shrink-0 items-center gap-2 text-[0.64rem] font-bold tracking-[0.11em] text-bark uppercase sm:flex">
-              <ScanLine className="size-4 text-accent" /> Live view
+      <section className="home-reveal page-bottom-space">
+        <div className="site-container relative z-10 pt-[clamp(3.25rem,8vw,7.5rem)]">
+          <div className="mx-auto max-w-5xl text-center">
+            <p className="home-reveal-eyebrow">REC Mama Made · Custom hats, reimagined</p>
+            <h1 className="home-reveal-title mt-4 font-display font-bold">Make it yours.</h1>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-bark sm:text-xl sm:leading-8">
+              Choose the hat. Shape the patch. Add your design. See the whole build come together before it goes to production.
+            </p>
+            <div className="mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
+              <Link to="/order" search={{ type: "hat" }} onClick={() => useOrder.getState().set("orderType", "hat")} className={buttonVariants({ size: "lg" })}>
+                Build your hat <ArrowRight className="size-4" />
+              </Link>
+              <Link to="/actual-work" className={buttonVariants({ variant: "outline", size: "lg" })}>
+                See finished work
+              </Link>
             </div>
           </div>
 
-          <div className="product-stage relative grid aspect-[4/3] min-h-[330px] place-items-center p-6 sm:min-h-[440px] lg:min-h-[560px]">
-            <div className="pointer-events-none absolute inset-[13%] rounded-full border border-border/40" />
-            <div className="pointer-events-none absolute inset-[22%] rounded-full border border-border/25" />
+          <div className="home-reveal-stage mx-auto mt-10 max-w-5xl sm:mt-14">
+            <div className="home-reveal-orbit home-reveal-orbit-one" />
+            <div className="home-reveal-orbit home-reveal-orbit-two" />
             {current ? (
-              <img
-                key={current.item.id}
-                src={drivePhoto(current.item.driveId, 1500) ?? ""}
-                alt="Finished REC Mama Made hat"
-                className="stage-in relative z-10 h-auto max-h-[82%] w-auto max-w-[90%] object-contain drop-shadow-[0_28px_34px_rgba(45,38,30,0.15)]"
-                decoding="async"
-              />
+              <img key={current.item.id} src={drivePhoto(current.item.driveId, 1800) ?? ""} alt="Finished REC Mama Made custom hat" className="stage-in relative z-10 mx-auto h-auto max-h-[min(58vh,620px)] w-auto max-w-[92%] object-contain" decoding="async" />
             ) : (
-              <p className="relative z-10 text-bark">Work photos are loading.</p>
+              <p className="relative z-10 text-sm text-bark">Finished work is loading.</p>
             )}
-          </div>
-
-          <div className="relative z-20 grid gap-px border-t border-border/80 bg-border/70 sm:grid-cols-3">
-            {[
-              ["SOURCE", "REC finished work"],
-              ["PROCESS", "Preview → proof → make"],
-              ["PRODUCT", "Custom patch hat"],
-            ].map(([label, value]) => (
-              <div key={label} className="bg-white/88 px-5 py-4">
-                <p className="tech-label">{label}</p>
-                <p className="mt-1 text-xs font-semibold leading-5 text-ink">{value}</p>
-              </div>
-            ))}
+            <div className="home-reveal-caption">
+              <span>Designed by you.</span><span>Made by REC Mama Made.</span>
+            </div>
           </div>
         </div>
       </section>
@@ -187,7 +135,8 @@ function Home() {
                       src={photo}
                       alt={`${id} ${FAMILIES[id].label}`}
                       className="relative z-10 h-auto max-h-[78%] w-auto max-w-[86%] object-contain transition-transform duration-300 group-hover:scale-[1.03]"
-                      loading="lazy"
+                      loading="eager"
+                      fetchPriority="high"
                       decoding="async"
                     />
                   ) : (
