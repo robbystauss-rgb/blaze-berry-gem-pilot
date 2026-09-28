@@ -50,6 +50,30 @@ function tooLarge(size: PatchSize, placement: Placement) {
   return size === "large" && (placement === "side" || placement === "rear");
 }
 
+const SHAPE_DETAILS: Record<PatchShape, string> = {
+  Rectangle: "Clean straight edges for logos and nameplates.",
+  "Rounded Rectangle": "Classic patch shape with softer corners.",
+  Circle: "A balanced, traditional badge shape.",
+  Oval: "A wider badge shape with a softer profile.",
+  Hexagon: "A modern geometric shape with six clean sides.",
+  Shield: "A heritage-style badge with a pointed base.",
+  "Custom Die-Cut": "Cut to the outline of your design.",
+};
+
+const PATCH_DIMENSIONS: Record<PatchShape, Record<PatchSize, string>> = {
+  Rectangle: { small: '2.5″ × 1.5″', medium: '3″ × 2″', large: '3.5″ × 2.25″' },
+  "Rounded Rectangle": { small: '2.5″ × 1.5″', medium: '3″ × 2″', large: '3.5″ × 2.25″' },
+  Circle: { small: '2″ diameter', medium: '2.5″ diameter', large: '3″ diameter' },
+  Oval: { small: '2.5″ × 1.75″', medium: '3″ × 2″', large: '3.5″ × 2.25″' },
+  Hexagon: { small: '2.25″ wide', medium: '2.75″ wide', large: '3.25″ wide' },
+  Shield: { small: '2.25″ × 2.5″', medium: '2.75″ × 3″', large: '3″ × 3.5″' },
+  "Custom Die-Cut": { small: 'up to 2.5″ wide', medium: 'up to 3″ wide', large: 'up to 3.5″ wide' },
+};
+
+function shapeName(shape: PatchShape) {
+  return shape === "Custom Die-Cut" ? "Custom Shape" : shape;
+}
+
 export function Builder({
   focus,
   initialOrderType,
@@ -157,8 +181,8 @@ export function Builder({
       patchOnly ? "" : `Color: ${colorway || "(not selected)"}`,
       patchOnly ? "" : `Placement: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}`,
       `Material: ${leather.name} · ${leather.engrave}`,
-      `Shape: ${shape}`,
-      `Size: ${draft.patchSize}`,
+      `Shape: ${shapeName(shape)}`,
+      `Size: ${PATCH_DIMENSIONS[shape][draft.patchSize]} (${draft.patchSize})`,
       `Quantity: ${qty}`,
       `Design: ${draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "(none)")}`,
       `Notes: ${draft.notes || "(none)"}`,
@@ -422,45 +446,37 @@ export function Builder({
           )}
 
           {active === "shape" && (
-            <div className="px-5 py-4 sm:px-6">
-              <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="px-5 py-5 sm:px-6">
+              <div className="mb-4 max-w-2xl">
+                <p className="text-sm font-semibold text-stage-ink">Choose the patch shape</p>
+                <p className="mt-1 text-xs leading-5 text-stage-muted">Custom Shape follows the outside edge of your artwork. Standard shapes use the dimensions shown below.</p>
+              </div>
+              <div className="grid gap-2 min-[460px]:grid-cols-2 xl:grid-cols-3">
                 {PATCH_SHAPES.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => draft.set("patchShape", item)}
-                    className={cn(
-                      "w-28 shrink-0 rounded-2xl bg-stage px-2 py-3 text-center ring-1",
-                      shape === item ? "ring-2 ring-primary" : "ring-stage-line",
-                    )}
-                  >
-                    <ShapeMark shape={item} texture={leather.texture} className="mx-auto w-14" />
-                    <span className="mt-2 block text-xs font-semibold leading-5">{item}</span>
-                    {shape === item && <Check className="mx-auto mt-1 size-3.5 text-primary" />}
+                  <button key={item} type="button" onClick={() => draft.set("patchShape", item)} className={cn("rounded-2xl bg-stage p-3 text-left ring-1 transition", shape === item ? "ring-2 ring-primary" : "ring-stage-line hover:bg-white")}>
+                    <div className="flex items-center gap-3">
+                      <ShapeMark shape={item} texture={leather.texture} className="w-12 shrink-0" />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-2 text-sm font-semibold leading-5">{shapeName(item)} {shape === item && <Check className="size-3.5 shrink-0 text-primary" />}</span>
+                        <span className="mt-1 block text-xs leading-5 text-stage-muted">{SHAPE_DETAILS[item]}</span>
+                      </span>
+                    </div>
                   </button>
                 ))}
               </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {(["small", "medium", "large"] as const).map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => {
-                      if (tooLarge(item, draft.placement)) {
-                        setWarn("This patch size is too large for this position.");
-                        return;
-                      }
-                      setWarn("");
-                      draft.set("patchSize", item);
-                    }}
-                    className={cn(
-                      "min-h-11 rounded-full px-4 text-sm font-semibold capitalize",
-                      draft.patchSize === item ? "bg-primary text-primary-fg" : "bg-stage ring-1 ring-stage-line",
-                    )}
-                  >
-                    {item}
-                  </button>
-                ))}
+              <div className="mt-6">
+                <div className="flex flex-wrap items-end justify-between gap-2">
+                  <div><p className="text-sm font-semibold text-stage-ink">Choose the size</p><p className="mt-1 text-xs text-stage-muted">Approx. finished size · final proof confirms fit.</p></div>
+                  <p className="text-xs font-semibold text-primary">Medium is the common starting point</p>
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {(["small", "medium", "large"] as const).map((item) => (
+                    <button key={item} type="button" onClick={() => { if (tooLarge(item, draft.placement)) { setWarn("This patch size is too large for this position."); return; } setWarn(""); draft.set("patchSize", item); }} className={cn("min-h-[74px] rounded-2xl px-4 py-3 text-left ring-1", draft.patchSize === item ? "bg-primary text-primary-fg ring-primary" : "bg-stage text-stage-ink ring-stage-line")}>
+                      <span className="block text-sm font-semibold capitalize">{item}{item === "medium" ? " · common" : ""}</span>
+                      <span className={cn("mt-1 block text-xs", draft.patchSize === item ? "text-white/80" : "text-stage-muted")}>{PATCH_DIMENSIONS[shape][item]}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -508,7 +524,7 @@ export function Builder({
                   onEdit={() => setStep(patchOnly ? "material" : "hat")}
                 />
                 <ReviewRow label="Material" value={`${leather.name} · ${leather.engrave}`} onEdit={() => setStep("material")} />
-                <ReviewRow label="Shape" value={`${shape} · ${draft.patchSize}`} onEdit={() => setStep("shape")} />
+                <ReviewRow label="Shape & size" value={`${shapeName(shape)} · ${PATCH_DIMENSIONS[shape][draft.patchSize]}`} onEdit={() => setStep("shape")} />
                 <ReviewRow
                   label="Design"
                   value={draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "Not added")}
@@ -653,7 +669,7 @@ export function Builder({
               <p>{patchOnly ? "Patch only" : `${family.id} ${family.label}`}</p>
               <p>{colorway || "Color not chosen"}</p>
               <p>{leather.name} · {leather.engrave}</p>
-              <p>{shape} · {draft.patchSize}</p>
+              <p>{shapeName(shape)} · {PATCH_DIMENSIONS[shape][draft.patchSize]}</p>
               {!patchOnly && <p>{PLACEMENTS.find((item) => item.id === draft.placement)?.label}</p>}
               <p>{draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "No design yet")}</p>
             </div>
