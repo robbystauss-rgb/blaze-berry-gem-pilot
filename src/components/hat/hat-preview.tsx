@@ -1,7 +1,8 @@
-import type { CSSProperties, PointerEvent } from "react";
+import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { FamilyId, LeatheretteId, PatchShape, PatchSize, Placement } from "@/lib/catalog";
 import { FAMILIES, getLeatherette } from "@/lib/catalog";
+import { useOrder } from "@/lib/order-store";
 import { familyHero, stageViews } from "@/lib/stage-photos";
 import { cn } from "@/lib/utils";
 
@@ -25,12 +26,12 @@ type Props = {
 
 const SIZE_PCT: Record<PatchSize, number> = { small: 22, medium: 30, large: 38 };
 
-const PLACE: Record<Placement, { left: string; top: string }> = {
-  "front-center": { left: "50%", top: "44%" },
-  "left-front": { left: "37%", top: "46%" },
-  "right-front": { left: "63%", top: "46%" },
-  side: { left: "62%", top: "44%" },
-  rear: { left: "50%", top: "40%" },
+const PLACE: Record<Placement, { left: number; top: number }> = {
+  "front-center": { left: 50, top: 44 },
+  "left-front": { left: 37, top: 46 },
+  "right-front": { left: 63, top: 46 },
+  side: { left: 62, top: 44 },
+  rear: { left: 50, top: 40 },
 };
 
 const HOT: Record<Placement, { left: string; top: string; label: string }> = {
@@ -41,7 +42,26 @@ const HOT: Record<Placement, { left: string; top: string; label: string }> = {
   rear: { left: "16%", top: "68%", label: "Rear" },
 };
 
+const OFFSET_X_LIMIT = 18;
+const OFFSET_Y_LIMIT = 14;
+const SCALE_MIN = 0.75;
+const SCALE_MAX = 1.25;
+const SCALE_STEP = 0.1;
+
 type ViewName = "front" | "side" | "back";
+type PlacementTransform = { x: number; y: number; scale: number };
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function cleanTransform(transform: PlacementTransform): PlacementTransform {
+  return {
+    x: Number(clamp(transform.x, -OFFSET_X_LIMIT, OFFSET_X_LIMIT).toFixed(2)),
+    y: Number(clamp(transform.y, -OFFSET_Y_LIMIT, OFFSET_Y_LIMIT).toFixed(2)),
+    scale: Number(clamp(transform.scale, SCALE_MIN, SCALE_MAX).toFixed(2)),
+  };
+}
 
 function clipFor(shape: PatchShape): string {
   switch (shape) {
@@ -84,6 +104,7 @@ export function HatPreview({
   onPlacement,
 }: Props) {
   const leather = getLeatherette(leatherette);
+  const draft = useOrder();
   const named = colorway.trim();
   const matched = stageViews(family, named || "none");
   const hero = !named && !patchOnly ? familyHero(family) : null;
@@ -95,6 +116,13 @@ export function HatPreview({
   const active = available.includes(view) ? view : available[0] ?? "front";
   const src = shots[active];
   const showPatch = patchOnly || !src || patchOnView(placement, active);
+  const usesDraftTransform = !patchOnly && family === draft.family && colorway === draft.colorway && placement === draft.placement;
+  const storedTransform = cleanTransform({
+    x: usesDraftTransform ? Number(draft.patchOffsetX) || 0 : 0,
+    y: usesDraftTransform ? Number(draft.patchOffsetY) || 0 : 0,
+    scale: usesDraftTransform ? Number(draft.patchScale) || 1 : 1,
+  });
+  const [liveTransform, setLiveTransform] = useState<PlacementTransform>(storedTransform);
 
   const viewKey = `${placement}|${shots.front ?? ""}|${shots.side ?? ""}|${shots.back ?? ""}`;
   useEffect(() => {
@@ -103,10 +131,52 @@ export function HatPreview({
     else if (shots.front) setView("front");
   }, [viewKey, placement, shots.front, shots.side, shots.back]);
 
+  useEffect(() => {
+    setLiveTransform(storedTransform);
+  }, [draft.patchOffsetX, draft.patchOffsetY, draft.patchScale, usesDraftTransform, family, colorway, placement]);
+
+  function saveTransform(next: PlacementTransform) {
+    const clean = cleanTransform(next);
+    setLiveTransform(clean);
+    if (usesDraftTransform) {
+      draft.patch({ patchOffsetX: clean.x, patchOffsetY: clean.y, patchScale: clean.scale });
+    }
+  }
+
+  function updateDrag(x: number, y: number, commit: boolean) {
+    const clean = cleanTransform({ x, y, scale: liveTransform.scale });
+    setLiveTransform(clean);
+    if (commit && usesDraftTransform) {
+      draft.patch({ patchOffsetX: clean.x, patchOffsetY: clean.y });
+    }
+  }
+
+  function resetTransform() {
+    saveTransform({ x: 0, y: 0, scale: 1 });
+  }
+
+  function resizePatch(delta: number) {
+    saveTransform({ ...liveTransform, scale: liveTransform.scale + delta });
+  }
+
+  function choosePlacement(id: Placement, blocked: boolean) {
+    if (blocked || !onPlacement) return;
+    onPlacement(id);
+    setLiveTransform({ x: 0, y: 0, scale: 1 });
+    if (family === draft.family && colorway === draft.colorway) {
+      draft.patch({ patchOffsetX: 0, patchOffsetY: 0, patchScale: 1 });
+    }
+  }
+
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (placementMode) return;
     drag.current = { x: event.clientX };
   }
   function onPointerUp(event: PointerEvent<HTMLDivElement>) {
+    if (placementMode) {
+      drag.current = null;
+      return;
+    }
     if (!drag.current || available.length < 2) return;
     const delta = event.clientX - drag.current.x;
     drag.current = null;
@@ -162,31 +232,69 @@ export function HatPreview({
               placement={placement}
               patchText={patchText}
               artworkUrl={artworkUrl}
+              transform={liveTransform}
+              interactive={Boolean(placementMode && usesDraftTransform)}
+              onMove={updateDrag}
             />
           )}
         </div>
         <div className="pointer-events-none absolute bottom-[14%] left-1/2 h-8 w-[46%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse,rgba(44,33,30,0.14),transparent_70%)]" />
         {placementMode && onPlacement && !patchOnly && (
-          <div className="absolute inset-0 z-20">
-            {(Object.keys(HOT) as Placement[]).map((id) => {
-              const blocked = size === "large" && (id === "side" || id === "rear");
-              return (
+          <>
+            <div className="pointer-events-none absolute inset-0 z-20">
+              {(Object.keys(HOT) as Placement[]).map((id) => {
+                const blocked = size === "large" && (id === "side" || id === "rear");
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => choosePlacement(id, blocked)}
+                    disabled={blocked}
+                    className={cn(
+                      "pointer-events-auto absolute min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full px-3 text-xs font-semibold shadow-[0_8px_22px_rgba(45,38,30,0.08)]",
+                      placement === id && !blocked ? "bg-primary text-primary-fg" : "bg-stage-photo/95 text-stage-ink ring-1 ring-stage-line",
+                      blocked && "cursor-not-allowed opacity-50",
+                    )}
+                    style={{ left: HOT[id].left, top: HOT[id].top }}
+                  >
+                    {HOT[id].label}
+                  </button>
+                );
+              })}
+            </div>
+            {showPatch && usesDraftTransform && (
+              <div className="absolute left-1/2 top-14 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-stage-photo/94 p-1.5 shadow-[0_8px_24px_rgba(45,38,30,0.1)] ring-1 ring-stage-line backdrop-blur">
                 <button
-                  key={id}
                   type="button"
-                  onClick={() => onPlacement(id)}
-                  className={cn(
-                    "absolute min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full px-3 text-xs font-semibold shadow-[0_8px_22px_rgba(45,38,30,0.08)]",
-                    placement === id && !blocked ? "bg-primary text-primary-fg" : "bg-stage-photo/95 text-stage-ink ring-1 ring-stage-line",
-                    blocked && "opacity-50",
-                  )}
-                  style={{ left: HOT[id].left, top: HOT[id].top }}
+                  onClick={() => resizePatch(-SCALE_STEP)}
+                  disabled={liveTransform.scale <= SCALE_MIN}
+                  className="min-h-10 min-w-10 rounded-full px-2 text-sm font-semibold disabled:opacity-40"
+                  aria-label="Make patch smaller"
                 >
-                  {HOT[id].label}
+                  −
                 </button>
-              );
-            })}
-          </div>
+                <button
+                  type="button"
+                  onClick={resetTransform}
+                  className="min-h-10 rounded-full px-3 text-xs font-semibold"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={() => resizePatch(SCALE_STEP)}
+                  disabled={liveTransform.scale >= SCALE_MAX}
+                  className="min-h-10 min-w-10 rounded-full px-2 text-sm font-semibold disabled:opacity-40"
+                  aria-label="Make patch larger"
+                >
+                  +
+                </button>
+              </div>
+            )}
+            <p className="pointer-events-none absolute left-1/2 top-[6.6rem] z-30 -translate-x-1/2 rounded-full bg-stage-photo/88 px-3 py-1.5 text-center text-[11px] font-semibold text-stage-ink shadow-sm ring-1 ring-stage-line/80 backdrop-blur">
+              Drag the patch to place it
+            </p>
+          </>
         )}
       </div>
       <div className="absolute bottom-3 left-3 z-30 flex flex-wrap gap-1.5">
@@ -227,6 +335,9 @@ function PatchOverlay({
   placement,
   patchText,
   artworkUrl,
+  transform,
+  interactive,
+  onMove,
 }: {
   leather: ReturnType<typeof getLeatherette>;
   shape: PatchShape;
@@ -234,15 +345,29 @@ function PatchOverlay({
   placement: Placement;
   patchText: string;
   artworkUrl?: string;
+  transform: PlacementTransform;
+  interactive: boolean;
+  onMove: (x: number, y: number, commit: boolean) => void;
 }) {
-  const pct = SIZE_PCT[size];
+  const drag = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    offsetX: number;
+    offsetY: number;
+    lastX: number;
+    lastY: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const pct = SIZE_PCT[size] * transform.scale;
   const pos = PLACE[placement];
   const frame: CSSProperties = {
     width: `${pct}%`,
     aspectRatio: shape === "Oval" ? "1.45 / 1" : shape === "Circle" ? "1 / 1" : "1.35 / 1",
-    left: pos.left,
-    top: pos.top,
-    transition: "left 220ms ease, top 220ms ease, width 220ms ease",
+    left: `${pos.left + transform.x}%`,
+    top: `${pos.top + transform.y}%`,
+    transition: drag.current ? "none" : "left 180ms ease, top 180ms ease, width 180ms ease",
   };
   const face: CSSProperties = {
     clipPath: clipFor(shape),
@@ -251,14 +376,84 @@ function PatchOverlay({
     backgroundSize: "cover",
     backgroundPosition: "center",
     color: leather.ink,
-    boxShadow: "0 12px 22px rgba(44,33,30,0.32), inset 0 1px 0 rgba(255,255,255,0.4)",
+    boxShadow: "0 10px 18px rgba(44,33,30,0.30), 0 2px 5px rgba(44,33,30,0.20), inset 0 1px 0 rgba(255,255,255,0.36)",
     transition: "clip-path 220ms ease",
   };
 
+  function startDrag(event: PointerEvent<HTMLDivElement>) {
+    if (!interactive) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const bounds = event.currentTarget.parentElement?.getBoundingClientRect();
+    if (!bounds || !bounds.width || !bounds.height) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    drag.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: transform.x,
+      offsetY: transform.y,
+      lastX: transform.x,
+      lastY: transform.y,
+      width: bounds.width,
+      height: bounds.height,
+    };
+  }
+
+  function moveDrag(event: PointerEvent<HTMLDivElement>) {
+    const current = drag.current;
+    if (!interactive || !current || current.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const x = clamp(current.offsetX + ((event.clientX - current.startX) / current.width) * 100, -OFFSET_X_LIMIT, OFFSET_X_LIMIT);
+    const y = clamp(current.offsetY + ((event.clientY - current.startY) / current.height) * 100, -OFFSET_Y_LIMIT, OFFSET_Y_LIMIT);
+    current.lastX = x;
+    current.lastY = y;
+    onMove(x, y, false);
+  }
+
+  function finishDrag(event: PointerEvent<HTMLDivElement>) {
+    const current = drag.current;
+    if (!current || current.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    drag.current = null;
+    onMove(current.lastX, current.lastY, true);
+  }
+
+  function moveWithKeyboard(event: KeyboardEvent<HTMLDivElement>) {
+    if (!interactive) return;
+    const amount = event.shiftKey ? 3 : 1;
+    let x = transform.x;
+    let y = transform.y;
+    if (event.key === "ArrowLeft") x -= amount;
+    else if (event.key === "ArrowRight") x += amount;
+    else if (event.key === "ArrowUp") y -= amount;
+    else if (event.key === "ArrowDown") y += amount;
+    else return;
+    event.preventDefault();
+    event.stopPropagation();
+    onMove(x, y, true);
+  }
+
   return (
     <div
-      className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2"
+      className={cn(
+        "absolute z-10 -translate-x-1/2 -translate-y-1/2",
+        interactive ? "cursor-grab touch-none active:cursor-grabbing" : "pointer-events-none",
+      )}
       style={frame}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={interactive ? "Drag patch to position it on the hat" : undefined}
+      onPointerDown={startDrag}
+      onPointerMove={moveDrag}
+      onPointerUp={finishDrag}
+      onPointerCancel={finishDrag}
+      onKeyDown={moveWithKeyboard}
     >
       <div
         key={`${leather.id}-${shape}-${size}`}
