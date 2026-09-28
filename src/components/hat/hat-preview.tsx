@@ -360,6 +360,7 @@ function PatchOverlay({
     width: number;
     height: number;
   } | null>(null);
+  const cleanupDrag = useRef<(() => void) | null>(null);
   const pct = SIZE_PCT[size] * transform.scale;
   const pos = PLACE[placement];
   const frame: CSSProperties = {
@@ -368,6 +369,7 @@ function PatchOverlay({
     left: `${pos.left + transform.x}%`,
     top: `${pos.top + transform.y}%`,
     transition: drag.current ? "none" : "left 180ms ease, top 180ms ease, width 180ms ease",
+    touchAction: interactive ? "none" : undefined,
   };
   const face: CSSProperties = {
     clipPath: clipFor(shape),
@@ -380,13 +382,19 @@ function PatchOverlay({
     transition: "clip-path 220ms ease",
   };
 
+  useEffect(() => {
+    return () => cleanupDrag.current?.();
+  }, []);
+
   function startDrag(event: PointerEvent<HTMLDivElement>) {
     if (!interactive) return;
     event.preventDefault();
     event.stopPropagation();
+    cleanupDrag.current?.();
+
     const bounds = event.currentTarget.parentElement?.getBoundingClientRect();
     if (!bounds || !bounds.width || !bounds.height) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+
     drag.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -398,30 +406,38 @@ function PatchOverlay({
       width: bounds.width,
       height: bounds.height,
     };
-  }
 
-  function moveDrag(event: PointerEvent<HTMLDivElement>) {
-    const current = drag.current;
-    if (!interactive || !current || current.pointerId !== event.pointerId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    const x = clamp(current.offsetX + ((event.clientX - current.startX) / current.width) * 100, -OFFSET_X_LIMIT, OFFSET_X_LIMIT);
-    const y = clamp(current.offsetY + ((event.clientY - current.startY) / current.height) * 100, -OFFSET_Y_LIMIT, OFFSET_Y_LIMIT);
-    current.lastX = x;
-    current.lastY = y;
-    onMove(x, y, false);
-  }
-
-  function finishDrag(event: PointerEvent<HTMLDivElement>) {
-    const current = drag.current;
-    if (!current || current.pointerId !== event.pointerId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    function cleanup() {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", finish);
+      window.removeEventListener("pointercancel", finish);
+      cleanupDrag.current = null;
     }
-    drag.current = null;
-    onMove(current.lastX, current.lastY, true);
+
+    function move(pointerEvent: globalThis.PointerEvent) {
+      const current = drag.current;
+      if (!current || current.pointerId !== pointerEvent.pointerId) return;
+      pointerEvent.preventDefault();
+      const x = clamp(current.offsetX + ((pointerEvent.clientX - current.startX) / current.width) * 100, -OFFSET_X_LIMIT, OFFSET_X_LIMIT);
+      const y = clamp(current.offsetY + ((pointerEvent.clientY - current.startY) / current.height) * 100, -OFFSET_Y_LIMIT, OFFSET_Y_LIMIT);
+      current.lastX = x;
+      current.lastY = y;
+      onMove(x, y, false);
+    }
+
+    function finish(pointerEvent: globalThis.PointerEvent) {
+      const current = drag.current;
+      if (!current || current.pointerId !== pointerEvent.pointerId) return;
+      pointerEvent.preventDefault();
+      drag.current = null;
+      cleanup();
+      onMove(current.lastX, current.lastY, true);
+    }
+
+    cleanupDrag.current = cleanup;
+    window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("pointerup", finish, { passive: false });
+    window.addEventListener("pointercancel", finish, { passive: false });
   }
 
   function moveWithKeyboard(event: KeyboardEvent<HTMLDivElement>) {
@@ -442,17 +458,15 @@ function PatchOverlay({
   return (
     <div
       className={cn(
-        "absolute z-10 -translate-x-1/2 -translate-y-1/2",
-        interactive ? "cursor-grab touch-none active:cursor-grabbing" : "pointer-events-none",
+        "absolute -translate-x-1/2 -translate-y-1/2",
+        interactive ? "z-30 cursor-grab touch-none select-none active:cursor-grabbing" : "z-10 pointer-events-none",
       )}
       style={frame}
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
       aria-label={interactive ? "Drag patch to position it on the hat" : undefined}
       onPointerDown={startDrag}
-      onPointerMove={moveDrag}
-      onPointerUp={finishDrag}
-      onPointerCancel={finishDrag}
+      onDragStart={(event) => event.preventDefault()}
       onKeyDown={moveWithKeyboard}
     >
       <div
@@ -464,7 +478,8 @@ function PatchOverlay({
           <img
             src={artworkUrl}
             alt=""
-            className="relative z-10 max-h-[82%] max-w-[82%] object-contain"
+            draggable={false}
+            className="relative z-10 max-h-[82%] max-w-[82%] select-none object-contain"
             style={{ filter: "grayscale(1) contrast(1.4)", mixBlendMode: "multiply" }}
           />
         ) : (
