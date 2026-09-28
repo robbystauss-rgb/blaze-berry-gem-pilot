@@ -38,7 +38,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <div className="site-container flex min-h-9 items-center justify-between gap-4 py-2 text-[0.64rem] font-bold tracking-[0.12em] uppercase sm:text-[0.66rem]">
           <div className="flex min-w-0 items-center gap-2 text-bark">
             <span className="status-dot" />
-            <span className="truncate">Custom build system online</span>
+            <span className="truncate">Made to order · Proof before production</span>
           </div>
           <p className="hidden shrink-0 text-bark sm:block">Hat + patch from $30 · Patch only from $5 · Buy 12, get 1 free</p>
         </div>
@@ -55,7 +55,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 REC Mama Made
               </span>
               <span className="mt-1 hidden truncate text-[0.57rem] font-extrabold tracking-[0.17em] text-bark uppercase min-[380px]:block">
-                Custom product studio
+                Custom hats + patches
               </span>
             </span>
           </Link>
@@ -148,7 +148,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 <div className="mt-3 flex flex-col gap-1">
                   <Link to="/actual-work" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Actual work</Link>
                   <Link to="/hats" className="flex min-h-11 items-center text-bark transition-colors hover:text-ink">Hat catalog</Link>
-                                  </div>
+                </div>
               </div>
               <div>
                 <p className="tech-label">Create</p>
