@@ -21,6 +21,9 @@ export type OrderDraft = {
   patchShape: PatchShape;
   patchSize: PatchSize;
   placement: Placement;
+  patchOffsetX: number;
+  patchOffsetY: number;
+  patchScale: number;
   leatherette: LeatheretteId;
   quantity: number;
   patchText: string;
@@ -39,6 +42,9 @@ const DEFAULTS: OrderDraft = {
   patchShape: "Rounded Rectangle",
   patchSize: "medium",
   placement: "front-center",
+  patchOffsetX: 0,
+  patchOffsetY: 0,
+  patchScale: 1,
   leatherette: "buckskin",
   quantity: 1,
   patchText: "",
@@ -66,6 +72,9 @@ export const useOrder = create<Store>()(
           family,
           tier: FAMILIES[family].tier,
           colorway: "",
+          patchOffsetX: 0,
+          patchOffsetY: 0,
+          patchScale: 1,
         }),
     }),
     {
