@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import type { FamilyId } from "@/lib/catalog";
-import { HAT_COLLECTIONS, HAT_MODEL_BLURBS, HAT_MODEL_LABELS, hatModelPath } from "@/lib/hat-models";
+import { HAT_COLLECTIONS, HAT_MODEL_BLURBS, HAT_MODEL_LABELS, hatCatalogHero, hatModelPath } from "@/lib/hat-models";
 import { familyHero } from "@/lib/stage-photos";
 import { MASTER } from "@/lib/studio-store";
 
@@ -46,7 +46,7 @@ function HatsPage() {
             <div className="grid gap-5 lg:grid-cols-2">
               {collection.modelIds.map((id) => {
                 const { photos, incomplete } = modelState(id);
-                const photo = familyHero(id);
+                const photo = familyHero(id) ?? hatCatalogHero(id);
                 return (
                   <Link key={id} to={hatModelPath(id)} className="premium-card group overflow-hidden rounded-[30px] bg-white">
                     <div className="safe-grid grid sm:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">

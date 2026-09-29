@@ -9,7 +9,7 @@ import {
   colorwaysForFamily,
   type FamilyId,
 } from "@/lib/catalog";
-import { HAT_MODEL_BLURBS, HAT_MODEL_LABELS, hatModelPath } from "@/lib/hat-models";
+import { HAT_MODEL_BLURBS, HAT_MODEL_LABELS, hatCatalogHero, hatModelPath } from "@/lib/hat-models";
 import { familyHero } from "@/lib/stage-photos";
 import { MASTER } from "@/lib/studio-store";
 
@@ -42,7 +42,7 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
         short: FAMILIES[family].short,
       };
 
-  const hero = printedMode ? familyHero("112P") : familyHero(family);
+  const hero = printedMode ? familyHero("112P") : (familyHero(family) ?? hatCatalogHero(family));
   const ready = printedMode ? false : MASTER.models.find((item) => item.id === family)?.bucket === "ready";
 
   return (

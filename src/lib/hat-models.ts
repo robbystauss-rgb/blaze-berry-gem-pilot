@@ -53,6 +53,11 @@ export const HAT_MODEL_BLURBS: Record<FamilyId, string> = {
   "256P": "Printed Umpqua Gramps Cap. The printed 256P stays separate from the solid 256.",
 };
 
+const HAT_CATALOG_HERO_FALLBACKS: Partial<Record<FamilyId, string>> = {
+  "112PM": "/assets/hats/112pm-black-black-white-fade.jpg",
+  "168P": "/assets/hats/168p-bark-duck-camo-brown.jpg",
+};
+
 export const HAT_COLLECTIONS: Array<{
   id: HatCollectionId;
   label: string;
@@ -81,4 +86,8 @@ export const HAT_COLLECTIONS: Array<{
 
 export function hatModelPath(id: FamilyId): HatModelPath {
   return HAT_MODEL_PATHS[id];
+}
+
+export function hatCatalogHero(id: FamilyId) {
+  return HAT_CATALOG_HERO_FALLBACKS[id] ?? null;
 }
