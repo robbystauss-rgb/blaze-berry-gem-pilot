@@ -9,7 +9,7 @@ import {
   colorwaysForFamily,
   type FamilyId,
 } from "@/lib/catalog";
-import { hatModelPath } from "@/lib/hat-models";
+import { HAT_MODEL_BLURBS, HAT_MODEL_LABELS, hatModelPath } from "@/lib/hat-models";
 import { familyHero } from "@/lib/stage-photos";
 import { MASTER } from "@/lib/studio-store";
 
@@ -36,7 +36,11 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
           "Browse the printed Richardson models separately. Every model keeps its own photos and color library, so a 112P color never gets attached to a 112PFP, 168P, or 256P.",
         short: "Printed collections",
       }
-    : FAMILIES[family];
+    : {
+        label: HAT_MODEL_LABELS[family],
+        blurb: HAT_MODEL_BLURBS[family],
+        short: FAMILIES[family].short,
+      };
 
   const hero = printedMode ? familyHero("112P") : familyHero(family);
   const ready = printedMode ? false : MASTER.models.find((item) => item.id === family)?.bucket === "ready";
@@ -45,7 +49,7 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
     <section className="site-container page-top-space page-bottom-space">
       <div className="safe-grid grid items-center gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:gap-14">
         <div className="min-w-0">
-          <span className="kicker">{printedMode ? "Printed collections" : FAMILIES[family].short}</span>
+          <span className="kicker">{meta.short}</span>
           <h1 className="mt-5 max-w-[12ch] font-display text-[clamp(2.8rem,8vw,5.8rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-stage-ink sm:max-w-none">{meta.label}</h1>
           <p className="mt-5 max-w-[58ch] text-base leading-7 text-bark">{meta.blurb}</p>
           <div className="mt-7 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
@@ -80,7 +84,7 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
           <div className="product-card-stage relative grid aspect-[4/3] w-full place-items-center rounded-[34px] border border-stage-line p-5 shadow-stage sm:p-6">
             <img
               src={hero}
-              alt={printedMode ? "Printed Richardson hat" : `${FAMILIES[family].short} ${FAMILIES[family].label}`}
+              alt={printedMode ? "Printed Richardson hat" : `${FAMILIES[family].short} ${HAT_MODEL_LABELS[family]}`}
               className="relative z-10 h-auto max-h-[82%] w-auto max-w-[86%] object-contain"
               decoding="async"
             />
@@ -107,7 +111,7 @@ export function CatalogPage({ family }: { family: FamilyId | "printed" }) {
                     <div>
                       <p className="tech-label">RICHARDSON {model.code}</p>
                       <h2 className="mt-2 font-display text-[clamp(2rem,5vw,2.8rem)] font-semibold leading-tight tracking-[-0.04em] text-stage-ink">
-                        {FAMILIES[fid].label}
+                        {HAT_MODEL_LABELS[fid]}
                       </h2>
                     </div>
                     <div className="flex flex-col items-start gap-2 sm:items-end">
