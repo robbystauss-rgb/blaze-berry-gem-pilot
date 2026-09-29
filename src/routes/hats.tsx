@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { FAMILIES, type FamilyId } from "@/lib/catalog";
-import { HAT_COLLECTIONS, hatModelPath } from "@/lib/hat-models";
+import type { FamilyId } from "@/lib/catalog";
+import { HAT_COLLECTIONS, HAT_MODEL_BLURBS, HAT_MODEL_LABELS, hatModelPath } from "@/lib/hat-models";
 import { familyHero } from "@/lib/stage-photos";
 import { MASTER } from "@/lib/studio-store";
 
@@ -57,7 +57,7 @@ function HatsPage() {
                         {photo ? (
                           <img
                             src={photo}
-                            alt={`${id} ${FAMILIES[id].label}`}
+                            alt={`${id} ${HAT_MODEL_LABELS[id]}`}
                             className="relative z-10 h-auto max-h-[78%] w-auto max-w-[86%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
                             loading="lazy"
                             decoding="async"
@@ -69,8 +69,8 @@ function HatsPage() {
                       <div className="flex min-w-0 flex-col justify-between p-5 sm:p-7">
                         <div>
                           <p className="tech-label">{incomplete ? "ASSETS INCOMPLETE" : "MODEL READY"}</p>
-                          <h3 className="mt-3 font-display text-[clamp(1.8rem,5vw,2.5rem)] font-semibold leading-tight tracking-[-0.04em] text-ink">{FAMILIES[id].label}</h3>
-                          <p className="mt-3 text-sm leading-6 text-bark">{FAMILIES[id].blurb}</p>
+                          <h3 className="mt-3 font-display text-[clamp(1.8rem,5vw,2.5rem)] font-semibold leading-tight tracking-[-0.04em] text-ink">{HAT_MODEL_LABELS[id]}</h3>
+                          <p className="mt-3 text-sm leading-6 text-bark">{HAT_MODEL_BLURBS[id]}</p>
                         </div>
                         <div className="mt-7 flex items-end justify-between gap-4 border-t border-border pt-4">
                           <p className="min-w-0 text-sm leading-6 text-ink">
