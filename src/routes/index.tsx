@@ -3,6 +3,7 @@ import { ArrowRight, BadgeCheck, Box, Layers3, ScanLine, Sparkles } from "lucide
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { FAMILIES, PRICING, type FamilyId } from "@/lib/catalog";
+import { HAT_MODEL_LABELS, hatModelPath } from "@/lib/hat-models";
 import { familyHero, galleryWork } from "@/lib/stage-photos";
 import { drivePhoto, useStudio } from "@/lib/studio-store";
 import { useOrder } from "@/lib/order-store";
@@ -24,13 +25,6 @@ const FLOW = [
   { label: "Proof", detail: "Confirm placement before production" },
   { label: "Made", detail: "Your approved build goes to production" },
 ];
-
-function familyTo(id: FamilyId) {
-  if (id === "112") return "/112" as const;
-  if (id === "168") return "/168" as const;
-  if (id === "256") return "/256" as const;
-  return "/printed-camo" as const;
-}
 
 function Home() {
   const work = useStudio((state) => state.work);
@@ -125,7 +119,7 @@ function Home() {
           {FEATURED.map(({ id, kicker }) => {
             const photo = familyHero(id);
             return (
-              <Link key={id} to={familyTo(id)} className="premium-card group overflow-hidden rounded-[1.6rem] bg-white">
+              <Link key={id} to={hatModelPath(id)} className="premium-card group overflow-hidden rounded-[1.6rem] bg-white">
                 <div className="product-card-stage relative grid aspect-[4/3] min-h-56 place-items-center border-b border-border/80 p-5">
                   <div className="absolute left-4 top-4 z-20 rounded-full border border-border bg-white/88 px-2.5 py-1 text-[0.6rem] font-extrabold tracking-[0.11em] text-bark uppercase backdrop-blur-md">
                     Richardson {id}
@@ -133,7 +127,7 @@ function Home() {
                   {photo ? (
                     <img
                       src={photo}
-                      alt={`${id} ${FAMILIES[id].label}`}
+                      alt={`${id} ${HAT_MODEL_LABELS[id]}`}
                       className="relative z-10 h-auto max-h-[78%] w-auto max-w-[86%] object-contain transition-transform duration-300 group-hover:scale-[1.03]"
                       loading="eager"
                       fetchPriority="high"
@@ -145,7 +139,7 @@ function Home() {
                 </div>
                 <div className="px-5 py-5">
                   <p className="tech-label">{kicker}</p>
-                  <h3 className="mt-2 text-lg font-bold leading-snug text-ink">{id} {FAMILIES[id].label}</h3>
+                  <h3 className="mt-2 text-lg font-bold leading-snug text-ink">{id} {HAT_MODEL_LABELS[id]}</h3>
                   <div className="mt-4 flex items-center justify-between gap-3">
                     <p className="text-sm text-bark">From ${FAMILIES[id].tier === "premium" ? PRICING.premium : PRICING.standard}</p>
                     <ArrowRight className="size-4 shrink-0 text-primary transition-transform duration-200 group-hover:translate-x-1" />
