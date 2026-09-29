@@ -17,7 +17,7 @@ export function ColorCard({
   return (
     <Link
       to="/order"
-      search={{ family, color: name }}
+      search={{ type: "hat", family, color: name }}
       className="premium-card group block overflow-hidden rounded-[26px] bg-white"
     >
       <div className="product-card-stage grid aspect-[4/3] w-full place-items-center p-4 sm:p-5">
