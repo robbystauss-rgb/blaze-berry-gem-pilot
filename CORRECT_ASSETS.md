@@ -6,7 +6,7 @@ This project is wired so the customer-facing builder uses verified REC Mama Made
 
 The Grok export's `src/data/master-catalog.json` remains the base catalog.
 
-`src/data/catalog-patches.json` is the authoritative correction overlay for recovered or corrected models. `src/lib/studio-store.ts` applies that overlay before the rest of the app reads `MASTER`.
+`src/data/catalog-patches.json` is the correction overlay for recovered or corrected models. The catalog overlay plugin in `vite.config.ts` merges it into the base catalog imported by `src/lib/studio-store.ts`.
 
 Effective audited catalog:
 
@@ -17,11 +17,15 @@ Effective audited catalog:
 - 168 — 7 Panel Mesh Back: 17 recovered complete Front / Side / Back colorways
 - 256 — Umpqua Gramps Cap: 19 complete Front / Side / Back colorways
 - 256P — Printed Umpqua Gramps Cap: 7 complete Front / Side / Back colorways
-- 112FPR — Five Panel Trucker with Rope: 10 verified FRONT photos only; asset-incomplete
-- 112PM — Printed Mesh Trucker: no verified product-photo library yet
-- 168P — Printed 7 Panel Mesh Back: no verified product-photo library yet
+- 112FPR — Five Panel Trucker with Rope: 17 colorways; 10 complete Front / Side / Back sets and 7 single-view catalog photos
+- 112PM — Printed Mesh Trucker: 8 colorways with a catalog product photo each
+- 168P — Printed 7 Panel Mesh Back: 6 colorways with a catalog product photo each
 
-The effective catalog contains 646 unique hat-view Drive references.
+The effective catalog contains 687 unique hat-view references: 666 Drive references and 21 local photos.
+
+The additional 112PM, 112FPR, and 168P product photos are original embedded images from pages 5, 6, and 7 of `RECmamahatoptions.pdf`. They retain the source resolution (227×149 for 112PM/112FPR and 226×141 for 168P). `src/data/catalog-photo-provenance.json` records exact model/color mappings, source pages, dimensions, and SHA-256 hashes. It also records the 20 recovered 112FPR side/back Drive photos.
+
+Catalog readiness and photo completeness are separate: a verified product photo is enough for a colorway to be selectable. Single-view assets retain `assetStatus: "partial"`. The preview offers only supplied views.
 
 If a model, color, or view is missing, show a neutral unavailable state. Never substitute another Richardson model, a generated hat, or a guessed color rendering.
 
@@ -55,6 +59,6 @@ Run:
 
 `npm run check:assets`
 
-The validator checks the effective catalog counts, complete view mappings, unique Drive image references, the exact approved material source, 31 named material swatches, active source-code fallbacks, and the Grok OG-card references.
+The validator checks effective catalog counts, complete or single-view mappings, unique image references, local photo provenance and hashes, the exact material source, 31 named material swatches, active source-code fallbacks, and the Grok OG-card references.
 
 `npm run build` runs `check:assets` before the normal build.

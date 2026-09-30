@@ -9,17 +9,292 @@
     },
     "112FPR": {
       "officialName": "Five Panel Trucker with Rope",
-      "bucket": "incomplete",
-      "suppliedCount": 10,
-      "note": "10 supplied front photos. SIDE and BACK are missing, so this model stays asset-incomplete and must not be customer-selectable until completed or intentionally overridden."
+      "bucket": "ready",
+      "richardsonListed": 17,
+      "suppliedCount": 17,
+      "note": "17 verified colorways: 10 complete front/side/back sets and 7 single-view catalog product photos.",
+      "colorways": [
+        {
+          "id": "112FPR:black-charcoal",
+          "officialName": "Black/Charcoal",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "1zNgMo-51xzUEBIFjihA5-f1tnuoo6FNV",
+            "side": "1N2aUFvmA9MnkvOgqR83F0puUknk0PvF9",
+            "back": "1jOBwnUvr8pT1jJKItOEmeFmyA9nSPW4G"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:black-white",
+          "officialName": "Black/White",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "14GHlKzdjDaZbgJde9Gp-XgfCidV3DI2g",
+            "side": "1-ogCyptCBYXC4ohluzi-ihKYINI2x9WA",
+            "back": "1gSrmIEGwyEv6-6uPw4FI4TiRO6oF5qTU"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:caramel-black",
+          "officialName": "Caramel/Black",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "1wrMhAmZlUvKG7DPpGyqIIHFDceKxx2Wt",
+            "side": "1bVl5RKC9cCxOCk2qZ3ojhrlTs7PDkVBi",
+            "back": "1bRLtmym5vB42_utbmFT0fYYZ1DirEmCI"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:charcoal",
+          "officialName": "Charcoal",
+          "richardsonStatus": "unknown",
+          "assetStatus": "complete",
+          "views": {
+            "front": "1g3MAOK8DloOjxrnX10VD0NzlFNI8bzgO",
+            "side": "1F7Li2hVJvSbnDxPQ-D9EiI5ryfgQzhZs",
+            "back": "1bw84TjfWRbkIEEtzJVCx3yL_lw3isY-2"
+          },
+          "notes": "Verified front, side, and back product photos. Not on the 13-name distributor list. Richardson's own page says 14 colors; this one is not confirmed current."
+        },
+        {
+          "id": "112FPR:heather-grey-black",
+          "officialName": "Heather Grey/Black",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "1ALWtsQBwYtsXUfr8HU1zxnpErJXZt0fH",
+            "side": "1kCSkdboY4l97mIqswGxW6uK3MXHjHR3j",
+            "back": "119OWQVxa5uclRVRAZlhs5pspeZmh_rQt"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:heather-grey-white",
+          "officialName": "Heather Grey/White",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "1OhLC2D9W86EFL2amRrQ0ztugcsgee4Xn",
+            "side": "1Iwsm7MyzL4ukV1kN80cyhWH6qfXHwepE",
+            "back": "1cgskzBHsz_IepaKXxpkY1HG3vqOA5_zT"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:loden-green-black",
+          "officialName": "Loden Green/Black",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "1gcyvAx0pTp26Teo_eCdktbzkDvG3n9r_",
+            "side": "1C6QAIlpMrQwf3a8rVKyzGs7DXK0_xKbg",
+            "back": "1CppYHzpXapQRadm1q5w2HzGqDqxVbDyL"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:navy-white",
+          "officialName": "Navy/White",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "1mqXXHSCj5PU19jaisC3ddQbKggZA_sL_",
+            "side": "1c_E3XIoI5Q5LlbG0P3rETlO94m8dScIQ",
+            "back": "1cozEl2jjaq7c89MJJ1oerI2GzISREjhY"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:white-black",
+          "officialName": "White/Black",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "114cYScdPn27TAqMonvOuiFX9VVqAAaSK",
+            "side": "1I9qp5hYTX0qBFK8n55fD-ziulALcpLxj",
+            "back": "1eJNdtMTtPyg3rfb0H_ZjVmySVSjcnxDh"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:white-navy",
+          "officialName": "White/Navy",
+          "richardsonStatus": "current",
+          "assetStatus": "complete",
+          "views": {
+            "front": "1O8Q1ZhIlJ-i0H2v95wFM2oNZukY3Q_qh",
+            "side": "1SyUR8TYUdDYxmsre8iGJPxg62FH8T3bC",
+            "back": "12qdiLWAMYMXN-NM3e2rsyNmM05iaBuPT"
+          },
+          "notes": "Verified front, side, and back product photos."
+        },
+        {
+          "id": "112FPR:black-black",
+          "officialName": "Black/Black",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112fpr-black-black.jpeg"
+          },
+          "notes": "Original catalog product photo, page 6. No separate side or back photos supplied."
+        },
+        {
+          "id": "112FPR:brown-brown",
+          "officialName": "Brown/Brown",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112fpr-brown-brown.jpeg"
+          },
+          "notes": "Original catalog product photo, page 6. No separate side or back photos supplied."
+        },
+        {
+          "id": "112FPR:brown-khaki-khaki",
+          "officialName": "Brown/Khaki/Khaki",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112fpr-brown-khaki-khaki.jpeg"
+          },
+          "notes": "Original catalog product photo, page 6. No separate side or back photos supplied."
+        },
+        {
+          "id": "112FPR:columbia-blue-navy",
+          "officialName": "Columbia Blue/Navy",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112fpr-columbia-blue-navy.jpeg"
+          },
+          "notes": "Original catalog product photo, page 6. No separate side or back photos supplied."
+        },
+        {
+          "id": "112FPR:kelly-white",
+          "officialName": "Kelly/White",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112fpr-kelly-white.jpeg"
+          },
+          "notes": "Original catalog product photo, page 6. No separate side or back photos supplied."
+        },
+        {
+          "id": "112FPR:loden-loden",
+          "officialName": "Loden/Loden",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112fpr-loden-loden.jpeg"
+          },
+          "notes": "Original catalog product photo, page 6. No separate side or back photos supplied."
+        },
+        {
+          "id": "112FPR:navy-dark-orange-dark-orange",
+          "officialName": "Navy/Dark Orange/Dark Orange",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112fpr-navy-dark-orange-dark-orange.jpeg"
+          },
+          "notes": "Original catalog product photo, page 6. No separate side or back photos supplied."
+        }
+      ]
     },
     "112PM": {
       "officialName": "Printed Mesh Trucker",
-      "bucket": "incomplete",
-      "suppliedCount": 0,
-      "note": "No dedicated 112PM folder in the library. Do not invent colors.",
+      "bucket": "ready",
+      "richardsonListed": 8,
+      "suppliedCount": 8,
+      "note": "8 verified catalog product photos. Separate side/back views unavailable.",
       "heroDriveId": null,
-      "colorways": []
+      "colorways": [
+        {
+          "id": "112PM:black-black-white-fade",
+          "officialName": "Black/Black-White Fade",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112pm-black-black-white-fade.jpeg"
+          },
+          "notes": "Original catalog product photo, page 5. No separate side or back photos supplied."
+        },
+        {
+          "id": "112PM:brown-desert-camo",
+          "officialName": "Brown/Desert Camo",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112pm-brown-desert-camo.jpeg"
+          },
+          "notes": "Original catalog product photo, page 5. No separate side or back photos supplied."
+        },
+        {
+          "id": "112PM:green-camo-stars-stripes",
+          "officialName": "Green Camo/Stars & Stripes",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112pm-green-camo-stars-stripes.jpeg"
+          },
+          "notes": "Original catalog product photo, page 5. No separate side or back photos supplied."
+        },
+        {
+          "id": "112PM:heather-grey-stars-stripes",
+          "officialName": "Heather Grey/Stars & Stripes",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112pm-heather-grey-stars-stripes.jpeg"
+          },
+          "notes": "Original catalog product photo, page 5. No separate side or back photos supplied."
+        },
+        {
+          "id": "112PM:loden-green-camo",
+          "officialName": "Loden/Green Camo",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112pm-loden-green-camo.jpeg"
+          },
+          "notes": "Original catalog product photo, page 5. No separate side or back photos supplied."
+        },
+        {
+          "id": "112PM:mossy-oak-country-dna-stars-stripes",
+          "officialName": "Mossy Oak Country DNA/Stars & Stripes",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112pm-mossy-oak-country-dna-stars-stripes.jpeg"
+          },
+          "notes": "Original catalog product photo, page 5. No separate side or back photos supplied."
+        },
+        {
+          "id": "112PM:navy-navy-white-fade",
+          "officialName": "Navy/Navy-White Fade",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112pm-navy-navy-white-fade.jpeg"
+          },
+          "notes": "Original catalog product photo, page 5. No separate side or back photos supplied."
+        },
+        {
+          "id": "112PM:silver-grey-camo",
+          "officialName": "Silver/Grey Camo",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/112pm-silver-grey-camo.jpeg"
+          },
+          "notes": "Original catalog product photo, page 5. No separate side or back photos supplied."
+        }
+      ]
     },
     "168": {
       "officialName": "7 Panel Mesh Back",
@@ -168,11 +443,73 @@
     },
     "168P": {
       "officialName": "Printed 7 Panel Mesh Back",
-      "bucket": "incomplete",
-      "suppliedCount": 0,
-      "note": "Official model retained. No canonical REC Mama Made 168P color-photo library has been located yet.",
+      "bucket": "ready",
+      "richardsonListed": 6,
+      "suppliedCount": 6,
+      "note": "6 verified catalog product photos. Separate side/back views unavailable.",
       "heroDriveId": null,
-      "colorways": []
+      "colorways": [
+        {
+          "id": "168P:bark-duck-camo-brown",
+          "officialName": "Bark Duck Camo/Brown",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/168p-bark-duck-camo-brown.jpeg"
+          },
+          "notes": "Original catalog product photo, page 7. No separate side or back photos supplied."
+        },
+        {
+          "id": "168P:harvest-duck-camo-sandstone",
+          "officialName": "Harvest Duck Camo/Sandstone",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/168p-harvest-duck-camo-sandstone.jpeg"
+          },
+          "notes": "Original catalog product photo, page 7. No separate side or back photos supplied."
+        },
+        {
+          "id": "168P:marsh-duck-camo-loden",
+          "officialName": "Marsh Duck Camo/Loden",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/168p-marsh-duck-camo-loden.jpeg"
+          },
+          "notes": "Original catalog product photo, page 7. No separate side or back photos supplied."
+        },
+        {
+          "id": "168P:saltwater-duck-camo-ice-grey",
+          "officialName": "Saltwater Duck Camo/Ice Grey",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/168p-saltwater-duck-camo-ice-grey.jpeg"
+          },
+          "notes": "Original catalog product photo, page 7. No separate side or back photos supplied."
+        },
+        {
+          "id": "168P:mossy-oak-bottomland-loden",
+          "officialName": "Mossy Oak Bottomland/Loden",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/168p-mossy-oak-bottomland-loden.jpeg"
+          },
+          "notes": "Original catalog product photo, page 7. No separate side or back photos supplied."
+        },
+        {
+          "id": "168P:realtree-advantage-classic-khaki",
+          "officialName": "Realtree Advantage Classic/Khaki",
+          "richardsonStatus": "unknown",
+          "assetStatus": "partial",
+          "views": {
+            "front": "/assets/hats/168p-realtree-advantage-classic-khaki.jpeg"
+          },
+          "notes": "Original catalog product photo, page 7. No separate side or back photos supplied."
+        }
+      ]
     },
     "256": {
       "officialName": "Umpqua Gramps Cap",

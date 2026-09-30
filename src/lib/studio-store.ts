@@ -225,6 +225,7 @@ export function findColor(id: string) {
 
 export function drivePhoto(id: string | undefined, size = 640) {
   if (!id) return null;
+  if (id.startsWith("/assets/hats/")) return id;
   return `https://lh3.googleusercontent.com/d/${id}=w${size}`;
 }
 

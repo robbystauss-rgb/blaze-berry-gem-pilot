@@ -23,9 +23,9 @@ const expected = new Map([
   ["168", { bucket: "ready", count: 17, complete: true }],
   ["256", { bucket: "ready", count: 19, complete: true }],
   ["256P", { bucket: "ready", count: 7, complete: true }],
-  ["112FPR", { bucket: "incomplete", count: 10, frontOnly: true }],
-  ["112PM", { bucket: "incomplete", count: 0 }],
-  ["168P", { bucket: "incomplete", count: 0 }],
+  ["112FPR", { bucket: "ready", count: 17, completeCount: 10 }],
+  ["112PM", { bucket: "ready", count: 8, frontOnly: true }],
+  ["168P", { bucket: "ready", count: 6, frontOnly: true }],
 ]);
 
 const byId = new Map(models.map((m) => [m.id, m]));
@@ -36,21 +36,56 @@ for (const [id, rule] of expected) {
   if (model.colorways.length !== rule.count) fail.push(`${id}: expected ${rule.count} colorways, found ${model.colorways.length}`);
   const names = new Set();
   const ids = new Set();
+  let completeCount = 0;
   for (const color of model.colorways) {
     if (names.has(color.officialName)) fail.push(`${id}: duplicate color name ${color.officialName}`);
     if (ids.has(color.id)) fail.push(`${id}: duplicate color id ${color.id}`);
     names.add(color.officialName); ids.add(color.id);
+    if (!color.id.startsWith(`${id}:`)) fail.push(`${id}: wrong-model color id ${color.id}`);
     const v = color.views ?? {};
+    if (v.front && v.side && v.back) completeCount++;
+    if (!(v.front && v.side && v.back) && color.assetStatus !== "partial") fail.push(`${id} ${color.officialName}: incomplete photography must retain partial asset status`);
+    if (model.bucket === "ready" && !v.front) fail.push(`${id} ${color.officialName}: selectable colorway missing product photo`);
     if (rule.complete && !(v.front && v.side && v.back)) fail.push(`${id} ${color.officialName}: ready colorway missing front/side/back`);
     if (rule.frontOnly && (!v.front || v.side || v.back)) fail.push(`${id} ${color.officialName}: expected front-only asset mapping`);
+    if (rule.frontOnly && color.assetStatus !== "partial") fail.push(`${id} ${color.officialName}: single-view photography must retain partial asset status`);
   }
+  if (rule.completeCount !== undefined && completeCount !== rule.completeCount) fail.push(`${id}: expected ${rule.completeCount} complete photo sets, found ${completeCount}`);
   note.push(`${id}: ${model.colorways.length} colorways`);
 }
 
 const viewRefs = [];
 for (const model of models) for (const color of model.colorways) for (const key of ["front","side","back"]) if (color.views?.[key]) viewRefs.push(color.views[key]);
-if (new Set(viewRefs).size !== viewRefs.length) fail.push("Hat view mapping contains duplicate Drive image IDs");
+if (new Set(viewRefs).size !== viewRefs.length) fail.push("Hat view mapping contains duplicate image references");
 note.push(`${viewRefs.length} unique hat view references`);
+
+const provenance = readJson("src/data/catalog-photo-provenance.json");
+const localPhotos = new Map(provenance.assets.map((asset) => [asset.path, asset]));
+for (const model of models) for (const color of model.colorways) {
+  for (const [view, ref] of Object.entries(color.views ?? {})) {
+    if (!ref.startsWith("/")) continue;
+    const asset = localPhotos.get(ref);
+    const file = path.join(root, "public", ref);
+    if (!ref.startsWith(`/assets/hats/${model.id.toLowerCase()}-`) || ref.includes("..")) {
+      fail.push(`${model.id} ${color.officialName}: invalid or wrong-model local photo ${ref}`);
+      continue;
+    }
+    if (!asset || asset.modelId !== model.id || asset.colorwayId !== color.id || asset.officialName !== color.officialName || view !== "front") {
+      fail.push(`${model.id} ${color.officialName}: photo provenance does not match catalog mapping`);
+    }
+    if (!fs.existsSync(file)) fail.push(`Missing catalog photo ${ref}`);
+    else if (asset && crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex") !== asset.sha256) fail.push(`Catalog photo changed: ${ref}`);
+  }
+}
+for (const asset of provenance.assets) {
+  const color = byId.get(asset.modelId)?.colorways.find((color) => color.id === asset.colorwayId);
+  if (color?.views.front !== asset.path) fail.push(`Unmapped local photo provenance ${asset.path}`);
+}
+for (const asset of provenance.driveAssets) {
+  const color = byId.get(asset.modelId)?.colorways.find((color) => color.id === asset.colorwayId);
+  if (color?.views[asset.view] !== asset.sourceDriveId || color.officialName !== asset.officialName) fail.push(`Wrong-model Drive photo provenance ${asset.sourceDriveId}`);
+}
+note.push(`${localPhotos.size} byte-verified local catalog photos; ${provenance.driveAssets.length} recovered Drive angles`);
 
 const sourceRel = "public/materials/review/source.png";
 const sourcePath = path.join(root, sourceRel);
