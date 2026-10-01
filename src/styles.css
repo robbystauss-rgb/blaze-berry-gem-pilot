@@ -350,7 +350,9 @@
 
   .home-reveal-title {
     font-size: clamp(4rem, 12vw, 9.5rem);
-    line-height: 0.86;
+    /* Keep descenders inside the gradient's painted area, including wrapped lines. */
+    line-height: 1.08;
+    padding-block: 0.08em;
     letter-spacing: -0.075em;
     color: #1d1d1f;
     background: linear-gradient(118deg, #111214 8%, #303033 62%, #9a7d50 100%);
