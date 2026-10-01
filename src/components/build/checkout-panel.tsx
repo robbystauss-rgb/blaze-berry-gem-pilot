@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { CURRENT_LEGAL_ACCEPTANCE } from "@/lib/legal-policies";
 import {
   MANUAL_VENMO_URL,
   capturePayPalOrder,
@@ -8,6 +9,7 @@ import {
   getPayPalBrowserToken,
   getPaymentConfig,
   getStripeCheckoutStatus,
+  recordManualVenmoAcceptance,
   type PaymentBuild,
 } from "@/lib/payments";
 
@@ -69,14 +71,34 @@ export function CheckoutPanel({
   stripeSessionId?: string;
 }) {
   const buildRef = useRef(build);
+  const legalRef = useRef({ termsAccepted: false, artworkAuthorized: false, portfolioConsent: false });
   const payPalTokens = useRef(new Map<string, string>());
   const paypalRef = useRef<HTMLDivElement>(null);
   const venmoRef = useRef<HTMLDivElement>(null);
   const [config, setConfig] = useState<{ stripeConfigured: boolean; paypalConfigured: boolean; paypalEnvironment: "sandbox" | "live" } | null>(null);
   const [busy, setBusy] = useState<"stripe" | "paypal" | "venmo" | "verify" | null>(null);
   const [notice, setNotice] = useState<{ tone: "success" | "error" | "info"; text: string } | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [artworkAuthorized, setArtworkAuthorized] = useState(false);
+  const [portfolioConsent, setPortfolioConsent] = useState(false);
 
   buildRef.current = build;
+  legalRef.current = { termsAccepted, artworkAuthorized, portfolioConsent };
+  const legalReady = termsAccepted && (!build.hasArtwork || artworkAuthorized);
+
+  function buildWithLegal(): PaymentBuild {
+    const legal = legalRef.current;
+    return {
+      ...buildRef.current,
+      legal: {
+        ...CURRENT_LEGAL_ACCEPTANCE,
+        termsAccepted: legal.termsAccepted,
+        artworkAuthorized: buildRef.current.hasArtwork ? legal.artworkAuthorized : true,
+        portfolioConsent: legal.portfolioConsent,
+        acceptedAt: new Date().toISOString(),
+      },
+    };
+  }
 
   useEffect(() => {
     let alive = true;
@@ -119,11 +141,12 @@ export function CheckoutPanel({
     const venmoContainer = venmoRef.current;
     paypalContainer.replaceChildren();
     venmoContainer.replaceChildren();
+    if (!legalReady) return;
 
     async function createOrderPromise(method: "paypal" | "venmo") {
       if (alive) setBusy(method);
       try {
-        const created = await createPayPalOrder({ data: buildRef.current });
+        const created = await createPayPalOrder({ data: buildWithLegal() });
         payPalTokens.current.set(created.orderId, created.captureToken);
         return { orderId: created.orderId };
       } catch (error) {
@@ -204,13 +227,17 @@ export function CheckoutPanel({
       paypalContainer.replaceChildren();
       venmoContainer.replaceChildren();
     };
-  }, [config?.paypalConfigured]);
+  }, [config?.paypalConfigured, legalReady]);
 
   async function startStripe() {
+    if (!legalReady) {
+      setNotice({ tone: "error", text: "Accept the required order acknowledgements before payment." });
+      return;
+    }
     setBusy("stripe");
     setNotice(null);
     try {
-      const session = await createStripeCheckoutSession({ data: buildRef.current });
+      const session = await createStripeCheckoutSession({ data: buildWithLegal() });
       window.location.assign(session.url);
     } catch (error) {
       setBusy(null);
@@ -231,12 +258,36 @@ export function CheckoutPanel({
       </div>
       <p className="mt-2 text-sm leading-6 text-stage-muted">Your build and pricing stay exactly as reviewed. A digital proof is still required before production.</p>
 
+      <div className="mt-4 space-y-3 border-y border-stage-line py-4 text-sm leading-6 text-stage-ink">
+        {build.hasArtwork && (
+          <label className="flex items-start gap-3">
+            <input type="checkbox" checked={artworkAuthorized} onChange={(event) => setArtworkAuthorized(event.target.checked)} className="mt-1 size-4 shrink-0" />
+            <span>
+              I confirm that I own this artwork or have permission to reproduce it and authorize REC Mama Made to use it to fulfill my order. {" "}
+              <a href="/legal/artwork" target="_blank" rel="noreferrer" className="font-semibold text-primary underline underline-offset-4">Artwork & IP Policy</a>
+            </span>
+          </label>
+        )}
+        <label className="flex items-start gap-3">
+          <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} className="mt-1 size-4 shrink-0" />
+          <span>
+            I agree to the <a href="/legal/terms" target="_blank" rel="noreferrer" className="font-semibold text-primary underline underline-offset-4">Terms & Conditions</a> and {" "}
+            <a href="/legal/custom-order" target="_blank" rel="noreferrer" className="font-semibold text-primary underline underline-offset-4">Custom Order Policy</a>.
+          </span>
+        </label>
+        <label className="flex items-start gap-3 text-stage-muted">
+          <input type="checkbox" checked={portfolioConsent} onChange={(event) => setPortfolioConsent(event.target.checked)} className="mt-1 size-4 shrink-0" />
+          <span>Optional: REC Mama Made may photograph and showcase my finished custom product in its website portfolio, social media, and marketing.</span>
+        </label>
+      </div>
+
       {notice && <div className={`mt-4 rounded-xl border px-3 py-3 text-sm leading-6 ${toneClass}`}>{notice.text}</div>}
 
       <div className="mt-4 grid gap-3">
-        <Button type="button" className="min-h-12 w-full" onClick={() => void startStripe()} disabled={!config?.stripeConfigured || busy !== null}>
+        <Button type="button" className="min-h-12 w-full" onClick={() => void startStripe()} disabled={!config?.stripeConfigured || busy !== null || !legalReady}>
           {busy === "stripe" ? "Opening secure checkout…" : config?.stripeConfigured ? `Pay $${total.toFixed(2)} securely` : "Card checkout setup pending"}
         </Button>
+        {!legalReady && <p className="text-xs leading-5 text-stage-muted">Required acknowledgements above must be accepted before payment.</p>}
         <p className="text-xs leading-5 text-stage-muted">Cards and eligible wallet options such as Apple Pay, Google Pay, and Link are presented by Stripe when available.</p>
       </div>
 
@@ -251,7 +302,19 @@ export function CheckoutPanel({
       <details className="mt-4 rounded-xl border border-stage-line bg-stage/55 px-3 py-2.5">
         <summary className="cursor-pointer text-sm font-semibold text-stage-ink">Manual Venmo fallback</summary>
         <p className="mt-2 text-xs leading-5 text-stage-muted">Use this only if the automated payment buttons are unavailable. Manual Venmo payments do not update checkout status automatically.</p>
-        <a className="mt-2 inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4" href={MANUAL_VENMO_URL} target="_blank" rel="noreferrer">Pay manually with Venmo</a>
+        {legalReady ? (
+          <a
+            className="mt-2 inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4"
+            href={MANUAL_VENMO_URL}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => void recordManualVenmoAcceptance({ data: buildWithLegal() })}
+          >
+            Pay manually with Venmo
+          </a>
+        ) : (
+          <p className="mt-2 text-xs leading-5 text-stage-muted">Accept the required acknowledgements before using manual Venmo.</p>
+        )}
       </details>
       {busy === "verify" && <p className="mt-3 text-sm text-stage-muted">Verifying your payment…</p>}
     </section>

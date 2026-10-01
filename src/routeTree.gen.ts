@@ -18,6 +18,7 @@ import { Route as HatsRouteImport } from './routes/hats'
 import { Route as OrderRouteImport } from './routes/order'
 import { Route as PrintedCamoRouteImport } from './routes/printed-camo'
 import { Route as StudioRouteImport } from './routes/studio'
+import { Route as LegalPolicyRouteImport } from './routes/legal/$policy'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const StudioRoute = StudioRouteImport.update({
   path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalPolicyRoute = LegalPolicyRouteImport.update({
+  id: '/legal/$policy',
+  path: '/legal/$policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/order': typeof OrderRoute
   '/printed-camo': typeof PrintedCamoRoute
   '/studio': typeof StudioRoute
+  '/legal/$policy': typeof LegalPolicyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/order': typeof OrderRoute
   '/printed-camo': typeof PrintedCamoRoute
   '/studio': typeof StudioRoute
+  '/legal/$policy': typeof LegalPolicyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/order': typeof OrderRoute
   '/printed-camo': typeof PrintedCamoRoute
   '/studio': typeof StudioRoute
+  '/legal/$policy': typeof LegalPolicyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/order'
     | '/printed-camo'
     | '/studio'
+    | '/legal/$policy'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/order'
     | '/printed-camo'
     | '/studio'
+    | '/legal/$policy'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/order'
     | '/printed-camo'
     | '/studio'
+    | '/legal/$policy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   OrderRoute: typeof OrderRoute
   PrintedCamoRoute: typeof PrintedCamoRoute
   StudioRoute: typeof StudioRoute
+  LegalPolicyRoute: typeof LegalPolicyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/$policy': {
+      id: '/legal/$policy'
+      path: '/legal/$policy'
+      fullPath: '/legal/$policy'
+      preLoaderRoute: typeof LegalPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrderRoute: OrderRoute,
   PrintedCamoRoute: PrintedCamoRoute,
   StudioRoute: StudioRoute,
+  LegalPolicyRoute: LegalPolicyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
