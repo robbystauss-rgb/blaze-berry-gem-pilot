@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowUpRight, Menu, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { useStudio } from "@/lib/studio-store";
@@ -47,9 +47,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 py-3">
         <div className="glass-nav site-container flex min-h-[64px] items-center justify-between gap-3 rounded-[22px] px-3 py-2.5 sm:gap-4 md:px-4">
           <Link to="/" className="group flex min-w-0 items-center gap-2.5 sm:gap-3" aria-label="REC Mama Made home">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]">
-              <Sparkles className="size-4 text-primary transition-transform duration-300 group-hover:rotate-12" />
-            </span>
+            <img src="/brand/rec-mama-made-louisiana-logo.jpeg" alt="" width={1536} height={1536} className="size-12 shrink-0 rounded-lg object-contain" />
             <span className="min-w-0">
               <span className="block truncate font-display text-[0.98rem] leading-none font-bold tracking-[-0.025em] text-ink sm:text-[1.15rem]">
                 REC Mama Made
@@ -132,6 +130,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <footer className="mt-20 border-t border-border/80 bg-white/52 py-14 backdrop-blur-xl sm:mt-24 sm:py-16">
           <div className="site-container grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:gap-16">
             <div>
+              <Link to="/" aria-label="REC Mama Made home" className="inline-flex">
+                <img src="/brand/rec-mama-made-louisiana-logo.jpeg" alt="REC Mama Made Louisiana wildflower logo" width={1536} height={1536} loading="lazy" className="mb-6 h-auto w-36 rounded-xl" />
+              </Link>
               <div className="flex items-center gap-2">
                 <span className="status-dot" />
                 <span className="tech-label">REC Mama Made</span>

@@ -43,8 +43,16 @@ function Home() {
   return (
     <>
       <section className="home-reveal page-bottom-space">
-        <div className="site-container relative z-10 pt-[clamp(3.25rem,8vw,7.5rem)]">
+        <div className="site-container relative z-10 pt-6 sm:pt-10">
           <div className="mx-auto max-w-5xl text-center">
+            <img
+              src="/brand/rec-mama-made-louisiana-logo.jpeg"
+              alt="REC Mama Made Louisiana wildflower logo, signed Eliecia Stauss"
+              width={1536}
+              height={1536}
+              fetchPriority="high"
+              className="mx-auto mb-6 h-auto w-64 max-w-full rounded-2xl sm:w-80"
+            />
             <p className="home-reveal-eyebrow">REC Mama Made · Custom hats, reimagined</p>
             <h1 className="home-reveal-title mt-4 font-display font-bold">Make it yours.</h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-bark sm:text-xl sm:leading-8">
