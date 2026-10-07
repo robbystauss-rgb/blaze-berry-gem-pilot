@@ -10,6 +10,7 @@ import type {
   Placement,
 } from "./catalog";
 import { FAMILIES } from "./catalog";
+import type { CrownPosition } from "./crown-geometry";
 
 export type OrderDraft = {
   customerName: string;
@@ -24,6 +25,8 @@ export type OrderDraft = {
   patchOffsetX: number;
   patchOffsetY: number;
   patchScale: number;
+  /** Versioned crown-local center; missing means legacy container percentages. */
+  patchPosition?: CrownPosition;
   leatherette: LeatheretteId;
   quantity: number;
   patchText: string;
@@ -45,6 +48,7 @@ const DEFAULTS: OrderDraft = {
   patchOffsetX: 0,
   patchOffsetY: 0,
   patchScale: 1,
+  patchPosition: undefined,
   leatherette: "buckskin",
   quantity: 1,
   patchText: "",
@@ -72,9 +76,6 @@ export const useOrder = create<Store>()(
           family,
           tier: FAMILIES[family].tier,
           colorway: "",
-          patchOffsetX: 0,
-          patchOffsetY: 0,
-          patchScale: 1,
         }),
     }),
     {

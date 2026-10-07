@@ -8,11 +8,11 @@
   },
   "scripts": {
     "fix:rec-assets": "node scripts/apply-rec-builder-fixes.mjs && node scripts/apply-rec-deeplink-qa.mjs",
-    "dev": "npm run fix:rec-assets && node scripts/with-app-env.mjs vite dev --host 0.0.0.0 --port 8080",
-    "build": "npm run fix:rec-assets && npm run check:assets && node scripts/with-app-env.mjs vite build && npm run db:migrate",
+    "dev": "npm run fix:rec-assets && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js dev --host 0.0.0.0 --port 8080",
+    "build": "npm run fix:rec-assets && npm run check:assets && npm run check:crowns && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js build && npm run db:migrate",
     "db:migrate": "node scripts/migrate.mjs",
-    "build:dev": "npm run fix:rec-assets && node scripts/with-app-env.mjs vite build --mode development",
-    "preview": "npm run fix:rec-assets && node scripts/with-app-env.mjs vite preview",
+    "build:dev": "npm run fix:rec-assets && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js build --mode development",
+    "preview": "npm run fix:rec-assets && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js preview",
     "preview:restart": "node scripts/preview.mjs restart",
     "preview:stop": "node scripts/preview.mjs stop",
     "typecheck": "tsc --noEmit",
@@ -20,7 +20,10 @@
     "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "check:assets": "node scripts/validate-rec-assets.mjs"
+    "check:assets": "node scripts/validate-rec-assets.mjs",
+    "check:crowns": "node scripts/validate-crown-calibrations.mjs",
+    "test:crowns": "node --experimental-strip-types --test src/lib/crown-geometry.test.ts src/lib/crown-calibration.test.ts scripts/validate-crown-calibrations.test.mjs",
+    "qa:crowns": "node scripts/qa-crown-builder.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",
@@ -53,7 +56,7 @@
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-query": "^5.101.0",
     "@tanstack/react-router": "^1.170.0",
-    "@tanstack/react-start": "^1.168.0",
+    "@tanstack/react-start": "1.168.60",
     "@tanstack/react-table": "^8.21.0",
     "@tanstack/router-plugin": "^1.168.0",
     "class-variance-authority": "^0.7.1",

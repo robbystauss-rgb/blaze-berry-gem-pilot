@@ -2,7 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 const file = path.join(process.cwd(), "src/components/build/builder.tsx");
-let source = fs.readFileSync(file, "utf8");
+// Git may check out CRLF on Windows; source safeguards compare canonical LF.
+let source = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
 let changed = false;
 
 function replaceOnce(oldText, newText, label) {

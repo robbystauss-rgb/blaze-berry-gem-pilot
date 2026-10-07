@@ -1,7 +1,14 @@
 import type { FamilyId } from "@/lib/catalog";
 import { MASTER, drivePhoto, workDecision, type WorkDecision } from "@/lib/studio-store";
+import { crownCalibration } from "./crown-calibration";
 
 export type StageViews = { front: string | null; side: string | null; back: string | null };
+
+export function stageFrontCalibration(family: FamilyId, colorway: string) {
+  const model = MASTER.models.find((item) => item.id === family);
+  const color = model?.colorways.find((item) => norm(item.officialName) === norm(colorway));
+  return crownCalibration(family, color?.views.front);
+}
 
 function norm(value: string) {
   return value
@@ -21,7 +28,7 @@ export function stageViews(family: FamilyId, colorway: string): StageViews {
   const color = model.colorways.find((item) => norm(item.officialName) === needle);
   if (!color) return empty;
   return {
-    front: drivePhoto(color.views.front, 1200),
+    front: crownCalibration(family, color.views.front)?.imageUrl ?? drivePhoto(color.views.front, 1200),
     side: drivePhoto(color.views.side, 1200),
     back: drivePhoto(color.views.back, 1200),
   };
@@ -39,6 +46,11 @@ export function familyHero(family: FamilyId) {
   const model = MASTER.models.find((item) => item.id === family);
   if (!model) return null;
   return drivePhoto(model.heroDriveId ?? model.colorways[0]?.views.front, 900);
+}
+
+export function familyHeroCalibration(family: FamilyId) {
+  const model = MASTER.models.find((item) => item.id === family);
+  return crownCalibration(family, model?.heroDriveId ?? model?.colorways[0]?.views.front);
 }
 
 export function galleryWork(work: Record<string, WorkDecision>) {
