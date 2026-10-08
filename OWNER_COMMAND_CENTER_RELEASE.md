@@ -1,5 +1,7 @@
 # REC Mama Made release
 
+**Later approved completion:** this file records the initial release. The 2026-10-08 operations upgrade, real owner/MFA activation, signed Stripe receiver and actual historical import are recorded in [OWNER_COMMAND_CENTER_COMPLETION.md](./OWNER_COMMAND_CENTER_COMPLETION.md), including current rollback requirements. Initial activation limitations below are historical; use the completion record for current status.
+
 The owner authorized deployment and publication on 2026-10-07 after reviewing the local implementation. This supersedes the earlier instruction to await production approval; the earlier delivery report remains the implementation/validation record.
 
 Target: existing Vercel project `rec-mama-made-staging` (`prj_KdYbzGJ9NSYDHUD05yfI4b2hUXbI`), team `robbystauss-6160`. Despite its name, this is the verified project serving `recmamamade.com` and `www.recmamamade.com`.

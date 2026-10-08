@@ -1,5 +1,7 @@
 # REC Mama Made Owner Command Center — delivery report
 
+**Current production status (2026-10-08):** the completion upgrade is published, the real owner has enrolled MFA, the REC Stripe receiver is active, and one verified historical REC sale was imported. Full filtered exports, scheduled products, recovery codes, private production files and invoice voiding have been added. See [OWNER_COMMAND_CENTER_COMPLETION.md](./OWNER_COMMAND_CENTER_COMPLETION.md) for the current verified release, remaining invoice permission/sender blockers, environment requirements and rollback. The initial tables and findings below record the earlier implementation boundary.
+
 2026-10-07 · Implementation report. The subsequent owner-authorized production publication is recorded in [OWNER_COMMAND_CENTER_RELEASE.md](./OWNER_COMMAND_CENTER_RELEASE.md).
 
 The upgrade is implemented in the existing application, in the isolated `feat/owner-command-center` branch and `owner-command-center` worktree. Baseline: `7b2a0e44f2b665ad834eca9e868da7c6d1585339`. The synced `sources/` directory and the original checkout were not edited. The original storefront, catalog assets, crown geometry, patch sizing/placement/rendering, price tables, and payment providers are preserved.
@@ -112,7 +114,7 @@ The 2026-10-08 continuation implements additional operations and records current
 
 1. Connect a separate staging database; migrate and verify the actual existing owner/customer identities. Verify the deployment uses the intended existing provider accounts.
 2. Run real Stripe test-mode checkout/invoice/refund/webhook round trips and PayPal sandbox equivalents. Actual sandbox credentials were absent. Stripe test invoices intentionally do not deliver email; verify REC Mama Made sender/branding through the provider configuration before any owner-authorized live send.
-3. Reconcile actual historical records. The Stripe importer is implemented but has not imported real business history. A PayPal historical importer is not implemented. Designs absent from historical records cannot be reconstructed.
+3. The approved Stripe reconciliation scanned all 14 actual checkout records and imported the one verified REC sale. Other businesses' records were excluded. A PayPal historical importer is not implemented. Designs absent from historical records cannot be reconstructed.
 4. Enter owner-verified physical counts and explicit component recipes. There are no invented production stock counts or default material deductions. Review old draft/abandoned PayPal obligations and cancel those that are no longer valid; a timed abandonment worker is not implemented.
 5. Existing specialized builder prices, model/color additions, calibrated image mappings and patch sizing remain protected. Safe catalog text editing is implemented; complete no-code editing of those specialized configurations is not implemented. Ordinary product variants/prices/images/options are editable.
 6. Shipping carrier status sync/exceptions, customer communication history/email service, configurable production stage definitions and fractional material units remain unavailable. Private production-file versions, scheduled publishing and full filtered record CSV exports are now implemented. Fixed production workflow and explicit whole-unit recipes remain operational.

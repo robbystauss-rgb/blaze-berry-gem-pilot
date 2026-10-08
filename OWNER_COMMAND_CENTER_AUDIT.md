@@ -38,6 +38,8 @@ Baseline: `origin/main` at `7b2a0e44f2b665ad834eca9e868da7c6d1585339` (2026-10-0
 
 No historical application order table exists in the inspected code. Stripe/PayPal may contain prior transactions; the new owner-only Stripe reconciliation tool previews and imports actual checkout sales through authenticated provider access; PayPal history still needs separate reconciliation. Uploaded designs and full historical options cannot be reconstructed from a payment description. The dashboard must disclose this limitation and start with an honest empty state.
 
-## Activation gate
+## Initial activation gate
 
 No staging credentials were supplied. The local implementation checklist does not establish that the live owner account or production database has been connected. See OWNER_COMMAND_CENTER_DELIVERY.md for tested boundaries, required configuration and remaining work.
+
+The owner subsequently authorized finishing and publication. The upgrade is live, the owner is enrolled in MFA, the REC Stripe webhook is active, and one actual REC historical sale is reconciled. See [OWNER_COMMAND_CENTER_COMPLETION.md](./OWNER_COMMAND_CENTER_COMPLETION.md) for verified current results and remaining infrastructure limits; the audit above preserves the inspected baseline.
