@@ -243,10 +243,14 @@ export const mutateAdmin = createServerFn({ method: "POST" })
   });
 export const invoiceAction = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(z.object({ orderId: uuid, action: z.enum(["create", "send", "resend"]) }))
+  .validator(z.object({ orderId: uuid, action: z.enum(["create", "send", "resend", "void"]) }))
   .handler(async ({ data, context }) => {
     const { requireAccess } = await import("./access.server");
     await requireAccess(context.userId, "finance", context.bearerToken);
+    if (data.action === "void") {
+      const { voidInvoice } = await import("./invoice-void.server");
+      return voidInvoice(data.orderId, context.userId);
+    }
     const { manageInvoice } = await import("./invoices.server");
     return manageInvoice(data.orderId, data.action, context.userId);
   });
@@ -271,4 +275,73 @@ export const mfaAction = createServerFn({ method: "POST" })
     if (!verified)
       throw new Error("Invalid or reused code. After five failures, wait five minutes.");
     return { enrollment: null, verified };
+  });
+
+export const recoveryAction = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(
+    z.object({ action: z.enum(["generate", "recover"]), code: z.string().max(40).default("") }),
+  )
+  .handler(async ({ data, context }) => {
+    const { membership, requireAccess, createRecoveryCodes, recoverMfa } =
+      await import("./access.server");
+    const { getSql } = await import("@/lib/db");
+    await membership(context.userId, context.bearerToken);
+    const sql = await getSql();
+    if (data.action === "generate") {
+      await requireAccess(context.userId, "production", context.bearerToken);
+      return { codes: await sql.transaction((tx) => createRecoveryCodes(tx, context.userId)) };
+    }
+    const recovered = await sql.transaction((tx) => recoverMfa(tx, context.userId, data.code));
+    if (!recovered)
+      throw new Error("Invalid recovery code. After five failures, wait five minutes.");
+    return { codes: [] as string[] };
+  });
+export const uploadProductionFile = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(
+    z.object({
+      orderId: uuid,
+      name: z
+        .string()
+        .trim()
+        .min(1)
+        .max(180)
+        .regex(/^[^\u0000-\u001f/\\]+$/),
+      data: z.string().max(4001000),
+      reason: z.string().trim().min(5).max(500),
+      requestId: uuid,
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    const { requireAccess } = await import("./access.server");
+    const actor = await requireAccess(context.userId, "production", context.bearerToken);
+    const { saveProductionFile } = await import("./production-files.server");
+    return saveProductionFile(data, actor);
+  });
+export const exportAdminRecords = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(
+    z.object({
+      section: z.enum([
+        "orders",
+        "production",
+        "payments",
+        "inventory",
+        "products",
+        "customers",
+        "activity",
+        "notifications",
+      ]),
+      search: z.string().max(200).default(""),
+      status: z.string().max(50).default(""),
+      from: z.string().datetime().optional(),
+      to: z.string().datetime().optional(),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    const { requireAccess } = await import("./access.server");
+    const actor = await requireAccess(context.userId, "reports", context.bearerToken);
+    const { exportRecords } = await import("./export.server");
+    return exportRecords({ ...data, page: 0 }, actor);
   });

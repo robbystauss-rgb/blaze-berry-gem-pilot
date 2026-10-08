@@ -183,11 +183,11 @@ export async function mutate(
           throw new Error("Manual payment date cannot be in the future.");
         if (
           (
-            await tx`select order_id from commerce_invoices where order_id=${p.id} and provider_id is not null`
+            await tx`select order_id from commerce_invoices where order_id=${p.id} and provider_id is not null and state<>'void'`
           ).length
         )
           throw new Error(
-            "Record out-of-band invoice payments through the provider and reconcile them; do not leave an active payment link outstanding.",
+            "Void the unpaid provider invoice before recording a manual payment; do not leave an active payment link outstanding.",
           );
         if (
           (
@@ -326,6 +326,7 @@ export async function mutate(
             description: text.max(10000),
             category: text.min(1).max(100),
             state: z.enum(["draft", "active", "inactive", "archived"]),
+            publishAt: z.string().datetime().nullable().default(null),
             images: z.array(safeImage).max(12),
             seoTitle: text.max(120).default(""),
             seoDescription: text.max(300).default(""),
@@ -361,7 +362,7 @@ export async function mutate(
         if (before && before.version !== p.version)
           throw new Error("Product changed. Refresh before saving.");
         if (p.id && !before) throw new Error("Product not found.");
-        await tx`insert into commerce_products(id,title,description,category,state,images,seo_title,seo_description) values(${productId},${p.title},${p.description},${p.category},${p.state},${JSON.stringify(p.images)},${p.seoTitle},${p.seoDescription}) on conflict(id) do update set title=excluded.title,description=excluded.description,category=excluded.category,state=excluded.state,images=excluded.images,seo_title=excluded.seo_title,seo_description=excluded.seo_description,version=commerce_products.version+1,updated_at=now()`;
+        await tx`insert into commerce_products(id,title,description,category,state,images,seo_title,seo_description,publish_at) values(${productId},${p.title},${p.description},${p.category},${p.state},${JSON.stringify(p.images)},${p.seoTitle},${p.seoDescription},${p.publishAt}) on conflict(id) do update set title=excluded.title,description=excluded.description,category=excluded.category,state=excluded.state,images=excluded.images,seo_title=excluded.seo_title,seo_description=excluded.seo_description,publish_at=excluded.publish_at,version=commerce_products.version+1,updated_at=now()`;
         const oldVariants = await tx<{
           id: string;
           price: number;

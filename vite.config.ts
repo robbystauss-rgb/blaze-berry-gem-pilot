@@ -200,6 +200,8 @@ export default defineConfig(({ command, isPreview }) => ({
     host: "0.0.0.0",
     port: 8080,
     strictPort: true,
+    // Generated server runtime files can be locked while preview runs on Windows.
+    watch: { ignored: ["**/.vercel/**", "**/artifacts/**"] },
   },
   preview: {
     host: "127.0.0.1",

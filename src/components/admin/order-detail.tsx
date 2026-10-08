@@ -6,6 +6,7 @@ import {
   invoiceAction,
   refundAction,
   getMerchantAccess,
+  uploadProductionFile,
 } from "@/lib/commerce/api";
 import { STAGES, label, money } from "@/lib/commerce/types";
 import { Badge, Field } from "./command-center";
@@ -30,6 +31,7 @@ export function OrderDetail({
   const [refund, setRefund] = useState(false);
   const [refundRequest, setRefundRequest] = useState(() => crypto.randomUUID());
   const [printMode, setPrintMode] = useState<"summary" | "packing">("summary");
+  const [fileRequest, setFileRequest] = useState(() => crypto.randomUUID());
   const refresh = useCallback(
     () =>
       getOrderDetail({ data: id })
@@ -59,11 +61,13 @@ export function OrderDetail({
       setBusy(false);
     }
   }
-  async function invoice(action: "create" | "send" | "resend") {
+  async function invoice(action: "create" | "send" | "resend" | "void") {
     if (
       action !== "create" &&
       !window.confirm(
-        `Review recipient ${data?.order.customer_email} and total ${money(data?.order.total ?? 0)}. ${action === "resend" ? "Resend" : "Send"} this REC Mama Made invoice?`,
+        action === "void"
+          ? "Void this unpaid provider invoice and disable its payment link? Financial and order history will be preserved."
+          : `Review recipient ${data?.order.customer_email} and total ${money(data?.order.total ?? 0)}. ${action === "resend" ? "Resend" : "Send"} this REC Mama Made invoice?`,
       )
     )
       return;
@@ -72,9 +76,11 @@ export function OrderDetail({
     try {
       const result = await invoiceAction({ data: { orderId: id, action } });
       setSuccess(
-        result.testMode
-          ? "Test invoice action accepted. Stripe does not send customer email in test mode."
-          : "Invoice action submitted to Stripe. Email delivery is not confirmed.",
+        action === "void"
+          ? "Provider confirmed the unpaid invoice was voided. The order remains unpaid."
+          : result.testMode
+            ? "Test invoice action accepted. Stripe does not send customer email in test mode."
+            : "Invoice action submitted to Stripe. Email delivery is not confirmed.",
       );
       await refresh();
     } catch (e) {
@@ -195,6 +201,86 @@ export function OrderDetail({
         </p>
       )}
       <div className="cc-detail-grid">
+        <section className="cc-panel cc-no-print">
+          <h2>Production files</h2>
+          <p className="cc-help">
+            Save revised or approved files with an approval reference. Each upload remains in
+            history; the original customer artwork stays intact.
+          </p>
+          {data.productionFiles.length === 0 && <p>No production files saved.</p>}
+          {data.productionFiles.map((file) => (
+            <article className="cc-order-item" key={file.id}>
+              <h3>{file.name}</h3>
+              <p>{file.reason}</p>
+              <small>
+                {new Date(file.created_at).toLocaleString()} · {file.actor_id}
+              </small>
+              <button className="cc-button secondary" onClick={() => void downloadArtwork(file.id)}>
+                <Download size={16} />
+                Download production file
+              </button>
+            </article>
+          ))}
+          <form
+            className="cc-form"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const values = new FormData(form);
+              const file = values.get("productionFile");
+              if (!(file instanceof File) || !file.size) {
+                setError("Choose a production file.");
+                return;
+              }
+              if (file.size > 3000000) {
+                setError("Production files must be smaller than 3 MB.");
+                return;
+              }
+              setBusy(true);
+              setError("");
+              try {
+                const encoded = await new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(String(reader.result));
+                  reader.onerror = reject;
+                  reader.readAsDataURL(file);
+                });
+                await uploadProductionFile({
+                  data: {
+                    orderId: id,
+                    name: file.name,
+                    data: encoded,
+                    reason: String(values.get("fileReason")),
+                    requestId: fileRequest,
+                  },
+                });
+                setFileRequest(crypto.randomUUID());
+                form.reset();
+                setSuccess("Production file saved. Original artwork preserved.");
+                await refresh();
+                await onChange();
+              } catch (error) {
+                setError(msg(error));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <Field name="productionFile" title="PNG, JPG, WebP, PDF or SVG (max 3 MB)">
+              <input
+                type="file"
+                name="productionFile"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml,application/pdf"
+                required
+                disabled={busy}
+              />
+            </Field>
+            <Field name="fileReason" title="Revision / approval reference" required />
+            <button className="cc-button" disabled={busy}>
+              Save production file
+            </button>
+          </form>
+        </section>
         <section className="cc-panel">
           <h2>Original purchased specifications</h2>
           <p className="cc-help">
@@ -295,7 +381,7 @@ export function OrderDetail({
                     <>
                       <button
                         className="cc-button"
-                        disabled={busy || o.paid > 0}
+                        disabled={busy || o.paid > 0 || data.invoice.state !== "open"}
                         onClick={() => void invoice(data.invoice?.sent_at ? "resend" : "send")}
                       >
                         {data.invoice.sent_at ? "Resend invoice" : "Send invoice"}
@@ -310,6 +396,15 @@ export function OrderDetail({
                           Review secure payment link
                         </a>
                       )}
+                      {data.invoice.state === "open" && (
+                        <button
+                          className="cc-button secondary"
+                          disabled={busy || o.paid > 0}
+                          onClick={() => void invoice("void")}
+                        >
+                          Void unpaid invoice
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -319,7 +414,11 @@ export function OrderDetail({
                 </p>
                 <button
                   className="cc-button secondary"
-                  disabled={busy || o.paid >= o.total || !!data.invoice?.provider_id}
+                  disabled={
+                    busy ||
+                    o.paid >= o.total ||
+                    (!!data.invoice?.provider_id && data.invoice.state !== "void")
+                  }
                   onClick={() => setManual(!manual)}
                 >
                   Record verified manual payment

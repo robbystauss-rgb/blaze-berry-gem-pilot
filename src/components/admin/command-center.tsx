@@ -43,6 +43,8 @@ import {
   mutateAdmin,
   invoiceAction,
   mfaAction,
+  recoveryAction,
+  exportAdminRecords,
   uploadProductImage,
 } from "@/lib/commerce/api";
 import {
@@ -733,7 +735,20 @@ export function CommandCenter() {
                               <article key={p.id} className="cc-product-card">
                                 {p.images[0] && <img src={p.images[0]} alt={p.title} />}
                                 <div>
-                                  <Badge value={p.state} />
+                                  <Badge
+                                    value={
+                                      p.state === "active" &&
+                                      p.publish_at &&
+                                      new Date(p.publish_at) > new Date()
+                                        ? "scheduled"
+                                        : p.state
+                                    }
+                                  />
+                                  {p.publish_at && (
+                                    <p className="cc-help">
+                                      Publish date: {new Date(p.publish_at).toLocaleString()}
+                                    </p>
+                                  )}
                                   <h2>{p.title}</h2>
                                   <p>{p.category}</p>
                                   <small>
@@ -1014,10 +1029,40 @@ export function CommandCenter() {
                         {PERMISSIONS[access.role].includes("reports") && (
                           <button
                             className="cc-button secondary"
-                            onClick={() => csvDownload(section, exportRows(section, data))}
+                            disabled={busy}
+                            onClick={async () => {
+                              setBusy(true);
+                              setError("");
+                              try {
+                                const result = await exportAdminRecords({
+                                  data: {
+                                    section: section as "orders",
+                                    search,
+                                    status,
+                                    from: from
+                                      ? new Date(from + "T00:00:00").toISOString()
+                                      : undefined,
+                                    to: to ? new Date(to + "T23:59:59").toISOString() : undefined,
+                                  },
+                                });
+                                const url = URL.createObjectURL(
+                                  new Blob([result.csv], { type: "text/csv;charset=utf-8" }),
+                                );
+                                const link = document.createElement("a");
+                                link.href = url;
+                                link.download = section + ".csv";
+                                link.click();
+                                URL.revokeObjectURL(url);
+                                setSuccess("Exported " + result.count + " matching records.");
+                              } catch (e) {
+                                setError(errorText(e));
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
                           >
                             <Download size={16} />
-                            Export this page
+                            Export all matching records
                           </button>
                         )}
                       </div>
@@ -1775,6 +1820,7 @@ function Security({
   refresh: () => Promise<unknown>;
 }) {
   const [enrollment, setEnrollment] = useState<{ secret: string; uri: string } | null>(null);
+  const [codes, setCodes] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   return (
@@ -1838,6 +1884,78 @@ function Security({
           }}
         >
           <Field name="code" title="Six-digit authenticator code" required />
+          <SaveButton busy={busy} />
+        </form>
+      )}
+      {access.mfaEnabled && access.mfaVerified && (
+        <div className="cc-form">
+          <h3>Recovery codes</h3>
+          <p>
+            Save these privately. Creating a new set invalidates earlier codes. They are shown only
+            here and stored as hashes.
+          </p>
+          <button
+            className="cc-button secondary"
+            disabled={busy}
+            onClick={async () => {
+              if (
+                !window.confirm(
+                  "Replace any existing recovery codes? Save the new codes privately before leaving this screen.",
+                )
+              )
+                return;
+              setBusy(true);
+              setError("");
+              try {
+                const result = await recoveryAction({ data: { action: "generate", code: "" } });
+                setCodes(result.codes);
+              } catch (e) {
+                setError(errorText(e));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Create recovery codes
+          </button>
+          {codes.length > 0 && (
+            <div className="cc-notice">
+              <p>Store these outside your phone. Leaving this page clears this display.</p>
+              {codes.map((code) => (
+                <p key={code}>
+                  <code>{code}</code>
+                </p>
+              ))}
+              <button className="cc-button secondary" onClick={() => setCodes([])}>
+                Clear displayed codes
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      {access.mfaEnabled && !access.mfaVerified && (
+        <form
+          className="cc-form"
+          onSubmit={async (e) => {
+            const f = formValues(e);
+            setBusy(true);
+            setError("");
+            try {
+              await recoveryAction({ data: { action: "recover", code: getText(f, "recovery") } });
+              await refresh();
+            } catch (e) {
+              setError(errorText(e));
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <h3>Lost your authenticator?</h3>
+          <p>
+            Use a saved recovery code to invalidate the old device, all recovery codes and verified
+            sessions. You must enroll a new authenticator before merchant access resumes.
+          </p>
+          <Field name="recovery" title="Recovery code" required />
           <SaveButton busy={busy} />
         </form>
       )}

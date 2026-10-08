@@ -48,6 +48,8 @@ export async function requireAccess(userId: string, permission: Permission, bear
   }>`select enabled from commerce_mfa where user_id=${userId}`;
   const required = process.env.ADMIN_REQUIRE_MFA === "true" || mfa?.enabled;
   if (required) {
+    if (!mfa?.enabled)
+      throw new Error("MFA required: enroll and verify your authenticator in Security.");
     const proof =
       await sql`select session_hash from commerce_mfa_sessions where user_id=${userId} and session_hash=${sessionHash(bearer)} and expires_at>now()`;
     if (!proof.length) throw new Error("MFA required: verify your authenticator in Security.");
@@ -147,5 +149,44 @@ export async function verifyMfa(sql: Sql, userId: string, code: string, hash: st
   await sql`update commerce_mfa set enabled=true,last_counter=${matched},failures=0,blocked_until=null where user_id=${userId}`;
   await sql`insert into commerce_mfa_sessions(session_hash,user_id,expires_at) values(${hash},${userId},now()+interval '4 hours') on conflict(session_hash) do update set expires_at=excluded.expires_at`;
   await audit(sql, userId, "security.mfa_verified", "staff", userId);
+  return true;
+}
+
+export async function createRecoveryCodes(sql: Sql, userId: string) {
+  const [mfa] = await sql<{
+    enabled: boolean;
+  }>`select enabled from commerce_mfa where user_id=${userId} for update`;
+  if (!mfa?.enabled) throw new Error("Verify an authenticator before creating recovery codes.");
+  const codes = Array.from({ length: 8 }, () =>
+    randomBytes(16).toString("hex").match(/.{8}/g)!.join("-"),
+  );
+  await sql`delete from commerce_mfa_recovery where user_id=${userId}`;
+  for (const code of codes) {
+    const digest = createHash("sha256").update(code.replaceAll("-", "")).digest("hex");
+    await sql`insert into commerce_mfa_recovery(user_id,digest) values(${userId},${digest})`;
+  }
+  await audit(sql, userId, "security.recovery_codes_created", "staff", userId);
+  return codes;
+}
+
+export async function recoverMfa(sql: Sql, userId: string, code: string) {
+  const [row] = await sql<{
+    blocked_until: string | null;
+  }>`select blocked_until from commerce_mfa where user_id=${userId} for update`;
+  if (!row || (row.blocked_until && new Date(row.blocked_until) > new Date())) return false;
+  const normalized = code.toLowerCase().replaceAll("-", "").trim();
+  const digest = createHash("sha256").update(normalized).digest("hex");
+  const used = /^[a-f0-9]{32}$/.test(normalized)
+    ? await sql`delete from commerce_mfa_recovery where user_id=${userId} and digest=${digest} returning digest`
+    : [];
+  if (!used.length) {
+    await sql`update commerce_mfa set failures=failures+1,blocked_until=case when failures>=4 then now()+interval '5 minutes' else blocked_until end where user_id=${userId}`;
+    return false;
+  }
+  // A lost device invalidates all old proofs and backup codes. Re-enrollment is required.
+  await sql`delete from commerce_mfa_sessions where user_id=${userId}`;
+  await sql`delete from commerce_mfa_recovery where user_id=${userId}`;
+  await sql`update commerce_mfa set enabled=false,last_counter=-1,failures=0,blocked_until=null where user_id=${userId}`;
+  await audit(sql, userId, "security.mfa_recovered", "staff", userId);
   return true;
 }

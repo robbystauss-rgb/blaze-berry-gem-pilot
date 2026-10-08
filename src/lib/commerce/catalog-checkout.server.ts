@@ -23,7 +23,7 @@ export async function createCatalogCheckout(data: {
       product_title: string;
       price: number;
       options: Record<string, string>;
-    }>`select v.*,p.title as product_title from commerce_variants v join commerce_products p on p.id=v.product_id where v.id=${data.variantId} and v.active and p.state='active' for share of v,p`;
+    }>`select v.*,p.title as product_title from commerce_variants v join commerce_products p on p.id=v.product_id where v.id=${data.variantId} and v.active and p.state='active' and (p.publish_at is null or p.publish_at<=now()) for share of v,p`;
     if (!variant || variant.price <= 0) throw new Error("This product variant is not available.");
     const existing = await tx<{
       total: number;

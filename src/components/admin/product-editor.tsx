@@ -55,6 +55,7 @@ export function ProductEditor({
           images,
           seoTitle: String(f.get("seoTitle")),
           seoDescription: String(f.get("seoDescription")),
+          publishAt: f.get("publishAt") ? new Date(String(f.get("publishAt"))).toISOString() : null,
           variants: rows,
         });
       }}
@@ -79,6 +80,26 @@ export function ProductEditor({
           </select>
         </Field>
       </div>
+      <Field name="publishAt" title="Publish on (optional, your local time)">
+        <input
+          name="publishAt"
+          type="datetime-local"
+          defaultValue={
+            product?.publish_at
+              ? new Date(
+                  new Date(product.publish_at).getTime() -
+                    new Date(product.publish_at).getTimezoneOffset() * 60000,
+                )
+                  .toISOString()
+                  .slice(0, 16)
+              : ""
+          }
+        />
+      </Field>
+      <p className="cc-help">
+        Choose Active to publish. A future date keeps the product unavailable until that time.
+        Draft, inactive and archived products remain private.
+      </p>
       <Field name="description" title="Description">
         <textarea
           name="description"

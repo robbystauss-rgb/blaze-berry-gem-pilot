@@ -111,6 +111,7 @@ export type InventoryRow = {
 export type ProductRow = {
   id: string;
   builder_family: string | null;
+  publish_at: string | null;
   title: string;
   description: string;
   category: string;

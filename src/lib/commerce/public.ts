@@ -8,7 +8,7 @@ export const getPublishedProduct = createServerFn({ method: "GET" })
     const sql = await getSql();
     const [product] = await sql<
       import("./types").ProductRow
-    >`select id,title,description,category,state,images,seo_title,seo_description,version,builder_family from commerce_products where id=${data} and state='active' and builder_family is null`;
+    >`select id,title,description,category,state,images,seo_title,seo_description,version,builder_family from commerce_products where id=${data} and state='active' and (publish_at is null or publish_at<=now()) and builder_family is null`;
     if (!product) return null;
     const variants = await sql<
       import("./types").VariantRow
@@ -37,7 +37,7 @@ export const getPublishedProducts = createServerFn({ method: "GET" }).handler(as
   const sql = await getSql();
   const products = await sql<
     import("./types").ProductRow
-  >`select id,title,description,category,state,images,seo_title,seo_description,version,builder_family from commerce_products where state='active' and builder_family is null order by created_at desc limit 100`;
+  >`select id,title,description,category,state,images,seo_title,seo_description,version,builder_family from commerce_products where state='active' and (publish_at is null or publish_at<=now()) and builder_family is null order by created_at desc limit 100`;
   const variants = await sql<
     import("./types").VariantRow
   >`select * from commerce_variants where active=true and product_id=any(${products.map((p) => p.id)}::text[]) order by title`;

@@ -1,4 +1,4 @@
-import { getSql } from "@/lib/db";
+import { getSql, type Sql } from "@/lib/db";
 import { ORDER_SELECT, orderById } from "./core.server";
 import type {
   Role,
@@ -86,8 +86,9 @@ export function financialConfig() {
 export async function readAdmin(
   input: ReadInput,
   actor: { userId: string; role: Role },
+  connection?: Sql,
 ): Promise<AdminData> {
-  const sql = await getSql();
+  const sql = connection ?? (await getSql());
   const from = input.from ?? new Date(Date.now() - 30 * 86400000).toISOString();
   const to = input.to ?? new Date().toISOString();
   if (new Date(from) >= new Date(to)) throw new Error("Choose an end date after the start date.");
@@ -306,6 +307,14 @@ export async function readOrder(id: string, actor: { userId: string; role: Role 
   return {
     order,
     items,
+    productionFiles: await sql<{
+      id: string;
+      name: string;
+      mime: string;
+      actor_id: string;
+      reason: string;
+      created_at: string;
+    }>`select id,name,mime,actor_id,reason,created_at from commerce_production_files where order_id=${id} order by created_at desc`,
     notes,
     audit:
       actor.role === "production"

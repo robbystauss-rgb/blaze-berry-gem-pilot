@@ -1,10 +1,10 @@
 # REC Mama Made Owner Command Center — delivery report
 
-2026-10-07 · Local implementation · Production deployment has not occurred.
+2026-10-07 · Implementation report. The subsequent owner-authorized production publication is recorded in [OWNER_COMMAND_CENTER_RELEASE.md](./OWNER_COMMAND_CENTER_RELEASE.md).
 
 The upgrade is implemented in the existing application, in the isolated `feat/owner-command-center` branch and `owner-command-center` worktree. Baseline: `7b2a0e44f2b665ad834eca9e868da7c6d1585339`. The synced `sources/` directory and the original checkout were not edited. The original storefront, catalog assets, crown geometry, patch sizing/placement/rendering, price tables, and payment providers are preserved.
 
-**The complete live-business definition of done is still pending:** no staging database, real owner identity, processor credentials, verified invoice settings, or historical business records were available. Nothing here claims live historical sales, real stock counts, customer delivery, or production account access has been verified.
+**The complete live-business definition of done is still pending.** At initial local delivery, no staging database, real owner identity, processor credentials, verified invoice settings, or historical business records were available. The later release connected the existing production database/settings and issued a private owner invitation. Owner setup, actual historical reconciliation, physical stock counts and verified financial/email round trips remain activation work. Nothing here fabricates live historical sales, real stock counts or customer delivery.
 
 ## Changes and reuse
 
@@ -61,7 +61,7 @@ Sensitive data/mutations are guarded through server functions; hiding navigation
 - `0003_financial_operations.sql`: additive refund request commitments, provider references and retry states.
 - `0004_owner_setup.sql`: immutable single-use owner-invitation redemption record. The recipient must authenticate as the configured account and possess the private expiring invitation; existing identities/passwords are preserved.
 
-Every migration applies transactionally and is recorded once. The explicit migration runner serializes concurrent runners with a PostgreSQL advisory lock. **Building no longer runs migrations.** `REC_MIGRATION_TARGET` gates explicit migrations. No production migration ran.
+Every migration applies transactionally and is recorded once. The explicit migration runner serializes concurrent runners with a PostgreSQL advisory lock. **Normal builds no longer run migrations.** `REC_MIGRATION_TARGET` gates explicit migrations. The later owner-authorized release explicitly ran all four migrations before its production build; see the release record.
 
 The production service needs the existing PostgreSQL/Neon database. Embedded local storage is intentionally ephemeral and shows a development warning. Financial checkout creation refuses production without durable storage. Source artwork and managed raster product assets use authorized database storage, without a new storage subscription.
 
@@ -108,20 +108,22 @@ Configure Stripe subscriptions for checkout completed/async succeeded/async fail
 
 ## Blocked activation and remaining work
 
+The 2026-10-08 continuation implements additional operations and records current validation in [OWNER_COMMAND_CENTER_COMPLETION.md](./OWNER_COMMAND_CENTER_COMPLETION.md). The items below are updated to distinguish that work from external activation requirements.
+
 1. Connect a separate staging database; migrate and verify the actual existing owner/customer identities. Verify the deployment uses the intended existing provider accounts.
 2. Run real Stripe test-mode checkout/invoice/refund/webhook round trips and PayPal sandbox equivalents. Actual sandbox credentials were absent. Stripe test invoices intentionally do not deliver email; verify REC Mama Made sender/branding through the provider configuration before any owner-authorized live send.
 3. Reconcile actual historical records. The Stripe importer is implemented but has not imported real business history. A PayPal historical importer is not implemented. Designs absent from historical records cannot be reconstructed.
 4. Enter owner-verified physical counts and explicit component recipes. There are no invented production stock counts or default material deductions. Review old draft/abandoned PayPal obligations and cancel those that are no longer valid; a timed abandonment worker is not implemented.
 5. Existing specialized builder prices, model/color additions, calibrated image mappings and patch sizing remain protected. Safe catalog text editing is implemented; complete no-code editing of those specialized configurations is not implemented. Ordinary product variants/prices/images/options are editable.
-6. Shipping carrier status sync/exceptions, customer communication history/email service, separate approved-production-file uploads, scheduled publishing, configurable production stage definitions, fractional material units, and full-dataset report export jobs are not implemented. Tracking entry, original artwork, fixed production workflow, whole-unit recipes and filtered page CSV exports work.
-7. Manual payments on an outstanding processor invoice/payment link are deliberately blocked to prevent double collection. Void/paid-out-of-band reconciliation currently requires the provider dashboard; that reconciliation action is not implemented in this admin UI.
-8. Validate physical iPhone Safari, deployment callbacks/cookies, PostgreSQL permissions/backup/recovery and MFA recovery procedures in staging before approval.
+6. Shipping carrier status sync/exceptions, customer communication history/email service, configurable production stage definitions and fractional material units remain unavailable. Private production-file versions, scheduled publishing and full filtered record CSV exports are now implemented. Fixed production workflow and explicit whole-unit recipes remain operational.
+7. Manual payments on an outstanding processor invoice/payment link are deliberately blocked to prevent double collection. The owner can now explicitly void an unpaid Stripe invoice through this admin, preserving provider references, before recording a manual receipt. Paid-out-of-band provider reconciliation is not implemented here.
+8. Validate physical iPhone Safari, deployment callbacks/cookies and PostgreSQL permissions/backup/recovery in staging. Authenticator recovery codes and required device re-enrollment are now implemented and tested.
 
 The live business definition of done has not been claimed. These remaining items are explicit deployment/infrastructure or feature limits rather than disconnected buttons presented as working features.
 
 ## Deployment and rollback
 
-Ready for staging configuration and review. **Not cleared for production deployment; explicit owner approval remains required.** No push, publication, production mutation, real customer message, or real charge was performed.
+The initial local delivery was held for staging configuration and owner approval. **The owner subsequently authorized publication, and the upgrade was published; see the release record.** No real customer message or charge was performed during implementation or deployment. The instructions below remain the procedure for subsequent releases and rollback.
 
 1. Review the audit, migration files and isolated branch. Back up the target database and capture the current deployed version and provider webhook settings.
 2. Set staging-only credentials, stable auth/MFA keys and the verified test owner ID. Run `npm ci`, `npm run typecheck`, `npm test`, `npm run test:crowns`, `npm run test:commerce`, and `npm run build` with appropriate isolated/test configuration.

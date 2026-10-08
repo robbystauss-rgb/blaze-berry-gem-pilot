@@ -16,7 +16,8 @@ export const Route = createFileRoute("/api/artwork/$id")({
             artwork: Uint8Array;
             artwork_type: string;
             assigned_to: string | null;
-          }>`select i.artwork,i.artwork_type,o.assigned_to from commerce_order_items i join commerce_orders o on o.id=i.order_id where i.id=${params.id}`;
+          }>`select i.artwork,i.artwork_type,o.assigned_to from commerce_order_items i join commerce_orders o on o.id=i.order_id where i.id=${params.id}
+          union all select f.bytes as artwork,f.mime as artwork_type,o.assigned_to from commerce_production_files f join commerce_orders o on o.id=f.order_id where f.id=${params.id}`;
           if (!item?.artwork) return new Response("Not found", { status: 404 });
           if (actor.role === "production" && item.assigned_to !== user.id)
             return new Response("Forbidden", { status: 403 });

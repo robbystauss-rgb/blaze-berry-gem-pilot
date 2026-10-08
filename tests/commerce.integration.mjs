@@ -976,6 +976,204 @@ test("shipment history cannot be canceled or moved back into production by ordin
   assert.equal((await core.orderById(sql, id)).stage, "shipped");
 });
 
+test("voiding unpaid invoices preserves provider references and prevents a second payable obligation before manual receipts", async () => {
+  const { voidInvoice } = await server.ssrLoadModule("/src/lib/commerce/invoice-void.server.ts");
+  const id = await draft(),
+    reference = "in_sandbox_" + randomUUID();
+  await sql`insert into commerce_invoices(order_id,provider_id,state) values(${id},${reference},'open')`;
+  const receipt = {
+    id,
+    amount: 6000,
+    reference: "Sandbox cash receipt",
+    reason: "Verified sandbox cash receipt",
+    occurredAt: new Date().toISOString(),
+    requestId: randomUUID(),
+  };
+  await assert.rejects(() => mutations.mutate("payment.manual", receipt, owner), /Void the unpaid/);
+  const provider = {
+    id: reference,
+    status: "open",
+    metadata: { rec_order_id: id },
+    livemode: false,
+    hosted_invoice_url: null,
+    invoice_pdf: null,
+  };
+  let calls = 0;
+  const client = {
+    invoices: {
+      retrieve: async () => ({ ...provider }),
+      voidInvoice: async () => {
+        calls++;
+        provider.status = "void";
+        return { ...provider };
+      },
+    },
+  };
+  assert.equal((await voidInvoice(id, owner.userId, client)).state, "void");
+  await voidInvoice(id, owner.userId, client);
+  assert.equal(calls, 1);
+  assert.equal((await core.orderById(sql, id)).paid, 0);
+  assert.equal(
+    (await sql`select provider_id from commerce_invoices where order_id=${id}`)[0].provider_id,
+    reference,
+  );
+  await mutations.mutate("payment.manual", receipt, owner);
+  assert.equal((await core.orderById(sql, id)).paid, 6000);
+  await assert.rejects(() => voidInvoice(id, owner.userId, client), /Collected orders/);
+});
+
+test("production files preserve original artwork, enforce assignment and reject rewritten or mismatched retry content", async () => {
+  const { saveProductionFile } = await server.ssrLoadModule(
+    "/src/lib/commerce/production-files.server.ts",
+  );
+  const id = await draft();
+  const before = (await read.readOrder(id, owner)).items;
+  const input = {
+    orderId: id,
+    name: "approved-proof.pdf",
+    data:
+      "data:application/pdf;base64," +
+      Buffer.from("%PDF-1.7\nSandbox production proof").toString("base64"),
+    reason: "Sandbox customer approved proof",
+    requestId: randomUUID(),
+  };
+  await assert.rejects(() => saveProductionFile(input, production), /not assigned/);
+  await assert.rejects(
+    () =>
+      saveProductionFile(
+        {
+          ...input,
+          data: "data:application/pdf;base64," + Buffer.from("not pdf").toString("base64"),
+        },
+        owner,
+      ),
+    /does not match/,
+  );
+  const file = await saveProductionFile(input, owner);
+  assert.deepEqual(await saveProductionFile(input, owner), file);
+  await assert.rejects(
+    () => saveProductionFile({ ...input, reason: "Different approval reference" }, owner),
+    /different content/,
+  );
+  await assert.rejects(
+    () => sql`update commerce_production_files set name='overwritten' where id=${file.id}`,
+    /immutable/,
+  );
+  const detail = await read.readOrder(id, owner);
+  assert.equal(detail.productionFiles.length, 1);
+  assert.deepEqual(detail.items, before);
+  assert.equal(detail.productionFiles[0].actor_id, owner.userId);
+});
+
+test("recovery codes are hashed, replace older sets, invalidate lost-device proofs and cannot be replayed", async () => {
+  const old = process.env.ADMIN_MFA_ENCRYPTION_KEY;
+  process.env.ADMIN_MFA_ENCRYPTION_KEY = randomBytes(32).toString("hex");
+  try {
+    await sql`delete from commerce_mfa where user_id=${manager.userId}`;
+    const enrollment = await sql.transaction((tx) => mfa.enrollMfa(tx, manager.userId));
+    assert.equal(
+      await sql.transaction((tx) =>
+        mfa.verifyMfa(
+          tx,
+          manager.userId,
+          mfa.totp(enrollment.secret, Math.floor(Date.now() / 30000)),
+          "test-recovery-session",
+        ),
+      ),
+      true,
+    );
+    const first = await sql.transaction((tx) => mfa.createRecoveryCodes(tx, manager.userId));
+    const second = await sql.transaction((tx) => mfa.createRecoveryCodes(tx, manager.userId));
+    const hashes =
+      await sql`select digest from commerce_mfa_recovery where user_id=${manager.userId}`;
+    assert.equal(hashes.length, 8);
+    assert.ok(hashes.every((r) => !second.includes(r.digest) && r.digest.length === 64));
+    assert.equal(
+      await sql.transaction((tx) => mfa.recoverMfa(tx, manager.userId, first[0])),
+      false,
+    );
+    assert.equal(
+      await sql.transaction((tx) => mfa.recoverMfa(tx, manager.userId, second[0])),
+      true,
+    );
+    assert.equal(
+      await sql.transaction((tx) => mfa.recoverMfa(tx, manager.userId, second[0])),
+      false,
+    );
+    assert.equal(
+      (await sql`select * from commerce_mfa_sessions where user_id=${manager.userId}`).length,
+      0,
+    );
+    assert.equal(
+      (await sql`select enabled from commerce_mfa where user_id=${manager.userId}`)[0].enabled,
+      false,
+    );
+    assert.equal(
+      (await sql`select * from commerce_mfa_recovery where user_id=${manager.userId}`).length,
+      0,
+    );
+  } finally {
+    if (old === undefined) delete process.env.ADMIN_MFA_ENCRYPTION_KEY;
+    else process.env.ADMIN_MFA_ENCRYPTION_KEY = old;
+  }
+});
+
+test("complete filtered exports span pages, retain provider references, prevent formula execution and enforce section permissions", async () => {
+  const { exportRecords, csvCell } = await server.ssrLoadModule(
+    "/src/lib/commerce/export.server.ts",
+  );
+  const ids = [];
+  for (let n = 0; n < 57; n++) ids.push(await draft({ customerName: "EXPORT TEST " + n }));
+  const input = { section: "orders", search: "EXPORT TEST", status: "", page: 0 };
+  const result = await exportRecords(input, owner);
+  assert.equal(result.count, 57);
+  assert.equal(result.csv.split("\r\n").length, 58);
+  assert.ok(ids.every((id) => result.csv.includes(id)));
+  assert.equal(csvCell('\t=HYPERLINK("bad")'), '"\'\t=HYPERLINK(""bad"")"');
+  await assert.rejects(
+    () => exportRecords({ ...input, section: "payments" }, manager),
+    /Access denied/,
+  );
+  await assert.rejects(() => exportRecords(input, production), /Access denied/);
+  await assert.rejects(
+    () => exportRecords({ ...input, section: "security" }, owner),
+    /does not support/,
+  );
+  const audit =
+    await sql`select actor_id,after_value from commerce_audit where action='report.records_exported' and resource_id='orders' order by created_at desc limit 1`;
+  assert.equal(audit[0].actor_id, owner.userId);
+  assert.equal(audit[0].after_value.count, 57);
+});
+
+test("scheduled publication persists an exact timestamp, stays inaccessible before it and ordinary resaves can cancel the schedule", async () => {
+  const publishAt = new Date(Date.now() + 86400000).toISOString();
+  const input = {
+    title: "Scheduled TEST product",
+    description: "Sandbox",
+    category: "Sandbox",
+    state: "active",
+    publishAt,
+    images: ["/assets/test.png"],
+    variants: [{ title: "Default", sku: randomUUID(), price: 1000, active: true }],
+  };
+  const product = await mutations.mutate("product.save", input, owner);
+  const [saved] =
+    await sql`select publish_at,version from commerce_products where id=${product.id}`;
+  assert.equal(new Date(saved.publish_at).toISOString(), publishAt);
+  const eligible =
+    await sql`select id from commerce_products where id=${product.id} and state='active' and (publish_at is null or publish_at<=now())`;
+  assert.equal(eligible.length, 0);
+  await mutations.mutate(
+    "product.save",
+    { ...input, id: product.id, version: saved.version, publishAt: null },
+    owner,
+  );
+  assert.equal(
+    (await sql`select publish_at from commerce_products where id=${product.id}`)[0].publish_at,
+    null,
+  );
+});
+
 test("private owner setup requires the configured recipient, expires, redeems once and audits without rewriting accounts", async () => {
   const { redeemOwnerInvitation, inspectOwnerInvitation } = await server.ssrLoadModule(
     "/src/lib/commerce/owner-setup.server.ts",
