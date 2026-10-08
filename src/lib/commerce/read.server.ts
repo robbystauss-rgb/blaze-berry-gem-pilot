@@ -63,6 +63,7 @@ export type AdminData = {
     sender: string | null;
     historicalWarning: string;
     version: string | null;
+    paymentEvents?: { state: string; verifiedAt: string } | null;
   };
 };
 export function financialConfig() {
@@ -114,6 +115,15 @@ export async function readAdmin(
     config: financialConfig(),
   };
   const search = `%${input.search}%`;
+  if (actor.role === "owner" && input.section === "payments") {
+    const [receiver] = await sql<{
+      state: string;
+      updated_at: string;
+    }>`select state,updated_at from commerce_webhook_config where scope='https://recmamamade.com/api/webhooks/stripe'`;
+    result.config.paymentEvents = receiver
+      ? { state: receiver.state, verifiedAt: receiver.updated_at }
+      : null;
+  }
   if (["orders", "production", "payments"].includes(input.section)) {
     const production = input.section === "production";
     const where = `where ($1='' or o.customer_name ilike $2 or o.customer_email ilike $2 or o.number::text ilike $2 or exists(select 1 from commerce_order_items i where i.order_id=o.id and (i.title ilike $2 or i.specifications::text ilike $2)))

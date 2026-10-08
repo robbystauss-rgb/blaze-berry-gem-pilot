@@ -1253,6 +1253,13 @@ test("Stripe receiver registration is owner-only, encrypted, idempotent, paused 
     assert.equal((await config.activateStripeWebhook(owner, mock)).state, "active");
     assert.equal(endpoint.status, "enabled");
     assert.ok((await config.webhookSecrets()).includes(secret));
+    const dashboard = await read.readAdmin(
+      { section: "payments", search: "", status: "", page: 0 },
+      owner,
+    );
+    assert.equal(dashboard.config.paymentEvents.state, "active");
+    assert.ok(dashboard.config.paymentEvents.verifiedAt);
+    assert.equal(JSON.stringify(dashboard).includes(secret), false);
     await config.activateStripeWebhook(owner, mock);
     assert.equal(
       (await sql`select id from commerce_audit where action='payment.webhook_activated'`).length,

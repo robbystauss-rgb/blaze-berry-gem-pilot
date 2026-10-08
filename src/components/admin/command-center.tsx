@@ -677,6 +677,16 @@ export function CommandCenter() {
                         <div className="cc-panel">
                           <h2>Verified payment events</h2>
                           <p>
+                            <Badge value={data.config.paymentEvents?.state ?? "not_connected"} />
+                            {data.config.paymentEvents?.state === "active" && (
+                              <>
+                                {" "}
+                                Provider confirmed delivery ·{" "}
+                                {new Date(data.config.paymentEvents.verifiedAt).toLocaleString()}
+                              </>
+                            )}
+                          </p>
+                          <p>
                             Connect signed Stripe events to update payments and refunds
                             automatically. Provider permissions are required.
                           </p>
@@ -699,7 +709,9 @@ export function CommandCenter() {
                               }
                             }}
                           >
-                            Connect payment events
+                            {data.config.paymentEvents?.state === "active"
+                              ? "Verify payment connection"
+                              : "Connect payment events"}
                           </button>
                         </div>
                         <div className="cc-notice">
