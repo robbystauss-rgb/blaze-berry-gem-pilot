@@ -3,6 +3,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { getSql } from "@/lib/db";
 import { stripeClient } from "./providers.server";
 import { audit, recordPayment } from "./core.server";
+import { recSession, recItems } from "../../../scripts/history-scope.mjs";
 export async function previewStripeHistory(
   input: { from: string; to: string; cursor?: string },
   client?: Stripe,
@@ -19,7 +20,8 @@ export async function previewStripeHistory(
   const sql = await getSql();
   const rows = [];
   for (const s of result.data) {
-    if (s.mode !== "payment" || s.payment_status !== "paid" || s.currency !== "usd") continue;
+    if (!recSession(s)) continue;
+    if (!recItems(await stripe.checkout.sessions.listLineItems(s.id, { limit: 100 }))) continue;
     const [record] =
       await sql`select order_id from commerce_checkouts where provider='stripe' and reference=${s.id}`;
     rows.push({
@@ -61,6 +63,8 @@ export async function importStripeHistory(reference: string, actor: string, clie
   )
     throw new Error("Successful payment could not be reconciled.");
   const lines = await stripe.checkout.sessions.listLineItems(reference, { limit: 100 });
+  if (!recSession(session) || !recItems(lines))
+    throw new Error("REC storefront URL and product branding could not both be verified.");
   if (lines.has_more) throw new Error("Line-item pagination requires separate reconciliation.");
   if (!lines.data.length) throw new Error("Original purchased items unavailable.");
   const subtotal = session.amount_subtotal ?? session.amount_total;

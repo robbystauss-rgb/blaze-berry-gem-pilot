@@ -735,6 +735,7 @@ test("historical Stripe reconciliation imports true amounts and refunds once wit
   const created = Math.floor(Date.now() / 1000) - 86400;
   const s = {
     id: "cs_test_history_" + randomUUID().replaceAll("-", ""),
+    success_url: "https://recmamamade.com/order?payment=stripe-success",
     mode: "payment",
     payment_status: "paid",
     currency: "usd",
@@ -761,7 +762,7 @@ test("historical Stripe reconciliation imports true amounts and refunds once wit
           data: [
             {
               id: "li_original",
-              description: "Original purchased custom hats",
+              description: "REC Mama Made custom hats",
               quantity: 2,
               amount_subtotal: 6000,
             },
@@ -1172,6 +1173,100 @@ test("scheduled publication persists an exact timestamp, stays inaccessible befo
     (await sql`select publish_at from commerce_products where id=${product.id}`)[0].publish_at,
     null,
   );
+});
+
+test("historical scope requires REC URL and purchased-product evidence and rejects foreign or unpaid records", async () => {
+  const { recSession, recItems } = await import("../scripts/history-scope.mjs");
+  const session = {
+    mode: "payment",
+    payment_status: "paid",
+    currency: "usd",
+    amount_total: 6000,
+    success_url: "https://recmamamade.com/order",
+  };
+  assert.equal(recSession(session), true);
+  for (const url of [
+    "https://dxs.example/order",
+    "https://recmamamade.com.evil.example/order",
+    "http://recmamamade.com/order",
+    "https://user@recmamamade.com/order",
+    "https://recmamamade.com:8443/order",
+  ])
+    assert.equal(recSession({ ...session, success_url: url }), false);
+  assert.equal(recSession({ ...session, payment_status: "unpaid" }), false);
+  assert.equal(
+    recItems({ data: [{ description: "REC Mama Made custom hats" }], has_more: false }),
+    true,
+  );
+  assert.equal(
+    recItems({
+      data: [{ description: "REC Mama Made hat" }, { description: "DXS Research subscription" }],
+      has_more: false,
+    }),
+    false,
+  );
+  assert.equal(recItems({ data: [{ description: "REC Mama Made hat" }], has_more: true }), false);
+});
+
+test("Stripe receiver registration is owner-only, encrypted, idempotent, paused until activation and rejects changed destination", async () => {
+  const config = await server.ssrLoadModule("/src/lib/commerce/webhook-config.server.ts");
+  const previous = process.env.ADMIN_MFA_ENCRYPTION_KEY;
+  process.env.ADMIN_MFA_ENCRYPTION_KEY = randomBytes(32).toString("hex");
+  const secret = "whsec_isolated_test_" + randomBytes(24).toString("hex");
+  let created = 0,
+    updates = 0,
+    endpoint;
+  const mock = {
+    webhookEndpoints: {
+      list: async () => ({ data: [], has_more: false }),
+      create: async (input) => {
+        created++;
+        return (endpoint = { ...input, id: "we_isolated_test", secret, status: "enabled" });
+      },
+      update: async (id, input) => {
+        assert.equal(id, endpoint.id);
+        updates++;
+        endpoint.status = input.disabled ? "disabled" : "enabled";
+        return endpoint;
+      },
+      retrieve: async () => endpoint,
+    },
+  };
+  try {
+    await assert.rejects(() => config.registerStripeWebhook(manager, mock), /Access denied/);
+    assert.equal((await config.registerStripeWebhook(owner, mock)).state, "ready");
+    assert.equal(endpoint.status, "disabled");
+    assert.equal((await config.registerStripeWebhook(owner, mock)).state, "ready");
+    assert.equal(created, 1);
+    assert.equal((await config.webhookSecrets()).includes(secret), false);
+    const [stored] = await sql`select secret_encrypted from commerce_webhook_config`;
+    assert.ok(stored.secret_encrypted);
+    assert.equal(stored.secret_encrypted.includes(secret), false);
+    await assert.rejects(
+      () => sql`update commerce_webhook_config set secret_encrypted='overwrite'`,
+      /immutable/,
+    );
+    const original = endpoint.url;
+    endpoint.url = "https://foreign.example/webhook";
+    await assert.rejects(() => config.activateStripeWebhook(owner, mock), /URL or event/);
+    endpoint.url = original;
+    assert.equal((await config.activateStripeWebhook(owner, mock)).state, "active");
+    assert.equal(endpoint.status, "enabled");
+    assert.ok((await config.webhookSecrets()).includes(secret));
+    await config.activateStripeWebhook(owner, mock);
+    assert.equal(
+      (await sql`select id from commerce_audit where action='payment.webhook_activated'`).length,
+      1,
+    );
+    const logs =
+      await sql`select before_value,after_value from commerce_audit where action like 'payment.webhook_%'`;
+    assert.equal(JSON.stringify(logs).includes(secret), false);
+    assert.ok(updates >= 2);
+  } finally {
+    await sql`delete from commerce_webhook_config`;
+    if (previous === undefined) delete process.env.ADMIN_MFA_ENCRYPTION_KEY;
+    else process.env.ADMIN_MFA_ENCRYPTION_KEY = previous;
+  }
 });
 
 test("private owner setup requires the configured recipient, expires, redeems once and audits without rewriting accounts", async () => {

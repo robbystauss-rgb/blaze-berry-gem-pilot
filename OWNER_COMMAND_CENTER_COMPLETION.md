@@ -18,12 +18,16 @@ Updated sections: `/admin?section=orders`, `production`, `payments`, `products`,
 
 ## Validation
 
-28 commerce integration tests pass in isolated PGLite with mocked processors. These include all prior payment/inventory/order/auth safeguards plus file immutability/assignment/idempotency, hashed recovery/replay/revocation, multi-page export/permissions/formula protection, publication scheduling, and provider invoice void/manual-receipt sequencing. The existing 201 script, 55 application and 31 geometry tests also pass: 315 total.
+30 commerce integration tests pass in isolated PGLite with mocked processors. These include all prior payment/inventory/order/auth safeguards plus file immutability/assignment/idempotency, hashed recovery/replay/revocation, multi-page export/permissions/formula protection, publication scheduling, provider invoice void/manual-receipt sequencing, encrypted/idempotent webhook registration and cross-business history filtering. The existing 201 script, 55 application and 31 geometry tests also pass: 317 total.
 
 Mobile browser checks passed for actual production-file upload, full-record CSV export, authenticator verification and recovery-code generation/clearing. Storefront desktop/mobile checks show visible content, no horizontal overflow and no console/page errors. No physical iPhone certification is claimed.
 
 ## Activation boundaries
 
-Owner password selection and authenticator enrollment require the invited owner to complete the private setup flow. Physical inventory counts and material quantities require genuine business measurements. Stripe's connected plugin currently requests sign-in again. Native invoice branding, configured sender and live webhook subscription must be verified before enabling invoice sending; mock integration success does not establish email delivery. Production PayPal credentials and a separate sandbox database are not currently configured.
+Hosted inspection confirmed one owner and one enrolled owner authenticator. Physical inventory counts and material quantities require genuine business measurements. Stripe's connected plugin currently requests sign-in again, and the installed key returns HTTP 403 for account-branding reads. Native invoice branding and a verified sender must be established before enabling invoice sending; mock integration success does not establish email delivery. Production PayPal credentials and a separate sandbox database are not currently configured.
+
+Migration `0006_provider_activation.sql` adds encrypted Stripe receiver registration. The owner-only payment connection action uses the existing native Stripe SDK. Signing secrets are encrypted with a distinct AES-GCM key derived from the configured secure root, never returned to the browser or audit. Registration pauses delivery until the tested receiver is deployed; activation verifies destination and event subscriptions. Existing provider endpoints remain untouched. Registration/activation is idempotent and failures remain visible. The original environment signing secret remains supported.
+
+Historical import now verifies both REC storefront return URL and REC product branding in the actual provider records before reconciling receipts/refunds. It does not fabricate missing artwork, fulfillment status or inventory movements. The approved release operation prints aggregate counts only. Product image uploads are limited to 3 MB to fit the hosting request size.
 
 Read-only hosted inspection is available through `scripts/commerce-readiness.mjs` with `REC_OPERATIONS_INSPECT=approved`. It prints only aggregate activation counts and public provider configuration, never secrets or customer records. Any actual deployment/provider inspection result will be recorded below after verification.

@@ -84,9 +84,19 @@ export const getCustomerDetail = createServerFn({ method: "GET" })
       >`select id,actor_id,body,created_at from commerce_notes where lower(customer_email)=lower(${data}) order by created_at`,
     };
   });
+export const connectStripeEvents = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const { requireAccess } = await import("./access.server");
+    const actor = await requireAccess(context.userId, "finance", context.bearerToken);
+    const { registerStripeWebhook, activateStripeWebhook } =
+      await import("./webhook-config.server");
+    await registerStripeWebhook(actor);
+    return activateStripeWebhook(actor);
+  });
 export const uploadProductImage = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(z.string().max(5_500_000))
+  .validator(z.string().max(4_001_000))
   .handler(async ({ data, context }) => {
     const { requireAccess } = await import("./access.server");
     await requireAccess(context.userId, "products", context.bearerToken);
@@ -95,9 +105,9 @@ export const uploadProductImage = createServerFn({ method: "POST" })
     if (
       !file ||
       !["image/png", "image/jpeg", "image/webp"].includes(file.mime) ||
-      file.bytes.length > 4_000_000
+      file.bytes.length > 3_000_000
     )
-      throw new Error("Product images must be PNG, JPG or WebP smaller than 4 MB.");
+      throw new Error("Product images must be PNG, JPG or WebP smaller than 3 MB.");
     const { getSql } = await import("@/lib/db");
     const { randomUUID } = await import("node:crypto");
     const { audit } = await import("./core.server");

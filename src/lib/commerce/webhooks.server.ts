@@ -4,21 +4,28 @@ import { stripeClient, paypalToken, paypalBase } from "./providers.server";
 import { recordPayment, changeAllocation, audit, notify, orderById } from "./core.server";
 
 export async function stripeWebhook(request: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!secret) return new Response("Webhook not configured", { status: 503 });
+  const { webhookSecrets } = await import("./webhook-config.server");
+  let secrets: string[];
+  try {
+    secrets = await webhookSecrets();
+  } catch {
+    return new Response("Webhook configuration unavailable", { status: 503 });
+  }
+  if (!secrets.length) return new Response("Webhook not configured", { status: 503 });
   const body = await request.text();
   if (body.length > 1_000_000) return new Response("Payload too large", { status: 413 });
   const stripe = stripeClient();
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      request.headers.get("stripe-signature") ?? "",
-      secret,
-    );
-  } catch {
-    return new Response("Invalid signature", { status: 400 });
-  }
+  let event: Stripe.Event | undefined;
+  for (const secret of secrets)
+    try {
+      event = stripe.webhooks.constructEvent(
+        body,
+        request.headers.get("stripe-signature") ?? "",
+        secret,
+      );
+      break;
+    } catch {}
+  if (!event) return new Response("Invalid signature", { status: 400 });
   if (process.env.NODE_ENV !== "production" && event.livemode)
     return new Response("Live events are disabled in development", { status: 400 });
   try {

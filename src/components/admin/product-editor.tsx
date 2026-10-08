@@ -153,8 +153,8 @@ export function ProductEditor({
           onChange={async (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
-            if (file.size > 4_000_000) {
-              setError("Image must be smaller than 4 MB.");
+            if (file.size > 3_000_000) {
+              setError("Image must be smaller than 3 MB.");
               return;
             }
             setUploading(true);

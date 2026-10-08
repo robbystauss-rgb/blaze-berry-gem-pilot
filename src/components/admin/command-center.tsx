@@ -42,6 +42,7 @@ import {
   getDraftInventoryOptions,
   mutateAdmin,
   invoiceAction,
+  connectStripeEvents,
   mfaAction,
   recoveryAction,
   exportAdminRecords,
@@ -673,6 +674,34 @@ export function CommandCenter() {
                     {section === "payments" && (
                       <>
                         <StripeHistory refresh={load} open={openOrder} />
+                        <div className="cc-panel">
+                          <h2>Verified payment events</h2>
+                          <p>
+                            Connect signed Stripe events to update payments and refunds
+                            automatically. Provider permissions are required.
+                          </p>
+                          <button
+                            className="cc-button secondary"
+                            disabled={busy}
+                            onClick={async () => {
+                              setBusy(true);
+                              setError("");
+                              try {
+                                await connectStripeEvents();
+                                setSuccess(
+                                  "Stripe confirmed the REC payment-event connection is active.",
+                                );
+                                await load();
+                              } catch (e) {
+                                setError(errorText(e));
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            Connect payment events
+                          </button>
+                        </div>
                         <div className="cc-notice">
                           {data.config.invoices
                             ? `Invoice sender reviewed: ${data.config.sender}`
