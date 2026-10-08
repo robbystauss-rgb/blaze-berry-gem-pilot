@@ -3,18 +3,21 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { SiteShell } from "@/components/layout/site-shell";
 import appCss from "../styles.css?url";
+import { getPublishedContent } from "@/lib/commerce/public";
 
 const APP_NAME = "REC Mama Made";
 
 export const Route = createRootRoute({
-  head: () => ({
+  loader: () => getPublishedContent().catch(() => ({}) as Record<string, string>),
+  head: ({ loaderData }) => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: APP_NAME },
+      { title: loaderData?.seo_title || APP_NAME },
       {
         name: "description",
         content:
+          loaderData?.seo_description ||
           "REC Mama Made — custom leather patch hats and loose patches with real Richardson color photos, live customization preview, and digital proofing.",
       },
       { name: "theme-color", content: "#F8F6F1" },

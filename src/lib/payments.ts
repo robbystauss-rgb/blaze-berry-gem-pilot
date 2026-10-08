@@ -32,6 +32,14 @@ export type PaymentBuild = {
   hasArtwork: boolean;
   notes: string;
   promo: string;
+  artworkDataUrl?: string;
+  checkoutRequestId?: string;
+  previewPlacement?: {
+    offsetX: number;
+    offsetY: number;
+    scale: number;
+    position?: Record<string, unknown>;
+  };
 };
 
 type Quote = {
@@ -48,40 +56,62 @@ type Quote = {
 
 function requireEmail(value: string) {
   const email = value.trim().slice(0, 254);
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email before checkout.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    throw new Error("Enter a valid email before checkout.");
   return email;
 }
 
 function normalizeBuild(input: PaymentBuild): Quote {
-  const customerName = String(input.customerName ?? "").trim().slice(0, 120);
+  const customerName = String(input.customerName ?? "")
+    .trim()
+    .slice(0, 120);
   if (!customerName) throw new Error("Add your name before checkout.");
   const customerEmail = requireEmail(String(input.customerEmail ?? ""));
   const orderType: OrderType = input.orderType === "patch" ? "patch" : "hat";
   const family = String(input.family ?? "") as FamilyId;
   if (!(family in FAMILIES)) throw new Error("Choose a valid hat family.");
   const familyInfo = FAMILIES[family];
-  const colorway = String(input.colorway ?? "").trim().slice(0, 160);
-  if (orderType === "hat" && !colorsForFamily(family).includes(colorway)) throw new Error("Choose a verified hat color before checkout.");
+  const colorway = String(input.colorway ?? "")
+    .trim()
+    .slice(0, 160);
+  if (orderType === "hat" && !colorsForFamily(family).includes(colorway))
+    throw new Error("Choose a verified hat color before checkout.");
   const leatherette = String(input.leatherette ?? "");
-  if (!LEATHERETTES.some((item) => item.id === leatherette)) throw new Error("Choose a valid leatherette material.");
+  if (!LEATHERETTES.some((item) => item.id === leatherette))
+    throw new Error("Choose a valid leatherette material.");
   const patchShape = input.patchShape;
   if (!PATCH_SHAPES.includes(patchShape)) throw new Error("Choose a valid patch shape.");
   const patchSize = input.patchSize;
-  if (!(["small", "medium", "large"] as const).includes(patchSize)) throw new Error("Choose a valid patch size.");
+  if (!(["small", "medium", "large"] as const).includes(patchSize))
+    throw new Error("Choose a valid patch size.");
   const placement = input.placement;
-  if (!PLACEMENTS.some((item) => item.id === placement)) throw new Error("Choose a valid patch placement.");
-  if (orderType === "hat" && patchSize === "large" && (placement === "side" || placement === "rear")) {
+  if (!PLACEMENTS.some((item) => item.id === placement))
+    throw new Error("Choose a valid patch placement.");
+  if (
+    orderType === "hat" &&
+    patchSize === "large" &&
+    (placement === "side" || placement === "rear")
+  ) {
     throw new Error("This patch size is too large for the selected position.");
   }
   const quantity = Math.max(1, Math.min(250, Math.floor(Number(input.quantity) || 1)));
-  const patchText = String(input.patchText ?? "").trim().slice(0, 240);
+  const patchText = String(input.patchText ?? "")
+    .trim()
+    .slice(0, 240);
   const hasArtwork = Boolean(input.hasArtwork);
   if (!patchText && !hasArtwork) throw new Error("Add a design before checkout.");
-  const notes = String(input.notes ?? "").trim().slice(0, 500);
-  const promo = String(input.promo ?? "").trim().slice(0, 40);
+  const notes = String(input.notes ?? "")
+    .trim()
+    .slice(0, 500);
+  const promo = String(input.promo ?? "")
+    .trim()
+    .slice(0, 40);
   const est = estimateTotal({ orderType, tier: familyInfo.tier, quantity, family, promo });
   const leather = getLeatherette(leatherette);
-  const lineName = orderType === "patch" ? "REC Mama Made custom leatherette patch" : `REC Mama Made ${family} ${familyInfo.label} custom patch hat`;
+  const lineName =
+    orderType === "patch"
+      ? "REC Mama Made custom leatherette patch"
+      : `REC Mama Made ${family} ${familyInfo.label} custom patch hat`;
   const design = patchText || "Uploaded artwork";
   const description = [
     orderType === "hat" ? colorway : "Loose patch",
@@ -91,10 +121,31 @@ function normalizeBuild(input: PaymentBuild): Quote {
     orderType === "hat" ? PLACEMENTS.find((item) => item.id === placement)?.label : undefined,
     design,
     est.bonus ? `${est.bonus} bonus hat${est.bonus === 1 ? "" : "s"}` : undefined,
-  ].filter(Boolean).join(" · ").slice(0, 480);
+  ]
+    .filter(Boolean)
+    .join(" · ")
+    .slice(0, 480);
 
   return {
-    build: { customerName, customerEmail, orderType, family, colorway, leatherette, patchShape, patchSize, placement, quantity, patchText, hasArtwork, notes, promo },
+    build: {
+      customerName,
+      customerEmail,
+      orderType,
+      family,
+      colorway,
+      leatherette,
+      patchShape,
+      patchSize,
+      placement,
+      quantity,
+      patchText,
+      hasArtwork,
+      notes,
+      promo,
+      artworkDataUrl: input.artworkDataUrl,
+      checkoutRequestId: input.checkoutRequestId,
+      previewPlacement: input.previewPlacement,
+    },
     family,
     lineName,
     description,
@@ -119,10 +170,14 @@ function paypalEnvironment() {
 }
 
 function paypalApiBase() {
-  return paypalEnvironment() === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+  return paypalEnvironment() === "live"
+    ? "https://api-m.paypal.com"
+    : "https://api-m.sandbox.paypal.com";
 }
 
 function paypalCredentials() {
+  if (process.env.NODE_ENV !== "production" && paypalEnvironment() === "live")
+    throw new Error("Development checkout requires PayPal sandbox credentials.");
   const clientId = process.env.PAYPAL_CLIENT_ID?.trim();
   const secret = process.env.PAYPAL_CLIENT_SECRET?.trim();
   if (!clientId || !secret) throw new Error("PayPal checkout is not configured yet.");
@@ -140,7 +195,8 @@ async function paypalAccessToken() {
     body: new URLSearchParams({ grant_type: "client_credentials" }),
   });
   const payload = (await response.json()) as { access_token?: string; error_description?: string };
-  if (!response.ok || !payload.access_token) throw new Error("PayPal could not start checkout. Please try again.");
+  if (!response.ok || !payload.access_token)
+    throw new Error("PayPal could not start checkout. Please try again.");
   return payload.access_token;
 }
 
@@ -153,8 +209,14 @@ async function captureSignature(orderId: string, amount: string) {
     false,
     ["sign"],
   );
-  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${orderId}|${amount}`));
-  return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`${orderId}|${amount}`),
+  );
+  return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 async function validCaptureToken(orderId: string, token: string) {
@@ -165,7 +227,8 @@ async function validCaptureToken(orderId: string, token: string) {
   const expected = await captureSignature(orderId, amount);
   if (supplied.length !== expected.length) return null;
   let mismatch = 0;
-  for (let index = 0; index < supplied.length; index += 1) mismatch |= supplied.charCodeAt(index) ^ expected.charCodeAt(index);
+  for (let index = 0; index < supplied.length; index += 1)
+    mismatch |= supplied.charCodeAt(index) ^ expected.charCodeAt(index);
   return mismatch === 0 ? amount : null;
 }
 
@@ -184,25 +247,42 @@ function appendStripeMetadata(form: URLSearchParams, quote: Quote) {
     customer_name: quote.build.customerName,
     design: quote.build.patchText || "uploaded-artwork",
   };
-  Object.entries(pairs).forEach(([key, value]) => form.set(`metadata[${key}]`, value.slice(0, 490)));
+  Object.entries(pairs).forEach(([key, value]) =>
+    form.set(`metadata[${key}]`, value.slice(0, 490)),
+  );
 }
 
 export const getPaymentConfig = createServerFn({ method: "GET" }).handler(async () => ({
   stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY?.trim()),
-  paypalConfigured: Boolean(process.env.PAYPAL_CLIENT_ID?.trim() && process.env.PAYPAL_CLIENT_SECRET?.trim()),
+  paypalConfigured: Boolean(
+    process.env.PAYPAL_CLIENT_ID?.trim() && process.env.PAYPAL_CLIENT_SECRET?.trim(),
+  ),
   paypalEnvironment: paypalEnvironment() as "sandbox" | "live",
 }));
+export const submitManualVenmoOrder = createServerFn({ method: "POST" })
+  .validator((data: PaymentBuild) => data)
+  .handler(async ({ data }) => {
+    const { createCheckoutOrder } = await import("./commerce/checkout.server");
+    return { id: await createCheckoutOrder(normalizeBuild(data), "manual_venmo") };
+  });
 
 export const createStripeCheckoutSession = createServerFn({ method: "POST" })
   .validator((data: PaymentBuild) => data)
   .handler(async ({ data }) => {
     const secret = process.env.STRIPE_SECRET_KEY?.trim();
     if (!secret) throw new Error("Card checkout is not configured yet.");
+    if (process.env.NODE_ENV !== "production" && !secret.startsWith("sk_test_"))
+      throw new Error("Development checkout requires a Stripe test key.");
     const quote = normalizeBuild(data);
+    const { createCheckoutOrder, attachCheckout } = await import("./commerce/checkout.server");
+    const orderId = await createCheckoutOrder(quote, "stripe");
     const origin = requestOrigin();
     const form = new URLSearchParams();
     form.set("mode", "payment");
-    form.set("success_url", `${origin}/order?payment=stripe-success&session_id={CHECKOUT_SESSION_ID}`);
+    form.set(
+      "success_url",
+      `${origin}/order?payment=stripe-success&session_id={CHECKOUT_SESSION_ID}`,
+    );
     form.set("cancel_url", `${origin}/order?payment=stripe-canceled`);
     form.set("customer_email", quote.build.customerEmail);
     form.set("line_items[0][price_data][currency]", "usd");
@@ -211,14 +291,25 @@ export const createStripeCheckoutSession = createServerFn({ method: "POST" })
     form.set("line_items[0][price_data][unit_amount]", String(Math.round(quote.unit * 100)));
     form.set("line_items[0][quantity]", String(quote.purchased));
     appendStripeMetadata(form, quote);
+    form.set("metadata[rec_order_id]", orderId);
 
     const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
-      headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/x-www-form-urlencoded" },
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Idempotency-Key": `rec-checkout:${orderId}`,
+      },
       body: form,
     });
-    const payload = (await response.json()) as { id?: string; url?: string; error?: { message?: string } };
-    if (!response.ok || !payload.id || !payload.url) throw new Error(payload.error?.message || "Card checkout could not start. Please try again.");
+    const payload = (await response.json()) as {
+      id?: string;
+      url?: string;
+      error?: { message?: string };
+    };
+    if (!response.ok || !payload.id || !payload.url)
+      throw new Error(payload.error?.message || "Card checkout could not start. Please try again.");
+    await attachCheckout(orderId, "stripe", payload.id);
     return { id: payload.id, url: payload.url };
   });
 
@@ -227,10 +318,15 @@ export const getStripeCheckoutStatus = createServerFn({ method: "GET" })
   .handler(async ({ data: sessionId }) => {
     const secret = process.env.STRIPE_SECRET_KEY?.trim();
     if (!secret) throw new Error("Card checkout is not configured yet.");
+    if (process.env.NODE_ENV !== "production" && !secret.startsWith("sk_test_"))
+      throw new Error("Development checkout requires a Stripe test key.");
     if (!/^cs_[A-Za-z0-9_]+$/.test(sessionId)) throw new Error("Invalid checkout session.");
-    const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
-      headers: { Authorization: `Bearer ${secret}` },
-    });
+    const response = await fetch(
+      `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`,
+      {
+        headers: { Authorization: `Bearer ${secret}` },
+      },
+    );
     const payload = (await response.json()) as {
       id?: string;
       status?: string;
@@ -239,13 +335,14 @@ export const getStripeCheckoutStatus = createServerFn({ method: "GET" })
       customer_details?: { email?: string };
       error?: { message?: string };
     };
-    if (!response.ok || !payload.id) throw new Error(payload.error?.message || "Could not verify payment status.");
+    if (!response.ok || !payload.id)
+      throw new Error(payload.error?.message || "Could not verify payment status.");
     return {
       id: payload.id,
       status: payload.status ?? "unknown",
       paymentStatus: payload.payment_status ?? "unknown",
       amountTotal: typeof payload.amount_total === "number" ? payload.amount_total : null,
-      email: payload.customer_details?.email ?? null,
+      email: null,
     };
   });
 
@@ -265,14 +362,20 @@ export const getPayPalBrowserToken = createServerFn({ method: "GET" }).handler(a
     }),
   });
   const payload = (await response.json()) as { access_token?: string };
-  if (!response.ok || !payload.access_token) throw new Error("PayPal checkout could not initialize. Please try again.");
-  return { clientToken: payload.access_token, environment: paypalEnvironment() as "sandbox" | "live" };
+  if (!response.ok || !payload.access_token)
+    throw new Error("PayPal checkout could not initialize. Please try again.");
+  return {
+    clientToken: payload.access_token,
+    environment: paypalEnvironment() as "sandbox" | "live",
+  };
 });
 
 export const createPayPalOrder = createServerFn({ method: "POST" })
   .validator((data: PaymentBuild) => data)
   .handler(async ({ data }) => {
     const quote = normalizeBuild(data);
+    const { createCheckoutOrder, attachCheckout } = await import("./commerce/checkout.server");
+    const orderId = await createCheckoutOrder(quote, "paypal");
     const accessToken = await paypalAccessToken();
     const amount = quote.total.toFixed(2);
     const response = await fetch(`${paypalApiBase()}/v2/checkout/orders`, {
@@ -280,7 +383,7 @@ export const createPayPalOrder = createServerFn({ method: "POST" })
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
-        "PayPal-Request-Id": crypto.randomUUID(),
+        "PayPal-Request-Id": orderId,
       },
       body: JSON.stringify({
         intent: "CAPTURE",
@@ -288,14 +391,16 @@ export const createPayPalOrder = createServerFn({ method: "POST" })
           {
             reference_id: "REC-MAMA-MADE",
             description: quote.description,
-            custom_id: `${quote.build.orderType}:${quote.family}:${quote.purchased}`.slice(0, 120),
+            custom_id: orderId,
             amount: { currency_code: "USD", value: amount },
           },
         ],
       }),
     });
     const payload = (await response.json()) as { id?: string; message?: string };
-    if (!response.ok || !payload.id) throw new Error(payload.message || "PayPal checkout could not start. Please try again.");
+    if (!response.ok || !payload.id)
+      throw new Error(payload.message || "PayPal checkout could not start. Please try again.");
+    await attachCheckout(orderId, "paypal", payload.id);
     const signature = await captureSignature(payload.id, amount);
     return { orderId: payload.id, captureToken: `${amount}:${signature}` };
   });
@@ -306,21 +411,66 @@ export const capturePayPalOrder = createServerFn({ method: "POST" })
     if (!/^[A-Z0-9]+$/i.test(data.orderId)) throw new Error("Invalid PayPal order.");
     const expectedAmount = await validCaptureToken(data.orderId, data.captureToken);
     if (!expectedAmount) throw new Error("This PayPal order could not be verified.");
+    const { getSql } = await import("./db");
+    const { recordPayment, orderById } = await import("./commerce/core.server");
+    const sql = await getSql();
+    const [checkout] = await sql<{
+      order_id: string;
+    }>`select order_id from commerce_checkouts where provider='paypal' and reference=${data.orderId}`;
+    if (!checkout || (await orderById(sql, checkout.order_id)).stage === "canceled")
+      throw new Error("This checkout is no longer eligible for capture.");
     const accessToken = await paypalAccessToken();
-    const response = await fetch(`${paypalApiBase()}/v2/checkout/orders/${encodeURIComponent(data.orderId)}/capture`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
-      body: "{}",
-    });
+    const response = await fetch(
+      `${paypalApiBase()}/v2/checkout/orders/${encodeURIComponent(data.orderId)}/capture`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          "PayPal-Request-Id": `capture-${data.orderId}`,
+        },
+        body: "{}",
+      },
+    );
     const payload = (await response.json()) as {
       id?: string;
       status?: string;
       message?: string;
-      purchase_units?: Array<{ payments?: { captures?: Array<{ status?: string; amount?: { currency_code?: string; value?: string } }> } }>;
+      purchase_units?: Array<{
+        payments?: {
+          captures?: Array<{
+            id?: string;
+            create_time?: string;
+            status?: string;
+            amount?: { currency_code?: string; value?: string };
+          }>;
+        };
+      }>;
     };
     const capture = payload.purchase_units?.[0]?.payments?.captures?.[0];
     const capturedAmount = capture?.amount?.value;
-    const completed = response.ok && payload.status === "COMPLETED" && capture?.status === "COMPLETED" && capturedAmount === expectedAmount;
-    if (!completed) throw new Error(payload.message || "PayPal payment was not completed. Please try again.");
-    return { orderId: payload.id ?? data.orderId, status: "COMPLETED" as const, amount: capturedAmount };
+    const completed =
+      response.ok &&
+      payload.status === "COMPLETED" &&
+      capture?.status === "COMPLETED" &&
+      capturedAmount === expectedAmount &&
+      capture?.amount?.currency_code === "USD";
+    if (!completed)
+      throw new Error(payload.message || "PayPal payment was not completed. Please try again.");
+    if (checkout && capture?.id && capture.amount?.currency_code === "USD")
+      await sql.transaction((tx) =>
+        recordPayment(tx, {
+          orderId: checkout.order_id,
+          provider: "paypal",
+          reference: capture.id!,
+          kind: "payment",
+          amount: Math.round(Number(capturedAmount) * 100),
+          occurredAt: capture.create_time ?? new Date().toISOString(),
+        }),
+      );
+    return {
+      orderId: payload.id ?? data.orderId,
+      status: "COMPLETED" as const,
+      amount: capturedAmount,
+    };
   });

@@ -3,3 +3,11 @@ node_modules/
 .github_repo
 .env
 .env.*
+artifacts/commerce-qa/
+screenshots/
+*.log
+
+.vercel/
+dist/
+.nitro/
+.tanstack/

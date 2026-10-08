@@ -248,6 +248,8 @@ export function Builder({
     quantity: qty,
     patchText: draft.patchText,
     hasArtwork: Boolean(draft.artworkDataUrl),
+    artworkDataUrl: draft.artworkDataUrl || undefined,
+    previewPlacement: { offsetX:draft.patchOffsetX,offsetY:draft.patchOffsetY,scale:draft.patchScale,position:draft.patchPosition as unknown as Record<string,unknown>|undefined },
     notes: draft.notes,
     promo: draft.promo,
   };

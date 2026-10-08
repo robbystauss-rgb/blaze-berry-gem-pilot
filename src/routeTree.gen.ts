@@ -11,13 +11,32 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as R112RouteImport } from './routes/112'
+import { Route as R112fpRouteImport } from './routes/112fp'
+import { Route as R112fprRouteImport } from './routes/112fpr'
+import { Route as R112pRouteImport } from './routes/112p'
+import { Route as R112pfpRouteImport } from './routes/112pfp'
+import { Route as R112pmRouteImport } from './routes/112pm'
 import { Route as R168RouteImport } from './routes/168'
+import { Route as R168pRouteImport } from './routes/168p'
 import { Route as R256RouteImport } from './routes/256'
+import { Route as R256pRouteImport } from './routes/256p'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as ActualWorkRouteImport } from './routes/actual-work'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as HatsRouteImport } from './routes/hats'
+import { Route as InfoRouteImport } from './routes/info'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as OrderRouteImport } from './routes/order'
+import { Route as OwnerSetupRouteImport } from './routes/owner-setup'
 import { Route as PrintedCamoRouteImport } from './routes/printed-camo'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StudioRouteImport } from './routes/studio'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as ApiArtworkIdRouteImport } from './routes/api/artwork/$id'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiCatalogImageIdRouteImport } from './routes/api/catalog-image/$id'
+import { Route as ApiWebhooksPaypalRouteImport } from './routes/api/webhooks/paypal'
+import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,9 +48,39 @@ const R112Route = R112RouteImport.update({
   path: '/112',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R112fpRoute = R112fpRouteImport.update({
+  id: '/112fp',
+  path: '/112fp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R112fprRoute = R112fprRouteImport.update({
+  id: '/112fpr',
+  path: '/112fpr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R112pRoute = R112pRouteImport.update({
+  id: '/112p',
+  path: '/112p',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R112pfpRoute = R112pfpRouteImport.update({
+  id: '/112pfp',
+  path: '/112pfp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R112pmRoute = R112pmRouteImport.update({
+  id: '/112pm',
+  path: '/112pm',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const R168Route = R168RouteImport.update({
   id: '/168',
   path: '/168',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R168pRoute = R168pRouteImport.update({
+  id: '/168p',
+  path: '/168p',
   getParentRoute: () => rootRouteImport,
 } as any)
 const R256Route = R256RouteImport.update({
@@ -39,9 +88,24 @@ const R256Route = R256RouteImport.update({
   path: '/256',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R256pRoute = R256pRouteImport.update({
+  id: '/256p',
+  path: '/256p',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ActualWorkRoute = ActualWorkRouteImport.update({
   id: '/actual-work',
   path: '/actual-work',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HatsRoute = HatsRouteImport.update({
@@ -49,9 +113,24 @@ const HatsRoute = HatsRouteImport.update({
   path: '/hats',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InfoRoute = InfoRouteImport.update({
+  id: '/info',
+  path: '/info',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrderRoute = OrderRouteImport.update({
   id: '/order',
   path: '/order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerSetupRoute = OwnerSetupRouteImport.update({
+  id: '/owner-setup',
+  path: '/owner-setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrintedCamoRoute = PrintedCamoRouteImport.update({
@@ -59,92 +138,260 @@ const PrintedCamoRoute = PrintedCamoRouteImport.update({
   path: '/printed-camo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudioRoute = StudioRouteImport.update({
   id: '/studio',
   path: '/studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiArtworkIdRoute = ApiArtworkIdRouteImport.update({
+  id: '/api/artwork/$id',
+  path: '/api/artwork/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCatalogImageIdRoute = ApiCatalogImageIdRouteImport.update({
+  id: '/api/catalog-image/$id',
+  path: '/api/catalog-image/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebhooksPaypalRoute = ApiWebhooksPaypalRouteImport.update({
+  id: '/api/webhooks/paypal',
+  path: '/api/webhooks/paypal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
+  id: '/api/webhooks/stripe',
+  path: '/api/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/112': typeof R112Route
+  '/112fp': typeof R112fpRoute
+  '/112fpr': typeof R112fprRoute
+  '/112p': typeof R112pRoute
+  '/112pfp': typeof R112pfpRoute
+  '/112pm': typeof R112pmRoute
   '/168': typeof R168Route
+  '/168p': typeof R168pRoute
   '/256': typeof R256Route
+  '/256p': typeof R256pRoute
+  '/account': typeof AccountRoute
   '/actual-work': typeof ActualWorkRoute
+  '/admin': typeof AdminRoute
   '/hats': typeof HatsRoute
+  '/info': typeof InfoRoute
+  '/login': typeof LoginRoute
   '/order': typeof OrderRoute
+  '/owner-setup': typeof OwnerSetupRoute
   '/printed-camo': typeof PrintedCamoRoute
+  '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/product/$id': typeof ProductIdRoute
+  '/api/artwork/$id': typeof ApiArtworkIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/112': typeof R112Route
+  '/112fp': typeof R112fpRoute
+  '/112fpr': typeof R112fprRoute
+  '/112p': typeof R112pRoute
+  '/112pfp': typeof R112pfpRoute
+  '/112pm': typeof R112pmRoute
   '/168': typeof R168Route
+  '/168p': typeof R168pRoute
   '/256': typeof R256Route
+  '/256p': typeof R256pRoute
+  '/account': typeof AccountRoute
   '/actual-work': typeof ActualWorkRoute
+  '/admin': typeof AdminRoute
   '/hats': typeof HatsRoute
+  '/info': typeof InfoRoute
+  '/login': typeof LoginRoute
   '/order': typeof OrderRoute
+  '/owner-setup': typeof OwnerSetupRoute
   '/printed-camo': typeof PrintedCamoRoute
+  '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/product/$id': typeof ProductIdRoute
+  '/api/artwork/$id': typeof ApiArtworkIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/112': typeof R112Route
+  '/112fp': typeof R112fpRoute
+  '/112fpr': typeof R112fprRoute
+  '/112p': typeof R112pRoute
+  '/112pfp': typeof R112pfpRoute
+  '/112pm': typeof R112pmRoute
   '/168': typeof R168Route
+  '/168p': typeof R168pRoute
   '/256': typeof R256Route
+  '/256p': typeof R256pRoute
+  '/account': typeof AccountRoute
   '/actual-work': typeof ActualWorkRoute
+  '/admin': typeof AdminRoute
   '/hats': typeof HatsRoute
+  '/info': typeof InfoRoute
+  '/login': typeof LoginRoute
   '/order': typeof OrderRoute
+  '/owner-setup': typeof OwnerSetupRoute
   '/printed-camo': typeof PrintedCamoRoute
+  '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/product/$id': typeof ProductIdRoute
+  '/api/artwork/$id': typeof ApiArtworkIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/112'
+    | '/112fp'
+    | '/112fpr'
+    | '/112p'
+    | '/112pfp'
+    | '/112pm'
     | '/168'
+    | '/168p'
     | '/256'
+    | '/256p'
+    | '/account'
     | '/actual-work'
+    | '/admin'
     | '/hats'
+    | '/info'
+    | '/login'
     | '/order'
+    | '/owner-setup'
     | '/printed-camo'
+    | '/shop'
     | '/studio'
+    | '/product/$id'
+    | '/api/artwork/$id'
+    | '/api/auth/$'
+    | '/api/catalog-image/$id'
+    | '/api/webhooks/paypal'
+    | '/api/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/112'
+    | '/112fp'
+    | '/112fpr'
+    | '/112p'
+    | '/112pfp'
+    | '/112pm'
     | '/168'
+    | '/168p'
     | '/256'
+    | '/256p'
+    | '/account'
     | '/actual-work'
+    | '/admin'
     | '/hats'
+    | '/info'
+    | '/login'
     | '/order'
+    | '/owner-setup'
     | '/printed-camo'
+    | '/shop'
     | '/studio'
+    | '/product/$id'
+    | '/api/artwork/$id'
+    | '/api/auth/$'
+    | '/api/catalog-image/$id'
+    | '/api/webhooks/paypal'
+    | '/api/webhooks/stripe'
   id:
     | '__root__'
     | '/'
     | '/112'
+    | '/112fp'
+    | '/112fpr'
+    | '/112p'
+    | '/112pfp'
+    | '/112pm'
     | '/168'
+    | '/168p'
     | '/256'
+    | '/256p'
+    | '/account'
     | '/actual-work'
+    | '/admin'
     | '/hats'
+    | '/info'
+    | '/login'
     | '/order'
+    | '/owner-setup'
     | '/printed-camo'
+    | '/shop'
     | '/studio'
+    | '/product/$id'
+    | '/api/artwork/$id'
+    | '/api/auth/$'
+    | '/api/catalog-image/$id'
+    | '/api/webhooks/paypal'
+    | '/api/webhooks/stripe'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   R112Route: typeof R112Route
+  R112fpRoute: typeof R112fpRoute
+  R112fprRoute: typeof R112fprRoute
+  R112pRoute: typeof R112pRoute
+  R112pfpRoute: typeof R112pfpRoute
+  R112pmRoute: typeof R112pmRoute
   R168Route: typeof R168Route
+  R168pRoute: typeof R168pRoute
   R256Route: typeof R256Route
+  R256pRoute: typeof R256pRoute
+  AccountRoute: typeof AccountRoute
   ActualWorkRoute: typeof ActualWorkRoute
+  AdminRoute: typeof AdminRoute
   HatsRoute: typeof HatsRoute
+  InfoRoute: typeof InfoRoute
+  LoginRoute: typeof LoginRoute
   OrderRoute: typeof OrderRoute
+  OwnerSetupRoute: typeof OwnerSetupRoute
   PrintedCamoRoute: typeof PrintedCamoRoute
+  ShopRoute: typeof ShopRoute
   StudioRoute: typeof StudioRoute
+  ProductIdRoute: typeof ProductIdRoute
+  ApiArtworkIdRoute: typeof ApiArtworkIdRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCatalogImageIdRoute: typeof ApiCatalogImageIdRoute
+  ApiWebhooksPaypalRoute: typeof ApiWebhooksPaypalRoute
+  ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -163,11 +410,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof R112RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/112fp': {
+      id: '/112fp'
+      path: '/112fp'
+      fullPath: '/112fp'
+      preLoaderRoute: typeof R112fpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/112fpr': {
+      id: '/112fpr'
+      path: '/112fpr'
+      fullPath: '/112fpr'
+      preLoaderRoute: typeof R112fprRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/112p': {
+      id: '/112p'
+      path: '/112p'
+      fullPath: '/112p'
+      preLoaderRoute: typeof R112pRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/112pfp': {
+      id: '/112pfp'
+      path: '/112pfp'
+      fullPath: '/112pfp'
+      preLoaderRoute: typeof R112pfpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/112pm': {
+      id: '/112pm'
+      path: '/112pm'
+      fullPath: '/112pm'
+      preLoaderRoute: typeof R112pmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/168': {
       id: '/168'
       path: '/168'
       fullPath: '/168'
       preLoaderRoute: typeof R168RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/168p': {
+      id: '/168p'
+      path: '/168p'
+      fullPath: '/168p'
+      preLoaderRoute: typeof R168pRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/256': {
@@ -177,11 +466,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof R256RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/256p': {
+      id: '/256p'
+      path: '/256p'
+      fullPath: '/256p'
+      preLoaderRoute: typeof R256pRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/actual-work': {
       id: '/actual-work'
       path: '/actual-work'
       fullPath: '/actual-work'
       preLoaderRoute: typeof ActualWorkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hats': {
@@ -191,11 +501,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HatsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/info': {
+      id: '/info'
+      path: '/info'
+      fullPath: '/info'
+      preLoaderRoute: typeof InfoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/order': {
       id: '/order'
       path: '/order'
       fullPath: '/order'
       preLoaderRoute: typeof OrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner-setup': {
+      id: '/owner-setup'
+      path: '/owner-setup'
+      fullPath: '/owner-setup'
+      preLoaderRoute: typeof OwnerSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/printed-camo': {
@@ -205,11 +536,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrintedCamoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/studio': {
       id: '/studio'
       path: '/studio'
       fullPath: '/studio'
       preLoaderRoute: typeof StudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/artwork/$id': {
+      id: '/api/artwork/$id'
+      path: '/api/artwork/$id'
+      fullPath: '/api/artwork/$id'
+      preLoaderRoute: typeof ApiArtworkIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/catalog-image/$id': {
+      id: '/api/catalog-image/$id'
+      path: '/api/catalog-image/$id'
+      fullPath: '/api/catalog-image/$id'
+      preLoaderRoute: typeof ApiCatalogImageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/paypal': {
+      id: '/api/webhooks/paypal'
+      path: '/api/webhooks/paypal'
+      fullPath: '/api/webhooks/paypal'
+      preLoaderRoute: typeof ApiWebhooksPaypalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/stripe': {
+      id: '/api/webhooks/stripe'
+      path: '/api/webhooks/stripe'
+      fullPath: '/api/webhooks/stripe'
+      preLoaderRoute: typeof ApiWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -218,13 +598,32 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R112Route: R112Route,
+  R112fpRoute: R112fpRoute,
+  R112fprRoute: R112fprRoute,
+  R112pRoute: R112pRoute,
+  R112pfpRoute: R112pfpRoute,
+  R112pmRoute: R112pmRoute,
   R168Route: R168Route,
+  R168pRoute: R168pRoute,
   R256Route: R256Route,
+  R256pRoute: R256pRoute,
+  AccountRoute: AccountRoute,
   ActualWorkRoute: ActualWorkRoute,
+  AdminRoute: AdminRoute,
   HatsRoute: HatsRoute,
+  InfoRoute: InfoRoute,
+  LoginRoute: LoginRoute,
   OrderRoute: OrderRoute,
+  OwnerSetupRoute: OwnerSetupRoute,
   PrintedCamoRoute: PrintedCamoRoute,
+  ShopRoute: ShopRoute,
   StudioRoute: StudioRoute,
+  ProductIdRoute: ProductIdRoute,
+  ApiArtworkIdRoute: ApiArtworkIdRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCatalogImageIdRoute: ApiCatalogImageIdRoute,
+  ApiWebhooksPaypalRoute: ApiWebhooksPaypalRoute,
+  ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
