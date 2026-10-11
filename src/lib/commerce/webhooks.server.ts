@@ -30,6 +30,8 @@ export async function stripeWebhook(request: Request) {
     return new Response("Live events are disabled in development", { status: 400 });
   try {
     await processStripeEvent(event, stripe);
+    const { tryOrderEmails } = await import("./order-email.server");
+    await tryOrderEmails();
     return Response.json({ received: true });
   } catch {
     console.error("[commerce] Stripe event could not be committed", event.id);
@@ -316,6 +318,8 @@ export async function paypalWebhook(request: Request) {
         }
       }
     });
+    const { tryOrderEmails } = await import("./order-email.server");
+    await tryOrderEmails();
     return Response.json({ received: true });
   } catch {
     console.error("[commerce] PayPal event could not be committed", event.id);

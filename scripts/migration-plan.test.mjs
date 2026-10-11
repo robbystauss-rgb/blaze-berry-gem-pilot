@@ -67,6 +67,7 @@ test("merchant auth and additive commerce schemas are enabled while nested refer
       "0004_owner_setup.sql",
       "0005_operations_completion.sql",
       "0006_provider_activation.sql",
+      "0007_order_email_notifications.sql",
     ],
   );
   assert.ok(readdirSync(join(migrationsDir, "auth")).includes("0001_auth.sql"));

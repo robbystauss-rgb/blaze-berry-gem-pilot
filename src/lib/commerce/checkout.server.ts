@@ -4,6 +4,7 @@ import { getSql } from "@/lib/db";
 import { reserveInventory, audit, changeAllocation, notify, orderById } from "./core.server";
 import type { PaymentBuild } from "@/lib/payments";
 import { getSessionUser } from "@/lib/auth/verify.server";
+import catalog from "@/data/master-catalog.json";
 
 export function decodeArtwork(data: string | undefined) {
   if (!data) return null;
@@ -82,6 +83,12 @@ export async function createCheckoutOrder(
     : randomUUID();
   const sql = await getSql();
   const user = await resolveUser();
+  const photo =
+    quote.build.orderType === "hat"
+      ? catalog.models
+          .find((model) => model.code === quote.build.family)
+          ?.colorways.find((color) => color.officialName === quote.build.colorway)?.views.front
+      : undefined;
   await sql.transaction(async (tx) => {
     const inserted =
       await tx`insert into commerce_orders(id,customer_user_id,customer_name,customer_email,source,subtotal,total) values(${orderId},${user?.id ?? null},${quote.build.customerName},${quote.build.customerEmail},${provider + "_checkout"},${Math.round(quote.total * 100)},${Math.round(quote.total * 100)}) on conflict(id) do nothing returning id`;
@@ -109,7 +116,7 @@ export async function createCheckoutOrder(
       return;
     }
     await tx`insert into commerce_order_items(id,order_id,product_key,title,quantity,fulfilled_quantity,unit_amount,specifications,artwork,artwork_type)
-  values(${randomUUID()},${orderId},${quote.build.orderType + ":" + quote.build.family + ":" + quote.build.colorway},${quote.lineName},${quote.purchased},${quote.fulfilled},${Math.round(quote.unit * 100)},${JSON.stringify({ ...spec, snapshot_hash: hash })},${artwork?.bytes ?? null},${artwork?.mime ?? null})`;
+  values(${randomUUID()},${orderId},${quote.build.orderType + ":" + quote.build.family + ":" + quote.build.colorway},${quote.lineName},${quote.purchased},${quote.fulfilled},${Math.round(quote.unit * 100)},${JSON.stringify({ ...spec, snapshot_hash: hash, ...(photo ? { productImages: [photo] } : {}) })},${artwork?.bytes ?? null},${artwork?.mime ?? null})`;
     await reserveInventory(tx, orderId, "checkout");
     await audit(tx, "checkout", "order.created", "order", orderId, null, {
       provider,
@@ -117,6 +124,8 @@ export async function createCheckoutOrder(
     });
     await notify(tx, `custom:${orderId}`, "New custom order awaiting payment", orderId);
   });
+  const { tryOrderEmails } = await import("./order-email.server");
+  await tryOrderEmails();
   return orderId;
 }
 export async function attachCheckout(orderId: string, provider: string, reference: string) {

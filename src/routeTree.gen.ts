@@ -35,6 +35,7 @@ import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ApiArtworkIdRouteImport } from './routes/api/artwork/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCatalogImageIdRouteImport } from './routes/api/catalog-image/$id'
+import { Route as ApiNotificationsOrderEmailRouteImport } from './routes/api/notifications/order-email'
 import { Route as ApiWebhooksPaypalRouteImport } from './routes/api/webhooks/paypal'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 
@@ -168,6 +169,12 @@ const ApiCatalogImageIdRoute = ApiCatalogImageIdRouteImport.update({
   path: '/api/catalog-image/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNotificationsOrderEmailRoute =
+  ApiNotificationsOrderEmailRouteImport.update({
+    id: '/api/notifications/order-email',
+    path: '/api/notifications/order-email',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiWebhooksPaypalRoute = ApiWebhooksPaypalRouteImport.update({
   id: '/api/webhooks/paypal',
   path: '/api/webhooks/paypal',
@@ -206,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
   '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
@@ -236,6 +244,7 @@ export interface FileRoutesByTo {
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
   '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
@@ -267,6 +276,7 @@ export interface FileRoutesById {
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
   '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
@@ -299,6 +309,7 @@ export interface FileRouteTypes {
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
+    | '/api/notifications/order-email'
     | '/api/webhooks/paypal'
     | '/api/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
+    | '/api/notifications/order-email'
     | '/api/webhooks/paypal'
     | '/api/webhooks/stripe'
   id:
@@ -359,6 +371,7 @@ export interface FileRouteTypes {
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
+    | '/api/notifications/order-email'
     | '/api/webhooks/paypal'
     | '/api/webhooks/stripe'
   fileRoutesById: FileRoutesById
@@ -390,6 +403,7 @@ export interface RootRouteChildren {
   ApiArtworkIdRoute: typeof ApiArtworkIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCatalogImageIdRoute: typeof ApiCatalogImageIdRoute
+  ApiNotificationsOrderEmailRoute: typeof ApiNotificationsOrderEmailRoute
   ApiWebhooksPaypalRoute: typeof ApiWebhooksPaypalRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
 }
@@ -578,6 +592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCatalogImageIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/notifications/order-email': {
+      id: '/api/notifications/order-email'
+      path: '/api/notifications/order-email'
+      fullPath: '/api/notifications/order-email'
+      preLoaderRoute: typeof ApiNotificationsOrderEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/webhooks/paypal': {
       id: '/api/webhooks/paypal'
       path: '/api/webhooks/paypal'
@@ -622,6 +643,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiArtworkIdRoute: ApiArtworkIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCatalogImageIdRoute: ApiCatalogImageIdRoute,
+  ApiNotificationsOrderEmailRoute: ApiNotificationsOrderEmailRoute,
   ApiWebhooksPaypalRoute: ApiWebhooksPaypalRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
 }

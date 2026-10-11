@@ -5,7 +5,7 @@ import { createServer } from "vite";
 import { requestHandler } from "@tanstack/start-server-core/request-response";
 if (process.env.DATABASE_URL || process.env.STRIPE_SECRET_KEY || process.env.PAYPAL_CLIENT_SECRET)
   throw Error("Integration tests require isolated local storage and no provider credentials.");
-let server, sql, core, mutations, read, webhooks;
+let server, sql, core, mutations, read, webhooks, orderEmail;
 const owner = { userId: "test-owner", role: "owner" },
   manager = { userId: "test-manager", role: "manager" },
   production = { userId: "test-production", role: "production" };
@@ -17,6 +17,7 @@ before(async () => {
   mutations = await server.ssrLoadModule("/src/lib/commerce/mutations.server.ts");
   read = await server.ssrLoadModule("/src/lib/commerce/read.server.ts");
   webhooks = await server.ssrLoadModule("/src/lib/commerce/webhooks.server.ts");
+  orderEmail = await server.ssrLoadModule("/src/lib/commerce/order-email.server.ts");
   for (const actor of [owner, manager, production]) {
     await sql`insert into "user"(id,name,email,"emailVerified","createdAt","updatedAt") values(${actor.userId},${actor.role},${actor.userId + "@example.invalid"},true,now(),now())`;
     await sql`insert into merchant_staff(user_id,role) values(${actor.userId},${actor.role})`;
@@ -1404,4 +1405,273 @@ test("private owner setup requires the configured recipient, expires, redeems on
       else process.env[key] = previous[i];
     });
   }
+});
+
+async function withOrderEmail(work) {
+  const settings = {
+    REC_ORDER_EMAIL_TO: "owner@example.invalid",
+    REC_ORDER_EMAIL_FROM: "orders@recmamamade.com",
+    REC_ORDER_EMAIL_SENDER_VERIFIED: "true",
+    RESEND_API_KEY: "test-only-not-a-real-key",
+  };
+  const before = Object.fromEntries(Object.keys(settings).map((key) => [key, process.env[key]]));
+  Object.assign(process.env, settings);
+  try {
+    return await work();
+  } finally {
+    for (const [key, value] of Object.entries(before))
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+  }
+}
+
+test("order email uses real line specifications, cents, payment state and escaped customer data with inline original artwork", async () => {
+  const id = await draft({
+    customerName: "<script>alert(1)</script>",
+    specifications: "White leatherette; medium rounded rectangle; actual design text",
+  });
+  const order = await core.orderById(sql, id);
+  const [item] =
+    await sql`select *,false as has_artwork from commerce_order_items where order_id=${id}`;
+  const bytes = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  const payload = orderEmail.renderOrderEmail(
+    order,
+    [item],
+    [],
+    [{ itemId: item.id, bytes, mime: "image/png" }],
+    "New order",
+    "orders@recmamamade.com",
+    "owner@example.invalid",
+  );
+  assert.match(payload.subject, new RegExp(`Order #${order.number}`));
+  assert.match(payload.text, /Unit price: \$30.00/);
+  assert.match(payload.text, /Order total: \$60.00/);
+  assert.match(payload.text, /Actual payments recorded: \$0.00/);
+  assert.match(payload.text, /No verified payment/);
+  assert.match(payload.text, /White leatherette; medium rounded rectangle/);
+  assert.ok(!payload.html.includes("<script>"));
+  assert.ok(payload.html.includes("&lt;script&gt;"));
+  assert.match(payload.html, /src="cid:artwork-/);
+  assert.equal(Buffer.from(payload.attachments[0].content, "base64").compare(bytes), 0);
+  assert.equal(payload.to[0], "owner@example.invalid");
+  assert.ok(payload.text.includes(`/admin?section=orders&orderId=${id}`));
+  const noImage = orderEmail.renderOrderEmail(
+    order,
+    [item],
+    [],
+    [],
+    "New order",
+    "orders@recmamamade.com",
+    "owner@example.invalid",
+  );
+  assert.equal(noImage.attachments.length, 0);
+  assert.match(noImage.text, /No original artwork file was recorded/);
+});
+
+test("order outbox is transactional, unique per notification and excludes historical reconciliation", async () => {
+  const id = await draft();
+  await core.notify(sql, `draft:${id}`, "New draft order awaiting payment", id);
+  assert.equal((await sql`select id from commerce_order_emails where order_id=${id}`).length, 1);
+  await sql`update commerce_orders set source='stripe_history_review' where id=${id}`;
+  await core.notify(sql, `paid:${id}`, "Historical paid record", id);
+  assert.equal((await sql`select id from commerce_order_emails where order_id=${id}`).length, 1);
+  const rollbackId = await draft();
+  await assert.rejects(
+    () =>
+      sql.transaction(async (tx) => {
+        await core.notify(tx, `paid:${rollbackId}`, "Paid", rollbackId);
+        throw Error("rollback");
+      }),
+    /rollback/,
+  );
+  assert.equal(
+    (await sql`select id from commerce_order_emails where event_key=${`paid:${rollbackId}`}`)
+      .length,
+    0,
+  );
+});
+
+test("email retries reuse a frozen payload and idempotency key despite order or sender changes", async () =>
+  withOrderEmail(async () => {
+    const id = await draft();
+    let calls = [];
+    const fake = async (url, options) => {
+      calls.push({ url, body: options.body, key: options.headers["Idempotency-Key"] });
+      return calls.length === 1
+        ? new Response("unavailable", { status: 503 })
+        : Response.json({ id: "email-test-accepted" });
+    };
+    assert.equal((await orderEmail.drainOrderEmails(sql, fake, 1, id)).accepted, 0);
+    let [job] = await sql`select * from commerce_order_emails where order_id=${id}`;
+    assert.equal(job.state, "queued");
+    assert.equal(job.attempts, 1);
+    await sql`update commerce_orders set customer_name='Changed after attempt' where id=${id}`;
+    process.env.REC_ORDER_EMAIL_FROM = "different@recmamamade.com";
+    await sql`update commerce_order_emails set next_attempt_at=now() where order_id=${id}`;
+    assert.equal((await orderEmail.drainOrderEmails(sql, fake, 1, id)).accepted, 1);
+    assert.deepEqual(calls[0], calls[1]);
+    [job] = await sql`select * from commerce_order_emails where order_id=${id}`;
+    assert.equal(job.state, "accepted");
+    assert.equal(job.provider_id, "email-test-accepted");
+    assert.equal((await orderEmail.drainOrderEmails(sql, fake, 1, id)).attempted, 0);
+    assert.equal(
+      (
+        await sql`select id from commerce_audit where resource_id=${id} and action='order.email_accepted'`
+      ).length,
+      1,
+    );
+  }));
+
+test("concurrent email workers claim a message once and uncertain old deliveries require review", async () =>
+  withOrderEmail(async () => {
+    const id = await draft();
+    let calls = 0;
+    const fake = async () => {
+      calls++;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      return Response.json({ id: "email-once" });
+    };
+    await Promise.all([
+      orderEmail.drainOrderEmails(sql, fake, 1, id),
+      orderEmail.drainOrderEmails(sql, fake, 1, id),
+    ]);
+    assert.equal(calls, 1);
+    const uncertain = await draft();
+    await sql`update commerce_order_emails set state='sending',first_attempt_at=now()-interval '25 hours',lease_until=now()-interval '1 minute' where order_id=${uncertain}`;
+    assert.equal((await orderEmail.drainOrderEmails(sql, fake, 1, uncertain)).attempted, 0);
+    assert.equal(
+      (await sql`select state from commerce_order_emails where order_id=${uncertain}`)[0].state,
+      "review_required",
+    );
+  }));
+
+test("missing or unverified sender never sends and permanent provider failures remain visible", async () => {
+  const id = await draft();
+  let calls = 0;
+  const fake = async () => {
+    calls++;
+    return new Response("invalid", { status: 401 });
+  };
+  await withOrderEmail(async () => {
+    process.env.REC_ORDER_EMAIL_SENDER_VERIFIED = "false";
+    assert.equal((await orderEmail.drainOrderEmails(sql, fake, 1, id)).configured, false);
+    process.env.REC_ORDER_EMAIL_SENDER_VERIFIED = "true";
+    process.env.REC_ORDER_EMAIL_FROM = "orders@dxsresearch.com";
+    assert.equal((await orderEmail.drainOrderEmails(sql, fake, 1, id)).configured, false);
+    process.env.REC_ORDER_EMAIL_FROM = "orders@recmamamade.com";
+    assert.equal((await orderEmail.drainOrderEmails(sql, fake, 1, id)).accepted, 0);
+  });
+  assert.equal(calls, 1);
+  const [job] = await sql`select * from commerce_order_emails where order_id=${id}`;
+  assert.equal(job.state, "failed");
+  assert.equal(job.last_error, "Email provider HTTP 401");
+  const data = await read.readAdmin(
+    { section: "notifications", search: "", page: 0, status: "" },
+    owner,
+    sql,
+  );
+  assert.ok(data.notifications.some((n) => n.order_id === id && n.email_state === "failed"));
+  const limited = await read.readAdmin(
+    { section: "notifications", search: "", page: 0, status: "" },
+    manager,
+    sql,
+  );
+  assert.equal(limited.orderEmail, null);
+  assert.ok(limited.notifications.every((n) => n.email_state === null));
+});
+
+test("order-email cron rejects missing and forged credentials without exposing private messages", async () => {
+  assert.equal(
+    (
+      await orderEmail.orderEmailCron(
+        new Request("https://recmamamade.com/api/notifications/order-email"),
+      )
+    ).status,
+    401,
+  );
+  assert.equal(
+    (
+      await orderEmail.orderEmailCron(
+        new Request("https://recmamamade.com/api/notifications/order-email", {
+          headers: { authorization: "Bearer fake" },
+        }),
+      )
+    ).status,
+    401,
+  );
+});
+
+test("a real custom order and verified payment enqueue distinct once-only alerts with stored artwork and full payment references", async () => {
+  const checkout = await server.ssrLoadModule("/src/lib/commerce/checkout.server.ts");
+  const png =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aYwoAAAAASUVORK5CYII=";
+  const id = await checkout.createCheckoutOrder(
+    {
+      build: {
+        customerName: "TEST FIXTURE — Patch Buyer",
+        customerEmail: "patch@example.invalid",
+        orderType: "patch",
+        family: "112",
+        colorway: "Black",
+        leatherette: "white",
+        patchShape: "Rounded Rectangle",
+        patchSize: "medium",
+        placement: "front-center",
+        quantity: 1,
+        patchText: "Custom wording",
+        hasArtwork: true,
+        notes: "Keep original design",
+        promo: "",
+        artworkDataUrl: png,
+        checkoutRequestId: randomUUID(),
+      },
+      lineName: "TEST FIXTURE — Custom patch",
+      description: "Sandbox only",
+      unit: 5,
+      purchased: 1,
+      bonus: 0,
+      fulfilled: 1,
+      total: 5,
+    },
+    "stripe",
+    async () => null,
+  );
+  const payment = {
+    orderId: id,
+    provider: "stripe",
+    reference: "pi_test_order_email",
+    kind: "payment",
+    amount: 500,
+    fee: 45,
+    occurredAt: new Date().toISOString(),
+  };
+  await sql.transaction((tx) => core.recordPayment(tx, payment));
+  await sql.transaction((tx) => core.recordPayment(tx, payment));
+  assert.equal((await sql`select id from commerce_order_emails where order_id=${id}`).length, 2);
+  await withOrderEmail(async () => {
+    const messages = [];
+    const transport = async (_url, options) => {
+      messages.push(JSON.parse(options.body));
+      return Response.json({ id: "email-sandbox-" + messages.length });
+    };
+    assert.equal((await orderEmail.drainOrderEmails(sql, transport, 2, id)).accepted, 2);
+    const paid = messages.find((message) => message.subject.includes("New paid order"));
+    assert.ok(paid);
+    assert.match(paid.text, /Payment status: Paid/);
+    assert.match(paid.text, /Actual payments recorded: \$5.00/);
+    assert.match(paid.text, /pi_test_order_email/);
+    assert.match(paid.text, /Processor fee: \$0.45/);
+    assert.match(paid.text, /Rounded Rectangle/);
+    assert.match(paid.text, /Patch Size: medium/);
+    assert.match(paid.text, /Leatherette: white/);
+    assert.match(paid.text, /Custom wording/);
+    assert.equal(paid.attachments[0].content, png.split(",")[1]);
+    assert.ok(!paid.text.includes("No original artwork file"));
+    const { mkdirSync, writeFileSync } = await import("node:fs");
+    mkdirSync("artifacts/commerce-qa", { recursive: true });
+    writeFileSync(
+      "artifacts/commerce-qa/order-email-preview.html",
+      paid.html.replace(`cid:${paid.attachments[0].content_id}`, png),
+    );
+  });
 });

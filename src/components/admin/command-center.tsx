@@ -45,6 +45,7 @@ import {
   connectStripeEvents,
   exportAdminRecords,
   uploadProductImage,
+  retryOrderEmails,
 } from "@/lib/commerce/api";
 import {
   PERMISSIONS,
@@ -951,6 +952,40 @@ export function CommandCenter() {
                     )}
                     {section === "notifications" && (
                       <div className="cc-panel">
+                        {data.orderEmail && (
+                          <div className="cc-panel-heading">
+                            <div>
+                              <h2>Order emails</h2>
+                              <p>{data.orderEmail.recipient ?? "Delivery address needs setup"}</p>
+                              <p className="cc-help">
+                                {data.orderEmail.configured
+                                  ? "New orders and verified payments trigger an email with saved specifications, pricing and original artwork. Accepted means the email service received it; inbox delivery is not yet confirmed."
+                                  : "Sending is paused until REC Mama Made's sender domain and secure email credentials are verified. New order alerts remain queued."}
+                              </p>
+                            </div>
+                            <button
+                              className="cc-button secondary"
+                              disabled={busy || !data.orderEmail.configured}
+                              onClick={async () => {
+                                setBusy(true);
+                                setError("");
+                                try {
+                                  const result = await retryOrderEmails();
+                                  setSuccess(
+                                    `${result.accepted} email(s) accepted by the service from ${result.attempted} attempt(s). Review each alert below for pending or failed delivery.`,
+                                  );
+                                  await load();
+                                } catch (e) {
+                                  setError(errorText(e));
+                                } finally {
+                                  setBusy(false);
+                                }
+                              }}
+                            >
+                              Process queued emails
+                            </button>
+                          </div>
+                        )}
                         {data.notifications.length ? (
                           <div className="cc-records">
                             {data.notifications.map((n) => (
@@ -958,6 +993,12 @@ export function CommandCenter() {
                                 <div>
                                   <b>{n.title}</b>
                                   <small>{new Date(n.created_at).toLocaleString()}</small>
+                                  {n.email_state && (
+                                    <small>
+                                      Email: {label(n.email_state)}
+                                      {n.email_error ? ` · ${n.email_error}` : ""}
+                                    </small>
+                                  )}
                                   {n.order_id && (
                                     <button
                                       className="cc-link"

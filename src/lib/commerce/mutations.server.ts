@@ -165,6 +165,7 @@ export async function mutate(
         await tx`insert into commerce_order_items(id,order_id,product_key,title,quantity,fulfilled_quantity,unit_amount,specifications) values(${randomUUID()},${p.requestId},${p.productKey},${p.title},${p.quantity},${p.quantity},${p.unitAmount},${JSON.stringify({ instructions: p.specifications })})`;
         await reserveInventory(tx, p.requestId, actor.userId);
         await audit(tx, actor.userId, "order.draft_created", "order", p.requestId, null, { total });
+        await notify(tx, `draft:${p.requestId}`, "New draft order awaiting payment", p.requestId);
         return { id: p.requestId };
       }
       case "payment.manual": {

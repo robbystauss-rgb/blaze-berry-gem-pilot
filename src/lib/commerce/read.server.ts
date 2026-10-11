@@ -38,7 +38,10 @@ export type AdminData = {
     order_id: string | null;
     created_at: string;
     is_read: boolean;
+    email_state: string | null;
+    email_error: string | null;
   }[];
+  orderEmail: { configured: boolean; recipient: string | null } | null;
   staff: { user_id: string; role: Role; active: boolean; name: string; email: string }[];
   content: { key: string; value: string; version: number }[];
   rules: { product_key: string; inventory_id: string; units_per_item: number }[];
@@ -104,6 +107,7 @@ export async function readAdmin(
     payments: [],
     audit: [],
     notifications: [],
+    orderEmail: null,
     staff: [],
     content: [],
     rules: [],
@@ -229,9 +233,17 @@ export async function readAdmin(
       AdminData["staff"][number]
     >`select s.*,u.name,u.email from merchant_staff s join "user" u on u.id=s.user_id order by s.role,u.name`;
   if (input.section === "notifications") {
+    if (actor.role === "owner") {
+      const { orderEmailConfig } = await import("./order-email.server");
+      result.orderEmail = orderEmailConfig();
+    }
     result.notifications = await sql<
       AdminData["notifications"][number]
-    >`select n.*,r.user_id is not null as is_read from commerce_notifications n left join commerce_notification_reads r on r.notification_id=n.id and r.user_id=${actor.userId} order by n.created_at desc limit 50 offset ${input.page * 50}`;
+    >`select n.*,r.user_id is not null as is_read,
+      case when ${actor.role}='owner' then e.state else null end as email_state,
+      case when ${actor.role}='owner' then e.last_error else null end as email_error
+      from commerce_notifications n left join commerce_notification_reads r on r.notification_id=n.id and r.user_id=${actor.userId}
+      left join commerce_order_emails e on e.id=n.id order by n.created_at desc limit 50 offset ${input.page * 50}`;
     const [count] = await sql<{
       count: number;
     }>`select count(*)::int as count from commerce_notifications`;

@@ -19,7 +19,13 @@ export async function audit(
  values(${randomUUID()},${actor},${action},${type},${id},${JSON.stringify(before)},${JSON.stringify(after)})`;
 }
 export async function notify(sql: Sql, key: string, title: string, orderId: string | null = null) {
-  await sql`insert into commerce_notifications(id,event_key,title,order_id) values(${randomUUID()},${key},${title},${orderId}) on conflict(event_key) do nothing`;
+  const inserted = await sql<{
+    id: string;
+  }>`insert into commerce_notifications(id,event_key,title,order_id) values(${randomUUID()},${key},${title},${orderId}) on conflict(event_key) do nothing returning id`;
+  if (inserted.length && orderId && /^(custom|catalog|draft|paid):/.test(key)) {
+    const { queueOrderEmail } = await import("./order-email.server");
+    await queueOrderEmail(sql, inserted[0].id, key, orderId);
+  }
 }
 export const ORDER_SELECT = `select o.*, coalesce(p.paid,0)::int as paid, coalesce(p.refunded,0)::int as refunded,
  case when exists(select 1 from commerce_disputes d where d.order_id=o.id and d.state not in ('won','lost','resolved')) then 'disputed'

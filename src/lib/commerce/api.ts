@@ -238,7 +238,29 @@ export const mutateAdmin = createServerFn({ method: "POST" })
       context.bearerToken,
     );
     const { mutate } = await import("./mutations.server");
-    return mutate(data.action, data.payload, actor);
+    const result = await mutate(data.action, data.payload, actor);
+    if (["order.draft", "payment.manual"].includes(data.action)) {
+      const { tryOrderEmails } = await import("./order-email.server");
+      await tryOrderEmails();
+    }
+    return result;
+  });
+export const retryOrderEmails = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const { requireAccess } = await import("./access.server");
+    const actor = await requireAccess(context.userId, "staff", context.bearerToken);
+    const { audit } = await import("./core.server");
+    const { getSql } = await import("@/lib/db");
+    await audit(
+      await getSql(),
+      actor.userId,
+      "order.email_retry_requested",
+      "notification",
+      "order-email-queue",
+    );
+    const { drainOrderEmails } = await import("./order-email.server");
+    return drainOrderEmails();
   });
 export const invoiceAction = createServerFn({ method: "POST" })
   .middleware([authMiddleware])

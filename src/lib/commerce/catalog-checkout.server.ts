@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { getRequest } from "@tanstack/react-start/server";
 import { getSql } from "@/lib/db";
 import { stripeClient } from "./providers.server";
-import { reserveInventory, audit, orderById } from "./core.server";
+import { reserveInventory, audit, orderById, notify } from "./core.server";
 import { attachCheckout } from "./checkout.server";
 import { getSessionUser } from "@/lib/auth/verify.server";
 export async function createCatalogCheckout(data: {
@@ -23,7 +23,8 @@ export async function createCatalogCheckout(data: {
       product_title: string;
       price: number;
       options: Record<string, string>;
-    }>`select v.*,p.title as product_title from commerce_variants v join commerce_products p on p.id=v.product_id where v.id=${data.variantId} and v.active and p.state='active' and (p.publish_at is null or p.publish_at<=now()) for share of v,p`;
+      product_images: string[];
+    }>`select v.*,p.title as product_title,p.images as product_images from commerce_variants v join commerce_products p on p.id=v.product_id where v.id=${data.variantId} and v.active and p.state='active' and (p.publish_at is null or p.publish_at<=now()) for share of v,p`;
     if (!variant || variant.price <= 0) throw new Error("This product variant is not available.");
     const existing = await tx<{
       total: number;
@@ -53,9 +54,15 @@ export async function createCatalogCheckout(data: {
       return variant;
     }
     await tx`insert into commerce_orders(id,customer_user_id,customer_name,customer_email,source,subtotal,total) values(${data.requestId},${user?.id ?? null},${data.name},${data.email},'catalog_checkout',${variant.price * data.quantity},${variant.price * data.quantity})`;
-    await tx`insert into commerce_order_items(id,order_id,product_key,title,quantity,fulfilled_quantity,unit_amount,specifications) values(${randomUUID()},${data.requestId},${"variant:" + data.variantId},${variant.product_title + " · " + variant.title},${data.quantity},${data.quantity},${variant.price},${JSON.stringify({ variantId: data.variantId, title: variant.title, options: variant.options })})`;
+    await tx`insert into commerce_order_items(id,order_id,product_key,title,quantity,fulfilled_quantity,unit_amount,specifications) values(${randomUUID()},${data.requestId},${"variant:" + data.variantId},${variant.product_title + " · " + variant.title},${data.quantity},${data.quantity},${variant.price},${JSON.stringify({ variantId: data.variantId, title: variant.title, options: variant.options, productImages: variant.product_images })})`;
     await reserveInventory(tx, data.requestId, "checkout");
     await audit(tx, "checkout", "order.created", "order", data.requestId);
+    await notify(
+      tx,
+      `catalog:${data.requestId}`,
+      "New catalog order awaiting payment",
+      data.requestId,
+    );
     return variant;
   });
   const origin = process.env.PAYMENT_SITE_URL || new URL(getRequest().url).origin;
@@ -80,6 +87,8 @@ export async function createCatalogCheckout(data: {
     { idempotencyKey: `rec-catalog-checkout:${data.requestId}` },
   );
   await attachCheckout(data.requestId, "stripe", session.id);
+  const { tryOrderEmails } = await import("./order-email.server");
+  await tryOrderEmails();
   if (!session.url) throw new Error("Checkout URL was not returned.");
   return { url: session.url };
 }
