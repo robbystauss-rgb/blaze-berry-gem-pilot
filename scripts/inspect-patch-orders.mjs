@@ -7,10 +7,10 @@ const pool=new pg.Pool({connectionString:process.env.DATABASE_URL,max:1});
 const client=await pool.connect();
 try{
  await client.query("begin read only");
- const rows=await client.query("select o.id,o.number,o.created_at,o.source,i.specifications,i.artwork is not null as has_artwork,octet_length(i.artwork) as artwork_bytes,(select count(*)::int from commerce_production_files f where f.order_id=o.id) as production_files,(select coalesce(sum(p.amount),0)::int from commerce_payments p where p.order_id=o.id and p.kind='payment') as collected from commerce_orders o join commerce_order_items i on i.order_id=o.id order by o.created_at desc limit 20");
+ const rows=await client.query("select o.id,o.number,o.created_at,o.source,o.customer_name,i.quantity,i.fulfilled_quantity,i.specifications,i.artwork is not null as has_artwork,octet_length(i.artwork) as artwork_bytes,(select count(*)::int from commerce_production_files f where f.order_id=o.id) as production_files,(select coalesce(sum(p.amount),0)::int from commerce_payments p where p.order_id=o.id and p.kind='payment') as collected from commerce_orders o join commerce_order_items i on i.order_id=o.id order by o.created_at desc limit 20");
  for(const row of rows.rows){
   const s=row.specifications??{},m=s.providerMetadata??{};
-  console.log("[patch-order-inspect] "+JSON.stringify({id:row.id,number:row.number,created:row.created_at,source:row.source,paid:row.collected>0,orderType:s.orderType??m.order_type??null,shape:s.patchShape??m.shape??null,size:s.patchSize??m.size??null,material:s.leatherette??m.material??null,textDesignSaved:!!(s.patchText||(m.design&&m.design!=="uploaded-artwork")),hasArtwork:row.has_artwork,artworkBytes:row.artwork_bytes,productionFiles:row.production_files,specKeys:Object.keys(s),metadataKeys:Object.keys(m)}));
+  console.log("[patch-order-inspect] "+JSON.stringify({id:row.id,number:row.number,created:row.created_at,source:row.source,matchesCooper:/^cooper\b/i.test(row.customer_name??""),quantity:row.quantity,fulfilledQuantity:row.fulfilled_quantity,paid:row.collected>0,orderType:s.orderType??m.order_type??null,shape:s.patchShape??m.shape??null,size:s.patchSize??m.size??null,material:s.leatherette??m.material??null,textDesignSaved:!!(s.patchText||(m.design&&m.design!=="uploaded-artwork")),hasArtwork:row.has_artwork,artworkBytes:row.artwork_bytes,productionFiles:row.production_files,specKeys:Object.keys(s),metadataKeys:Object.keys(m)}));
  }
  if(process.env.STRIPE_SECRET_KEY){
   const stripe=new Stripe(process.env.STRIPE_SECRET_KEY),sessions=await stripe.checkout.sessions.list({limit:100});
@@ -20,7 +20,7 @@ try{
    if(!recItems(lines))continue;
    const m=s.metadata??{};
    const linked=await client.query("select o.id,o.number from commerce_orders o join commerce_checkouts c on c.order_id=o.id where c.provider='stripe' and c.reference=$1",[s.id]);
-   console.log("[patch-payment-inspect] "+JSON.stringify({created:new Date(s.created*1000).toISOString(),orderNumber:linked.rows[0]?.number??null,orderType:m.order_type??null,shape:m.shape??null,size:m.size??null,material:m.material??null,textDesignSaved:!!(m.design&&m.design!=="uploaded-artwork"),hasCurrentOrderLink:!!m.rec_order_id,metadataKeys:Object.keys(m)}));
+   console.log("[patch-payment-inspect] "+JSON.stringify({created:new Date(s.created*1000).toISOString(),orderNumber:linked.rows[0]?.number??null,matchesCooper:/^cooper\b/i.test(m.customer_name??s.customer_details?.name??""),orderType:m.order_type??null,shape:m.shape??null,size:m.size??null,material:m.material??null,textDesignSaved:!!(m.design&&m.design!=="uploaded-artwork"),hasCurrentOrderLink:!!m.rec_order_id,metadataKeys:Object.keys(m)}));
   }
   console.log("[patch-order-inspect] "+JSON.stringify({providerListHasMore:sessions.has_more}));
  }
