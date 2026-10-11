@@ -199,7 +199,7 @@ export function grokPwaHeadTags(appName = DEFAULT_APP_NAME, site = {}) {
     ["manifest", '<link rel="manifest" href="/__grok/manifest.webmanifest">'],
     [
       "apple-touch-icon",
-      `<link rel="apple-touch-icon" href="${escapeHtml(appleTouchIconUrl(site))}">`,
+      `<link rel="apple-touch-icon" sizes="180x180" href="${escapeHtml(appleTouchIconUrl(site))}">`,
     ],
     [
       "apple-mobile-web-app-title",
@@ -214,7 +214,11 @@ export function grokPwaHeadTags(appName = DEFAULT_APP_NAME, site = {}) {
 }
 
 function appleTouchIconUrl(site = {}) {
-  return site.pwa?.apple_touch_icon || versionedBrandAsset("/__grok/icon-180.png", site);
+  return (
+    site.pwa?.apple_touch_icon_inline_src ||
+    site.pwa?.apple_touch_icon ||
+    versionedBrandAsset("/__grok/icon-180.png", site)
+  );
 }
 
 export const GROK_EXTENSIONS_SCRIPT_SRC = "https://grok.com/grok-app-builder/extensions.js";
@@ -260,13 +264,38 @@ export function grokExtensionsHeadTags(projectId = readGrokProjectId()) {
 }
 
 export function readOgSite(cwd = process.cwd()) {
+  let site;
   try {
     const raw = readFileSync(join(cwd, OG_SITE_REL_PATH), "utf8");
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    site = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
   } catch {
     return {};
   }
+  // Bake the existing PNG into initial HTML for iOS 27's Home Screen loader.
+  // Production functions have no public filesystem; the virtual identity keeps
+  // this exact source image available to both SSR and the installation page.
+  if (site.pwa?.inline_apple_touch_icon === true) {
+    const path = site.pwa.apple_touch_icon;
+    if (typeof path !== "string" || !/^\/[a-zA-Z0-9_/-]+\.png$/.test(path)) {
+      throw new Error("Inline Apple icon must reference a local public PNG");
+    }
+    const png = readFileSync(join(cwd, "public", path.slice(1)));
+    if (
+      png.length < 24 ||
+      png.length > 256_000 ||
+      png.subarray(0, 8).toString("hex") !== "89504e470d0a1a0a" ||
+      png.readUInt32BE(16) !== 180 ||
+      png.readUInt32BE(20) !== 180
+    ) {
+      throw new Error("Inline Apple icon must be a 180x180 PNG below 256 KB");
+    }
+    site.pwa = {
+      ...site.pwa,
+      apple_touch_icon_inline_src: `data:image/png;base64,${png.toString("base64")}`,
+    };
+  }
+  return site;
 }
 
 /** Public path of an on-disk share card, or "" if neither file exists. */

@@ -6,6 +6,7 @@
   "assetVersion": "rec-floral-20261011",
   "pwa": {
     "apple_touch_icon": "/rec-mama-made-apple-touch-icon-v2.png",
+    "inline_apple_touch_icon": true,
     "background_color": "#ffffff",
     "theme_color": "#F8F6F1",
     "icons": [

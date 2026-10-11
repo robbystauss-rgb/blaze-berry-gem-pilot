@@ -12,6 +12,7 @@ import {
   isDocumentPath,
   isInstallQuery,
   publicAppHost,
+  readOgSite,
   renderWebManifest,
   resolveOgCardAsset,
   snapshotOgIdentity,
@@ -491,10 +492,63 @@ test("custom-domain installation uses the app's native PNG icon and name", () =>
   });
   const install = renderInstallPage("recmamamade.com", "/?install=1&platform=ios", site);
   for (const html of [app, install]) {
-    assert.match(html, /rel="apple-touch-icon" href="\/rec-mama-made-apple-touch-icon-v2\.png"/);
+    assert.match(
+      html,
+      /rel="apple-touch-icon" sizes="180x180" href="\/rec-mama-made-apple-touch-icon-v2\.png"/,
+    );
     assert.equal((html.match(/rel="apple-touch-icon"/g) || []).length, 1);
     assert.match(html, /name="apple-mobile-web-app-title" content="REC Mama Made"/);
     assert.doesNotMatch(html, /\{\{APPLE_TOUCH_ICON\}\}/);
+  }
+});
+
+test("REC Apple icon is embedded from the actual PNG in app and install HTML", () => {
+  const { site } = snapshotOgIdentity(TEMPLATE_ROOT);
+  const expected = readFileSync(join(TEMPLATE_ROOT, "public", site.pwa.apple_touch_icon));
+  const app = injectGrokPwaHead("<html><head></head><body>REC Mama Made</body></html>", {
+    host: "recmamamade.com",
+    site,
+  });
+  const install = renderInstallPage("recmamamade.com", "/?install=1&platform=ios", site);
+  for (const html of [app, install]) {
+    const icon = html.match(
+      /rel="apple-touch-icon" sizes="180x180" href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/,
+    );
+    assert.ok(
+      icon,
+      "the icon must be available before any client JavaScript or network image fetch",
+    );
+    assert.deepEqual(Buffer.from(icon[1], "base64"), expected);
+    assert.equal((html.match(/rel="apple-touch-icon"/g) || []).length, 1);
+  }
+  const manifest = JSON.parse(renderWebManifest("recmamamade.com", site));
+  assert.ok(manifest.icons.every((icon) => !icon.src.startsWith("data:")));
+  const injector = sharedHeadInjector({ host: "recmamamade.com", site });
+  const pieces = [];
+  for (let offset = 0; offset < app.length; offset += 4096) {
+    pieces.push(...injector.push(app.slice(offset, offset + 4096)));
+  }
+  pieces.push(...injector.flush());
+  assert.equal(
+    Buffer.concat(pieces).toString(),
+    app,
+    "streaming must not duplicate or truncate the inline image",
+  );
+});
+
+test("inline icon configuration rejects remote paths and non-PNG files", () => {
+  const root = mkdtempSync(join(tmpdir(), "grok-inline-icon-"));
+  mkdirSync(join(root, "src/lib/og"), { recursive: true });
+  mkdirSync(join(root, "public"));
+  for (const path of ["https://example.com/icon.png", "/../private.png", "/broken.png"]) {
+    writeFileSync(
+      join(root, "src/lib/og/site.json"),
+      JSON.stringify({
+        pwa: { apple_touch_icon: path, inline_apple_touch_icon: true },
+      }),
+    );
+    writeFileSync(join(root, "public/broken.png"), "not an image");
+    assert.throws(() => readOgSite(root), /Inline Apple icon/);
   }
 });
 

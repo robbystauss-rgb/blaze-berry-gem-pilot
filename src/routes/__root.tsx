@@ -5,6 +5,7 @@ import { SiteShell } from "@/components/layout/site-shell";
 import appCss from "../styles.css?url";
 import { getPublishedContent } from "@/lib/commerce/public";
 import siteIdentity from "@/lib/og/site.json";
+import { grokOgIdentity } from "virtual:grok-og-identity";
 
 const APP_NAME = "REC Mama Made";
 const BRAND_VERSION = encodeURIComponent(siteIdentity.assetVersion);
@@ -36,7 +37,9 @@ export const Route = createRootRoute({
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       {
         rel: "apple-touch-icon",
-        href: siteIdentity.pwa.apple_touch_icon,
+        sizes: "180x180",
+        href:
+          grokOgIdentity.site.pwa?.apple_touch_icon_inline_src || siteIdentity.pwa.apple_touch_icon,
       },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
