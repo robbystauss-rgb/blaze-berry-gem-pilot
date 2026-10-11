@@ -15,6 +15,8 @@ Implemented and verified in isolated development on October 11, 2026. Email send
 
 ## Reliability and security
 
+The email snapshot takes the same order lock as payment mutations, so its totals, payment ledger and shipping information agree. New-order email headings remain neutral if payment arrives before a queued alert is sent.
+
 New additive migration: `migrations/0007_order_email_notifications.sql`. It creates the email outbox and a processing index; it does not update existing customers, orders, prices, payments, artwork or inventory. Historical reconciliation is excluded from automatic email backfill.
 
 The outbox insert commits with the original order/payment notification. Sending occurs after the business transaction commits. Email outages cannot roll back orders or payment records. Concurrent workers use row locks and a short lease. Exact serialized email content and attachments are frozen before the first network attempt and retries reuse the same provider idempotency key. Temporary errors are backed off; permanent provider rejections remain visible. Uncertain deliveries older than 23 hours require provider-history review, rather than risk a duplicate outside the provider's deduplication window.

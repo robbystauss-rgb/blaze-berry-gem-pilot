@@ -63,6 +63,8 @@ export function renderOrderEmail(
   sender: string,
   recipient: string,
 ): Payload {
+  // Creation alerts can wait in the queue until after a payment arrives.
+  title = title.replace(/ awaiting payment$/, "");
   const lines = [
     "REC Mama Made",
     title,
@@ -181,7 +183,8 @@ export async function queueOrderEmail(
 }
 
 async function snapshot(sql: Sql, job: Job): Promise<Payload> {
-  const order = await orderById(sql, job.order_id);
+  // Share the payment mutation's lock so totals, ledger and shipping agree.
+  const order = await orderById(sql, job.order_id, true);
   const items = await sql<
     ItemRow & { artwork: Buffer | null }
   >`select *,artwork is not null as has_artwork from commerce_order_items where order_id=${job.order_id} order by id`;
