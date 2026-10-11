@@ -4,8 +4,10 @@ import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { SiteShell } from "@/components/layout/site-shell";
 import appCss from "../styles.css?url";
 import { getPublishedContent } from "@/lib/commerce/public";
+import siteIdentity from "@/lib/og/site.json";
 
 const APP_NAME = "REC Mama Made";
+const BRAND_VERSION = encodeURIComponent(siteIdentity.assetVersion);
 
 export const Route = createRootRoute({
   loader: () => getPublishedContent().catch(() => ({}) as Record<string, string>),
@@ -23,10 +25,15 @@ export const Route = createRootRoute({
       { name: "theme-color", content: "#F8F6F1" },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "icon", type: "image/svg+xml", href: `/favicon.svg?v=${BRAND_VERSION}` },
+      { rel: "shortcut icon", type: "image/x-icon", href: `/favicon.ico?v=${BRAND_VERSION}` },
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        href: `/__grok/icon-180.png?v=${BRAND_VERSION}`,
+      },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

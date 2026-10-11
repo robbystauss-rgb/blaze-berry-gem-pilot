@@ -13,8 +13,11 @@ export declare function renderInstallPageHtml(
   template: string,
   context?: { host?: string | null; url?: string | null },
 ): string;
-export declare function renderWebManifest(hostHeader: string | null | undefined): string;
-export declare function grokPwaHeadTags(appName?: string): Array<[string, string]>;
+export declare function renderWebManifest(
+  hostHeader: string | null | undefined,
+  site?: OgSite,
+): string;
+export declare function grokPwaHeadTags(appName?: string, site?: OgSite): Array<[string, string]>;
 export declare const GROK_EXTENSIONS_SCRIPT_SRC: string;
 export declare function readGrokProjectId(): string;
 export declare function readXCreator(): string;
@@ -30,6 +33,12 @@ export type OgSite = {
   image?: string;
   banner?: string;
   color?: string;
+  assetVersion?: string;
+  pwa?: {
+    background_color?: string;
+    theme_color?: string;
+    icons?: { src: string; sizes: string; type: string; purpose?: string }[];
+  };
 };
 
 export type GrokHeadContext = {
