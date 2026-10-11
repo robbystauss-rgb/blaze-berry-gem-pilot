@@ -60,7 +60,14 @@ test("merchant auth and additive commerce schemas are enabled while nested refer
   const migrationsDir = join(projectRoot(), "migrations");
   assert.deepEqual(
     pendingMigrations(readdirSync(migrationsDir), []).map((item) => item.name),
-    ["0001_auth.sql", "0002_commerce.sql", "0003_financial_operations.sql", "0004_owner_setup.sql"],
+    [
+      "0001_auth.sql",
+      "0002_commerce.sql",
+      "0003_financial_operations.sql",
+      "0004_owner_setup.sql",
+      "0005_operations_completion.sql",
+      "0006_provider_activation.sql",
+    ],
   );
   assert.ok(readdirSync(join(migrationsDir, "auth")).includes("0001_auth.sql"));
 });

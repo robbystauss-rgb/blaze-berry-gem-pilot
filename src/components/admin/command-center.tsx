@@ -43,8 +43,6 @@ import {
   mutateAdmin,
   invoiceAction,
   connectStripeEvents,
-  mfaAction,
-  recoveryAction,
   exportAdminRecords,
   uploadProductImage,
 } from "@/lib/commerce/api";
@@ -83,7 +81,7 @@ const NAV: { id: Section; name: string; icon: typeof Menu; permission: Permissio
     { id: "notifications", name: "Notifications", icon: Bell, permission: "orders" },
     { id: "reports", name: "Reports", icon: ChartNoAxesCombined, permission: "reports" },
     { id: "staff", name: "Staff access", icon: Users, permission: "staff" },
-    { id: "security", name: "Security", icon: ShieldCheck, permission: "security" },
+    { id: "security", name: "Account access", icon: ShieldCheck, permission: "security" },
   ];
 const DESCRIPTION: Record<Section, string> = {
   overview: "A clear view of your business, from payment to packaging.",
@@ -98,7 +96,7 @@ const DESCRIPTION: Record<Section, string> = {
   notifications: "Orders and inventory that need your attention.",
   reports: "Actual collections, refunds and your operational backlog.",
   staff: "Grant access to existing authenticated accounts.",
-  security: "Protect merchant operations with an authenticator.",
+  security: "Your signed-in account and merchant permissions.",
 };
 const errorText = (e: unknown) =>
   e instanceof Error ? e.message : "Something went wrong. Please try again.";
@@ -304,12 +302,7 @@ export function CommandCenter() {
           NAV.find((n) => n.id === section)!.permission as Permission,
         )));
   const load = useCallback(async () => {
-    if (
-      !access ||
-      !permitted ||
-      section === "security" ||
-      (access.mfaRequired && !access.mfaVerified)
-    ) {
+    if (!access || !permitted || section === "security") {
       setLoading(false);
       return;
     }
@@ -411,7 +404,6 @@ export function CommandCenter() {
         Checking secure merchant access…
       </div>
     );
-  const needsMfa = access.mfaRequired && !access.mfaVerified;
   const title = NAV.find((n) => n.id === section)?.name ?? "Overview";
   return (
     <div className="cc-shell">
@@ -536,8 +528,8 @@ export function CommandCenter() {
               {success}
             </div>
           )}
-          {needsMfa || section === "security" ? (
-            <Security access={access} refresh={refreshAccess} />
+          {section === "security" ? (
+            <AccountAccess access={access} />
           ) : !permitted ? (
             <Empty
               title="Access restricted"
@@ -1853,158 +1845,15 @@ function Reports({ data, openOrder }: { data: AdminData; openOrder: (id: string)
     </>
   );
 }
-function Security({
-  access,
-  refresh,
-}: {
-  access: Awaited<ReturnType<typeof getMerchantAccess>>;
-  refresh: () => Promise<unknown>;
-}) {
-  const [enrollment, setEnrollment] = useState<{ secret: string; uri: string } | null>(null);
-  const [codes, setCodes] = useState<string[]>([]);
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+function AccountAccess({ access }: { access: Awaited<ReturnType<typeof getMerchantAccess>> }) {
   return (
     <div className="cc-panel cc-security">
-      <h2>Authenticator verification</h2>
-      <p>
-        Privileged accounts can enroll an authenticator. Codes protect this signed-in session for
-        four hours. The server rejects reused codes and rate-limits failures.
-      </p>
-      <p>
-        {access.mfaVerified
-          ? "This session is verified."
-          : access.mfaEnabled
-            ? "Enter the current code from your authenticator."
-            : access.mfaConfigured
-              ? "Enroll an authenticator to protect merchant access."
-              : "MFA enrollment needs a server-side encryption key configured before use."}
-      </p>
-      {!access.mfaEnabled && access.mfaConfigured && (
-        <button
-          className="cc-button"
-          disabled={busy}
-          onClick={async () => {
-            setBusy(true);
-            try {
-              const result = await mfaAction({ data: { action: "enroll", code: "" } });
-              setEnrollment(result.enrollment);
-            } catch (e) {
-              setError(errorText(e));
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          Enroll authenticator
-        </button>
-      )}
-      {enrollment && (
-        <div className="cc-notice">
-          <p>Add an account in your authenticator with this setup key:</p>
-          <code>{enrollment.secret}</code>
-          <p>Issuer: REC Mama Made · Time based (TOTP), 6 digits, 30 seconds.</p>
-        </div>
-      )}
-      {(enrollment || access.mfaEnabled) && !access.mfaVerified && (
-        <form
-          className="cc-form"
-          onSubmit={async (e) => {
-            const f = formValues(e);
-            setBusy(true);
-            setError("");
-            try {
-              await mfaAction({ data: { action: "verify", code: getText(f, "code") } });
-              setEnrollment(null);
-              await refresh();
-            } catch (e) {
-              setError(errorText(e));
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <Field name="code" title="Six-digit authenticator code" required />
-          <SaveButton busy={busy} />
-        </form>
-      )}
-      {access.mfaEnabled && access.mfaVerified && (
-        <div className="cc-form">
-          <h3>Recovery codes</h3>
-          <p>
-            Save these privately. Creating a new set invalidates earlier codes. They are shown only
-            here and stored as hashes.
-          </p>
-          <button
-            className="cc-button secondary"
-            disabled={busy}
-            onClick={async () => {
-              if (
-                !window.confirm(
-                  "Replace any existing recovery codes? Save the new codes privately before leaving this screen.",
-                )
-              )
-                return;
-              setBusy(true);
-              setError("");
-              try {
-                const result = await recoveryAction({ data: { action: "generate", code: "" } });
-                setCodes(result.codes);
-              } catch (e) {
-                setError(errorText(e));
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            Create recovery codes
-          </button>
-          {codes.length > 0 && (
-            <div className="cc-notice">
-              <p>Store these outside your phone. Leaving this page clears this display.</p>
-              {codes.map((code) => (
-                <p key={code}>
-                  <code>{code}</code>
-                </p>
-              ))}
-              <button className="cc-button secondary" onClick={() => setCodes([])}>
-                Clear displayed codes
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-      {access.mfaEnabled && !access.mfaVerified && (
-        <form
-          className="cc-form"
-          onSubmit={async (e) => {
-            const f = formValues(e);
-            setBusy(true);
-            setError("");
-            try {
-              await recoveryAction({ data: { action: "recover", code: getText(f, "recovery") } });
-              await refresh();
-            } catch (e) {
-              setError(errorText(e));
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <h3>Lost your authenticator?</h3>
-          <p>
-            Use a saved recovery code to invalidate the old device, all recovery codes and verified
-            sessions. You must enroll a new authenticator before merchant access resumes.
-          </p>
-          <Field name="recovery" title="Recovery code" required />
-          <SaveButton busy={busy} />
-        </form>
-      )}
-      {error && (
-        <p className="cc-error" role="alert">
-          {error}
-        </p>
-      )}
+      <h2>Account access</h2>
+      <p>You are signed in with the {label(access.role)} role.</p>
+      <p>Merchant actions are limited to the permissions assigned to your account.</p>
+      <Link to="/account" className="cc-button secondary">
+        Open account
+      </Link>
     </div>
   );
 }

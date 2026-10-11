@@ -1,5 +1,7 @@
 # Operations completion — 2026-10-08
 
+**Access update — 2026-10-11:** The owner requested removal of Authenticator. [Authenticator removal](AUTHENTICATOR_REMOVAL.md) supersedes the MFA requirements below; ordinary Better Auth sign-in and server-side roles now govern access. The earlier implementation history is retained.
+
 The owner authorized finishing and publishing the remaining work. This extends the initial implementation and release reports; it does not claim that unavailable business inputs or external verification are complete.
 
 ## Additional implemented operations

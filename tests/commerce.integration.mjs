@@ -2,9 +2,10 @@ import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID, randomBytes, createHash } from "node:crypto";
 import { createServer } from "vite";
+import { requestHandler } from "@tanstack/start-server-core/request-response";
 if (process.env.DATABASE_URL || process.env.STRIPE_SECRET_KEY || process.env.PAYPAL_CLIENT_SECRET)
   throw Error("Integration tests require isolated local storage and no provider credentials.");
-let server, sql, core, mutations, read, webhooks, mfa;
+let server, sql, core, mutations, read, webhooks;
 const owner = { userId: "test-owner", role: "owner" },
   manager = { userId: "test-manager", role: "manager" },
   production = { userId: "test-production", role: "production" };
@@ -16,7 +17,6 @@ before(async () => {
   mutations = await server.ssrLoadModule("/src/lib/commerce/mutations.server.ts");
   read = await server.ssrLoadModule("/src/lib/commerce/read.server.ts");
   webhooks = await server.ssrLoadModule("/src/lib/commerce/webhooks.server.ts");
-  mfa = await server.ssrLoadModule("/src/lib/commerce/access.server.ts");
   for (const actor of [owner, manager, production]) {
     await sql`insert into "user"(id,name,email,"emailVerified","createdAt","updatedAt") values(${actor.userId},${actor.role},${actor.userId + "@example.invalid"},true,now(),now())`;
     await sql`insert into merchant_staff(user_id,role) values(${actor.userId},${actor.role})`;
@@ -25,6 +25,161 @@ before(async () => {
 after(async () => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   await server?.close();
+});
+async function signedInFixture(role = "customer") {
+  const { auth } = await server.ssrLoadModule("/src/lib/auth/server.ts");
+  const email = `auth-regression-${randomUUID()}@example.invalid`;
+  const password = randomBytes(24).toString("base64url");
+  const request = (path, body) =>
+    new Request(`http://localhost:8080/api/auth/${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Origin: "http://localhost:8080" },
+      body: JSON.stringify(body),
+    });
+  const registered = await auth.handler(
+    request("sign-up/email", { name: "Auth regression", email, password }),
+  );
+  assert.equal(registered.status, 200);
+  const { user } = await registered.json();
+  if (role !== "customer")
+    await sql`insert into merchant_staff(user_id,role) values(${user.id},${role})`;
+  const login = await auth.handler(request("sign-in/email", { email, password }));
+  assert.equal(login.status, 200);
+  const cookie = login.headers
+    .getSetCookie()
+    .map((value) => value.split(";")[0])
+    .join("; ");
+  assert.ok(cookie.includes("__Host-grok-auth.session_token="));
+  const headers = new Headers({ cookie });
+  const session = await auth.api.getSession({ headers });
+  assert.equal(session.user.id, user.id);
+  return { user, headers, token: session.session.token };
+}
+async function inSession(headers, work) {
+  let result, failure;
+  const handle = requestHandler(async () => {
+    try {
+      result = await work();
+    } catch (error) {
+      failure = error;
+    }
+    return new Response(null, { status: 204 });
+  });
+  await handle(new Request("http://localhost:8080/admin", { headers }), {});
+  if (failure) throw failure;
+  return result;
+}
+test("ordinary login grants enrolled owners access without altering old factors or requiring proof", async () => {
+  const { user, headers } = await signedInFixture("owner");
+  const { requireAccess } = await server.ssrLoadModule("/src/lib/commerce/access.server.ts");
+  const old = process.env.ADMIN_REQUIRE_MFA;
+  process.env.ADMIN_REQUIRE_MFA = "true";
+  try {
+    await sql`insert into commerce_mfa(user_id,secret_encrypted,enabled,failures,blocked_until) values(${user.id},'untouched-legacy-secret',true,5,now()+interval '1 day')`;
+    await sql`insert into commerce_mfa_sessions(session_hash,user_id,expires_at) values(${"expired-" + user.id},${user.id},now()-interval '1 day')`;
+    const digest = createHash("sha256").update(randomBytes(32)).digest("hex");
+    await sql`insert into commerce_mfa_recovery(user_id,digest) values(${user.id},${digest})`;
+    const before = await sql`select * from commerce_mfa where user_id=${user.id}`;
+    const actor = await inSession(headers, () => requireAccess(user.id, "finance"));
+    assert.deepEqual(actor, { userId: user.id, role: "owner" });
+    assert.deepEqual(await sql`select * from commerce_mfa where user_id=${user.id}`, before);
+    assert.equal(
+      (await sql`select digest from commerce_mfa_recovery where user_id=${user.id}`)[0].digest,
+      digest,
+    );
+    assert.equal(
+      (await sql`select * from commerce_mfa_sessions where user_id=${user.id} and expires_at>now()`)
+        .length,
+      0,
+    );
+    await sql`update merchant_staff set active=false where user_id=${user.id}`;
+    await assert.rejects(
+      () => inSession(headers, () => requireAccess(user.id, "orders")),
+      /Access denied/,
+    );
+  } finally {
+    if (old === undefined) delete process.env.ADMIN_REQUIRE_MFA;
+    else process.env.ADMIN_REQUIRE_MFA = old;
+  }
+});
+test("primary sessions and roles reject anonymous, forged, expired, customer and cross-account merchant access", async () => {
+  const { requireAccess } = await server.ssrLoadModule("/src/lib/commerce/access.server.ts");
+  const { auth } = await server.ssrLoadModule("/src/lib/auth/server.ts");
+  const customer = await signedInFixture();
+  const managerSession = await signedInFixture("manager");
+  const productionSession = await signedInFixture("production");
+  await assert.rejects(
+    () => inSession(new Headers(), () => requireAccess(owner.userId, "orders")),
+    /Unauthorized/,
+  );
+  await assert.rejects(
+    () =>
+      inSession(new Headers({ cookie: "__Host-grok-auth.session_token=forged" }), () =>
+        requireAccess(owner.userId, "orders"),
+      ),
+    /Unauthorized/,
+  );
+  await assert.rejects(
+    () => inSession(customer.headers, () => requireAccess(customer.user.id, "orders")),
+    /Access denied/,
+  );
+  await assert.rejects(
+    () => inSession(customer.headers, () => requireAccess(owner.userId, "orders")),
+    /Unauthorized/,
+  );
+  assert.equal(
+    (await inSession(managerSession.headers, () => requireAccess(managerSession.user.id, "orders")))
+      .role,
+    "manager",
+  );
+  await assert.rejects(
+    () => inSession(managerSession.headers, () => requireAccess(managerSession.user.id, "finance")),
+    /Access denied/,
+  );
+  assert.equal(
+    (
+      await inSession(productionSession.headers, () =>
+        requireAccess(productionSession.user.id, "production"),
+      )
+    ).role,
+    "production",
+  );
+  await assert.rejects(
+    () =>
+      inSession(productionSession.headers, () => requireAccess(productionSession.user.id, "staff")),
+    /Access denied/,
+  );
+  await sql`update session set "expiresAt"=now()-interval '1 day' where token=${managerSession.token}`;
+  // Drop the five-minute signed cache to exercise authoritative expired-session validation.
+  const tokenOnly = new Headers({
+    cookie: managerSession.headers
+      .get("cookie")
+      .split("; ")
+      .filter((value) => value.startsWith("__Host-grok-auth.session_token="))
+      .join("; "),
+  });
+  await assert.rejects(
+    () => inSession(tokenOnly, () => requireAccess(managerSession.user.id, "orders")),
+    /Unauthorized/,
+  );
+  const logout = await auth.handler(
+    new Request("http://localhost:8080/api/auth/sign-out", {
+      method: "POST",
+      headers: new Headers({
+        cookie: customer.headers.get("cookie"),
+        Origin: "http://localhost:8080",
+      }),
+    }),
+  );
+  assert.equal(logout.status, 200);
+  const signedOut = new Headers({
+    cookie: customer.headers
+      .get("cookie")
+      .split("; ")
+      .filter((value) => value.startsWith("__Host-grok-auth.session_token="))
+      .join("; "),
+  });
+  assert.equal(await auth.api.getSession({ headers: signedOut }), null);
 });
 async function draft(extra = {}) {
   return (
@@ -360,26 +515,6 @@ test("failed webhook transaction rolls back event marker so retry can succeed", 
   valid = true;
   await webhooks.processStripeEvent(event, stripe);
   assert.equal((await core.orderById(sql, id)).paid, 6000);
-});
-test("MFA secret encryption, correct TOTP, reused codes and persistent failure lockout", async () => {
-  process.env.ADMIN_MFA_ENCRYPTION_KEY = "1".repeat(64);
-  const enrollment = await sql.transaction((tx) => mfa.enrollMfa(tx, owner.userId));
-  const counter = Math.floor(Date.now() / 30000);
-  const code = mfa.totp(enrollment.secret, counter);
-  assert.equal(
-    await sql.transaction((tx) => mfa.verifyMfa(tx, owner.userId, code, "test-session")),
-    true,
-  );
-  assert.equal(
-    await sql.transaction((tx) => mfa.verifyMfa(tx, owner.userId, code, "another-session")),
-    false,
-  );
-  for (let i = 0; i < 5; i++)
-    await sql.transaction((tx) => mfa.verifyMfa(tx, owner.userId, "xxxxxx", "test-session"));
-  const [row] = await sql`select * from commerce_mfa where user_id=${owner.userId}`;
-  assert.ok(row.blocked_until);
-  assert.ok(!row.secret_encrypted.includes(enrollment.secret));
-  delete process.env.ADMIN_MFA_ENCRYPTION_KEY;
 });
 test("invoice review/create/send/resend uses one branded provider invoice and records no email-delivery claim", async () => {
   process.env.STRIPE_SECRET_KEY = "sk_test_isolated_mock";
@@ -1064,59 +1199,6 @@ test("production files preserve original artwork, enforce assignment and reject 
   assert.equal(detail.productionFiles.length, 1);
   assert.deepEqual(detail.items, before);
   assert.equal(detail.productionFiles[0].actor_id, owner.userId);
-});
-
-test("recovery codes are hashed, replace older sets, invalidate lost-device proofs and cannot be replayed", async () => {
-  const old = process.env.ADMIN_MFA_ENCRYPTION_KEY;
-  process.env.ADMIN_MFA_ENCRYPTION_KEY = randomBytes(32).toString("hex");
-  try {
-    await sql`delete from commerce_mfa where user_id=${manager.userId}`;
-    const enrollment = await sql.transaction((tx) => mfa.enrollMfa(tx, manager.userId));
-    assert.equal(
-      await sql.transaction((tx) =>
-        mfa.verifyMfa(
-          tx,
-          manager.userId,
-          mfa.totp(enrollment.secret, Math.floor(Date.now() / 30000)),
-          "test-recovery-session",
-        ),
-      ),
-      true,
-    );
-    const first = await sql.transaction((tx) => mfa.createRecoveryCodes(tx, manager.userId));
-    const second = await sql.transaction((tx) => mfa.createRecoveryCodes(tx, manager.userId));
-    const hashes =
-      await sql`select digest from commerce_mfa_recovery where user_id=${manager.userId}`;
-    assert.equal(hashes.length, 8);
-    assert.ok(hashes.every((r) => !second.includes(r.digest) && r.digest.length === 64));
-    assert.equal(
-      await sql.transaction((tx) => mfa.recoverMfa(tx, manager.userId, first[0])),
-      false,
-    );
-    assert.equal(
-      await sql.transaction((tx) => mfa.recoverMfa(tx, manager.userId, second[0])),
-      true,
-    );
-    assert.equal(
-      await sql.transaction((tx) => mfa.recoverMfa(tx, manager.userId, second[0])),
-      false,
-    );
-    assert.equal(
-      (await sql`select * from commerce_mfa_sessions where user_id=${manager.userId}`).length,
-      0,
-    );
-    assert.equal(
-      (await sql`select enabled from commerce_mfa where user_id=${manager.userId}`)[0].enabled,
-      false,
-    );
-    assert.equal(
-      (await sql`select * from commerce_mfa_recovery where user_id=${manager.userId}`).length,
-      0,
-    );
-  } finally {
-    if (old === undefined) delete process.env.ADMIN_MFA_ENCRYPTION_KEY;
-    else process.env.ADMIN_MFA_ENCRYPTION_KEY = old;
-  }
 });
 
 test("complete filtered exports span pages, retain provider references, prevent formula execution and enforce section permissions", async () => {

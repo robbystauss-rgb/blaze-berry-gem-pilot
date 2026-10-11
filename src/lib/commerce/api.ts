@@ -122,21 +122,10 @@ export const uploadProductImage = createServerFn({ method: "POST" })
 export const getMerchantAccess = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const { membership, sessionHash } = await import("./access.server");
-    const { getSql } = await import("@/lib/db");
+    const { membership } = await import("./access.server");
     const actor = await membership(context.userId, context.bearerToken);
-    const sql = await getSql();
-    const [mfa] = await sql<{
-      enabled: boolean;
-    }>`select enabled from commerce_mfa where user_id=${context.userId}`;
-    const verified =
-      await sql`select session_hash from commerce_mfa_sessions where user_id=${context.userId} and session_hash=${sessionHash(context.bearerToken)} and expires_at>now()`;
     return {
       ...actor,
-      mfaEnabled: !!mfa?.enabled,
-      mfaRequired: process.env.ADMIN_REQUIRE_MFA === "true" || !!mfa?.enabled,
-      mfaVerified: !!verified.length,
-      mfaConfigured: !!process.env.ADMIN_MFA_ENCRYPTION_KEY,
       storage: process.env.DATABASE_URL ? "postgres" : "ephemeral development database",
     };
   });
@@ -263,49 +252,6 @@ export const invoiceAction = createServerFn({ method: "POST" })
     }
     const { manageInvoice } = await import("./invoices.server");
     return manageInvoice(data.orderId, data.action, context.userId);
-  });
-export const mfaAction = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
-  .validator(
-    z.object({ action: z.enum(["enroll", "verify"]), code: z.string().max(6).default("") }),
-  )
-  .handler(async ({ data, context }) => {
-    const { membership, enrollMfa, verifyMfa, sessionHash } = await import("./access.server");
-    const { getSql } = await import("@/lib/db");
-    await membership(context.userId, context.bearerToken);
-    const sql = await getSql();
-    if (data.action === "enroll")
-      return {
-        enrollment: await sql.transaction((tx) => enrollMfa(tx, context.userId)),
-        verified: false,
-      };
-    const verified = await sql.transaction((tx) =>
-      verifyMfa(tx, context.userId, data.code, sessionHash(context.bearerToken)),
-    );
-    if (!verified)
-      throw new Error("Invalid or reused code. After five failures, wait five minutes.");
-    return { enrollment: null, verified };
-  });
-
-export const recoveryAction = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
-  .validator(
-    z.object({ action: z.enum(["generate", "recover"]), code: z.string().max(40).default("") }),
-  )
-  .handler(async ({ data, context }) => {
-    const { membership, requireAccess, createRecoveryCodes, recoverMfa } =
-      await import("./access.server");
-    const { getSql } = await import("@/lib/db");
-    await membership(context.userId, context.bearerToken);
-    const sql = await getSql();
-    if (data.action === "generate") {
-      await requireAccess(context.userId, "production", context.bearerToken);
-      return { codes: await sql.transaction((tx) => createRecoveryCodes(tx, context.userId)) };
-    }
-    const recovered = await sql.transaction((tx) => recoverMfa(tx, context.userId, data.code));
-    if (!recovered)
-      throw new Error("Invalid recovery code. After five failures, wait five minutes.");
-    return { codes: [] as string[] };
   });
 export const uploadProductionFile = createServerFn({ method: "POST" })
   .middleware([authMiddleware])

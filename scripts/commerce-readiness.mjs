@@ -7,13 +7,13 @@ if (process.env.REC_OPERATIONS_INSPECT !== "approved")
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 1 });
 try {
   const owner = await pool.query(
-    "select count(*)::int as owners,count(*) filter(where exists(select 1 from commerce_mfa m where m.user_id=s.user_id and m.enabled))::int as protected from merchant_staff s where s.active and s.role='owner'",
+    "select count(*)::int as owners from merchant_staff s where s.active and s.role='owner'",
   );
   const counts = await pool.query(
     "select (select count(*)::int from commerce_orders) as orders,(select count(*)::int from commerce_payments) as receipts,(select count(*)::int from commerce_inventory where on_hand is not null) as counted_inventory",
   );
   console.log(
-    `[operations-readiness] owners=${owner.rows[0].owners} enrolled_owners=${owner.rows[0].protected} orders=${counts.rows[0].orders} receipts=${counts.rows[0].receipts} counted_inventory=${counts.rows[0].counted_inventory}`,
+    `[operations-readiness] owners=${owner.rows[0].owners} orders=${counts.rows[0].orders} receipts=${counts.rows[0].receipts} counted_inventory=${counts.rows[0].counted_inventory}`,
   );
 } finally {
   await pool.end();

@@ -16,9 +16,8 @@ try {
   const { getSql } = await server.ssrLoadModule("/src/lib/db.ts"),
     sql = await getSql();
   const [owner] =
-    await sql`select s.user_id from merchant_staff s join "user" u on u.id=s.user_id join commerce_mfa m on m.user_id=s.user_id and m.enabled where s.active and s.role='owner' and lower(u.email)=lower(${process.env.REC_OWNER_INVITE_EMAIL ?? ""})`;
-  if (!owner)
-    throw Error("No enrolled invited owner is available to attribute approved operations.");
+    await sql`select s.user_id from merchant_staff s join "user" u on u.id=s.user_id where s.active and s.role='owner' and lower(u.email)=lower(${process.env.REC_OWNER_INVITE_EMAIL ?? ""})`;
+  if (!owner) throw Error("No active invited owner is available to attribute approved operations.");
   const actor = { userId: owner.user_id, role: "owner" };
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   if (action !== "history") {

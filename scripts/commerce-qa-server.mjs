@@ -10,6 +10,8 @@ if (
   process.env.PAYPAL_CLIENT_SECRET
 )
   throw Error("QA server refuses persistent databases, production, and payment credentials.");
+// Deliberately retain the obsolete deployment flag to test that it cannot gate access.
+process.env.ADMIN_REQUIRE_MFA = "true";
 const ownerSetupToken = randomBytes(32).toString("base64url");
 process.env.REC_OWNER_INVITE_SHA256 = createHash("sha256").update(ownerSetupToken).digest("hex");
 process.env.REC_OWNER_INVITE_EMAIL = "qa-invited-owner@example.invalid";
@@ -36,6 +38,11 @@ for (const role of ["owner", "manager", "production", "customer"]) {
   users[role] = { email, password, id: payload.user.id };
   if (role !== "customer")
     await sql`insert into merchant_staff(user_id,role) values(${payload.user.id},${role})`;
+}
+// Previously enrolled and locked-out users must work with ordinary login.
+for (const role of ["owner", "customer"]) {
+  await sql`insert into commerce_mfa(user_id,secret_encrypted,enabled,failures,blocked_until) values(${users[role].id},'unused-legacy-fixture',true,5,now()+interval '1 day')`;
+  await sql`insert into commerce_mfa_sessions(session_hash,user_id,expires_at) values(${"expired-" + role},${users[role].id},now()-interval '1 day')`;
 }
 const actor = { userId: users.owner.id, role: "owner" };
 const { id: orderId } = await mutate(

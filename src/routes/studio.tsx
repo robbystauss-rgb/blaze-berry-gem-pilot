@@ -14,8 +14,6 @@ export const Route = createFileRoute("/studio")({
       return await requireStudioAccess();
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
-      if (message.includes("MFA required"))
-        throw redirect({ to: "/admin", search: { section: "security" } });
       if (message.includes("Unauthorized")) throw redirect({ to: "/login" });
       if (message.includes("Access denied")) throw redirect({ to: "/account" });
       throw error;

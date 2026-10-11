@@ -24,7 +24,7 @@ function OwnerSetup() {
   }, []);
   const claim = async () => {
     await acceptOwnerSetup({ data: { token } });
-    window.location.assign("/admin?section=security");
+    window.location.assign("/admin");
   };
   return (
     <section className="site-container page-top-space page-bottom-space">
@@ -134,10 +134,7 @@ function OwnerSetup() {
                       : "Create account and activate owner access"}
                 </button>
                 {!invite.hasAccount && (
-                  <p className="text-sm text-muted">
-                    Choose at least 12 characters. After setup, enroll your authenticator in
-                    Security.
-                  </p>
+                  <p className="text-sm text-muted">Choose at least 12 characters.</p>
                 )}
               </form>
             )}
