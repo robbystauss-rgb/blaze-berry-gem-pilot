@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, Menu, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { useStudio } from "@/lib/studio-store";
 import { cn } from "@/lib/utils";
 import { getPublishedContent } from "@/lib/commerce/public";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { FeaturedProducts } from "./featured-products";
 
 const LINKS = [
@@ -17,6 +18,7 @@ const LINKS = [
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user } = useCurrentUserState();
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState<Record<string, string>>({});
   useEffect(() => {
@@ -126,6 +128,18 @@ export function SiteShell({ children }: { children: ReactNode }) {
             >
               {open ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
+            <Link
+              to={user ? "/account" : "/login"}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "size-11 shrink-0 px-0 sm:w-auto sm:px-4",
+              )}
+              aria-label={user ? "My account" : "Sign in"}
+              title={user ? "My account" : "Sign in"}
+            >
+              <UserRound className="size-5" aria-hidden="true" />
+              <span className="hidden sm:inline">{user ? "My account" : "Sign in"}</span>
+            </Link>
           </div>
         </div>
 
