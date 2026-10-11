@@ -5,11 +5,12 @@
   "image": "/og.jpg",
   "assetVersion": "rec-floral-20261011",
   "pwa": {
+    "apple_touch_icon": "/rec-mama-made-apple-touch-icon-v2.png",
     "background_color": "#ffffff",
     "theme_color": "#F8F6F1",
     "icons": [
       {
-        "src": "/__grok/icon-180.png?v=rec-floral-20261011",
+        "src": "/rec-mama-made-apple-touch-icon-v2.png",
         "sizes": "180x180",
         "type": "image/png"
       },

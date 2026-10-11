@@ -25,14 +25,18 @@ export const Route = createRootRoute({
       { name: "theme-color", content: "#F8F6F1" },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: `/favicon.svg?v=${BRAND_VERSION}` },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "192x192",
+        href: `/icon-192.png?v=${BRAND_VERSION}`,
+      },
       { rel: "shortcut icon", type: "image/x-icon", href: `/favicon.ico?v=${BRAND_VERSION}` },
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       {
         rel: "apple-touch-icon",
-        sizes: "180x180",
-        href: `/__grok/icon-180.png?v=${BRAND_VERSION}`,
+        href: siteIdentity.pwa.apple_touch_icon,
       },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },

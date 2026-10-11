@@ -149,9 +149,10 @@ export function stripInstallParams(url) {
   return rest ? `${path}?${rest}` : path;
 }
 
-export function renderInstallPageHtml(template, { host, url } = {}) {
+export function renderInstallPageHtml(template, { host, url, site = {} } = {}) {
   return String(template)
-    .replaceAll("{{APP_NAME}}", escapeHtml(appNameFromHost(host)))
+    .replaceAll("{{APP_NAME}}", escapeHtml(resolveOgTitle(site, DEFAULT_APP_NAME, host)))
+    .replaceAll("{{APPLE_TOUCH_ICON}}", escapeHtml(appleTouchIconUrl(site)))
     .replaceAll("{{APP_URL}}", escapeHtml(stripInstallParams(url)));
 }
 
@@ -198,7 +199,7 @@ export function grokPwaHeadTags(appName = DEFAULT_APP_NAME, site = {}) {
     ["manifest", '<link rel="manifest" href="/__grok/manifest.webmanifest">'],
     [
       "apple-touch-icon",
-      `<link rel="apple-touch-icon" href="${escapeHtml(versionedBrandAsset("/__grok/icon-180.png", site))}">`,
+      `<link rel="apple-touch-icon" href="${escapeHtml(appleTouchIconUrl(site))}">`,
     ],
     [
       "apple-mobile-web-app-title",
@@ -210,6 +211,10 @@ export function grokPwaHeadTags(appName = DEFAULT_APP_NAME, site = {}) {
     ],
     ["theme-color", '<meta name="theme-color" content="#000000">'],
   ];
+}
+
+function appleTouchIconUrl(site = {}) {
+  return site.pwa?.apple_touch_icon || versionedBrandAsset("/__grok/icon-180.png", site);
 }
 
 export const GROK_EXTENSIONS_SCRIPT_SRC = "https://grok.com/grok-app-builder/extensions.js";

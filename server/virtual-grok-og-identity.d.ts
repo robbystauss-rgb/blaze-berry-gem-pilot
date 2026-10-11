@@ -10,6 +10,7 @@ declare module "virtual:grok-og-identity" {
       color?: string;
       assetVersion?: string;
       pwa?: {
+        apple_touch_icon?: string;
         background_color?: string;
         theme_color?: string;
         icons?: { src: string; sizes: string; type: string; purpose?: string }[];

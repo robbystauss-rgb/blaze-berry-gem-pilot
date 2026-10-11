@@ -480,6 +480,24 @@ test("renders the manifest with the per-app name", () => {
   assert.equal(manifest.icons[0].src, "/__grok/icon-180.png");
 });
 
+test("custom-domain installation uses the app's native PNG icon and name", () => {
+  const site = {
+    title: "REC Mama Made",
+    pwa: { apple_touch_icon: "/rec-mama-made-apple-touch-icon-v2.png" },
+  };
+  const app = injectGrokPwaHead("<html><head></head><body></body></html>", {
+    host: "recmamamade.com",
+    site,
+  });
+  const install = renderInstallPage("recmamamade.com", "/?install=1&platform=ios", site);
+  for (const html of [app, install]) {
+    assert.match(html, /rel="apple-touch-icon" href="\/rec-mama-made-apple-touch-icon-v2\.png"/);
+    assert.equal((html.match(/rel="apple-touch-icon"/g) || []).length, 1);
+    assert.match(html, /name="apple-mobile-web-app-title" content="REC Mama Made"/);
+    assert.doesNotMatch(html, /\{\{APPLE_TOUCH_ICON\}\}/);
+  }
+});
+
 // Tripwires: the deployed-app path only works if Nitro scans server/ — an
 // accidental edit that drops serverDir or the middleware file would otherwise
 // fail silently (published apps would just render the app for ?install=1).

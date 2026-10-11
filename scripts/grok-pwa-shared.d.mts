@@ -11,7 +11,7 @@ export declare function acceptsHtml(accept: string | null | undefined): boolean;
 export declare function stripInstallParams(url: string | null | undefined): string;
 export declare function renderInstallPageHtml(
   template: string,
-  context?: { host?: string | null; url?: string | null },
+  context?: { host?: string | null; url?: string | null; site?: OgSite },
 ): string;
 export declare function renderWebManifest(
   hostHeader: string | null | undefined,
@@ -35,6 +35,7 @@ export type OgSite = {
   color?: string;
   assetVersion?: string;
   pwa?: {
+    apple_touch_icon?: string;
     background_color?: string;
     theme_color?: string;
     icons?: { src: string; sizes: string; type: string; purpose?: string }[];
