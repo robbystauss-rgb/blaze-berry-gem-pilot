@@ -13,6 +13,7 @@ import { chromium } from "playwright";
 const baseUrl = process.argv[2] || "http://127.0.0.1:8080";
 const suffix = process.argv[3] || "local";
 const smokeMode = process.env.CROWN_QA_SMOKE === "1";
+const representative=process.env.CROWN_QA_REPRESENTATIVE==='1';
 const root = resolve(import.meta.dirname, "..");
 const screenDir = resolve(root, "screenshots/crown-qa", suffix);
 const artifactDir = resolve(root, "artifacts/crown-qa", suffix);
@@ -27,7 +28,7 @@ const records = manifest.records.map((record) => {
   assert.ok(color, `calibration identifies exact catalog colorway ${record.colorway}`);
   return { ...record, colorwayId: record.colorway, colorway: color.officialName };
 });
-const canonical = { small: 0.32, medium: 0.42, large: 0.52 };
+const canonical = { small: 2.5 / 7.5, medium: 3 / 7.5, large: 3.5 / 7.5 };
 const sizes = Object.keys(canonical);
 const models = ["112", "112FP", "112FPR", "112P", "112PM", "112PFP", "168", "168P", "256", "256P"];
 const pixelTolerance = 0.75;
@@ -103,11 +104,11 @@ async function ready(page, expectedRecord) {
     const image = preview?.querySelector(":scope > img");
     return preview?.dataset.hatPreview === model && preview?.dataset.colorway === color &&
       preview?.dataset.calibration === calibration && preview?.dataset.imageRect !== "loading" &&
-      image?.complete && image?.naturalWidth > 0 && overlay && overlay.querySelector("img")?.complete;
+      image?.complete && image?.naturalWidth > 0 && overlay && overlay.querySelector("img")?.complete && overlay.querySelector("img")?.dataset.engravingReady==='true';
   }, { model: expectedRecord.modelId, color: expectedRecord.colorway, calibration: expectedRecord.id });
   await page.waitForTimeout(270); // Let the unchanged existing patch-pop transition finish.
 }
-async function geometry(page, expectedSize, expectedAspect = 1.35) {
+async function geometry(page, expectedSize, _expectedAspect = 1.5) {
   const value = await page.locator("[data-hat-preview]").evaluate((preview) => {
     const patch = preview.querySelector("[data-patch-overlay]");
     const art = patch.querySelector("img");
@@ -118,6 +119,7 @@ async function geometry(page, expectedSize, expectedAspect = 1.35) {
       calibrationId: preview.dataset.calibration,
       crown: JSON.parse(preview.dataset.crownBounds), image: JSON.parse(preview.dataset.imageRect),
       anchor: JSON.parse(patch.dataset.patchAnchor), size: patch.dataset.patchSize,
+      physical: JSON.parse(patch.dataset.physicalInches),
       width: frame.width, height: frame.height, center: { x: frame.x + frame.width / 2, y: frame.y + frame.height / 2 },
       preview: { x: preview.getBoundingClientRect().x, y: preview.getBoundingClientRect().y },
       artwork: { width: artwork.width, height: artwork.height, naturalWidth: art.naturalWidth, naturalHeight: art.naturalHeight, src: art.src },
@@ -127,8 +129,8 @@ async function geometry(page, expectedSize, expectedAspect = 1.35) {
     };
   });
   assert.equal(value.size, expectedSize, "selected size survives selection");
-  close(value.width, value.crown.width * value.image.width * canonical[expectedSize] * value.zoomScale, pixelTolerance, "patch / crown width");
-  close(value.height, value.width / expectedAspect, pixelTolerance, "patch silhouette aspect");
+  close(value.width, value.crown.width * value.image.width * (value.physical.width/7.5) * value.zoomScale, pixelTolerance, "physical patch / estimated crown width");
+  close(value.height, value.width / (value.physical.width/value.physical.height), pixelTolerance, "physical patch silhouette aspect");
   close(value.artwork.naturalWidth / value.artwork.naturalHeight, 2, 0.001, "uploaded source aspect");
   close(value.artwork.width / value.artwork.height, 2, 0.02, "rendered artwork aspect");
   value.artwork.contentHash = createHash("sha256").update(value.artwork.src).digest("hex");
@@ -186,17 +188,43 @@ try {
   await setup(page, png);
   const originAnchor = JSON.parse(await page.locator("[data-patch-overlay]").getAttribute("data-patch-anchor"));
   anchorClose(originAnchor, { x: 0.5, y: 0.5 });
+  if (process.env.CROWN_QA_SHAPES_ONLY === "1") {
+    for (const [width, height] of [[1280, 800], [390, 844]]) {
+      await page.setViewportSize({ width, height });
+      for (const model of ["112", "112FP", "256"]) {
+        const record = records.find((r) => r.modelId === model);
+        await chooseModel(page, model);
+        await chooseColor(page, record.colorway);
+        for (const [shape, size, inches] of [["Rounded Rectangle", "small", [2.5, 1.5]], ["Rounded Rectangle", "medium", [3, 2]], ["Circle", "medium", [2.5, 2.5]]]) {
+          await step(page, "Shape");
+          await page.getByRole("button", { name: new RegExp(`^${shape}\\s`) }).click();
+          await chooseSize(page, size);
+          await ready(page, record);
+          const result = await geometry(page, size);
+          assert.deepEqual(result.physical, { width: inches[0], height: inches[1] });
+          const filename = `shape-${width}-${model}-${slug(shape)}-${size}.png`;
+          await capture(page, filename);
+          evidence.matrix.push({ ...result, shape, viewport: { width, height }, filename });
+        }
+      }
+    }
+    assert.equal(evidence.pageErrors.length, 0);
+    evidence.automatedPassed = true;
+    writeFileSync(resolve(artifactDir, "results.json"), JSON.stringify(evidence, null, 2));
+    console.log(JSON.stringify({ shapesPassed: true, captures: evidence.matrix.length, consoleErrors: evidence.consoleErrors.length }));
+    await context.close(); await browser.close(); process.exit(0);
+  }
   await step(page, "Hat");
   const actualModels = await page.getByRole("button").allTextContents();
   for (const model of models) assert.ok(actualModels.some((text) => new RegExp(`^${model}\\s`).test(text.trim())), `selectable exact model ${model}`);
 
-  for (const model of smokeMode ? ["112", "112FP"] : models) {
+  for (const model of smokeMode ? ["112", "112FP", "256"] : models) {
     await chooseModel(page, model);
     const colorways = await page.locator('[id^="swatch-"]').evaluateAll((buttons) => buttons.map((button) => button.id.slice("swatch-".length)));
     evidence.actualInventory.push({ modelId: model, colorways });
     const calibrated = records.filter((r) => r.modelId === model).map((r) => r.colorway);
     assert.deepEqual([...colorways].sort(), [...calibrated].sort(), `calibration coverage of actual ${model} selections`);
-    for (const colorway of smokeMode ? colorways.slice(0,1) : colorways) {
+    for (const colorway of smokeMode||representative ? colorways.slice(0,1) : colorways) {
       await step(page, "Color");
       await chooseColor(page, colorway);
       const record = records.find((r) => r.modelId === model && r.colorway === colorway);
@@ -227,10 +255,10 @@ try {
     console.log(JSON.stringify({smokePassed:true,matrix:evidence.matrix.length,anchor}));
     await context.close(); await browser.close(); process.exit(0);
   }
-  assert.equal(evidence.matrix.length, records.length * 3);
+  assert.equal(evidence.matrix.length, (representative?models.length:records.length) * 3);
 
   // Every model is checked at every responsive breakpoint, using an actual color selection.
-  const viewports = [[1280,800], [1024,768], [1023,768], [768,1024], [767,1024], [640,960], [639,960], [390,844], [320,740], [844,390]];
+  const viewports = representative?[[1280,800],[390,844],[320,740],[844,390]]:[[1280,800], [1024,768], [1023,768], [768,1024], [767,1024], [640,960], [639,960], [390,844], [320,740], [844,390]];
   for (const [width, height] of viewports) {
     await page.setViewportSize({ width, height });
     for (const model of models) {
@@ -372,7 +400,7 @@ try {
   // Contact sheets contain only screenshots captured from the real builder above.
   const review = await browser.newPage({ viewport: { width: 1320, height: 900 } });
   for (const model of models) {
-    const colorways = evidence.actualInventory.find((m) => m.modelId === model).colorways;
+    const colorways = [...new Set(evidence.matrix.filter(m=>m.modelId===model).map(m=>m.colorway))];
     for (let start = 0; start < colorways.length; start += 6) {
       const selected = colorways.slice(start, start+6);
       const frames = selected.flatMap((colorway) => sizes.map((size) => evidence.matrix.find((r) => r.modelId === model && r.colorway === colorway && r.size === size)));
@@ -385,7 +413,7 @@ try {
   }
   await review.close();
   const relativeScreens = `../../../screenshots/crown-qa/${suffix}`;
-  writeFileSync(resolve(artifactDir,"index.html"), `<!doctype html><meta charset="utf-8"><title>REC Mama Made crown-scale review</title><style>body{font:15px Arial;background:#eee;color:#222;margin:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}article{background:white;padding:12px}img{width:100%;height:300px;object-fit:contain}code{font-size:11px;overflow-wrap:anywhere}</style><h1>Actual builder patch scale comparison</h1><p>${evidence.matrix.length} rendered matrix frames. Same uploaded 800×400 artwork, rounded rectangle, center anchor, scale 1. Width/crown ratios: Small .32, Medium .42, Large .52. All labels identify exact calibration. Automated evidence is in results.json; visual inspection is reported separately.</p><div class="grid">${evidence.matrix.map((r)=>`<article><b>${escape(r.modelId)} · ${escape(r.colorway)} · ${escape(r.size)}</b><p><code>${escape(r.calibrationId)}</code></p><img loading="lazy" src="${relativeScreens}/${r.filename}"></article>`).join("")}</div>`);
+  writeFileSync(resolve(artifactDir,"index.html"), `<!doctype html><meta charset="utf-8"><title>REC Mama Made crown-scale review</title><style>body{font:15px Arial;background:#eee;color:#222;margin:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}article{background:white;padding:12px}img{width:100%;height:300px;object-fit:contain}code{font-size:11px;overflow-wrap:anywhere}</style><h1>Actual builder patch scale comparison</h1><p>${evidence.matrix.length} rendered matrix frames. Same uploaded 800×400 artwork, rounded rectangle, center anchor. Nominal patch sizes: Small 2.5×1.5 inches, Medium 3×2 inches, Large 3.5×2.25 inches. These unmeasured photos use an explicitly estimated 7.5-inch crown-width fallback. This verifies stable responsive geometry, not measured physical accuracy or universal photorealism. Automated evidence is in results.json; visual inspection is reported separately.</p><div class="grid">${evidence.matrix.map((r)=>`<article><b>${escape(r.modelId)} · ${escape(r.colorway)} · ${escape(r.size)}</b><p><code>${escape(r.calibrationId)}</code></p><img loading="lazy" src="${relativeScreens}/${r.filename}"></article>`).join("")}</div>`);
   evidence.completedAt = new Date().toISOString();
   evidence.automatedPassed = true;
   assert.equal(evidence.pageErrors.length, 0, "uncaught browser errors");

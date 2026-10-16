@@ -6,7 +6,6 @@ import {
   PATCH_SHAPES,
   PLACEMENTS,
   colorsForFamily,
-  estimateTotal,
   getLeatherette,
   type FamilyId,
   type OrderType,
@@ -32,6 +31,9 @@ export type PaymentBuild = {
   hasArtwork: boolean;
   notes: string;
   promo: string;
+  expectedTotalCents?: number;
+  previewVersion?: 3;
+  expectedPreview?: { photoId: string; imageVersion: string; geometrySignature: string };
   artworkDataUrl?: string;
   checkoutRequestId?: string;
   previewPlacement?: {
@@ -43,6 +45,7 @@ export type PaymentBuild = {
 };
 
 type Quote = {
+  pricing: Awaited<ReturnType<typeof import("./commerce/pricing.server").quoteSelection>>;
   build: PaymentBuild;
   family: FamilyId;
   lineName: string;
@@ -61,7 +64,9 @@ function requireEmail(value: string) {
   return email;
 }
 
-function normalizeBuild(input: PaymentBuild): Quote {
+async function normalizeBuild(input: PaymentBuild): Promise<Quote> {
+  const { rateLimit, quoteSelection } = await import("./commerce/pricing.server");
+  await rateLimit("checkout-start", 20);
   const customerName = String(input.customerName ?? "")
     .trim()
     .slice(0, 120);
@@ -106,7 +111,23 @@ function normalizeBuild(input: PaymentBuild): Quote {
   const promo = String(input.promo ?? "")
     .trim()
     .slice(0, 40);
-  const est = estimateTotal({ orderType, tier: familyInfo.tier, quantity, family, promo });
+  const pricing = await quoteSelection(
+    { orderType, family, colorway, leatherette, patchShape, patchSize, quantity },
+    promo,
+    customerEmail,
+    undefined,
+    undefined,
+    input.checkoutRequestId,
+  );
+  if (input.expectedTotalCents !== undefined && input.expectedTotalCents !== pricing.totalCents)
+    throw new Error("The price changed. Review the updated total before paying.");
+  const est = {
+    unit: pricing.unitCents / 100,
+    total: pricing.totalCents / 100,
+    purchased: quantity,
+    bonus: pricing.bonus,
+    fulfilled: pricing.fulfilled,
+  };
   const leather = getLeatherette(leatherette);
   const lineName =
     orderType === "patch"
@@ -127,6 +148,7 @@ function normalizeBuild(input: PaymentBuild): Quote {
     .slice(0, 480);
 
   return {
+    pricing,
     build: {
       customerName,
       customerEmail,
@@ -145,6 +167,8 @@ function normalizeBuild(input: PaymentBuild): Quote {
       artworkDataUrl: input.artworkDataUrl,
       checkoutRequestId: input.checkoutRequestId,
       previewPlacement: input.previewPlacement,
+      previewVersion: input.previewVersion === 3 ? 3 : undefined,
+      expectedPreview: input.expectedPreview,
     },
     family,
     lineName,
@@ -263,7 +287,7 @@ export const submitManualVenmoOrder = createServerFn({ method: "POST" })
   .validator((data: PaymentBuild) => data)
   .handler(async ({ data }) => {
     const { createCheckoutOrder } = await import("./commerce/checkout.server");
-    return { id: await createCheckoutOrder(normalizeBuild(data), "manual_venmo") };
+    return { id: await createCheckoutOrder(await normalizeBuild(data), "manual_venmo") };
   });
 
 export const createStripeCheckoutSession = createServerFn({ method: "POST" })
@@ -273,7 +297,7 @@ export const createStripeCheckoutSession = createServerFn({ method: "POST" })
     if (!secret) throw new Error("Card checkout is not configured yet.");
     if (process.env.NODE_ENV !== "production" && !secret.startsWith("sk_test_"))
       throw new Error("Development checkout requires a Stripe test key.");
-    const quote = normalizeBuild(data);
+    const quote = await normalizeBuild(data);
     const { createCheckoutOrder, attachCheckout } = await import("./commerce/checkout.server");
     const orderId = await createCheckoutOrder(quote, "stripe");
     const origin = requestOrigin();
@@ -288,8 +312,19 @@ export const createStripeCheckoutSession = createServerFn({ method: "POST" })
     form.set("line_items[0][price_data][currency]", "usd");
     form.set("line_items[0][price_data][product_data][name]", quote.lineName);
     form.set("line_items[0][price_data][product_data][description]", quote.description);
-    form.set("line_items[0][price_data][unit_amount]", String(Math.round(quote.unit * 100)));
-    form.set("line_items[0][quantity]", String(quote.purchased));
+    form.set(
+      "line_items[0][price_data][unit_amount]",
+      String(quote.pricing.discountCents ? quote.pricing.totalCents : quote.pricing.unitCents),
+    );
+    form.set("line_items[0][quantity]", String(quote.pricing.discountCents ? 1 : quote.purchased));
+    if (quote.pricing.discountCents) {
+      form.set(
+        "line_items[0][price_data][product_data][name]",
+        `${quote.purchased} × ${quote.lineName} (${quote.pricing.discountLabel})`,
+      );
+      form.set("metadata[rec_subtotal_cents]", String(quote.pricing.subtotalCents));
+      form.set("metadata[rec_discount_cents]", String(quote.pricing.discountCents));
+    }
     appendStripeMetadata(form, quote);
     form.set("metadata[rec_order_id]", orderId);
 
@@ -373,7 +408,7 @@ export const getPayPalBrowserToken = createServerFn({ method: "GET" }).handler(a
 export const createPayPalOrder = createServerFn({ method: "POST" })
   .validator((data: PaymentBuild) => data)
   .handler(async ({ data }) => {
-    const quote = normalizeBuild(data);
+    const quote = await normalizeBuild(data);
     const { createCheckoutOrder, attachCheckout } = await import("./commerce/checkout.server");
     const orderId = await createCheckoutOrder(quote, "paypal");
     const accessToken = await paypalAccessToken();

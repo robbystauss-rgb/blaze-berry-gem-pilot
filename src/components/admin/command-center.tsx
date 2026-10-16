@@ -66,6 +66,11 @@ import { OrderDetail } from "./order-detail";
 import { ProductEditor } from "./product-editor";
 import { CustomerDetail } from "./customer-detail";
 import { BuilderCatalogEditor } from "./builder-catalog-editor";
+import { CalibrationEditor } from "./calibration-editor";
+import { GalleryEditor } from "./gallery-editor";
+import { PricingEditor, PromotionEditor } from "./pricing-editor";
+import { StorefrontEditor } from "./storefront-editor";
+import { BusinessSearch } from "./business-search";
 
 type Section = (typeof sections)[number];
 const NAV: { id: Section; name: string; icon: typeof Menu; permission: Permission | "security" }[] =
@@ -76,6 +81,11 @@ const NAV: { id: Section; name: string; icon: typeof Menu; permission: Permissio
     { id: "production", name: "Production queue", icon: Layers, permission: "production" },
     { id: "inventory", name: "Inventory", icon: Package, permission: "inventory" },
     { id: "products", name: "Products", icon: Tags, permission: "products" },
+    { id: "calibration", name: "Hat photo calibration", icon: Layers, permission: "website" },
+    { id: "gallery", name: "Photos & finished work", icon: Package, permission: "website" },
+    { id: "pricing", name: "Builder pricing", icon: Tags, permission: "finance" },
+    { id: "promotions", name: "Promotions", icon: Tags, permission: "finance" },
+    { id: "content", name: "Homepage editor", icon: Globe, permission: "website" },
     { id: "customers", name: "Customers", icon: Users, permission: "customers" },
     { id: "website", name: "Website", icon: Globe, permission: "website" },
     { id: "activity", name: "Activity history", icon: History, permission: "audit" },
@@ -98,6 +108,11 @@ const DESCRIPTION: Record<Section, string> = {
   reports: "Actual collections, refunds and your operational backlog.",
   staff: "Grant access to existing authenticated accounts.",
   security: "Your signed-in account and merchant permissions.",
+  calibration: "Physical patch sizes, usable crown boundaries and exact-photo references.",
+  gallery: "Private photo uploads and permission-reviewed public projects.",
+  pricing: "Publish new-sale prices without changing historical orders.",
+  promotions: "Manage custom-builder offers, eligibility and recorded redemptions.",
+  content: "Preview, publish and revert your homepage content.",
 };
 const errorText = (e: unknown) =>
   e instanceof Error ? e.message : "Something went wrong. Please try again.";
@@ -250,7 +265,7 @@ function csvDownload(name: string, rows: Record<string, unknown>[]) {
 }
 
 export function CommandCenter() {
-  const { section, orderId } = Route.useSearch();
+  const { section, orderId, query } = Route.useSearch();
   const navigate = useNavigate({ from: "/admin" });
   const [access, setAccess] = useState<Awaited<ReturnType<typeof getMerchantAccess>> | null>(null);
   const [accessError, setAccessError] = useState("");
@@ -303,7 +318,11 @@ export function CommandCenter() {
           NAV.find((n) => n.id === section)!.permission as Permission,
         )));
   const load = useCallback(async () => {
-    if (!access || !permitted || section === "security") {
+    if (
+      !access ||
+      !permitted ||
+      ["security", "calibration", "gallery", "pricing", "promotions", "content"].includes(section)
+    ) {
       setLoading(false);
       return;
     }
@@ -326,7 +345,10 @@ export function CommandCenter() {
       setData(
         await getAdminData({
           data: {
-            section: section as Exclude<Section, "security">,
+            section: section as Exclude<
+              Section,
+              "security" | "calibration" | "gallery" | "pricing" | "promotions" | "content"
+            >,
             search,
             page,
             status,
@@ -345,7 +367,7 @@ export function CommandCenter() {
     return () => clearTimeout(timer);
   }, [load]);
   useEffect(() => {
-    setSearch("");
+    setSearch(query ?? "");
     setStatus("");
     setPage(0);
     setEditor(null);
@@ -354,7 +376,7 @@ export function CommandCenter() {
     setTo("");
     setNavOpen(false);
     setData(null);
-  }, [section]);
+  }, [section, query]);
   useEffect(() => {
     const timer = setInterval(() => {
       if (!busy && !editor) void load();
@@ -466,6 +488,7 @@ export function CommandCenter() {
               REC Mama Made <ChevronRight size={14} /> {title}
             </span>
           </div>
+          {PERMISSIONS[access.role].includes("orders") && <BusinessSearch />}
           <button
             className="cc-icon"
             aria-label="Refresh data"
@@ -529,6 +552,27 @@ export function CommandCenter() {
               {success}
             </div>
           )}
+          {section === "overview" && access.role === "owner" && (
+            <nav className="cc-quick-actions" aria-label="Owner quick actions">
+              {[
+                { section: "products", label: "Add / edit products" },
+                { section: "gallery", label: "Upload finished work" },
+                { section: "promotions", label: "Create a promo code" },
+                { section: "pricing", label: "Update prices" },
+                { section: "production", label: "Production queue" },
+                { section: "content", label: "Edit homepage" },
+              ].map((a) => (
+                <Link
+                  key={a.section}
+                  className="cc-button secondary"
+                  to="/admin"
+                  search={{ section: a.section as Section }}
+                >
+                  {a.label}
+                </Link>
+              ))}
+            </nav>
+          )}
           {section === "security" ? (
             <AccountAccess access={access} />
           ) : !permitted ? (
@@ -536,6 +580,16 @@ export function CommandCenter() {
               title="Access restricted"
               body="Your role does not have permission to view this section."
             />
+          ) : section === "calibration" ? (
+            <CalibrationEditor />
+          ) : section === "gallery" ? (
+            <GalleryEditor />
+          ) : section === "pricing" ? (
+            <PricingEditor />
+          ) : section === "promotions" ? (
+            <PromotionEditor />
+          ) : section === "content" ? (
+            <StorefrontEditor />
           ) : orderId ? (
             <OrderDetail
               id={orderId}
@@ -756,7 +810,9 @@ export function CommandCenter() {
                     )}
                     {section === "products" && (
                       <>
-                        <BuilderCatalogEditor products={data.builderProducts} refresh={load} />
+                        {PERMISSIONS[access.role].includes("website") && (
+                          <BuilderCatalogEditor products={data.builderProducts} refresh={load} />
+                        )}
                         <div className="cc-notice">
                           The existing Richardson builder catalog, calibration and pricing remain
                           protected. These products extend the storefront through the Shop section.

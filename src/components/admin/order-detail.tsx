@@ -11,6 +11,8 @@ import {
 import { STAGES, label, money } from "@/lib/commerce/types";
 import { Badge, Field } from "./command-center";
 import { getBearerToken } from "@/lib/auth/client";
+import { SavedHatProof } from "@/components/hat/saved-hat-proof";
+import { MAX_NEW_UPLOAD_BYTES } from "@/lib/upload-limits";
 const msg = (e: unknown) => (e instanceof Error ? e.message : "Unable to save changes.");
 export function OrderDetail({
   id,
@@ -232,8 +234,8 @@ export function OrderDetail({
                 setError("Choose a production file.");
                 return;
               }
-              if (file.size > 3000000) {
-                setError("Production files must be smaller than 3 MB.");
+              if (file.size > MAX_NEW_UPLOAD_BYTES) {
+                setError("Upload a production file up to 3 MB.");
                 return;
               }
               setBusy(true);
@@ -306,14 +308,26 @@ export function OrderDetail({
                         "checkoutRequestId",
                         "provider",
                         "hasArtwork",
-                      ].includes(key),
+                        "preview",
+                        "pricing",
+                        "previewVersion",
+                        "expectedPreview",
+                        "priceDefinition",
+                        "productImages",
+                      ].includes(key) &&
+                      !(
+                        key === "previewPlacement" &&
+                        item.specifications.preview &&
+                        typeof item.specifications.preview === "object" &&
+                        "anchor" in item.specifications.preview
+                      ),
                   )
                   .map(
                     ([key, value]) =>
                       value !== null &&
                       value !== "" && (
                         <div key={key}>
-                          <dt>{label(key)}</dt>
+                          <dt>{label(key.replace(/([a-z])([A-Z])/g, "$1_$2"))}</dt>
                           <dd>
                             {typeof value === "object" ? JSON.stringify(value) : String(value)}
                           </dd>
@@ -322,6 +336,11 @@ export function OrderDetail({
                   )}
               </dl>
               {item.has_artwork && <ArtworkPreview id={item.id} />}
+              <SavedHatProof
+                specifications={item.specifications}
+                itemId={item.id}
+                hasArtwork={item.has_artwork}
+              />
               {item.has_artwork && (
                 <button
                   className="cc-button secondary cc-no-print"

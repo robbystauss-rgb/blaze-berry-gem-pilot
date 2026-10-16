@@ -19,8 +19,9 @@ export function BuilderCatalogEditor({
     <section className="cc-panel">
       <h2>Existing custom hat catalog</h2>
       <p>
-        Update customer-facing titles and descriptions. Hat models, exact color photography, patch
-        configuration, calibration and existing prices remain protected.
+        Update customer-facing titles and descriptions. Use Builder pricing and Hat photo
+        calibration to manage prices and verified front photos. Exact model identities, colorways
+        and readiness gates stay protected.
       </p>
       <label className="cc-field">
         Catalog model

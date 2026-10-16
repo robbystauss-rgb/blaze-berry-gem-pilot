@@ -122,6 +122,7 @@ export type ProductRow = {
   version: number;
 };
 export type VariantRow = {
+  available?: number | null;
   id: string;
   product_id: string;
   title: string;

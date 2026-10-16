@@ -24,7 +24,9 @@ export async function stripeWebhook(request: Request) {
         secret,
       );
       break;
-    } catch {}
+    } catch {
+      /* Try the next configured signing secret. */
+    }
   if (!event) return new Response("Invalid signature", { status: 400 });
   if (process.env.NODE_ENV !== "production" && event.livemode)
     return new Response("Live events are disabled in development", { status: 400 });

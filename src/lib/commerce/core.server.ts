@@ -118,6 +118,8 @@ export async function changeAllocation(
   action: "commit" | "consume" | "release",
   actor: string,
 ) {
+  if (action === "release")
+    await sql`update commerce_promotion_uses set state='released' where order_id=${orderId} and state='reserved'`;
   const rows = await sql<{
     inventory_id: string;
     quantity: number;
@@ -203,6 +205,7 @@ export async function recordPayment(
   if (input.kind === "payment") {
     await sql`update commerce_checkouts set state='paid' where order_id=${input.orderId}`;
     if (order.paid + input.amount >= order.total) {
+      await sql`update commerce_promotion_uses set state='redeemed' where order_id=${input.orderId} and state='reserved'`;
       if (order.stage === "canceled")
         await notify(
           sql,

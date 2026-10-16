@@ -9,7 +9,6 @@ import {
   LEATHERETTES,
   PATCH_SHAPES,
   PLACEMENTS,
-  PRICING,
   colorsForFamily,
   estimateTotal,
   getLeatherette,
@@ -23,6 +22,10 @@ import type { PaymentBuild } from "@/lib/payments";
 import { familyHero, stageThumb } from "@/lib/stage-photos";
 import { MASTER } from "@/lib/studio-store";
 import { cn } from "@/lib/utils";
+import { dimensionLabel } from "@/lib/patch-physical";
+import { quoteBuilder } from "@/lib/commerce/owner-api";
+import { usePriceBook, minimumPrice } from "@/lib/commerce/use-pricebook";
+import { MAX_NEW_UPLOAD_BYTES } from "@/lib/upload-limits";
 
 type StepId = "hat" | "color" | "material" | "shape" | "design" | "position" | "review";
 
@@ -60,15 +63,14 @@ const SHAPE_DETAILS: Record<PatchShape, string> = {
   "Custom Die-Cut": "Cut to the outline of your design.",
 };
 
-const PATCH_DIMENSIONS: Record<PatchShape, Record<PatchSize, string>> = {
-  Rectangle: { small: '2.5″ × 1.5″', medium: '3″ × 2″', large: '3.5″ × 2.25″' },
-  "Rounded Rectangle": { small: '2.5″ × 1.5″', medium: '3″ × 2″', large: '3.5″ × 2.25″' },
-  Circle: { small: '2″ diameter', medium: '2.5″ diameter', large: '3″ diameter' },
-  Oval: { small: '2.5″ × 1.75″', medium: '3″ × 2″', large: '3.5″ × 2.25″' },
-  Hexagon: { small: '2.25″ wide', medium: '2.75″ wide', large: '3.25″ wide' },
-  Shield: { small: '2.25″ × 2.5″', medium: '2.75″ × 3″', large: '3″ × 3.5″' },
-  "Custom Die-Cut": { small: 'up to 2.5″ wide', medium: 'up to 3″ wide', large: 'up to 3.5″ wide' },
-};
+const PATCH_DIMENSIONS = Object.fromEntries(
+  PATCH_SHAPES.map((shape) => [
+    shape,
+    Object.fromEntries(
+      (["small", "medium", "large"] as const).map((size) => [size, dimensionLabel(shape, size)]),
+    ),
+  ]),
+) as Record<PatchShape, Record<PatchSize, string>>;
 
 function shapeName(shape: PatchShape) {
   return shape === "Custom Die-Cut" ? "Custom Shape" : shape;
@@ -90,7 +92,9 @@ export function Builder({
   stripeSessionId?: string;
 }) {
   const draft = useOrder();
-  const [prefillPending, setPrefillPending] = useState(() => Boolean(initialOrderType || initialFamily || initialColor));
+  const [prefillPending, setPrefillPending] = useState(() =>
+    Boolean(initialOrderType || initialFamily || initialColor),
+  );
   const orderType = prefillPending && initialOrderType ? initialOrderType : draft.orderType;
   const familyId = prefillPending && initialFamily ? initialFamily : draft.family;
   const colorway = prefillPending
@@ -112,24 +116,112 @@ export function Builder({
   const colors = colorsForFamily(familyId);
   const leather = getLeatherette(draft.leatherette);
   const qty = Math.max(1, Number(draft.quantity) || 1);
-  const est = estimateTotal({
+  const legacyEstimate = estimateTotal({
     orderType,
     tier: family.tier,
     quantity: qty,
     family: familyId,
     promo: draft.promo,
   });
-  const shape: PatchShape = PATCH_SHAPES.includes(draft.patchShape as PatchShape) ? (draft.patchShape as PatchShape) : "Rounded Rectangle";
+  const shape: PatchShape = PATCH_SHAPES.includes(draft.patchShape as PatchShape)
+    ? (draft.patchShape as PatchShape)
+    : "Rounded Rectangle";
+  const book = usePriceBook();
+  const [priced, setPriced] = useState<{
+      key: string;
+      value: Awaited<ReturnType<typeof quoteBuilder>>;
+    } | null>(null),
+    [quoteError, setQuoteError] = useState("");
+  const [quoteRefresh, setQuoteRefresh] = useState(0);
+  useEffect(() => {
+    const refresh = () => setQuoteRefresh((v) => v + 1);
+    window.addEventListener("rec-quote-refresh", refresh);
+    return () => window.removeEventListener("rec-quote-refresh", refresh);
+  }, []);
+  const quoteInput = useMemo(
+    () => ({
+      orderType,
+      family: familyId,
+      colorway,
+      leatherette: draft.leatherette,
+      patchShape: shape,
+      patchSize: draft.patchSize,
+      quantity: qty,
+      promo: draft.promo,
+      email: draft.customerEmail,
+    }),
+    [
+      orderType,
+      familyId,
+      colorway,
+      draft.leatherette,
+      shape,
+      draft.patchSize,
+      qty,
+      draft.promo,
+      draft.customerEmail,
+    ],
+  );
+  const quoteKey = JSON.stringify(quoteInput),
+    serverQuote = priced?.key === quoteKey ? priced.value : null;
+  const quoteLoading = !serverQuote && !quoteError;
+  useEffect(() => {
+    let active = true;
+    setQuoteError("");
+    if (!patchOnly && !colorway) {
+      setPriced(null);
+      return;
+    }
+    const timer = setTimeout(() => {
+      void quoteBuilder({ data: quoteInput })
+        .then((value) => {
+          if (active) {
+            setPriced({ key: quoteKey, value });
+            setQuoteError("");
+          }
+        })
+        .catch((e) => {
+          if (active) {
+            setPriced(null);
+            setQuoteError(e instanceof Error ? e.message : "Quote unavailable.");
+          }
+        });
+    }, 300);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [quoteKey, quoteRefresh, quoteInput, patchOnly, colorway]);
+  const est = serverQuote
+    ? {
+        unit: serverQuote.unitCents / 100,
+        total: serverQuote.totalCents / 100,
+        bonus: serverQuote.bonus,
+        fulfilled: serverQuote.fulfilled,
+        purchased: qty,
+        zaddy: serverQuote.discountLabel === "ZADDY",
+      }
+    : { ...legacyEstimate, zaddy: false };
+  const totalLabel = serverQuote
+    ? `$${est.total.toFixed(2)}`
+    : !patchOnly && !colorway
+      ? "Choose color for quote"
+      : quoteError
+        ? "Quote unavailable"
+        : "Updating quote…";
 
   useEffect(() => {
     if (initialFamily && draft.family !== initialFamily) draft.setFamily(initialFamily);
-    if (initialOrderType && draft.orderType !== initialOrderType) draft.set("orderType", initialOrderType);
-    if (initialColor !== undefined && draft.colorway !== initialColor) draft.set("colorway", initialColor);
+    if (initialOrderType && draft.orderType !== initialOrderType)
+      draft.set("orderType", initialOrderType);
+    if (initialColor !== undefined && draft.colorway !== initialColor)
+      draft.set("colorway", initialColor);
     setPrefillPending(false);
   }, [initialColor, initialFamily, initialOrderType]);
 
   useEffect(() => {
-    if (!PATCH_SHAPES.includes(draft.patchShape as PatchShape)) draft.set("patchShape", "Rounded Rectangle");
+    if (!PATCH_SHAPES.includes(draft.patchShape as PatchShape))
+      draft.set("patchShape", "Rounded Rectangle");
   }, [draft.patchShape, draft]);
 
   useEffect(() => {
@@ -141,12 +233,16 @@ export function Builder({
   }, [focus]);
 
   useEffect(() => {
-    setStep((current) => (stepsFor(patchOnly).includes(current) ? current : stepsFor(patchOnly)[0]));
+    setStep((current) =>
+      stepsFor(patchOnly).includes(current) ? current : stepsFor(patchOnly)[0],
+    );
   }, [patchOnly]);
 
   useEffect(() => {
     if (active !== "color" || !colorway) return;
-    document.getElementById(`swatch-${colorway}`)?.scrollIntoView({ inline: "center", block: "nearest" });
+    document
+      .getElementById(`swatch-${colorway}`)
+      ?.scrollIntoView({ inline: "center", block: "nearest" });
   }, [active, colorway]);
 
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.customerEmail.trim());
@@ -158,11 +254,11 @@ export function Builder({
         ? "Choose a hat color"
         : !draft.customerName.trim()
           ? "Add your name"
-        : !emailOk
-          ? "Add your email"
-          : missingDesign
-            ? "Add a design"
-            : "Payment options"
+          : !emailOk
+            ? "Add your email"
+            : missingDesign
+              ? "Add a design"
+              : "Payment options"
       : active === "hat"
         ? "Choose color"
         : active === "color" && !colorway
@@ -179,7 +275,9 @@ export function Builder({
       `Type: ${patchOnly ? "Patch only" : "Custom patch hat"}`,
       patchOnly ? "" : `Hat: Richardson ${family.id} ${family.label}`,
       patchOnly ? "" : `Color: ${colorway || "(not selected)"}`,
-      patchOnly ? "" : `Placement: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}`,
+      patchOnly
+        ? ""
+        : `Placement: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}`,
       `Material: ${leather.name} · ${leather.engrave}`,
       `Shape: ${shapeName(shape)}`,
       `Size: ${PATCH_DIMENSIONS[shape][draft.patchSize]} (${draft.patchSize})`,
@@ -187,12 +285,24 @@ export function Builder({
       `Design: ${draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "(none)")}`,
       `Notes: ${draft.notes || "(none)"}`,
       draft.promo ? `Promo: ${draft.promo}` : "",
-      est.zaddy ? "Price: classic 112 at $25 with ZADDY." : "",
+      serverQuote?.discountLabel
+        ? `Offer: ${serverQuote.discountLabel} · total $${est.total.toFixed(2)}`
+        : "",
       "Proof included before production.",
     ]
       .filter(Boolean)
       .join("\n");
-  }, [colorway, draft, family, leather, patchOnly, qty, shape]);
+  }, [
+    colorway,
+    draft,
+    family,
+    leather,
+    patchOnly,
+    qty,
+    shape,
+    est.total,
+    serverQuote?.discountLabel,
+  ]);
 
   function go(next: number) {
     const target = steps[Math.min(steps.length - 1, Math.max(0, next))];
@@ -202,8 +312,8 @@ export function Builder({
 
   async function onUpload(file: File | undefined) {
     if (!file) return;
-    if (file.size > 12 * 1024 * 1024) {
-      setWarn("Please choose a file smaller than 12 MB.");
+    if (file.size > MAX_NEW_UPLOAD_BYTES) {
+      setWarn("Please choose a file up to 3 MB. Original bytes and transparency are preserved.");
       return;
     }
     const allowed = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "application/pdf"];
@@ -215,7 +325,11 @@ export function Builder({
       const result = await resizeImage(file);
       draft.set("artworkDataUrl", result.url);
       const longest = Math.max(result.width, result.height);
-      setWarn(longest > 0 && longest < 600 ? "This image may be too small for clean engraving. We’ll review it before production." : "");
+      setWarn(
+        longest > 0 && longest < 600
+          ? "This image may be too small for clean engraving. We’ll review it before production."
+          : "",
+      );
     } catch {
       setWarn("Could not read that file.");
     }
@@ -231,10 +345,20 @@ export function Builder({
   }
 
   const next = steps[index + 1];
-  const ready = !missingColor && Boolean(draft.customerName.trim()) && emailOk && !missingDesign;
-  const canAdvance =
-    !(active === "color" && !colorway) &&
-    !(active === "design" && missingDesign);
+  const previewReady =
+    patchOnly ||
+    draft.placement === "side" ||
+    draft.placement === "rear" ||
+    (draft.previewIdentity?.family === familyId && draft.previewIdentity?.colorway === colorway);
+  const ready =
+    !missingColor &&
+    Boolean(draft.customerName.trim()) &&
+    emailOk &&
+    !missingDesign &&
+    !!serverQuote &&
+    !quoteError &&
+    previewReady;
+  const canAdvance = !(active === "color" && !colorway) && !(active === "design" && missingDesign);
   const paymentBuild: PaymentBuild = {
     customerName: draft.customerName,
     customerEmail: draft.customerEmail,
@@ -249,19 +373,31 @@ export function Builder({
     patchText: draft.patchText,
     hasArtwork: Boolean(draft.artworkDataUrl),
     artworkDataUrl: draft.artworkDataUrl || undefined,
-    previewPlacement: { offsetX:draft.patchOffsetX,offsetY:draft.patchOffsetY,scale:draft.patchScale,position:draft.patchPosition as unknown as Record<string,unknown>|undefined },
+    previewPlacement: {
+      offsetX: draft.patchOffsetX,
+      offsetY: draft.patchOffsetY,
+      scale: draft.patchScale,
+      position: draft.patchPosition as unknown as Record<string, unknown> | undefined,
+    },
     notes: draft.notes,
     promo: draft.promo,
+    expectedTotalCents: serverQuote?.totalCents,
+    previewVersion: 3,
+    expectedPreview: draft.previewIdentity,
   };
 
   function focusPayment() {
-    document.getElementById("checkout-payment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document
+      .getElementById("checkout-payment")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
     <div className="safe-grid lg:grid lg:min-h-[calc(100dvh-5.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)]">
       <div className="relative min-h-[52vh] overflow-hidden bg-[radial-gradient(90%_70%_at_50%_32%,#fff_0%,#f6f1ea_58%,#e8e0d4_100%)] lg:sticky lg:top-[5.5rem] lg:h-[calc(100dvh-5.5rem)]">
-        <p className="absolute left-5 top-4 z-20 text-[10px] font-semibold tracking-[0.15em] text-stage-muted uppercase sm:text-[11px]">Customization preview</p>
+        <p className="absolute left-5 top-4 z-20 text-[10px] font-semibold tracking-[0.15em] text-stage-muted uppercase sm:text-[11px]">
+          Customization preview
+        </p>
         <p className="absolute right-5 top-4 z-20 hidden max-w-[240px] text-right text-[11px] leading-snug text-stage-muted sm:block">
           Final engraving and placement are confirmed in your digital proof.
         </p>
@@ -291,7 +427,10 @@ export function Builder({
                 draft.set("orderType", "hat");
                 setStep("hat");
               }}
-              className={cn("min-h-11 rounded-full px-3 text-sm font-semibold", !patchOnly ? "bg-primary text-primary-fg" : "text-stage-ink")}
+              className={cn(
+                "min-h-11 rounded-full px-3 text-sm font-semibold",
+                !patchOnly ? "bg-primary text-primary-fg" : "text-stage-ink",
+              )}
             >
               Hat
             </button>
@@ -301,7 +440,10 @@ export function Builder({
                 draft.set("orderType", "patch");
                 setStep("material");
               }}
-              className={cn("min-h-11 rounded-full px-3 text-sm font-semibold", patchOnly ? "bg-primary text-primary-fg" : "text-stage-ink")}
+              className={cn(
+                "min-h-11 rounded-full px-3 text-sm font-semibold",
+                patchOnly ? "bg-primary text-primary-fg" : "text-stage-ink",
+              )}
             >
               Patch only
             </button>
@@ -324,15 +466,19 @@ export function Builder({
         <div className="min-h-0 flex-1 overflow-auto">
           <div className="flex items-start justify-between gap-4 px-5 pt-5 sm:px-6">
             <p className="min-w-0 flex-1 text-sm font-semibold leading-5 text-stage-ink">
-              {patchOnly ? "Patch only" : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}
+              {patchOnly
+                ? "Patch only"
+                : `${family.id} ${family.label}${colorway ? ` · ${colorway}` : ""}`}
               {` · ${leather.name}`}
             </p>
             <p key={est.total} className="price-tick shrink-0 text-lg font-semibold tabular-nums">
-              ${est.total.toFixed(2)}
+              {totalLabel}
             </p>
           </div>
           {patchOnly && (
-            <p className="px-5 pt-1 text-xs leading-5 text-stage-muted sm:px-6">Patch only means a finished loose patch — no hat and no stitching/application.</p>
+            <p className="px-5 pt-1 text-xs leading-5 text-stage-muted sm:px-6">
+              Patch only means a finished loose patch — no hat and no stitching/application.
+            </p>
           )}
 
           {active === "hat" && (
@@ -354,9 +500,17 @@ export function Builder({
                   >
                     <span className="product-card-stage grid aspect-[4/3] place-items-center p-3">
                       {photo ? (
-                        <img src={photo} alt="" className="h-auto max-h-[82%] w-auto max-w-[90%] object-contain" loading="lazy" decoding="async" />
+                        <img
+                          src={photo}
+                          alt=""
+                          className="h-auto max-h-[82%] w-auto max-w-[90%] object-contain"
+                          loading="lazy"
+                          decoding="async"
+                        />
                       ) : (
-                        <span className="grid h-full place-items-center text-xs text-stage-muted">Photos coming</span>
+                        <span className="grid h-full place-items-center text-xs text-stage-muted">
+                          Photos coming
+                        </span>
                       )}
                     </span>
                     <span className="flex min-h-[74px] items-start justify-between gap-2 px-3 py-3">
@@ -365,7 +519,10 @@ export function Builder({
                           {id} {item.label}
                         </span>
                         <span className="mt-1 block text-xs leading-5 text-stage-muted">
-                          {count ? `${count} colors` : "Colors later"} · ${item.tier === "premium" ? PRICING.premium : PRICING.standard}
+                          {count ? `${count} colors` : "Colors later"} ·{" "}
+                          {book
+                            ? `From $${(minimumPrice(book, id) / 100).toFixed(2)}`
+                            : "Price loading…"}
                         </span>
                       </span>
                       {on && <Check className="mt-0.5 size-4 shrink-0 text-primary" />}
@@ -379,7 +536,8 @@ export function Builder({
           {active === "color" && (
             <div>
               <p className="px-5 pt-4 text-sm leading-6 text-stage-muted sm:px-6">
-                {colors.length ? `${colors.length} colors` : "No colors listed yet"} · tap one and the hat changes
+                {colors.length ? `${colors.length} colors` : "No colors listed yet"} · tap one and
+                the hat changes
               </p>
               <div className="flex gap-3 overflow-x-auto px-5 py-4 sm:px-6">
                 {colors.map((name) => {
@@ -398,9 +556,17 @@ export function Builder({
                     >
                       <span className="product-card-stage grid aspect-[4/3] place-items-center p-2.5">
                         {thumb ? (
-                          <img src={thumb} alt="" className="h-auto max-h-[84%] w-auto max-w-[92%] object-contain" loading="lazy" decoding="async" />
+                          <img
+                            src={thumb}
+                            alt=""
+                            className="h-auto max-h-[84%] w-auto max-w-[92%] object-contain"
+                            loading="lazy"
+                            decoding="async"
+                          />
                         ) : (
-                          <span className="grid h-full place-items-center text-xs text-stage-muted">No photo yet</span>
+                          <span className="grid h-full place-items-center text-xs text-stage-muted">
+                            No photo yet
+                          </span>
                         )}
                       </span>
                       <span className="flex min-h-14 items-start justify-between gap-1 px-3 py-2.5 text-xs font-semibold leading-5">
@@ -432,12 +598,20 @@ export function Builder({
                     )}
                   >
                     <div className="aspect-[4/3] overflow-hidden bg-stage">
-                      <img src={item.texture} alt={`${item.name} material`} className="h-full w-full object-cover object-center" loading="lazy" decoding="async" />
+                      <img
+                        src={item.texture}
+                        alt={`${item.name} material`}
+                        className="h-full w-full object-cover object-center"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
                     <span className="flex min-h-[74px] items-start justify-between gap-2 px-3 py-3">
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold leading-5">{item.name}</span>
-                        <span className="mt-1 block text-xs leading-5 text-stage-muted">{on ? "Tap again to inspect" : item.engrave}</span>
+                        <span className="mt-1 block text-xs leading-5 text-stage-muted">
+                          {on ? "Tap again to inspect" : item.engrave}
+                        </span>
                       </span>
                       {on && <Check className="size-4 shrink-0 text-primary" />}
                     </span>
@@ -451,16 +625,32 @@ export function Builder({
             <div className="px-5 py-5 sm:px-6">
               <div className="mb-4 max-w-2xl">
                 <p className="text-sm font-semibold text-stage-ink">Choose the patch shape</p>
-                <p className="mt-1 text-xs leading-5 text-stage-muted">Custom Shape follows the outside edge of your artwork. Standard shapes use the dimensions shown below.</p>
+                <p className="mt-1 text-xs leading-5 text-stage-muted">
+                  Custom Shape follows the outside edge of your artwork. Standard shapes use the
+                  dimensions shown below.
+                </p>
               </div>
               <div className="grid gap-2 min-[460px]:grid-cols-2 xl:grid-cols-3">
                 {PATCH_SHAPES.map((item) => (
-                  <button key={item} type="button" onClick={() => draft.set("patchShape", item)} className={cn("rounded-2xl bg-stage p-3 text-left ring-1 transition", shape === item ? "ring-2 ring-primary" : "ring-stage-line hover:bg-white")}>
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => draft.set("patchShape", item)}
+                    className={cn(
+                      "rounded-2xl bg-stage p-3 text-left ring-1 transition",
+                      shape === item ? "ring-2 ring-primary" : "ring-stage-line hover:bg-white",
+                    )}
+                  >
                     <div className="flex items-center gap-3">
                       <ShapeMark shape={item} texture={leather.texture} className="w-12 shrink-0" />
                       <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2 text-sm font-semibold leading-5">{shapeName(item)} {shape === item && <Check className="size-3.5 shrink-0 text-primary" />}</span>
-                        <span className="mt-1 block text-xs leading-5 text-stage-muted">{SHAPE_DETAILS[item]}</span>
+                        <span className="flex items-center gap-2 text-sm font-semibold leading-5">
+                          {shapeName(item)}{" "}
+                          {shape === item && <Check className="size-3.5 shrink-0 text-primary" />}
+                        </span>
+                        <span className="mt-1 block text-xs leading-5 text-stage-muted">
+                          {SHAPE_DETAILS[item]}
+                        </span>
                       </span>
                     </div>
                   </button>
@@ -468,14 +658,48 @@ export function Builder({
               </div>
               <div className="mt-6">
                 <div className="flex flex-wrap items-end justify-between gap-2">
-                  <div><p className="text-sm font-semibold text-stage-ink">Choose the size</p><p className="mt-1 text-xs text-stage-muted">Approx. finished size · final proof confirms fit.</p></div>
-                  <p className="text-xs font-semibold text-primary">Medium is the common starting point</p>
+                  <div>
+                    <p className="text-sm font-semibold text-stage-ink">Choose the size</p>
+                    <p className="mt-1 text-xs text-stage-muted">
+                      Approx. finished size · final proof confirms fit.
+                    </p>
+                  </div>
+                  <p className="text-xs font-semibold text-primary">
+                    Medium is the common starting point
+                  </p>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-3">
                   {(["small", "medium", "large"] as const).map((item) => (
-                    <button key={item} type="button" onClick={() => { if (tooLarge(item, draft.placement)) { setWarn("This patch size is too large for this position."); return; } setWarn(""); draft.set("patchSize", item); }} className={cn("min-h-[74px] rounded-2xl px-4 py-3 text-left ring-1", draft.patchSize === item ? "bg-primary text-primary-fg ring-primary" : "bg-stage text-stage-ink ring-stage-line")}>
-                      <span className="block text-sm font-semibold capitalize">{item}{item === "medium" ? " · common" : ""}</span>
-                      <span className={cn("mt-1 block text-xs", draft.patchSize === item ? "text-white/80" : "text-stage-muted")}>{PATCH_DIMENSIONS[shape][item]}</span>
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        if (tooLarge(item, draft.placement)) {
+                          setWarn("This patch size is too large for this position.");
+                          return;
+                        }
+                        setWarn("");
+                        draft.set("patchSize", item);
+                      }}
+                      className={cn(
+                        "min-h-[74px] rounded-2xl px-4 py-3 text-left ring-1",
+                        draft.patchSize === item
+                          ? "bg-primary text-primary-fg ring-primary"
+                          : "bg-stage text-stage-ink ring-stage-line",
+                      )}
+                    >
+                      <span className="block text-sm font-semibold capitalize">
+                        {item}
+                        {item === "medium" ? " · common" : ""}
+                      </span>
+                      <span
+                        className={cn(
+                          "mt-1 block text-xs",
+                          draft.patchSize === item ? "text-white/80" : "text-stage-muted",
+                        )}
+                      >
+                        {PATCH_DIMENSIONS[shape][item]}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -496,7 +720,9 @@ export function Builder({
               </label>
               <label className="block min-w-0 rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line">
                 <span className="text-sm font-semibold">Upload artwork</span>
-                <span className="mt-1 block text-xs leading-5 text-stage-muted">PNG, JPG, WEBP, SVG, or PDF</span>
+                <span className="mt-1 block text-xs leading-5 text-stage-muted">
+                  PNG, JPG, WEBP, SVG, or PDF
+                </span>
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/svg+xml,application/pdf"
@@ -504,7 +730,9 @@ export function Builder({
                   onChange={(event) => void onUpload(event.target.files?.[0])}
                 />
               </label>
-              <p className="text-sm leading-6 text-stage-muted md:col-span-2">No REC Mama Made designs are in the library yet.</p>
+              <p className="text-sm leading-6 text-stage-muted md:col-span-2">
+                No REC Mama Made designs are in the library yet.
+              </p>
             </div>
           )}
 
@@ -512,7 +740,9 @@ export function Builder({
             <div className="px-5 py-5 sm:px-6">
               <p className="max-w-xl text-sm leading-6 text-stage-ink">
                 Tap a spot on the hat. The patch moves there.
-                {draft.placement ? ` Now: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}.` : ""}
+                {draft.placement
+                  ? ` Now: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}.`
+                  : ""}
               </p>
             </div>
           )}
@@ -522,14 +752,26 @@ export function Builder({
               <ul className="grid gap-2 text-sm md:grid-cols-2">
                 <ReviewRow
                   label={patchOnly ? "Patch only" : `Richardson ${family.id}`}
-                  value={patchOnly ? "Loose patch" : `${family.label}${colorway ? ` · ${colorway}` : ""}`}
+                  value={
+                    patchOnly ? "Loose patch" : `${family.label}${colorway ? ` · ${colorway}` : ""}`
+                  }
                   onEdit={() => setStep(patchOnly ? "material" : "hat")}
                 />
-                <ReviewRow label="Material" value={`${leather.name} · ${leather.engrave}`} onEdit={() => setStep("material")} />
-                <ReviewRow label="Shape & size" value={`${shapeName(shape)} · ${PATCH_DIMENSIONS[shape][draft.patchSize]}`} onEdit={() => setStep("shape")} />
+                <ReviewRow
+                  label="Material"
+                  value={`${leather.name} · ${leather.engrave}`}
+                  onEdit={() => setStep("material")}
+                />
+                <ReviewRow
+                  label="Shape & size"
+                  value={`${shapeName(shape)} · ${PATCH_DIMENSIONS[shape][draft.patchSize]}`}
+                  onEdit={() => setStep("shape")}
+                />
                 <ReviewRow
                   label="Design"
-                  value={draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "Not added")}
+                  value={
+                    draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "Not added")
+                  }
                   onEdit={() => setStep("design")}
                 />
                 {!patchOnly && (
@@ -564,8 +806,15 @@ export function Builder({
                 />
               </div>
               <p className="mt-3 text-sm leading-6 text-stage-muted">
-                {patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each
-                {est.bonus ? ` · ${est.bonus} bonus hat${est.bonus === 1 ? "" : "s"}` : ""} · Proof included before engraving.
+                {patchOnly
+                  ? "Patch only"
+                  : family.tier === "premium"
+                    ? "Premium hat + patch"
+                    : "Standard hat + patch"}{" "}
+                ·{" "}
+                {serverQuote ? `$${est.unit.toFixed(2)} each` : "Choose options for current price"}
+                {est.bonus ? ` · ${est.bonus} bonus hat${est.bonus === 1 ? "" : "s"}` : ""} · Proof
+                included before engraving.
               </p>
               <input
                 value={draft.promo}
@@ -574,9 +823,21 @@ export function Builder({
                 aria-label="Promo code"
                 className="mt-3 w-full rounded-xl bg-stage px-3 py-3 text-sm ring-1 ring-stage-line"
               />
-              {est.zaddy && <p className="mt-2 text-sm text-stage-ink">ZADDY applied. Classic 112 is $25.</p>}
-              {draft.promo.trim().toUpperCase() === "ZADDY" && !est.zaddy && (
-                <p className="mt-2 text-sm leading-6 text-stage-muted">ZADDY only prices the classic 112. Premium hats and patch only stay at full price.</p>
+              {serverQuote?.discountCents ? (
+                <p role="status" className="mt-2 text-sm text-stage-ink">
+                  {serverQuote.discountLabel} applied · −$
+                  {(serverQuote.discountCents / 100).toFixed(2)}
+                </p>
+              ) : null}
+              {quoteError && (
+                <p role="alert" className="cc-error">
+                  {quoteError}
+                </p>
+              )}
+              {quoteLoading && (
+                <p role="status" className="cc-help">
+                  Checking current price and promotion…
+                </p>
               )}
               <textarea
                 value={draft.notes}
@@ -587,16 +848,24 @@ export function Builder({
               />
               <div className="mt-4 flex flex-wrap gap-2">
                 {ready ? (
-                  <Button type="button" onClick={focusPayment}>Payment options</Button>
+                  <Button type="button" onClick={focusPayment}>
+                    Payment options
+                  </Button>
                 ) : (
                   <Button type="button" disabled>
                     {continueLabel}
                   </Button>
                 )}
-                <Button type="button" variant="outline" onClick={() => void navigator.clipboard.writeText(summary)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => void navigator.clipboard.writeText(summary)}
+                >
                   Copy build
                 </Button>
-                <a href={`mailto:?subject=${encodeURIComponent("REC Mama Made order")}&body=${encodeURIComponent(summary)}`}>
+                <a
+                  href={`mailto:?subject=${encodeURIComponent("REC Mama Made order")}&body=${encodeURIComponent(summary)}`}
+                >
                   <Button type="button" variant="outline">
                     Email this build
                   </Button>
@@ -617,7 +886,7 @@ export function Builder({
         </div>
 
         <div className="hidden items-center justify-between gap-3 border-t border-stage-line bg-white px-5 py-4 sm:px-6 lg:flex">
-          <p className="text-lg font-semibold tabular-nums">${est.total.toFixed(2)}</p>
+          <p className="text-lg font-semibold tabular-nums">{totalLabel}</p>
           <Button
             type="button"
             disabled={next ? !canAdvance : !ready}
@@ -632,7 +901,11 @@ export function Builder({
       </section>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-stage-line bg-white/94 px-5 pt-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-[0_-12px_34px_rgba(45,38,30,0.08)] backdrop-blur-xl lg:hidden">
-        <button type="button" className="mb-1 min-h-6 text-xs font-semibold text-stage-muted" onClick={() => setDrawer((value) => !value)}>
+        <button
+          type="button"
+          className="mb-1 min-h-6 text-xs font-semibold text-stage-muted"
+          onClick={() => setDrawer((value) => !value)}
+        >
           Your build
         </button>
         <div className="flex min-w-0 items-center gap-3">
@@ -640,11 +913,15 @@ export function Builder({
             {patchOnly ? (
               <span className="grid h-full place-items-center text-[0.6rem]">Patch</span>
             ) : (
-              <img src={stageThumb(familyId, colorway) ?? familyHero(familyId) ?? ""} alt="" className="h-auto max-h-[90%] w-auto max-w-[92%] object-contain" />
+              <img
+                src={stageThumb(familyId, colorway) ?? familyHero(familyId) ?? ""}
+                alt=""
+                className="h-auto max-h-[90%] w-auto max-w-[92%] object-contain"
+              />
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold">${est.total.toFixed(2)}</p>
+            <p className="font-semibold">{totalLabel}</p>
             <p className="truncate text-xs text-stage-muted">
               {STEP_LABEL[active]} · {index + 1} of {steps.length}
             </p>
@@ -664,28 +941,64 @@ export function Builder({
       </div>
 
       {drawer && (
-        <div className="fixed inset-0 z-50 flex items-end bg-bg/50 p-0 lg:hidden" onClick={() => setDrawer(false)}>
-          <div className="max-h-[82dvh] w-full overflow-auto rounded-t-3xl bg-white p-5 pb-24 text-stage-ink shadow-[0_-18px_50px_rgba(45,38,30,0.14)]" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-bg/50 p-0 lg:hidden"
+          onClick={() => setDrawer(false)}
+        >
+          <div
+            className="max-h-[82dvh] w-full overflow-auto rounded-t-3xl bg-white p-5 pb-24 text-stage-ink shadow-[0_-18px_50px_rgba(45,38,30,0.14)]"
+            onClick={(event) => event.stopPropagation()}
+          >
             <h2 className="font-display text-3xl">Your build</h2>
             <div className="mt-4 space-y-1 text-sm leading-6">
               <p>{patchOnly ? "Patch only" : `${family.id} ${family.label}`}</p>
               <p>{colorway || "Color not chosen"}</p>
-              <p>{leather.name} · {leather.engrave}</p>
-              <p>{shapeName(shape)} · {PATCH_DIMENSIONS[shape][draft.patchSize]}</p>
+              <p>
+                {leather.name} · {leather.engrave}
+              </p>
+              <p>
+                {shapeName(shape)} · {PATCH_DIMENSIONS[shape][draft.patchSize]}
+              </p>
               {!patchOnly && <p>{PLACEMENTS.find((item) => item.id === draft.placement)?.label}</p>}
-              <p>{draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "No design yet")}</p>
+              <p>
+                {draft.patchText || (draft.artworkDataUrl ? "Uploaded artwork" : "No design yet")}
+              </p>
             </div>
-            <p className="mt-3 text-lg font-semibold">${est.total.toFixed(2)}</p>
+            <p className="mt-3 text-lg font-semibold">{totalLabel}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {!patchOnly && (
-                <Button type="button" variant="outline" size="sm" onClick={() => { setStep("color"); setDrawer(false); }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setStep("color");
+                    setDrawer(false);
+                  }}
+                >
                   Edit color
                 </Button>
               )}
-              <Button type="button" variant="outline" size="sm" onClick={() => { setStep("material"); setDrawer(false); }}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setStep("material");
+                  setDrawer(false);
+                }}
+              >
                 Edit material
               </Button>
-              <Button type="button" variant="outline" size="sm" onClick={() => { setStep("design"); setDrawer(false); }}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setStep("design");
+                  setDrawer(false);
+                }}
+              >
                 Edit design
               </Button>
             </div>
@@ -694,13 +1007,23 @@ export function Builder({
       )}
 
       {materialOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-bg/70 p-4" role="dialog" aria-modal="true">
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-bg/70 p-4"
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="max-h-[90dvh] w-[min(560px,100%)] overflow-auto rounded-3xl bg-white text-stage-ink shadow-[0_24px_70px_rgba(45,38,30,0.18)]">
             <div className="aspect-[4/3] overflow-hidden bg-stage">
-              <img src={leather.detail} alt={`${leather.name} material detail`} className="h-full w-full object-cover object-center" />
+              <img
+                src={leather.detail}
+                alt={`${leather.name} material detail`}
+                className="h-full w-full object-cover object-center"
+              />
             </div>
             <div className="p-5 sm:p-6">
-              <h2 className="font-display text-[clamp(2rem,8vw,3rem)] leading-tight">{leather.name}</h2>
+              <h2 className="font-display text-[clamp(2rem,8vw,3rem)] leading-tight">
+                {leather.name}
+              </h2>
               <p className="mt-2 text-sm leading-6">{leather.engrave}</p>
               <div className="mt-5 flex flex-wrap gap-2">
                 <Button type="button" onClick={() => setMaterialOpen(false)}>
@@ -725,7 +1048,11 @@ function ReviewRow({ label, value, onEdit }: { label: string; value: string; onE
         <span className="block text-xs text-stage-muted">{label}</span>
         <span className="mt-0.5 block break-words font-medium leading-5">{value}</span>
       </span>
-      <button type="button" className="min-h-11 shrink-0 px-2 text-sm font-semibold text-primary" onClick={onEdit}>
+      <button
+        type="button"
+        className="min-h-11 shrink-0 px-2 text-sm font-semibold text-primary"
+        onClick={onEdit}
+      >
         Edit
       </button>
     </li>

@@ -11,6 +11,11 @@ export function PublicProduct({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const attempt = useRef<{ key: string; id: string } | null>(null);
+  const [variantId, setVariantId] = useState(
+    variants.find((v) => v.available !== 0)?.id ?? variants[0]?.id ?? "",
+  );
+  const selected = variants.find((v) => v.id === variantId),
+    unavailable = selected?.available === 0;
   return (
     <article className="cc-product-card">
       {p.images[0] && <img src={p.images[0]} alt={p.title} />}
@@ -53,17 +58,31 @@ export function PublicProduct({
         >
           <label className="cc-field">
             Variant
-            <select name="variant" required>
+            <select
+              name="variant"
+              aria-label="Variant"
+              required
+              value={variantId}
+              onChange={(e) => setVariantId(e.target.value)}
+            >
               {variants.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.title} · {money(v.price)}
+                  {v.available === 0 ? " · Unavailable" : ""}
                 </option>
               ))}
             </select>
           </label>
           <label className="cc-field">
             Quantity
-            <input name="quantity" type="number" min="1" max="250" defaultValue={1} required />
+            <input
+              name="quantity"
+              type="number"
+              min="1"
+              max={selected?.available ?? 250}
+              defaultValue={1}
+              required
+            />
           </label>
           <label className="cc-field">
             Name
@@ -78,8 +97,8 @@ export function PublicProduct({
               {error}
             </p>
           )}
-          <button className="cc-button" disabled={busy}>
-            Secure checkout
+          <button className="cc-button" disabled={busy || unavailable}>
+            {unavailable ? "Currently unavailable" : "Secure checkout"}
           </button>
         </form>
       </div>

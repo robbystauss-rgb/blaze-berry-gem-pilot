@@ -40,6 +40,13 @@ type PayPalGlobal = {
 function messageFrom(error: unknown, fallback: string) {
   return error instanceof Error && error.message ? error.message : fallback;
 }
+function refreshChangedQuote(error: unknown) {
+  if (
+    error instanceof Error &&
+    /price changed|pricing or promotion availability changed/i.test(error.message)
+  )
+    window.dispatchEvent(new Event("rec-quote-refresh"));
+}
 
 function loadPayPalSdk(environment: "sandbox" | "live") {
   return new Promise<PayPalGlobal>((resolve, reject) => {
@@ -299,6 +306,7 @@ export function CheckoutPanel({
       window.location.assign(session.url);
     } catch (error) {
       setBusy(null);
+      refreshChangedQuote(error);
       setNotice({
         tone: "error",
         text: messageFrom(error, "Card checkout could not start. Please try again."),
@@ -409,6 +417,7 @@ export function CheckoutPanel({
                   text: "Order saved awaiting verified manual payment. Use the Venmo link below; the owner will record payment only after money is received.",
                 });
               } catch (error) {
+                refreshChangedQuote(error);
                 setNotice({ tone: "error", text: messageFrom(error, "Order could not be saved.") });
               } finally {
                 setBusy(null);

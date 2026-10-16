@@ -11,6 +11,7 @@ import type {
 } from "./catalog";
 import { FAMILIES } from "./catalog";
 import type { CrownPosition } from "./crown-geometry";
+import { MAX_NEW_UPLOAD_BYTES } from "./upload-limits";
 
 export type OrderDraft = {
   customerName: string;
@@ -27,6 +28,13 @@ export type OrderDraft = {
   patchScale: number;
   /** Versioned crown-local center; missing means legacy container percentages. */
   patchPosition?: CrownPosition;
+  previewIdentity?: {
+    family: string;
+    colorway: string;
+    photoId: string;
+    imageVersion: string;
+    geometrySignature: string;
+  };
   leatherette: LeatheretteId;
   quantity: number;
   patchText: string;
@@ -96,6 +104,8 @@ export const useOrder = create<Store>()(
 );
 
 export function resizeImage(file: File): Promise<{ url: string; width: number; height: number }> {
+  if (file.size > MAX_NEW_UPLOAD_BYTES)
+    return Promise.reject(new Error("Upload artwork up to 3 MB."));
   if (file.type === "application/pdf" || file.type === "image/svg+xml") {
     return fileToDataUrl(file).then((url) => ({ url, width: 0, height: 0 }));
   }
@@ -103,19 +113,13 @@ export function resizeImage(file: File): Promise<{ url: string; width: number; h
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
-      const max = 900;
-      const scale = Math.min(1, max / Math.max(img.width, img.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        reject(new Error("Canvas unavailable"));
-        return;
-      }
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
-      resolve({ url: canvas.toDataURL("image/jpeg", 0.86), width: img.width, height: img.height });
+      // Read the original file bytes. A canvas JPEG flattened PNG transparency
+      // and replaced the production original with a lossy 900px derivative.
+      fileToDataUrl(file).then(
+        (data) => resolve({ url: data, width: img.width, height: img.height }),
+        reject,
+      );
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);

@@ -4,6 +4,7 @@ import { ArrowUp, ArrowDown, X, Eye } from "lucide-react";
 import { uploadProductImage } from "@/lib/commerce/api";
 import { type ProductRow, type VariantRow, money } from "@/lib/commerce/types";
 import { Field, Badge } from "./command-center";
+import { MAX_NEW_UPLOAD_BYTES } from "@/lib/upload-limits";
 type EditableVariant = {
   id?: string;
   title: string;
@@ -144,7 +145,7 @@ export function ProductEditor({
           </div>
         ))}
       </div>
-      <Field name="upload" title={uploading ? "Uploading…" : "Upload PNG, JPG or WebP (max 4 MB)"}>
+      <Field name="upload" title={uploading ? "Uploading…" : "Upload PNG, JPG or WebP (max 3 MB)"}>
         <input
           name="upload"
           type="file"
@@ -153,8 +154,8 @@ export function ProductEditor({
           onChange={async (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
-            if (file.size > 3_000_000) {
-              setError("Image must be smaller than 3 MB.");
+            if (file.size > MAX_NEW_UPLOAD_BYTES) {
+              setError("Upload an image up to 3 MB.");
               return;
             }
             setUploading(true);

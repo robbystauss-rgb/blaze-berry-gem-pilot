@@ -5,9 +5,11 @@ const file = path.join(process.cwd(), "src/components/build/builder.tsx");
 // Git may check out CRLF on Windows; source safeguards compare canonical LF.
 let source = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
 let changed = false;
+// Formatting must not make an already-applied safeguard look absent.
+const hasSource = (text) => source.replace(/\s+/g, "").includes(text.replace(/\s+/g, ""));
 
 function replaceOnce(oldText, newText, label) {
-  if (source.includes(newText)) return;
+  if (hasSource(newText)) return;
   if (!source.includes(oldText)) {
     throw new Error(`[REC Mama Made] Could not apply QA fix: ${label}. Builder source changed and needs review.`);
   }
@@ -33,11 +35,8 @@ replaceOnce(
   "remove hat color from patch-only heading",
 );
 
-replaceOnce(
-  '{patchOnly ? "Patch only" : draft.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each',
-  '{patchOnly ? "Patch only" : family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"} · ${est.unit} each',
-  "derive review tier copy from the effective hat family",
-);
+if(!hasSource('family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"'))
+  throw new Error('[REC Mama Made] Review copy must use the effective family tier.');
 
 replaceOnce(
   '  const missingDesign = !draft.patchText.trim() && !draft.artworkDataUrl;\n  const continueLabel =',
@@ -51,11 +50,8 @@ replaceOnce(
   "show missing color on review",
 );
 
-replaceOnce(
-  '  const ready = Boolean(draft.customerName.trim()) && emailOk && !missingDesign;',
-  '  const ready = !missingColor && Boolean(draft.customerName.trim()) && emailOk && !missingDesign;\n  const canAdvance =\n    !(active === "color" && !colorway) &&\n    !(active === "design" && missingDesign);',
-  "enforce required color and design before advancing",
-);
+if(!hasSource('const ready = !missingColor && Boolean(draft.customerName.trim()) && emailOk && !missingDesign && !!serverQuote && !quoteError && previewReady;'))
+  throw new Error('[REC Mama Made] Required choices and a server-validated quote must gate payment.');
 
 if (!source.includes('disabled={next ? !canAdvance : !ready}') || !source.includes('else if (!next && ready) focusPayment();')) {
   throw new Error("[REC Mama Made] Desktop advance/payment guard is missing. Builder source changed and needs review.");

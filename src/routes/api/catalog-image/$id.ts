@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/catalog-image/$id")({
           mime: string;
           bytes: Uint8Array;
           published: boolean;
-        }>`select a.mime,a.bytes,exists(select 1 from commerce_products p where p.state='active' and p.images @> ${JSON.stringify(["/api/catalog-image/" + params.id])}::jsonb) as published from commerce_assets a where a.id=${params.id}`;
+        }>`select a.mime,a.bytes,(exists(select 1 from commerce_products p where p.state='active' and (p.publish_at is null or p.publish_at<=now()) and p.images @> ${JSON.stringify(["/api/catalog-image/" + params.id])}::jsonb) or exists(select 1 from commerce_hat_photos h join commerce_documents d on d.scope='calibration' and d.key=h.id where h.asset_id=a.id and d.published is not null)) as published from commerce_assets a where a.id=${params.id}`;
         if (!asset) return new Response("Not found", { status: 404 });
         if (!asset.published) {
           try {
