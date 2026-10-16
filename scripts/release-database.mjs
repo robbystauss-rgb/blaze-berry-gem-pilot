@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * ONE-RELEASE opt-in, not an automatic production migrator. Without the exact
- * approval flag this module never opens a connection. The logical data snapshot
+ * approval flag this module never opens a connection, except explicitly requested
+ * read-only diagnosis. Production diagnosis additionally requires the approval
+ * flag. The logical data snapshot
  * stays inside the same database: it is NOT an offsite/disaster-recovery backup.
  */
 import { readdir } from "node:fs/promises";
@@ -10,6 +12,7 @@ import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { pendingMigrations } from "./migration-plan.mjs";
 import { applyMigrationFiles } from "./migration-runner.mjs";
+import { runReleaseSchemaAudit, safeMigrationNames } from "./release-schema-audit.mjs";
 
 export const BASELINE_MIGRATIONS = [
   "0001_auth.sql",
@@ -181,6 +184,15 @@ export async function runReleaseDatabase({
   log = console.log,
   maxSnapshotBytes = MAX_SNAPSHOT_BYTES,
 } = {}) {
+  if (env.REC_RELEASE_SCHEMA_AUDIT === "read-only") {
+    await runReleaseSchemaAudit({
+      env,
+      connect,
+      expectedMigrations: BASELINE_MIGRATIONS,
+      log,
+    });
+    throw new Error("Release refused: intentional deployment stop after read-only schema audit.");
+  }
   const config = releaseConfiguration(env);
   if (!config) return { skipped: true }; // Deliberately no DB query or connection.
   const entries = await readdir(directory);
@@ -205,12 +217,28 @@ export async function runReleaseDatabase({
     // Same key as db:migrate, with transaction ownership safe for pooled PG.
     await client.query("SELECT pg_advisory_xact_lock(hashtext('rec-mama-made:migrations'))");
     const migrationTable = await client.query("SELECT to_regclass('public._migrations') AS name");
-    if (!migrationTable.rows[0].name)
+    if (!migrationTable.rows[0].name) {
+      log("[release-database] Applied migration filenames:", "[]");
+      log("[release-database] Missing baseline filenames:", JSON.stringify(BASELINE_MIGRATIONS));
       throw new Error("Release refused: existing public._migrations history is required.");
+    }
     const applied = (await client.query("SELECT name FROM public._migrations")).rows.map(
       ({ name }) => name,
     );
-    const pending = releasePlan(entries, applied);
+    let pending;
+    try {
+      pending = releasePlan(entries, applied);
+    } catch (error) {
+      log(
+        "[release-database] Applied migration filenames:",
+        JSON.stringify(safeMigrationNames(applied)),
+      );
+      log(
+        "[release-database] Missing baseline filenames:",
+        JSON.stringify(BASELINE_MIGRATIONS.filter((name) => !applied.includes(name))),
+      );
+      throw error;
+    }
     if (!pending.length) {
       await client.query("COMMIT");
       log("[release-database] Approved release schema already current; no snapshot or changes.");

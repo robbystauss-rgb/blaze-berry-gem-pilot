@@ -191,7 +191,26 @@ test("snapshot cap and missing baseline fail before schema/data mutations", asyn
     );
     assert.equal((await db.query("select count(*)::int as n from _migrations")).rows[0].n, 7);
     await db.query("delete from _migrations where name=$1", [BASELINE_MIGRATIONS[0]]);
-    await assert.rejects(() => runReleaseDatabase(options(client)), /baseline/);
+    const diagnostic = [];
+    await assert.rejects(
+      () =>
+        runReleaseDatabase(
+          options(client, { log: (...values) => diagnostic.push(values.join(" ")) }),
+        ),
+      /baseline/,
+    );
+    assert.ok(
+      diagnostic.some(
+        (line) =>
+          line.includes("Applied migration filenames:") && line.includes(BASELINE_MIGRATIONS[1]),
+      ),
+    );
+    assert.ok(
+      diagnostic.some(
+        (line) =>
+          line.includes("Missing baseline filenames:") && line.includes(BASELINE_MIGRATIONS[0]),
+      ),
+    );
     assert.equal(
       (await db.query("select to_regclass('public.commerce_documents') as name")).rows[0].name,
       null,
