@@ -5,10 +5,11 @@ import { reserveInventory, audit, changeAllocation, notify, orderById } from "./
 import type { PaymentBuild } from "@/lib/payments";
 import { getSessionUser } from "@/lib/auth/verify.server";
 import catalog from "@/data/master-catalog.json";
+import { MAX_NEW_UPLOAD_BYTES, MAX_NEW_UPLOAD_DATA_URL_LENGTH } from "@/lib/upload-limits";
 
 export function decodeArtwork(data: string | undefined) {
   if (!data) return null;
-  if (data.length > 8_000_000) throw new Error("Artwork must be smaller than 6 MB.");
+  if (data.length > MAX_NEW_UPLOAD_DATA_URL_LENGTH) throw new Error("Upload artwork up to 3 MB.");
   const match =
     /^data:(image\/(?:png|jpeg|webp|svg\+xml)|application\/pdf);base64,([A-Za-z0-9+/=\r\n]+)$/.exec(
       data,
@@ -16,8 +17,21 @@ export function decodeArtwork(data: string | undefined) {
   if (!match) throw new Error("Upload a PNG, JPG, WebP, SVG or PDF artwork file.");
   const bytes = Buffer.from(match[2], "base64");
   const mime = match[1];
-  if (!bytes.length || bytes.length > 6_000_000)
-    throw new Error("Artwork must be smaller than 6 MB.");
+  if (!bytes.length || bytes.length > MAX_NEW_UPLOAD_BYTES)
+    throw new Error("Upload artwork up to 3 MB.");
+  const svg = mime === "image/svg+xml" ? bytes.toString("utf8") : "";
+  const safeSvg =
+    /<svg[\s>]/i.test(svg) &&
+    !/<script|on\w+\s*=|<foreignObject|<!DOCTYPE|<!ENTITY|<\?xml-stylesheet|@import/i.test(svg) &&
+    Array.from(svg.matchAll(/\b(?:href|src)\s*=\s*["']([^"']*)["']/gi)).every(([, ref]) =>
+      ref.trim().startsWith("#"),
+    ) &&
+    Array.from(svg.matchAll(/url\s*\(([^)]*)\)/gi)).every(([, ref]) =>
+      ref
+        .trim()
+        .replace(/^["']|["']$/g, "")
+        .startsWith("#"),
+    );
   const valid =
     mime === "image/png"
       ? bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
@@ -28,14 +42,12 @@ export function decodeArtwork(data: string | undefined) {
             bytes.subarray(8, 12).toString() === "WEBP"
           : mime === "application/pdf"
             ? bytes.subarray(0, 5).toString() === "%PDF-"
-            : /<svg[\s>]/i.test(bytes.toString()) &&
-              !/<script|on\w+\s*=|<foreignObject|(?:href|src)\s*=\s*["'](?:https?:|javascript:|data:)/i.test(
-                bytes.toString(),
-              );
+            : safeSvg;
   if (!valid) throw new Error("Artwork content does not match a supported file type.");
   return { bytes, mime };
 }
 export type CheckoutQuote = {
+  pricing?: Awaited<ReturnType<typeof import("./pricing.server").quoteSelection>>;
   build: PaymentBuild;
   lineName: string;
   description: string;
@@ -71,8 +83,12 @@ export async function createCheckoutOrder(
     previewPlacement: position,
     fulfilledQuantity: quote.fulfilled,
     bonusQuantity: quote.bonus,
-    priceDefinition: "Existing storefront quote; no added shipping/tax",
+    priceDefinition: quote.pricing
+      ? "Published price book and best eligible single offer; no added shipping/tax"
+      : "Existing storefront quote; no added shipping/tax",
+    pricing: quote.pricing,
     provider,
+    preview: await (await import("./preview-snapshot.server")).previewSnapshot(quote.build),
   };
   const hash = createHash("sha256")
     .update(JSON.stringify(spec))
@@ -84,14 +100,15 @@ export async function createCheckoutOrder(
   const sql = await getSql();
   const user = await resolveUser();
   const photo =
-    quote.build.orderType === "hat"
+    ("photo" in spec.preview ? spec.preview.photo?.imageUrl : undefined) ??
+    (quote.build.orderType === "hat"
       ? catalog.models
           .find((model) => model.code === quote.build.family)
           ?.colorways.find((color) => color.officialName === quote.build.colorway)?.views.front
-      : undefined;
+      : undefined);
   await sql.transaction(async (tx) => {
     const inserted =
-      await tx`insert into commerce_orders(id,customer_user_id,customer_name,customer_email,source,subtotal,total) values(${orderId},${user?.id ?? null},${quote.build.customerName},${quote.build.customerEmail},${provider + "_checkout"},${Math.round(quote.total * 100)},${Math.round(quote.total * 100)}) on conflict(id) do nothing returning id`;
+      await tx`insert into commerce_orders(id,customer_user_id,customer_name,customer_email,source,subtotal,discount,total) values(${orderId},${user?.id ?? null},${quote.build.customerName},${quote.build.customerEmail},${provider + "_checkout"},${quote.pricing?.subtotalCents ?? Math.round(quote.total * 100)},${quote.pricing?.discountCents ?? 0},${Math.round(quote.total * 100)}) on conflict(id) do nothing returning id`;
     if (!inserted.length) {
       const existing = await orderById(tx, orderId, true);
       if (existing.stage === "canceled")
@@ -115,6 +132,18 @@ export async function createCheckoutOrder(
         throw new Error("Checkout changed. Start a new checkout attempt.");
       return;
     }
+    if (quote.pricing)
+      await (
+        await import("./pricing.server")
+      ).reservePromotion(
+        tx,
+        orderId,
+        quote.build,
+        quote.build.promo,
+        quote.build.customerEmail,
+        quote.pricing,
+        user,
+      );
     await tx`insert into commerce_order_items(id,order_id,product_key,title,quantity,fulfilled_quantity,unit_amount,specifications,artwork,artwork_type)
   values(${randomUUID()},${orderId},${quote.build.orderType + ":" + quote.build.family + ":" + quote.build.colorway},${quote.lineName},${quote.purchased},${quote.fulfilled},${Math.round(quote.unit * 100)},${JSON.stringify({ ...spec, snapshot_hash: hash, ...(photo ? { productImages: [photo] } : {}) })},${artwork?.bytes ?? null},${artwork?.mime ?? null})`;
     await reserveInventory(tx, orderId, "checkout");

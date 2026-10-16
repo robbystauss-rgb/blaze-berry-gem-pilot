@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { randomUUID, randomBytes, createHash } from "node:crypto";
 import { createServer } from "vite";
 import { requestHandler } from "@tanstack/start-server-core/request-response";
+import sharp from "sharp";
+import { readFileSync } from "node:fs";
 if (process.env.DATABASE_URL || process.env.STRIPE_SECRET_KEY || process.env.PAYPAL_CLIENT_SECRET)
   throw Error("Integration tests require isolated local storage and no provider credentials.");
 let server, sql, core, mutations, read, webhooks, orderEmail;
@@ -26,6 +28,732 @@ before(async () => {
 after(async () => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   await server?.close();
+});
+
+test("physical patch dimensions follow exact-photo calibration, responsive scale and whole-patch fit", async () => {
+  const physical = await server.ssrLoadModule("/src/lib/patch-physical.ts");
+  const manifest = (await server.ssrLoadModule("/src/data/crown-calibrations.json")).default;
+  for (const model of ["112", "112FP", "256"]) {
+    const photo = manifest.records.find((p) => p.modelId === model),
+      g = physical.defaultPhotoGeometry(photo);
+    for (const [shape, size] of [
+      ["Rounded Rectangle", "small"],
+      ["Rectangle", "medium"],
+      ["Circle", "medium"],
+    ]) {
+      const inches = physical.physicalPatch(shape, size);
+      const desktop = physical.physicalProjection(inches, photo, g, {
+        width: 1000,
+        height: 800,
+        x: 0,
+        y: 0,
+      });
+      const mobile = physical.physicalProjection(inches, photo, g, {
+        width: 390,
+        height: 312,
+        x: 0,
+        y: 0,
+      });
+      assert.ok(Math.abs(desktop.width / mobile.width - 1000 / 390) < 1e-10);
+      assert.ok(Math.abs(desktop.width / desktop.height - inches.width / inches.height) < 1e-10);
+      const crown = { width: g.bounds.width * 1000, height: g.bounds.height * 800 };
+      const safe = physical.constrainPatch({ x: 5, y: -3 }, g.anchor, desktop, crown, g);
+      assert.ok(physical.patchFits(safe, desktop, crown, g.polygon));
+    }
+    g.reference = { start: { x: 0.3, y: 0.4 }, end: { x: 0.6, y: 0.4 }, inches: 3 };
+    const p = physical.physicalProjection({ width: 3, height: 2 }, photo, g, {
+      width: 1000,
+      height: (photo.sourceHeight / photo.sourceWidth) * 1000,
+      x: 0,
+      y: 0,
+    });
+    assert.ok(
+      Math.abs(p.width - 300) < 1e-8,
+      "a known 3 inch marker maps a 3 inch patch to the marker span",
+    );
+  }
+});
+
+test("SVG artwork rejects active and linked content while preserving safe original vector bytes", async () => {
+  const { decodeArtwork } = await server.ssrLoadModule("/src/lib/commerce/checkout.server.ts");
+  const encoded = (svg) => "data:image/svg+xml;base64," + Buffer.from(svg).toString("base64");
+  for (const svg of [
+    "<svg><script>alert(1)</script></svg>",
+    '<svg><image href="/private/art.png"/></svg>',
+    '<!DOCTYPE svg [<!ENTITY x SYSTEM "file:///private">]><svg>&x;</svg>',
+    '<svg><style>@import "https://example.invalid";</style></svg>',
+    '<svg><path fill="url(https://example.invalid/x)"/></svg>',
+  ])
+    assert.throws(() => decodeArtwork(encoded(svg)), /content/);
+  const safe =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40"><defs><clipPath id="cut"><rect width="100" height="40"/></clipPath></defs><text clip-path="url(#cut)" x="5" y="25">REC TEST</text></svg>';
+  assert.equal(Buffer.from(decodeArtwork(encoded(safe)).bytes).toString(), safe);
+});
+
+test("new artwork accepts exactly 3 MB unchanged and rejects oversized raw and encoded payloads", async () => {
+  const { decodeArtwork } = await server.ssrLoadModule("/src/lib/commerce/checkout.server.ts");
+  const { resizeImage } = await server.ssrLoadModule("/src/lib/order-store.ts");
+  const original = Buffer.alloc(3_000_000);
+  original.write("%PDF-1.7\nTEST ONLY boundary fixture\n");
+  const encode = (bytes) => "data:application/pdf;base64," + bytes.toString("base64");
+  assert.deepEqual(decodeArtwork(encode(original)).bytes, original);
+  const oneByteTooLarge = Buffer.concat([original, Buffer.from([0])]);
+  assert.throws(() => decodeArtwork(encode(oneByteTooLarge)), /up to 3 MB/);
+  assert.throws(() => decodeArtwork(encode(Buffer.alloc(3_010_000))), /up to 3 MB/);
+  // The browser helper fails before FileReader/Image APIs or any transformation.
+  await assert.rejects(
+    () => resizeImage(new File([oneByteTooLarge], "oversized.pdf", { type: "application/pdf" })),
+    /up to 3 MB/,
+  );
+});
+
+test("new media enforces the same 3 MB boundary without rewriting legacy larger originals", async () => {
+  const media = await server.ssrLoadModule("/src/lib/commerce/media.server.ts");
+  const png = await sharp({
+    create: { width: 2, height: 2, channels: 4, background: { r: 10, g: 20, b: 30, alpha: 0 } },
+  })
+    .png()
+    .toBuffer();
+  // PNG permits trailing data; it keeps the decoded image tiny while exercising
+  // the actual original-byte boundary and native processing/storage path.
+  const original = Buffer.concat([png, Buffer.alloc(3_000_000 - png.length)]);
+  const payload = (bytes) => ({
+    name: "TEST-ONLY-boundary.png",
+    data: "data:image/png;base64," + bytes.toString("base64"),
+    alt: "TEST ONLY media size boundary",
+  });
+  const { id } = await media.uploadMedia(payload(original), owner);
+  assert.deepEqual(
+    Buffer.from((await sql`select original from commerce_media where id=${id}`)[0].original),
+    original,
+  );
+  const legacyOriginal = Buffer.concat([original, Buffer.from([0])]);
+  for (const upload of [media.uploadMedia, media.uploadCatalogPhoto])
+    await assert.rejects(() => upload(payload(legacyOriginal), owner), /up to 3 MB/);
+  await assert.rejects(
+    () => media.uploadMedia(payload(Buffer.alloc(3_010_000)), owner),
+    /up to 3 MB/,
+  );
+  // Simulate a pre-release stored original: editing its metadata remains allowed
+  // and must not apply the new-upload cap to existing bytes.
+  await sql`update commerce_media set original=${legacyOriginal} where id=${id}`;
+  await media.editMedia({ id, version: 1, alt: "Updated legacy photo", tags: [] }, owner);
+  const [after] = await sql`select original,alt from commerce_media where id=${id}`;
+  assert.equal(after.alt, "Updated legacy photo");
+  assert.deepEqual(Buffer.from(after.original), legacyOriginal);
+});
+
+test("exact-photo drafts are private, owner-only, versioned, published and reversible without changing another model", async () => {
+  const { saveDocument, publishedDocument } = await server.ssrLoadModule(
+    "/src/lib/commerce/publishing.server.ts",
+  );
+  const { defaultPhotoGeometry } = await server.ssrLoadModule("/src/lib/patch-physical.ts");
+  const manifest = (await server.ssrLoadModule("/src/data/crown-calibrations.json")).default;
+  const photo = manifest.records[0],
+    other = manifest.records.find((p) => p.modelId === "112FP"),
+    body = defaultPhotoGeometry(photo);
+  const change = { scope: "calibration", key: photo.id, version: 0, action: "draft", body };
+  await assert.rejects(() => saveDocument(change, manager), /Access denied/);
+  await saveDocument(change, owner);
+  assert.equal(await publishedDocument("calibration", photo.id), null);
+  await assert.rejects(
+    () =>
+      saveDocument({ ...change, version: 1, body: { ...body, imageVersion: other.sha256 } }, owner),
+    /Photo changed/,
+  );
+  await saveDocument({ ...change, version: 1, action: "publish" }, owner);
+  assert.equal((await publishedDocument("calibration", photo.id)).imageVersion, photo.sha256);
+  await assert.rejects(
+    () => saveDocument({ ...change, version: 1, action: "publish" }, owner),
+    /changed/,
+  );
+  await saveDocument(
+    { ...change, version: 2, action: "publish", body: { ...body, skew: 3 } },
+    owner,
+  );
+  await saveDocument({ ...change, version: 3, action: "revert", revision: 1 }, owner);
+  assert.equal((await publishedDocument("calibration", photo.id)).skew, 0);
+  assert.equal(await publishedDocument("calibration", other.id), null);
+});
+
+test("media preserves private originals and alpha, strips public metadata, and requires consent/alt text before gallery publication", async () => {
+  const media = await server.ssrLoadModule("/src/lib/commerce/media.server.ts");
+  const publishing = await server.ssrLoadModule("/src/lib/commerce/publishing.server.ts");
+  const source = await sharp({
+    create: {
+      width: 120,
+      height: 80,
+      channels: 4,
+      background: { r: 180, g: 120, b: 70, alpha: 0 },
+    },
+  })
+    .withMetadata({ orientation: 6 })
+    .png()
+    .toBuffer();
+  const payload = {
+    name: "TEST-FIXTURE-alpha.png",
+    data: "data:image/png;base64," + source.toString("base64"),
+    alt: "",
+  };
+  await assert.rejects(() => media.uploadMedia(payload, manager), /Access denied/);
+  await assert.rejects(
+    () =>
+      media.uploadMedia(
+        {
+          ...payload,
+          data: "data:image/png;base64," + Buffer.from("not a PNG").toString("base64"),
+        },
+        owner,
+      ),
+    /content/,
+  );
+  const { id } = await media.uploadMedia(payload, owner);
+  const [stored] =
+    await sql`select m.*,a.bytes from commerce_media m join commerce_assets a on a.id=m.id where m.id=${id}`;
+  assert.deepEqual(Buffer.from(stored.original), source);
+  const metadata = await sharp(Buffer.from(stored.bytes)).metadata();
+  assert.equal(metadata.exif, undefined);
+  assert.equal(metadata.hasAlpha, true);
+  assert.equal(metadata.width, 80);
+  assert.equal(metadata.height, 120);
+  assert.equal(await media.mediaIsPublished(id), false);
+  const project = {
+    title: "TEST FIXTURE finished hat",
+    description: "Isolated QA project",
+    category: "Hats",
+    tags: ["test"],
+    mediaIds: [id],
+    coverId: id,
+    featured: true,
+    consent: false,
+    archived: false,
+    family: "112",
+  };
+  const key = randomUUID();
+  await publishing.saveDocument(
+    { scope: "gallery", key, version: 0, action: "draft", body: project },
+    owner,
+  );
+  await assert.rejects(
+    () =>
+      publishing.saveDocument(
+        { scope: "gallery", key, version: 1, action: "publish", body: project },
+        owner,
+      ),
+    /permission/,
+  );
+  await media.editMedia(
+    { id, version: 1, alt: "TEST FIXTURE finished hat photograph", tags: ["test"] },
+    owner,
+  );
+  await publishing.saveDocument(
+    { scope: "gallery", key, version: 1, action: "publish", body: { ...project, consent: true } },
+    owner,
+  );
+  assert.equal(await media.mediaIsPublished(id), true);
+  await assert.rejects(
+    () => media.editMedia({ id, version: 2, alt: "Test", tags: [], archive: true }, owner),
+    /in use/,
+  );
+  const { Route } = await server.ssrLoadModule("/src/routes/api/media/$id.ts");
+  const get = Route.options.server.handlers.GET;
+  const publicPhoto = await inSession(new Headers(), () =>
+    get({ params: { id }, request: new Request("http://localhost:8080/api/media/" + id) }),
+  );
+  assert.equal(publicPhoto.status, 200);
+  const original = await inSession(new Headers(), () =>
+    get({
+      params: { id },
+      request: new Request("http://localhost:8080/api/media/" + id + "?original=1"),
+    }),
+  );
+  assert.equal(original.status, 404);
+});
+
+test("storefront drafts publish and revert controlled fields, reject executable destinations and preserve history", async () => {
+  const { saveDocument, publishedDocument } = await server.ssrLoadModule(
+    "/src/lib/commerce/publishing.server.ts",
+  );
+  const { DEFAULT_STOREFRONT } = await server.ssrLoadModule("/src/lib/commerce/owner-schemas.ts");
+  const p = {
+    scope: "storefront",
+    key: "main",
+    version: 0,
+    action: "draft",
+    body: { ...DEFAULT_STOREFRONT, heroTitle: "TEST draft title" },
+  };
+  await saveDocument(p, owner);
+  assert.equal(await publishedDocument("storefront", "main"), null);
+  await assert.rejects(() =>
+    saveDocument({ ...p, version: 1, body: { ...p.body, ctaPath: "javascript:alert(1)" } }, owner),
+  );
+  await saveDocument({ ...p, version: 1, action: "publish" }, owner);
+  await saveDocument(
+    { ...p, version: 2, action: "publish", body: { ...p.body, heroTitle: "TEST second revision" } },
+    owner,
+  );
+  await saveDocument({ ...p, version: 3, action: "revert", revision: 1 }, owner);
+  assert.equal((await publishedDocument("storefront", "main")).heroTitle, "TEST draft title");
+  assert.equal(
+    (await sql`select * from commerce_document_revisions where scope='storefront' and key='main'`)
+      .length,
+    3,
+  );
+});
+
+test("owner photos require exact variant verification, remain private until calibrated, and freeze independent of later media edits", async () => {
+  const photos = await server.ssrLoadModule("/src/lib/commerce/hat-photos.server.ts"),
+    media = await server.ssrLoadModule("/src/lib/commerce/media.server.ts"),
+    publishing = await server.ssrLoadModule("/src/lib/commerce/publishing.server.ts");
+  const physical = await server.ssrLoadModule("/src/lib/patch-physical.ts"),
+    manifest = (await server.ssrLoadModule("/src/data/crown-calibrations.json")).default;
+  const reference = manifest.records.find((p) => p.modelId === "256"),
+    bytes = readFileSync(new URL("../public" + reference.imageUrl, import.meta.url));
+  const { id: mediaId } = await media.uploadMedia(
+    {
+      name: "TEST exact 256 photo.webp",
+      data: "data:image/webp;base64," + bytes.toString("base64"),
+      alt: "TEST FIXTURE exact Richardson 256",
+    },
+    owner,
+  );
+  const input = {
+    modelId: "256",
+    colorway: reference.colorway,
+    mediaId,
+    verified: true,
+    provenance: "TEST FIXTURE copy of the existing exact 256 source photograph",
+  };
+  await assert.rejects(() => photos.registerHatPhoto(input, manager), /Access denied/);
+  await assert.rejects(
+    () => photos.registerHatPhoto({ ...input, modelId: "112" }, owner),
+    /exact existing/,
+  );
+  await assert.rejects(() => photos.registerHatPhoto({ ...input, verified: false }, owner));
+  const photo = await photos.registerHatPhoto(input, owner);
+  assert.equal(await photos.publishedHatPhoto("256", reference.colorway), null);
+  const g = { ...physical.defaultPhotoGeometry(photo), bounds: reference.bounds };
+  await assert.rejects(() =>
+    publishing.saveDocument(
+      {
+        scope: "calibration",
+        key: photo.id,
+        version: 0,
+        action: "publish",
+        body: { ...g, polygon: [] },
+      },
+      owner,
+    ),
+  );
+  await publishing.saveDocument(
+    { scope: "calibration", key: photo.id, version: 0, action: "publish", body: g },
+    owner,
+  );
+  const publicPhoto = (await photos.publishedHatPhoto("256", reference.colorway)).photo;
+  assert.equal(publicPhoto.id, photo.id);
+  assert.ok(
+    !publicPhoto.provenance.includes(input.provenance),
+    "public response excludes private verification note",
+  );
+  assert.equal((await photos.exactHatPhoto(photo.id)).provenance, input.provenance);
+  assert.equal(await photos.publishedHatPhoto("112", reference.colorway), null);
+  await media.editMedia(
+    { id: mediaId, version: 1, alt: "TEST re-cropped media", tags: [], rotation: 90 },
+    owner,
+  );
+  const [asset] = await sql`select bytes from commerce_assets where id=${photo.assetId}`;
+  assert.equal(createHash("sha256").update(asset.bytes).digest("hex"), photo.sha256);
+  await publishing.saveDocument(
+    { scope: "calibration", key: photo.id, version: 1, action: "unpublish", body: g },
+    owner,
+  );
+  assert.equal(await photos.publishedHatPhoto("256", reference.colorway), null);
+});
+
+test("checkout rejects stale preview identity while preserving original physical production dimensions", async () => {
+  const { previewSnapshot } = await server.ssrLoadModule(
+      "/src/lib/commerce/preview-snapshot.server.ts",
+    ),
+    physical = await server.ssrLoadModule("/src/lib/patch-physical.ts");
+  const build = {
+    orderType: "hat",
+    family: "112",
+    colorway: "Black",
+    patchShape: "Rounded Rectangle",
+    patchSize: "small",
+    placement: "front-center",
+    previewPlacement: { position: { version: 2, anchor: { x: 0.5, y: 0.5 } } },
+  };
+  const snapshot = await previewSnapshot(build);
+  assert.deepEqual(snapshot.physicalInches, { width: 2.5, height: 1.5 });
+  const expectedPreview = {
+    photoId: snapshot.photo.id,
+    imageVersion: snapshot.photo.sha256,
+    geometrySignature: physical.geometrySignature(snapshot.geometry),
+  };
+  assert.equal(
+    (await previewSnapshot({ ...build, previewVersion: 3, expectedPreview })).photo.id,
+    snapshot.photo.id,
+  );
+  await assert.rejects(
+    () =>
+      previewSnapshot({
+        ...build,
+        previewVersion: 3,
+        expectedPreview: { ...expectedPreview, imageVersion: "a".repeat(64) },
+      }),
+    /photograph or calibration changed/,
+  );
+  await assert.rejects(
+    () =>
+      previewSnapshot({
+        ...build,
+        previewPlacement: { position: { version: 2, anchor: { x: 12, y: 12 } } },
+      }),
+    /beyond/,
+  );
+});
+
+test("customer-specific promotions require verified identity and reject a different checkout email", async () => {
+  const pricing = await server.ssrLoadModule("/src/lib/commerce/pricing.server.ts");
+  const selection = {
+    orderType: "hat",
+    family: "112",
+    colorway: "Black",
+    leatherette: "buckskin",
+    patchShape: "Rounded Rectangle",
+    patchSize: "medium",
+    quantity: 1,
+  };
+  const definition = {
+    campaign: "TEST identity",
+    type: "fixed",
+    amount: 100,
+    startsAt: null,
+    endsAt: null,
+    minimumSpend: 0,
+    minimumQuantity: 1,
+    families: [],
+    orderType: "any",
+    maximumUses: null,
+    perCustomer: 1,
+    customerEmail: "test-owner@example.invalid",
+    firstOrder: true,
+    automatic: false,
+    perItem: false,
+  };
+  const id = randomUUID(),
+    code = "ID-" + randomUUID().slice(0, 8).toUpperCase();
+  await pricing.savePromotion({ id, code, definition, state: "active", version: 0 }, owner);
+  await assert.rejects(
+    () => pricing.quoteSelection(selection, code, "test-owner@example.invalid", undefined, null),
+    /not available/,
+  );
+  await assert.rejects(
+    () =>
+      pricing.quoteSelection(selection, code, "forged@example.invalid", undefined, {
+        id: owner.userId,
+        email: "test-owner@example.invalid",
+      }),
+    /not available/,
+  );
+  const result = await pricing.quoteSelection(
+    selection,
+    code,
+    "test-owner@example.invalid",
+    undefined,
+    { id: owner.userId, email: "test-owner@example.invalid" },
+  );
+  assert.equal(result.discountCents, 100);
+});
+
+test("inventory adjustments change public availability and builder quotes without allowing staff price publication", async () => {
+  const availability = await server.ssrLoadModule("/src/lib/commerce/availability.server.ts");
+  const { id: inventoryId } = await mutations.mutate(
+    "inventory.create",
+    {
+      sku: "TEST-AVAIL-" + randomUUID(),
+      title: "TEST availability blanks",
+      category: "blank_hat",
+      threshold: 2,
+    },
+    owner,
+  );
+  await mutations.mutate(
+    "inventory.adjust",
+    {
+      id: inventoryId,
+      version: 1,
+      delta: 3,
+      reason: "TEST verified blank count",
+      requestId: randomUUID(),
+    },
+    owner,
+  );
+  const variant = {
+    title: "TEST variant",
+    sku: "TEST-AVAIL-" + randomUUID(),
+    price: 500,
+    active: true,
+    options: {},
+  };
+  const product = {
+    title: "TEST availability product",
+    description: "Isolated fixture",
+    category: "Test",
+    state: "active",
+    images: ["/brand/rec-mama-made-louisiana-logo.jpeg"],
+    variants: [variant],
+  };
+  const { id: productId } = await mutations.mutate("product.save", product, owner);
+  const [v] = await sql`select * from commerce_variants where product_id=${productId}`;
+  await mutations.mutate(
+    "inventory.rule",
+    { productKey: "variant:" + v.id, inventoryId, units: 1 },
+    owner,
+  );
+  assert.equal((await availability.publishedVariants(sql, [productId]))[0].available, 3);
+  await mutations.mutate(
+    "inventory.adjust",
+    {
+      id: inventoryId,
+      version: 2,
+      delta: -3,
+      reason: "TEST verified zero count",
+      requestId: randomUUID(),
+    },
+    owner,
+  );
+  assert.equal((await availability.publishedVariants(sql, [productId]))[0].available, 0);
+  await assert.rejects(
+    () =>
+      mutations.mutate(
+        "product.save",
+        { ...product, id: productId, version: 1, variants: [{ ...v, price: 1 }] },
+        manager,
+      ),
+    /Access denied/,
+  );
+  assert.equal((await sql`select price from commerce_variants where id=${v.id}`)[0].price, 500);
+  const selection = {
+    orderType: "hat",
+    family: "112",
+    colorway: "Black",
+    leatherette: "buckskin",
+    patchShape: "Rounded Rectangle",
+    patchSize: "medium",
+    quantity: 1,
+  };
+  await mutations.mutate(
+    "inventory.rule",
+    { productKey: "hat:112:Black", inventoryId, units: 1 },
+    owner,
+  );
+  await assert.rejects(
+    () => availability.checkBuildAvailability(sql, selection),
+    /not currently available/,
+  );
+  await mutations.mutate(
+    "inventory.rule",
+    { productKey: "hat:112:Black", inventoryId, units: 0 },
+    owner,
+  );
+});
+
+test("promotion eligibility validates exact models, money, expiration and single best-offer precedence", async () => {
+  const schemas = await server.ssrLoadModule("/src/lib/commerce/owner-schemas.ts"),
+    calc = await server.ssrLoadModule("/src/lib/commerce/price-calculation.ts");
+  const definition = {
+    campaign: "TEST ONLY",
+    type: "percent",
+    amount: 10,
+    startsAt: null,
+    endsAt: null,
+    minimumSpend: 3000,
+    minimumQuantity: 2,
+    families: ["112"],
+    orderType: "hat",
+    maximumUses: 1,
+    perCustomer: null,
+    customerEmail: null,
+    firstOrder: false,
+    automatic: false,
+    perItem: false,
+  };
+  const p = { id: randomUUID(), code: "TEST10", definition, state: "active", version: 1 };
+  const s = {
+    orderType: "hat",
+    family: "112",
+    colorway: "Black",
+    leatherette: "buckskin",
+    patchShape: "Rounded Rectangle",
+    patchSize: "medium",
+    quantity: 2,
+  };
+  assert.equal(calc.promotionEligible(p, s, 6000, Date.now()), true);
+  assert.equal(calc.promotionEligible(p, { ...s, family: "112FP" }, 6000, Date.now()), false);
+  assert.equal(
+    calc.promotionEligible(
+      { ...p, definition: { ...definition, endsAt: new Date(Date.now() - 1).toISOString() } },
+      s,
+      6000,
+      Date.now(),
+    ),
+    false,
+  );
+  assert.equal(calc.promotionEligible(p, { ...s, quantity: 1 }, 3000, Date.now()), false);
+  assert.equal(
+    schemas.promotionSchema.safeParse({ ...p, definition: { ...definition, amount: 101 } }).success,
+    false,
+  );
+  const book = { ...schemas.DEFAULT_PRICING, tiers: [{ minimum: 2, percent: 15 }] };
+  const total = calc.calculatePrice(s, book, p);
+  assert.equal(total.totalCents, 5100);
+  assert.equal(total.promotionId, null);
+  assert.equal(total.discountCents, 900);
+  assert.throws(() => calc.calculatePrice({ ...s, quantity: NaN }, book), /quantity/);
+});
+
+test("new-sale prices and race-safe promotion reservations freeze order totals; verified payments redeem once", async () => {
+  const publishing = await server.ssrLoadModule("/src/lib/commerce/publishing.server.ts"),
+    pricing = await server.ssrLoadModule("/src/lib/commerce/pricing.server.ts");
+  const { DEFAULT_PRICING } = await server.ssrLoadModule("/src/lib/commerce/owner-schemas.ts");
+  const checkout = await server.ssrLoadModule("/src/lib/commerce/checkout.server.ts");
+  const oldId = await draft(),
+    oldItems = await sql`select * from commerce_order_items where order_id=${oldId}`;
+  await publishing.saveDocument(
+    {
+      scope: "pricing",
+      key: "main",
+      version: 0,
+      action: "publish",
+      body: { ...DEFAULT_PRICING, models: { ...DEFAULT_PRICING.models, 112: 3201 } },
+    },
+    owner,
+  );
+  const promoId = randomUUID(),
+    code = "TEST-" + randomUUID().slice(0, 8).toUpperCase();
+  const definition = {
+    campaign: "TEST ONLY race",
+    type: "percent",
+    amount: 10,
+    startsAt: null,
+    endsAt: null,
+    minimumSpend: 0,
+    minimumQuantity: 1,
+    families: ["112"],
+    orderType: "hat",
+    maximumUses: 1,
+    perCustomer: null,
+    customerEmail: null,
+    firstOrder: false,
+    automatic: false,
+    perItem: false,
+  };
+  await assert.rejects(
+    () =>
+      pricing.savePromotion(
+        { id: promoId, code, definition, state: "active", version: 0 },
+        manager,
+      ),
+    /Access denied/,
+  );
+  await pricing.savePromotion(
+    { id: promoId, code, definition, state: "active", version: 0 },
+    owner,
+  );
+  const selection = {
+    orderType: "hat",
+    family: "112",
+    colorway: "Black",
+    leatherette: "buckskin",
+    patchShape: "Rounded Rectangle",
+    patchSize: "medium",
+    quantity: 2,
+  };
+  const result = await pricing.quoteSelection(
+    selection,
+    code,
+    "buyer@example.invalid",
+    undefined,
+    null,
+  );
+  assert.equal(result.subtotalCents, 6402);
+  assert.equal(result.discountCents, 640);
+  assert.equal(result.totalCents, 5762);
+  const make = () => ({
+    pricing: result,
+    build: {
+      ...selection,
+      customerName: "TEST FIXTURE buyer",
+      customerEmail: "buyer@example.invalid",
+      placement: "front-center",
+      patchText: "REC TEST",
+      hasArtwork: false,
+      notes: "TEST ONLY",
+      promo: code,
+      checkoutRequestId: randomUUID(),
+      previewPlacement: {
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1,
+        position: { version: 2, anchor: { x: 0.5, y: 0.5 } },
+      },
+    },
+    lineName: "TEST ONLY custom hat",
+    description: "Test-only configuration",
+    unit: result.unitCents / 100,
+    purchased: 2,
+    bonus: 0,
+    fulfilled: 2,
+    total: result.totalCents / 100,
+  });
+  const raced = await Promise.allSettled([
+    checkout.createCheckoutOrder(make(), "stripe", async () => null),
+    checkout.createCheckoutOrder(make(), "stripe", async () => null),
+  ]);
+  assert.equal(raced.filter((r) => r.status === "fulfilled").length, 1);
+  assert.equal(raced.filter((r) => r.status === "rejected").length, 1);
+  const id = raced.find((r) => r.status === "fulfilled").value;
+  const detail = await read.readOrder(id, owner);
+  assert.equal(detail.order.total, 5762);
+  assert.equal(detail.order.discount, 640);
+  assert.equal(detail.items[0].unit_amount, 3201);
+  assert.equal(detail.items[0].specifications.preview.version, 3);
+  assert.equal(detail.items[0].specifications.preview.physicalInches.width, 3);
+  assert.equal(detail.items[0].specifications.pricing.totalCents, 5762);
+  await mutations.mutate(
+    "order.update",
+    { id, version: detail.order.version, stage: "artwork_review", assignedTo: production.userId },
+    owner,
+  );
+  const assignedDetail = await read.readOrder(id, production);
+  assert.equal(assignedDetail.items[0].specifications.pricing, undefined);
+  assert.equal(assignedDetail.items[0].specifications.preview.physicalInches.width, 3);
+  const payment = {
+    orderId: id,
+    provider: "test_fixture",
+    reference: randomUUID(),
+    kind: "payment",
+    amount: 5762,
+    occurredAt: new Date().toISOString(),
+  };
+  await sql.transaction((tx) => core.recordPayment(tx, payment));
+  await sql.transaction((tx) => core.recordPayment(tx, payment));
+  assert.equal(
+    (await sql`select state from commerce_promotion_uses where order_id=${id}`)[0].state,
+    "redeemed",
+  );
+  assert.equal((await pricing.promotionList()).find((p) => p.id === promoId).redemptions, 1);
+  assert.deepEqual(await sql`select * from commerce_order_items where order_id=${oldId}`, oldItems);
+  await pricing.savePromotion(
+    { id: promoId, code, definition, state: "inactive", version: 1 },
+    owner,
+  );
+  await assert.rejects(
+    () => pricing.quoteSelection(selection, code, "buyer@example.invalid", undefined, null),
+    /not available/,
+  );
 });
 async function signedInFixture(role = "customer") {
   const { auth } = await server.ssrLoadModule("/src/lib/auth/server.ts");

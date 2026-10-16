@@ -18,7 +18,9 @@ const id = z.string().uuid(),
   text = z.string().trim(),
   cents = z.number().int().min(0).max(10000000);
 const safeImage = text.refine(
-  (v) => /^\/(?:assets|brand|api\/catalog-image)\/[a-zA-Z0-9_./-]+$/.test(v) && !v.includes(".."),
+  (v) =>
+    /^\/(?:assets|brand|api\/catalog-image|api\/media)\/[a-zA-Z0-9_./-]+$/.test(v) &&
+    !v.includes(".."),
   "Use an existing local asset or upload a product image.",
 );
 export async function mutate(
@@ -289,6 +291,7 @@ export async function mutate(
       }
       case "product.builder_content": {
         assertPermission(actor.role, "products");
+        assertPermission(actor.role, "website");
         const p = z
           .object({
             family: text.refine((v) => v in FAMILIES, "Unknown catalog model"),
@@ -358,8 +361,11 @@ export async function mutate(
         const [before] = await tx<{
           version: number;
           builder_family: string | null;
+          state: string;
         }>`select * from commerce_products where id=${productId} for update`;
         if (before?.builder_family) throw new Error("Builder-linked products cannot be rewritten.");
+        if (p.state === "active" || before?.state === "active")
+          assertPermission(actor.role, "website");
         if (before && before.version !== p.version)
           throw new Error("Product changed. Refresh before saving.");
         if (p.id && !before) throw new Error("Product not found.");
@@ -369,6 +375,13 @@ export async function mutate(
           price: number;
           sku: string;
         }>`select * from commerce_variants where product_id=${productId}`;
+        if (
+          p.variants.some((v) => {
+            const prior = oldVariants.find((old) => (v.id ? old.id === v.id : old.sku === v.sku));
+            return !prior || prior.price !== v.price;
+          })
+        )
+          assertPermission(actor.role, "finance");
         await tx`update commerce_variants set active=false where product_id=${productId}`;
         for (const v of p.variants) {
           if (v.id && !oldVariants.some((old) => old.id === v.id))

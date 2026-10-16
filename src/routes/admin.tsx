@@ -15,11 +15,17 @@ export const sections = [
   "reports",
   "staff",
   "security",
+  "calibration",
+  "gallery",
+  "pricing",
+  "promotions",
+  "content",
 ] as const;
 export const Route = createFileRoute("/admin")({
   validateSearch: z.object({
     section: z.enum(sections).default("overview"),
     orderId: z.string().uuid().optional(),
+    query: z.string().max(200).optional(),
   }),
   head: () => ({
     meta: [

@@ -324,6 +324,7 @@ export async function readOrder(id: string, actor: { userId: string; role: Role 
       i.unit_amount = 0;
       delete i.specifications.customerEmail;
       delete i.specifications.customerName;
+      delete i.specifications.pricing;
     });
   }
   return {

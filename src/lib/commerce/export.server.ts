@@ -42,6 +42,8 @@ export function csvCell(value: unknown) {
       : typeof value === "object"
         ? JSON.stringify(value)
         : String(value);
+  // Control-prefixed spreadsheet formulas must be escaped as well.
+  // eslint-disable-next-line no-control-regex
   if (/^[\s\u0000-\u001f]*[=+\-@]/.test(text)) text = "'" + text;
   return '"' + text.replaceAll('"', '""') + '"';
 }

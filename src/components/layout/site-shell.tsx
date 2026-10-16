@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { getPublishedContent } from "@/lib/commerce/public";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { FeaturedProducts } from "./featured-products";
+import { usePriceBook, minimumPrice, minimumPatchPrice } from "@/lib/commerce/use-pricebook";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -19,6 +20,7 @@ const LINKS = [
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useCurrentUserState();
+  const book = usePriceBook();
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState<Record<string, string>>({});
   useEffect(() => {
@@ -55,7 +57,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </span>
           </div>
           <p className="hidden shrink-0 text-bark sm:block">
-            Hat + patch from $30 · Patch only from $5 · Buy 12, get 1 free
+            {book
+              ? `Hat + patch from $${(Math.min(...Object.keys(book.models).map((f) => minimumPrice(book, f))) / 100).toFixed(2)} · Patch only from $${(minimumPatchPrice(book) / 100).toFixed(2)} · Buy 12, get 1 free`
+              : "Custom hats & patches · Buy 12 hats, get 1 free"}
           </p>
         </div>
       </div>

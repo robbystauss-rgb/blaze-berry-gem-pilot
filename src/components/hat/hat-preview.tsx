@@ -1,15 +1,41 @@
 import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FamilyId, LeatheretteId, PatchShape, PatchSize, Placement } from "@/lib/catalog";
 import { FAMILIES, getLeatherette } from "@/lib/catalog";
 import { useOrder } from "@/lib/order-store";
-import { familyHero, familyHeroCalibration, stageFrontCalibration, stageViews } from "@/lib/stage-photos";
 import {
-  DEFAULT_ANCHORS, crownToDisplay, dragAnchor, fittedImageRect,
-  isCrownPosition, isFrontPlacement, legacyToCrown, patchAspectRatio, patchDimensions,
-  type Calibration, type Point, type Rect,
+  familyHero,
+  familyHeroCalibration,
+  stageFrontCalibration,
+  stageViews,
+} from "@/lib/stage-photos";
+import {
+  DEFAULT_ANCHORS,
+  crownToDisplay,
+  dragAnchor,
+  fittedImageRect,
+  isCrownPosition,
+  isFrontPlacement,
+  legacyToCrown,
+  patchAspectRatio,
+  patchDimensions,
+  type Calibration,
+  type Point,
+  type Rect,
 } from "@/lib/crown-geometry";
 import { cn } from "@/lib/utils";
+import { getPublicDocument, getPublishedHatPhoto } from "@/lib/commerce/owner-api";
+import {
+  defaultPhotoGeometry,
+  physicalPatch,
+  physicalProjection,
+  constrainPatch,
+  patchFits,
+  dimensionLabel,
+  geometrySignature,
+  type PhotoGeometry,
+} from "@/lib/patch-physical";
+import { PatchFace } from "./patch-face";
 
 type Props = {
   family: FamilyId;
@@ -112,28 +138,102 @@ export function HatPreview({
   const leather = getLeatherette(leatherette);
   const draft = useOrder();
   const named = colorway.trim();
+  const baseFront = stageFrontCalibration(family, named);
+  const [ownerPhoto, setOwnerPhoto] = useState<{
+    key: string;
+    value: Awaited<ReturnType<typeof getPublishedHatPhoto>>;
+  }>({ key: "", value: null });
+  const photoKey = family + "|" + (baseFront?.colorway ?? "");
+  useEffect(() => {
+    let active = true;
+    if (named && baseFront)
+      void getPublishedHatPhoto({ data: { modelId: family, colorway: baseFront.colorway } })
+        .then((value) => {
+          if (active) setOwnerPhoto({ key: photoKey, value });
+        })
+        .catch(() => {
+          if (active) setOwnerPhoto({ key: photoKey, value: null });
+        });
+    return () => {
+      active = false;
+    };
+  }, [photoKey, named, family, baseFront]);
+  const override = ownerPhoto.key === photoKey && named ? ownerPhoto.value : null;
   const matched = stageViews(family, named || "none");
-  const hero = !named && !patchOnly ? (familyHeroCalibration(family)?.imageUrl ?? familyHero(family)) : null;
-  const shots = hero ? { front: hero, side: null, back: null } : matched;
+  const hero =
+    !named && !patchOnly ? (familyHeroCalibration(family)?.imageUrl ?? familyHero(family)) : null;
+  const shots = hero
+    ? { front: hero, side: null, back: null }
+    : { ...matched, front: override?.photo.imageUrl ?? matched.front };
   const available = (["front", "side", "back"] as const).filter((view) => shots[view]);
   const [view, setView] = useState<ViewName>("front");
   const [zoom, setZoom] = useState(false);
   const drag = useRef<{ x: number } | null>(null);
-  const active = available.includes(view) ? view : available[0] ?? "front";
+  const active = available.includes(view) ? view : (available[0] ?? "front");
   const src = shots[active];
-  const calibration = active === "front" ? (hero ? familyHeroCalibration(family) : stageFrontCalibration(family, named)) : null;
+  const calibration =
+    active === "front"
+      ? hero
+        ? familyHeroCalibration(family)
+        : (override?.photo ?? baseFront)
+      : null;
+  const [publishedGeometry, setPublishedGeometry] = useState<{
+    key: string;
+    value: PhotoGeometry | null;
+  }>({ key: "", value: null });
+  useEffect(() => {
+    let alive = true;
+    if (calibration)
+      void getPublicDocument({ data: { scope: "calibration", key: calibration.id } })
+        .then((v) => {
+          if (alive)
+            setPublishedGeometry({ key: calibration.id, value: v as PhotoGeometry | null });
+        })
+        .catch(() => {
+          if (alive) setPublishedGeometry({ key: calibration.id, value: null });
+        });
+    return () => {
+      alive = false;
+    };
+  }, [calibration?.id]);
+  const photoGeometry = useMemo(
+    () =>
+      calibration
+        ? override?.photo.id === calibration.id
+          ? override.geometry
+          : publishedGeometry.key === calibration.id &&
+              publishedGeometry.value?.imageVersion === calibration.sha256
+            ? publishedGeometry.value
+            : defaultPhotoGeometry(calibration)
+        : null,
+    [calibration, publishedGeometry, override],
+  );
   const calibratedFront = active === "front" && isFrontPlacement(placement);
   const imageRef = useRef<HTMLImageElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
-  const [loadedImage, setLoadedImage] = useState<{ src: string; width: number; height: number } | null>(null);
+  const [loadedImage, setLoadedImage] = useState<{
+    src: string;
+    width: number;
+    height: number;
+  } | null>(null);
   const [failedImage, setFailedImage] = useState<string | null>(null);
   const [imageBox, setImageBox] = useState<Rect>({ x: 0, y: 0, width: 0, height: 0 });
-  const sourceReady = loadedImage?.src === src && calibration?.imageUrl === src &&
-    loadedImage.width === calibration.sourceWidth && loadedImage.height === calibration.sourceHeight;
+  const sourceReady =
+    loadedImage?.src === src &&
+    calibration?.imageUrl === src &&
+    loadedImage.width === calibration.sourceWidth &&
+    loadedImage.height === calibration.sourceHeight;
   const imageRect = sourceReady && loadedImage ? fittedImageRect(loadedImage, imageBox) : null;
   const showPatch = patchOnly || !src || patchOnView(placement, active);
-  const usesDraftTransform = !patchOnly && family === draft.family && colorway === draft.colorway && placement === draft.placement;
-  const invalidPosition = usesDraftTransform && draft.patchPosition !== undefined && !isCrownPosition(draft.patchPosition);
+  const usesDraftTransform =
+    !patchOnly &&
+    family === draft.family &&
+    colorway === draft.colorway &&
+    placement === draft.placement;
+  const invalidPosition =
+    usesDraftTransform &&
+    draft.patchPosition !== undefined &&
+    !isCrownPosition(draft.patchPosition);
   const storedTransform = cleanTransform({
     x: usesDraftTransform ? Number(draft.patchOffsetX) || 0 : 0,
     y: usesDraftTransform ? Number(draft.patchOffsetY) || 0 : 0,
@@ -141,11 +241,34 @@ export function HatPreview({
   });
   const [liveTransform, setLiveTransform] = useState<PlacementTransform>(storedTransform);
   const [liveAnchor, setLiveAnchor] = useState<Point | null>(null);
+  useEffect(() => {
+    if (!usesDraftTransform || !sourceReady || !calibration || !photoGeometry || !calibratedFront)
+      return;
+    const identity = {
+      family,
+      colorway,
+      photoId: calibration.id,
+      imageVersion: calibration.sha256,
+      geometrySignature: geometrySignature(photoGeometry),
+    };
+    if (JSON.stringify(draft.previewIdentity) !== JSON.stringify(identity))
+      draft.set("previewIdentity", identity);
+  }, [
+    usesDraftTransform,
+    sourceReady,
+    calibration,
+    photoGeometry,
+    calibratedFront,
+    family,
+    colorway,
+    draft.previewIdentity,
+  ]);
 
   useEffect(() => {
     const frame = frameRef.current;
     if (!frame) return;
-    const measure = () => setImageBox({ x: 0, y: 0, width: frame.clientWidth, height: frame.clientHeight });
+    const measure = () =>
+      setImageBox({ x: 0, y: 0, width: frame.clientWidth, height: frame.clientHeight });
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(frame);
@@ -168,20 +291,72 @@ export function HatPreview({
   }, [src]);
 
   useEffect(() => {
-    if (!calibratedFront || !isFrontPlacement(placement)) { setLiveAnchor(null); return; }
-    if (invalidPosition) { setLiveAnchor(null); return; }
-    if (usesDraftTransform && isCrownPosition(draft.patchPosition)) {
-      setLiveAnchor(draft.patchPosition.anchor);
+    if (!calibratedFront || !isFrontPlacement(placement)) {
+      setLiveAnchor(null);
       return;
     }
-    if (!imageRect || !calibration) { setLiveAnchor(null); return; }
+    if (invalidPosition) {
+      setLiveAnchor(null);
+      return;
+    }
+    if (usesDraftTransform && isCrownPosition(draft.patchPosition)) {
+      const wanted = draft.patchPosition.anchor;
+      const dimensions =
+        calibration && photoGeometry && imageRect
+          ? physicalProjection(physicalPatch(shape, size), calibration, photoGeometry, imageRect)
+          : null;
+      const safe =
+        dimensions && photoGeometry && imageRect
+          ? constrainPatch(
+              wanted,
+              photoGeometry.anchor,
+              dimensions,
+              {
+                width: photoGeometry.bounds.width * imageRect.width,
+                height: photoGeometry.bounds.height * imageRect.height,
+              },
+              photoGeometry,
+            )
+          : wanted;
+      setLiveAnchor(safe);
+      if (
+        usesDraftTransform &&
+        (Math.abs(safe.x - wanted.x) > 1e-6 || Math.abs(safe.y - wanted.y) > 1e-6)
+      )
+        draft.set("patchPosition", { version: 2, anchor: safe });
+      return;
+    }
+    if (!imageRect || !calibration) {
+      setLiveAnchor(null);
+      return;
+    }
     // Old offsets are percentage points of the old container, never crown units.
-    const position = usesDraftTransform && (storedTransform.x !== 0 || storedTransform.y !== 0)
-      ? legacyToCrown({ x: storedTransform.x, y: storedTransform.y }, placement, imageBox, calibration.bounds, imageRect)
-      : { version: 2 as const, anchor: DEFAULT_ANCHORS[placement] };
+    const position =
+      usesDraftTransform && (storedTransform.x !== 0 || storedTransform.y !== 0)
+        ? legacyToCrown(
+            { x: storedTransform.x, y: storedTransform.y },
+            placement,
+            imageBox,
+            calibration.bounds,
+            imageRect,
+          )
+        : { version: 2 as const, anchor: photoGeometry?.anchor ?? DEFAULT_ANCHORS[placement] };
     setLiveAnchor(position.anchor);
     if (usesDraftTransform) draft.set("patchPosition", position);
-  }, [calibratedFront, placement, usesDraftTransform, invalidPosition, draft.patchPosition, src, sourceReady, imageBox.width, imageBox.height]);
+  }, [
+    calibratedFront,
+    placement,
+    usesDraftTransform,
+    invalidPosition,
+    draft.patchPosition,
+    src,
+    sourceReady,
+    imageBox.width,
+    imageBox.height,
+    photoGeometry,
+    shape,
+    size,
+  ]);
 
   const viewKey = `${placement}|${shots.front ?? ""}|${shots.side ?? ""}|${shots.back ?? ""}`;
   useEffect(() => {
@@ -192,7 +367,15 @@ export function HatPreview({
 
   useEffect(() => {
     setLiveTransform(storedTransform);
-  }, [draft.patchOffsetX, draft.patchOffsetY, draft.patchScale, usesDraftTransform, family, colorway, placement]);
+  }, [
+    draft.patchOffsetX,
+    draft.patchOffsetY,
+    draft.patchScale,
+    usesDraftTransform,
+    family,
+    colorway,
+    placement,
+  ]);
 
   function saveTransform(next: PlacementTransform) {
     const clean = cleanTransform(next);
@@ -221,6 +404,15 @@ export function HatPreview({
   }
 
   function resizePatch(delta: number) {
+    if (calibratedFront && usesDraftTransform) {
+      const sizes = ["small", "medium", "large"] as const;
+      const i = sizes.indexOf(size);
+      draft.patch({
+        patchSize: sizes[Math.max(0, Math.min(2, i + Math.sign(delta)))],
+        patchScale: 1,
+      });
+      return;
+    }
     saveTransform({ ...liveTransform, scale: liveTransform.scale + delta });
   }
 
@@ -230,7 +422,8 @@ export function HatPreview({
     setLiveTransform({ x: 0, y: 0, scale: 1 });
     if (family === draft.family && colorway === draft.colorway) {
       draft.patch({ patchOffsetX: 0, patchOffsetY: 0, patchScale: 1 });
-      if (isFrontPlacement(id)) draft.set("patchPosition", { version: 2, anchor: DEFAULT_ANCHORS[id] });
+      if (isFrontPlacement(id))
+        draft.set("patchPosition", { version: 2, anchor: DEFAULT_ANCHORS[id] });
     }
   }
 
@@ -265,7 +458,8 @@ export function HatPreview({
           data-colorway={colorway}
           data-calibration={calibration?.id ?? "missing"}
           data-image-rect={imageRect ? JSON.stringify(imageRect) : "loading"}
-          data-crown-bounds={calibration ? JSON.stringify(calibration.bounds) : undefined}
+          data-crown-bounds={photoGeometry ? JSON.stringify(photoGeometry.bounds) : undefined}
+          data-preview-version="3"
           className="absolute inset-0 transition-transform duration-300 ease-out"
           style={{ transform: zoom ? "scale(1.35)" : "scale(1)" }}
         >
@@ -283,7 +477,9 @@ export function HatPreview({
               ) : (
                 <div className="max-w-sm rounded-3xl bg-stage-photo/94 px-6 py-5 text-center shadow-[0_14px_36px_rgba(45,38,30,0.08)] ring-1 ring-stage-line">
                   <p className="font-semibold text-stage-ink">Verified product photo unavailable</p>
-                  <p className="mt-1 text-sm leading-6 text-stage-muted">We do not substitute a different hat or generate a missing angle.</p>
+                  <p className="mt-1 text-sm leading-6 text-stage-muted">
+                    We do not substitute a different hat or generate a missing angle.
+                  </p>
                 </div>
               )}
             </div>
@@ -295,35 +491,81 @@ export function HatPreview({
               alt={`${FAMILIES[family].label} ${named || "model"} ${active}`}
               className="stage-in h-full w-full object-contain object-center"
               decoding="async"
-              onLoad={(event) => { setFailedImage(null); setLoadedImage({ src, width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight }); }}
-              onError={() => { setLoadedImage(null); setFailedImage(src); }}
+              onLoad={(event) => {
+                setFailedImage(null);
+                setLoadedImage({
+                  src,
+                  width: event.currentTarget.naturalWidth,
+                  height: event.currentTarget.naturalHeight,
+                });
+              }}
+              onError={() => {
+                setLoadedImage(null);
+                setFailedImage(src);
+              }}
             />
           )}
-          {!patchOnly && showPatch && (!calibratedFront || (!invalidPosition && calibration && imageRect && liveAnchor)) && (
-            <PatchOverlay
-              leather={leather}
-              shape={shape}
-              size={size}
-              placement={placement}
-              patchText={patchText}
-              artworkUrl={artworkUrl}
-              transform={liveTransform}
-              interactive={Boolean(placementMode && usesDraftTransform)}
-              onMove={updateDrag}
-              calibration={calibratedFront ? calibration ?? undefined : undefined}
-              imageRect={calibratedFront ? imageRect ?? undefined : undefined}
-              anchor={calibratedFront ? liveAnchor ?? undefined : undefined}
-              onAnchor={saveAnchor}
-            />
-          )}
+          {!patchOnly &&
+            showPatch &&
+            (!calibratedFront || (!invalidPosition && calibration && imageRect && liveAnchor)) && (
+              <PatchOverlay
+                leather={leather}
+                shape={shape}
+                size={size}
+                placement={placement}
+                patchText={patchText}
+                artworkUrl={artworkUrl}
+                transform={liveTransform}
+                interactive={Boolean(placementMode && usesDraftTransform)}
+                onMove={updateDrag}
+                calibration={calibratedFront ? (calibration ?? undefined) : undefined}
+                imageRect={calibratedFront ? (imageRect ?? undefined) : undefined}
+                anchor={calibratedFront ? (liveAnchor ?? undefined) : undefined}
+                onAnchor={saveAnchor}
+                photoGeometry={calibratedFront ? (photoGeometry ?? undefined) : undefined}
+              />
+            )}
           {!patchOnly && calibratedFront && src && !calibration && (
-            <p role="status" className="absolute bottom-16 left-4 right-4 rounded-2xl bg-stage-photo/94 p-3 text-center text-sm text-stage-ink">Patch preview calibration unavailable for this photograph.</p>
+            <p
+              role="status"
+              className="absolute bottom-16 left-4 right-4 rounded-2xl bg-stage-photo/94 p-3 text-center text-sm text-stage-ink"
+            >
+              Patch preview calibration unavailable for this photograph.
+            </p>
           )}
-          {!patchOnly && calibratedFront && calibration && src && (failedImage === src || (loadedImage?.src === src && !sourceReady)) && (
-            <p role="status" className="absolute bottom-16 left-4 right-4 rounded-2xl bg-stage-photo/94 p-3 text-center text-sm text-stage-ink">Calibrated product photo unavailable. Patch preview will return when the verified photograph loads.</p>
-          )}
+          {!patchOnly &&
+            calibratedFront &&
+            calibration &&
+            src &&
+            (failedImage === src || (loadedImage?.src === src && !sourceReady)) && (
+              <p
+                role="status"
+                className="absolute bottom-16 left-4 right-4 rounded-2xl bg-stage-photo/94 p-3 text-center text-sm text-stage-ink"
+              >
+                Calibrated product photo unavailable. Patch preview will return when the verified
+                photograph loads.
+              </p>
+            )}
           {!patchOnly && calibratedFront && invalidPosition && (
-            <p role="status" className="absolute bottom-16 left-4 right-4 rounded-2xl bg-stage-photo/94 p-3 text-center text-sm text-stage-ink">Saved placement format unavailable. Use Reset in Place to choose a new position.</p>
+            <p
+              role="status"
+              className="absolute bottom-16 left-4 right-4 rounded-2xl bg-stage-photo/94 p-3 text-center text-sm text-stage-ink"
+            >
+              Saved placement format unavailable. Use Reset in Place to choose a new position.
+            </p>
+          )}
+          {!patchOnly && calibratedFront && photoGeometry && (
+            <p className="patch-scale-caption">
+              {dimensionLabel(shape, size)} ·{" "}
+              {photoGeometry.reference
+                ? "Owner-calibrated reference"
+                : "Estimated photo scale · final fit confirmed in proof"}
+            </p>
+          )}
+          {!patchOnly && !calibratedFront && showPatch && (
+            <p className="patch-scale-caption">
+              Uncalibrated view · final size and placement confirmed in proof
+            </p>
           )}
         </div>
         <div className="pointer-events-none absolute bottom-[14%] left-1/2 h-8 w-[46%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse,rgba(44,33,30,0.14),transparent_70%)]" />
@@ -340,7 +582,9 @@ export function HatPreview({
                     disabled={blocked}
                     className={cn(
                       "pointer-events-auto absolute min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full px-3 text-xs font-semibold shadow-[0_8px_22px_rgba(45,38,30,0.08)]",
-                      placement === id && !blocked ? "bg-primary text-primary-fg" : "bg-stage-photo/95 text-stage-ink ring-1 ring-stage-line",
+                      placement === id && !blocked
+                        ? "bg-primary text-primary-fg"
+                        : "bg-stage-photo/95 text-stage-ink ring-1 ring-stage-line",
                       blocked && "cursor-not-allowed opacity-50",
                     )}
                     style={{ left: HOT[id].left, top: HOT[id].top }}
@@ -355,7 +599,7 @@ export function HatPreview({
                 <button
                   type="button"
                   onClick={() => resizePatch(-SCALE_STEP)}
-                  disabled={liveTransform.scale <= SCALE_MIN}
+                  disabled={calibratedFront ? size === "small" : liveTransform.scale <= SCALE_MIN}
                   className="min-h-10 min-w-10 rounded-full px-2 text-sm font-semibold disabled:opacity-40"
                   aria-label="Make patch smaller"
                 >
@@ -371,7 +615,7 @@ export function HatPreview({
                 <button
                   type="button"
                   onClick={() => resizePatch(SCALE_STEP)}
-                  disabled={liveTransform.scale >= SCALE_MAX}
+                  disabled={calibratedFront ? size === "large" : liveTransform.scale >= SCALE_MAX}
                   className="min-h-10 min-w-10 rounded-full px-2 text-sm font-semibold disabled:opacity-40"
                   aria-label="Make patch larger"
                 >
@@ -393,7 +637,9 @@ export function HatPreview({
             onClick={() => setView(item)}
             className={cn(
               "min-h-11 rounded-full px-3 text-xs font-semibold capitalize shadow-[0_8px_22px_rgba(45,38,30,0.06)]",
-              active === item ? "bg-primary text-primary-fg" : "bg-stage-photo/92 text-stage-ink ring-1 ring-stage-line",
+              active === item
+                ? "bg-primary text-primary-fg"
+                : "bg-stage-photo/92 text-stage-ink ring-1 ring-stage-line",
             )}
           >
             {item}
@@ -430,6 +676,7 @@ function PatchOverlay({
   imageRect,
   anchor,
   onAnchor,
+  photoGeometry,
 }: {
   leather: ReturnType<typeof getLeatherette>;
   shape: PatchShape;
@@ -444,6 +691,7 @@ function PatchOverlay({
   imageRect?: Rect;
   anchor?: Point;
   onAnchor: (anchor: Point, commit: boolean) => void;
+  photoGeometry?: PhotoGeometry;
 }) {
   const drag = useRef<{
     pointerId: number;
@@ -460,34 +708,58 @@ function PatchOverlay({
     lastAnchor?: Point;
   } | null>(null);
   const cleanupDrag = useRef<(() => void) | null>(null);
-  const latestGeometry = useRef({ calibration, imageRect, placement });
-  latestGeometry.current = { calibration, imageRect, placement };
+  const latestGeometry = useRef({ calibration, imageRect, placement, photoGeometry, size, shape });
+  latestGeometry.current = { calibration, imageRect, placement, photoGeometry, size, shape };
   const pct = LEGACY_VIEW_SIZE_PCT[size] * transform.scale;
   const pos = PLACE[placement];
-  const geometry = calibration && imageRect && anchor ? {
-    ...crownToDisplay(anchor, calibration.bounds, imageRect),
-    ...patchDimensions(size, patchAspectRatio(shape), calibration.bounds, imageRect, transform.scale),
-  } : null;
+  const geometry =
+    calibration && imageRect && anchor
+      ? {
+          ...crownToDisplay(anchor, photoGeometry?.bounds ?? calibration.bounds, imageRect),
+          ...(photoGeometry
+            ? physicalProjection(physicalPatch(shape, size), calibration, photoGeometry, imageRect)
+            : patchDimensions(
+                size,
+                patchAspectRatio(shape),
+                calibration.bounds,
+                imageRect,
+                transform.scale,
+              )),
+        }
+      : null;
   const frame: CSSProperties = {
     width: geometry ? geometry.width : `${pct}%`,
     height: geometry?.height,
-    aspectRatio: patchAspectRatio(shape),
+    aspectRatio: photoGeometry
+      ? physicalPatch(shape, size).width / physicalPatch(shape, size).height
+      : patchAspectRatio(shape),
     left: geometry ? geometry.x : `${pos.left + transform.x}%`,
     top: geometry ? geometry.y : `${pos.top + transform.y}%`,
     // Coordinate changes apply atomically; interpolation can briefly lose ratio on resize.
-    transition: geometry || drag.current ? "none" : "left 180ms ease, top 180ms ease, width 180ms ease",
+    transition:
+      geometry || drag.current ? "none" : "left 180ms ease, top 180ms ease, width 180ms ease",
     touchAction: interactive ? "none" : undefined,
   };
-  const face: CSSProperties = {
-    clipPath: clipFor(shape),
-    backgroundColor: leather.hex,
-    backgroundImage: leather.texture ? `url(${leather.texture})` : undefined,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    color: leather.ink,
-    boxShadow: "0 10px 18px rgba(44,33,30,0.30), 0 2px 5px rgba(44,33,30,0.20), inset 0 1px 0 rgba(255,255,255,0.36)",
-    transition: "clip-path 220ms ease",
-  };
+  function limitAnchor(wanted: Point, safe: Point) {
+    const latest = latestGeometry.current,
+      g = latest.photoGeometry;
+    if (!g || !latest.calibration || !latest.imageRect) return wanted;
+    return constrainPatch(
+      wanted,
+      safe,
+      physicalProjection(
+        physicalPatch(latest.shape, latest.size),
+        latest.calibration,
+        g,
+        latest.imageRect,
+      ),
+      {
+        width: g.bounds.width * latest.imageRect.width,
+        height: g.bounds.height * latest.imageRect.height,
+      },
+      g,
+    );
+  }
 
   useEffect(() => {
     return () => cleanupDrag.current?.();
@@ -529,22 +801,43 @@ function PatchOverlay({
       if (!current || current.pointerId !== pointerEvent.pointerId) return;
       pointerEvent.preventDefault();
       const latest = latestGeometry.current;
-      if (current.anchor && latest.calibration && latest.imageRect && isFrontPlacement(latest.placement)) {
+      if (
+        current.anchor &&
+        latest.calibration &&
+        latest.imageRect &&
+        isFrontPlacement(latest.placement)
+      ) {
         const rect = parent?.getBoundingClientRect();
         if (!rect) return;
         // Map viewport pointer delta through current zoom and current fitted geometry.
         const width = parent?.clientWidth ?? 0;
         const height = parent?.clientHeight ?? 0;
-        const next = dragAnchor(current.anchor, {
-          x: (pointerEvent.clientX - current.startX) * width / rect.width,
-          y: (pointerEvent.clientY - current.startY) * height / rect.height,
-        }, { width, height }, latest.calibration.bounds, latest.imageRect, latest.placement);
-        current.lastAnchor = next;
-        onAnchor(next, false);
+        const next = dragAnchor(
+          current.anchor,
+          {
+            x: ((pointerEvent.clientX - current.startX) * width) / rect.width,
+            y: ((pointerEvent.clientY - current.startY) * height) / rect.height,
+          },
+          { width, height },
+          latest.photoGeometry?.bounds ?? latest.calibration.bounds,
+          latest.imageRect,
+          latest.placement,
+        );
+        const safe = limitAnchor(next, current.anchor);
+        current.lastAnchor = safe;
+        onAnchor(safe, false);
         return;
       }
-      const x = clamp(current.offsetX + ((pointerEvent.clientX - current.startX) / current.width) * 100, -OFFSET_X_LIMIT, OFFSET_X_LIMIT);
-      const y = clamp(current.offsetY + ((pointerEvent.clientY - current.startY) / current.height) * 100, -OFFSET_Y_LIMIT, OFFSET_Y_LIMIT);
+      const x = clamp(
+        current.offsetX + ((pointerEvent.clientX - current.startX) / current.width) * 100,
+        -OFFSET_X_LIMIT,
+        OFFSET_X_LIMIT,
+      );
+      const y = clamp(
+        current.offsetY + ((pointerEvent.clientY - current.startY) / current.height) * 100,
+        -OFFSET_Y_LIMIT,
+        OFFSET_Y_LIMIT,
+      );
       current.lastX = x;
       current.lastY = y;
       onMove(x, y, false);
@@ -581,20 +874,60 @@ function PatchOverlay({
     if (anchor && calibration && imageRect && isFrontPlacement(placement)) {
       const width = event.currentTarget.parentElement?.clientWidth ?? 0;
       const height = event.currentTarget.parentElement?.clientHeight ?? 0;
-      onAnchor(dragAnchor(anchor, { x: (x - transform.x) * width / 100, y: (y - transform.y) * height / 100 }, { width, height }, calibration.bounds, imageRect, placement), true);
+      onAnchor(
+        limitAnchor(
+          dragAnchor(
+            anchor,
+            { x: ((x - transform.x) * width) / 100, y: ((y - transform.y) * height) / 100 },
+            { width, height },
+            photoGeometry?.bounds ?? calibration.bounds,
+            imageRect,
+            placement,
+          ),
+          anchor,
+        ),
+        true,
+      );
     } else onMove(x, y, true);
   }
 
+  if (
+    photoGeometry &&
+    geometry &&
+    imageRect &&
+    anchor &&
+    !patchFits(
+      anchor,
+      geometry,
+      {
+        width: photoGeometry.bounds.width * imageRect.width,
+        height: photoGeometry.bounds.height * imageRect.height,
+      },
+      photoGeometry.polygon,
+      photoGeometry.rotation,
+      photoGeometry.skew,
+      photoGeometry.compression,
+    )
+  )
+    return (
+      <p role="status" className="patch-fit-warning">
+        This size does not fit the calibrated area. Choose a smaller patch or ask for a production
+        proof.
+      </p>
+    );
   return (
     <div
       className={cn(
         "absolute -translate-x-1/2 -translate-y-1/2",
-        interactive ? "z-30 cursor-grab touch-none select-none active:cursor-grabbing" : "z-10 pointer-events-none",
+        interactive
+          ? "z-30 cursor-grab touch-none select-none active:cursor-grabbing"
+          : "z-10 pointer-events-none",
       )}
       style={frame}
       data-patch-overlay="true"
       data-patch-size={size}
       data-patch-anchor={anchor ? JSON.stringify(anchor) : undefined}
+      data-physical-inches={JSON.stringify(physicalPatch(shape, size))}
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
       aria-label={interactive ? "Drag patch to position it on the hat" : undefined}
@@ -603,23 +936,14 @@ function PatchOverlay({
       onKeyDown={moveWithKeyboard}
     >
       <div
-        key={`${leather.id}-${shape}-${size}`}
-        className="patch-pop flex h-full w-full items-center justify-center overflow-hidden px-1.5 text-center"
-        style={face}
+        className="physical-patch-mounted"
+        style={{
+          transform: photoGeometry
+            ? `rotate(${photoGeometry.rotation}deg) skewX(${photoGeometry.skew}deg) scaleX(${photoGeometry.compression})`
+            : undefined,
+        }}
       >
-        {artworkUrl && !artworkUrl.startsWith("data:application/pdf") ? (
-          <img
-            src={artworkUrl}
-            alt=""
-            draggable={false}
-            className="relative z-10 max-h-[82%] max-w-[82%] select-none object-contain"
-            style={{ filter: "grayscale(1) contrast(1.4)", mixBlendMode: "multiply" }}
-          />
-        ) : (
-          <span className="relative z-10 line-clamp-3 px-1 font-display text-[clamp(0.7rem,1.5vw,1.15rem)] leading-tight font-semibold tracking-wide">
-            {artworkUrl ? "PDF" : patchText.trim() || "Your patch"}
-          </span>
-        )}
+        <PatchFace material={leather.id} shape={shape} text={patchText} artwork={artworkUrl} />
       </div>
     </div>
   );
@@ -658,16 +982,31 @@ export function PatchCard({
     <div className={cn("grid place-items-center", className)}>
       <div className="flex items-center justify-center px-3 text-center" style={style}>
         {artworkUrl && !artworkUrl.startsWith("data:application/pdf") ? (
-          <img src={artworkUrl} alt="" className="max-h-[78%] max-w-[78%] object-contain" style={{ filter: "grayscale(1) contrast(1.35)", mixBlendMode: "multiply" }} />
+          <img
+            src={artworkUrl}
+            alt=""
+            className="max-h-[78%] max-w-[78%] object-contain"
+            style={{ filter: "grayscale(1) contrast(1.35)", mixBlendMode: "multiply" }}
+          />
         ) : (
-          <span className="font-display text-lg leading-tight font-semibold">{artworkUrl ? "PDF artwork" : patchText.trim() || "Your patch"}</span>
+          <span className="font-display text-lg leading-tight font-semibold">
+            {artworkUrl ? "PDF artwork" : patchText.trim() || "Your patch"}
+          </span>
         )}
       </div>
     </div>
   );
 }
 
-export function ShapeMark({ shape, className, texture }: { shape: PatchShape; className?: string; texture?: string }) {
+export function ShapeMark({
+  shape,
+  className,
+  texture,
+}: {
+  shape: PatchShape;
+  className?: string;
+  texture?: string;
+}) {
   return (
     <span
       className={cn("block", texture ? "bg-stage-photo" : "bg-primary/80", className)}

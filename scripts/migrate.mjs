@@ -12,11 +12,12 @@
  * No DATABASE_URL (local / preview builds) -> skip; the PGLite fallback applies
  * the same files at startup instead (see src/lib/db.ts).
  */
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import pg from "pg";
 import { pendingMigrations } from "./migration-plan.mjs";
+import { applyMigrationFiles } from "./migration-runner.mjs";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -56,31 +57,14 @@ async function main() {
   try {
     await client.query("SELECT pg_advisory_lock(hashtext('rec-mama-made:migrations'))");
     await client.query(
-      "CREATE TABLE IF NOT EXISTS _migrations (name TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())",
+      "CREATE TABLE IF NOT EXISTS public._migrations (name TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())",
     );
-    const applied = (await client.query("SELECT name FROM _migrations")).rows.map((r) => r.name);
+    const applied = (await client.query("SELECT name FROM public._migrations")).rows.map((r) => r.name);
 
-    let count = 0;
-    for (const { name } of pendingMigrations(entries, applied)) {
-      const text = await readFile(join(migrationsDir, name), "utf8");
-      try {
-        await client.query("BEGIN");
-        // pg's simple-query protocol runs a whole multi-statement file at once.
-        await client.query(text);
-        await client.query("INSERT INTO _migrations (name) VALUES ($1)", [name]);
-        await client.query("COMMIT");
-      } catch (err) {
-        console.error(`[migrate] error applying ${name}`);
-        try {
-          await client.query("ROLLBACK");
-        } catch {
-          // ROLLBACK fails when the connection died — keep the original error.
-        }
-        throw err;
-      }
-      console.log(`[migrate] applied ${name}`);
-      count += 1;
-    }
+    const count = await applyMigrationFiles(client, {
+      migrationsDir,
+      pending: pendingMigrations(entries, applied),
+    });
     console.log(
       count ? `[migrate] done — ${count} migration(s) applied.` : "[migrate] up to date.",
     );

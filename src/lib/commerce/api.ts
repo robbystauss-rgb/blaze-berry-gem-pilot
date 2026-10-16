@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { z } from "zod";
 import type { Permission } from "./types";
+import { MAX_NEW_UPLOAD_DATA_URL_LENGTH } from "@/lib/upload-limits";
 // Dynamic server imports keep database, secrets and provider clients out of browser bundles.
 const uuid = z.string().uuid();
 export const getDraftInventoryOptions = createServerFn({ method: "GET" })
@@ -96,27 +97,12 @@ export const connectStripeEvents = createServerFn({ method: "POST" })
   });
 export const uploadProductImage = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(z.string().max(4_001_000))
+  .validator(z.string().max(MAX_NEW_UPLOAD_DATA_URL_LENGTH, "Upload an image up to 3 MB."))
   .handler(async ({ data, context }) => {
     const { requireAccess } = await import("./access.server");
-    await requireAccess(context.userId, "products", context.bearerToken);
-    const { decodeArtwork } = await import("./checkout.server");
-    const file = decodeArtwork(data);
-    if (
-      !file ||
-      !["image/png", "image/jpeg", "image/webp"].includes(file.mime) ||
-      file.bytes.length > 3_000_000
-    )
-      throw new Error("Product images must be PNG, JPG or WebP smaller than 3 MB.");
-    const { getSql } = await import("@/lib/db");
-    const { randomUUID } = await import("node:crypto");
-    const { audit } = await import("./core.server");
-    const sql = await getSql();
-    const id = randomUUID();
-    await sql.transaction(async (tx) => {
-      await tx`insert into commerce_assets(id,mime,bytes,actor_id) values(${id},${file.mime},${file.bytes},${context.userId})`;
-      await audit(tx, context.userId, "product.image_uploaded", "asset", id);
-    });
+    const actor = await requireAccess(context.userId, "products", context.bearerToken);
+    const { uploadCatalogPhoto } = await import("./media.server");
+    const { id } = await uploadCatalogPhoto({ name: "Product photo", data, alt: "" }, actor);
     return { url: "/api/catalog-image/" + id };
   });
 export const getMerchantAccess = createServerFn({ method: "GET" })
@@ -285,8 +271,10 @@ export const uploadProductionFile = createServerFn({ method: "POST" })
         .trim()
         .min(1)
         .max(180)
+        // Filename validation deliberately rejects NUL and control characters.
+        // eslint-disable-next-line no-control-regex
         .regex(/^[^\u0000-\u001f/\\]+$/),
-      data: z.string().max(4001000),
+      data: z.string().max(MAX_NEW_UPLOAD_DATA_URL_LENGTH, "Upload a production file up to 3 MB."),
       reason: z.string().trim().min(5).max(500),
       requestId: uuid,
     }),

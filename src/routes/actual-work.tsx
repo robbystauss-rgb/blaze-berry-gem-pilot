@@ -6,21 +6,32 @@ import { FAMILIES, type FamilyId } from "@/lib/catalog";
 import { useOrder } from "@/lib/order-store";
 import { galleryWork } from "@/lib/stage-photos";
 import { MASTER, drivePhoto, useStudio } from "@/lib/studio-store";
+import { getPublicGallery } from "@/lib/commerce/owner-api";
+import { PublishedGallery } from "@/components/layout/published-gallery";
 
-export const Route = createFileRoute("/actual-work")({ component: WorkPage });
+export const Route = createFileRoute("/actual-work")({
+  loader: () => getPublicGallery(),
+  component: WorkPage,
+});
 
 function isFamily(value: string): value is FamilyId {
   return value in FAMILIES;
 }
 
 function WorkPage() {
+  const projects = Route.useLoaderData();
   const work = useStudio((state) => state.work);
   const photos = galleryWork(work);
   const [open, setOpen] = useState(0);
   const current = photos[open] ?? photos[0];
-  const tagged = current?.decision.modelId && isFamily(current.decision.modelId) ? current.decision.modelId : null;
+  const tagged =
+    current?.decision.modelId && isFamily(current.decision.modelId)
+      ? current.decision.modelId
+      : null;
   const taggedColor = tagged
-    ? MASTER.models.find((model) => model.id === tagged)?.colorways.find((color) => color.id === current?.decision.colorId)?.officialName
+    ? MASTER.models
+        .find((model) => model.id === tagged)
+        ?.colorways.find((color) => color.id === current?.decision.colorId)?.officialName
     : undefined;
 
   return (
@@ -28,9 +39,12 @@ function WorkPage() {
       <div className="safe-grid grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div>
           <p className="tech-label">ACTUAL REC WORK / PORTFOLIO</p>
-          <h1 className="mt-4 font-display text-[clamp(2.8rem,8vw,5.8rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-ink">Actual work</h1>
+          <h1 className="mt-4 font-display text-[clamp(2.8rem,8vw,5.8rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-ink">
+            Actual work
+          </h1>
           <p className="mt-4 max-w-[62ch] text-base leading-7 text-bark">
-            Real finished REC Mama Made work presented as a portfolio, using the original photography without artificial product substitutions.
+            Real finished REC Mama Made work presented as a portfolio, using the original
+            photography without artificial product substitutions.
           </p>
         </div>
         <Link to="/order" className={buttonVariants()}>
@@ -38,6 +52,7 @@ function WorkPage() {
         </Link>
       </div>
 
+      <PublishedGallery projects={projects} />
       {current && (
         <figure className="editorial-stage mt-10 overflow-hidden rounded-[30px] sm:rounded-[34px]">
           <div className="relative grid aspect-[4/3] w-full place-items-center bg-[radial-gradient(circle_at_50%_35%,#fff_0%,#f5f3ef_58%,#e9e5de_100%)] p-5 sm:aspect-[16/10] sm:p-8 lg:aspect-[16/9]">
@@ -52,7 +67,9 @@ function WorkPage() {
           <figcaption className="safe-grid grid gap-4 border-t border-border bg-white/90 px-5 py-5 sm:px-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
             <div className="min-w-0">
               <p className="tech-label">FINISHED BUILD / {String(open + 1).padStart(2, "0")}</p>
-              <p className="mt-2 text-sm leading-6 text-stage-muted">{current.decision.title || "Finished build"}</p>
+              <p className="mt-2 text-sm leading-6 text-stage-muted">
+                {current.decision.title || "Finished build"}
+              </p>
             </div>
             <div className="flex flex-wrap gap-2 md:justify-end">
               <button

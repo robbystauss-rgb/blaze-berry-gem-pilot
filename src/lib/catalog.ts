@@ -9,27 +9,12 @@ export type Colorway = {
 };
 
 export type FamilyId =
-  | "112"
-  | "112FP"
-  | "112FPR"
-  | "168"
-  | "256"
-  | "112PM"
-  | "112P"
-  | "112PFP"
-  | "168P"
-  | "256P";
+  "112" | "112FP" | "112FPR" | "168" | "256" | "112PM" | "112P" | "112PFP" | "168P" | "256P";
 
 export type LeatheretteId = string;
 
 export type PatchShape =
-  | "Rectangle"
-  | "Rounded Rectangle"
-  | "Circle"
-  | "Oval"
-  | "Hexagon"
-  | "Shield"
-  | "Custom Die-Cut";
+  "Rectangle" | "Rounded Rectangle" | "Circle" | "Oval" | "Hexagon" | "Shield" | "Custom Die-Cut";
 
 export type PatchSize = "small" | "medium" | "large";
 export type Placement = "front-center" | "left-front" | "right-front" | "side" | "rear";
@@ -170,6 +155,7 @@ export const LEATHERETTES: Array<{
   engrave: string;
   texture: string;
   detail: string;
+  surface: string;
 }> = materialReview
   .filter((item) => item.named && item.name && item.swatch)
   .map((item) => {
@@ -211,6 +197,12 @@ export const LEATHERETTES: Array<{
       engrave: item.engrave,
       texture: item.swatch,
       detail: item.detail,
+      surface:
+        item.category === "acrylic"
+          ? "acrylic"
+          : item.category === "metallic"
+            ? "metallic"
+            : "leatherette",
     };
   });
 
@@ -241,7 +233,14 @@ export function colorsForFamily(id: FamilyId): string[] {
 export function colorwaysForFamily(id: FamilyId): Colorway[] {
   return colorsForFamily(id).map((name) => {
     const parts = name.split("/").length;
-    const category = FAMILIES[id].kind === "printed" ? "Printed" : parts >= 3 ? "Tri" : parts === 2 ? "Split" : "Solid";
+    const category =
+      FAMILIES[id].kind === "printed"
+        ? "Printed"
+        : parts >= 3
+          ? "Tri"
+          : parts === 2
+            ? "Split"
+            : "Solid";
     return { category, name };
   });
 }
@@ -268,7 +267,10 @@ export function estimateTotal(opts: {
       zaddy: false,
     };
   }
-  const zaddy = opts.promo?.trim().toUpperCase() === "ZADDY" && opts.family === "112" && opts.tier === "standard";
+  const zaddy =
+    opts.promo?.trim().toUpperCase() === "ZADDY" &&
+    opts.family === "112" &&
+    opts.tier === "standard";
   const unit = zaddy ? 25 : opts.tier === "premium" ? PRICING.premium : PRICING.standard;
   const bonus = bonusHats(purchased);
   return {
@@ -284,5 +286,9 @@ export function estimateTotal(opts: {
 export function getLeatherette(id: string) {
   const legacyAlias: Record<string, string> = { gold: "heritage" };
   const normalized = legacyAlias[id] ?? id;
-  return LEATHERETTES.find((l) => l.id === normalized) ?? LEATHERETTES.find((l) => l.id === "buckskin") ?? LEATHERETTES[0]!;
+  return (
+    LEATHERETTES.find((l) => l.id === normalized) ??
+    LEATHERETTES.find((l) => l.id === "buckskin") ??
+    LEATHERETTES[0]!
+  );
 }

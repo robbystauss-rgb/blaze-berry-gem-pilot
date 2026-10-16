@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authClient, signIn, GROK_PROVIDERS } from "@/lib/auth/client";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { UserButton } from "@/lib/auth/gates";
@@ -8,12 +8,14 @@ function Login() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const { user, isPending } = useCurrentUserState();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
   return (
     <section className="site-container page-top-space page-bottom-space">
       <div className="mx-auto max-w-md rounded-2xl border border-border bg-bg-elevated p-6">
         <p className="tech-label">REC Mama Made</p>
         <h1 className="mt-2 font-display text-3xl">Account sign in</h1>
-        {isPending ? (
+        {!hydrated || isPending ? (
           <p role="status">Checking session…</p>
         ) : user ? (
           <div className="mt-6 space-y-4">
