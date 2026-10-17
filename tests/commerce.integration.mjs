@@ -1245,7 +1245,7 @@ test("failed webhook transaction rolls back event marker so retry can succeed", 
   await webhooks.processStripeEvent(event, stripe);
   assert.equal((await core.orderById(sql, id)).paid, 6000);
 });
-test("invoice review/create/send/resend uses one branded provider invoice and records no email-delivery claim", async () => {
+test("invoice review/create/send/resend uses one branded provider invoice without granting payment or artwork approval", async () => {
   process.env.STRIPE_SECRET_KEY = "sk_test_isolated_mock";
   process.env.STRIPE_WEBHOOK_SECRET = "whsec_isolated_mock";
   process.env.REC_INVOICE_BRANDING_VERIFIED = "true";
@@ -1253,6 +1253,12 @@ test("invoice review/create/send/resend uses one branded provider invoice and re
   try {
     const { manageInvoice } = await server.ssrLoadModule("/src/lib/commerce/invoices.server.ts");
     const id = await draft({ shipping: 500, tax: 200, discount: 100 });
+    const original = await core.orderById(sql, id);
+    await mutations.mutate(
+      "order.update",
+      { id, version: original.version, stage: "customer_approval" },
+      owner,
+    );
     let creates = 0,
       sends = 0,
       customer = null,
@@ -1316,7 +1322,26 @@ test("invoice review/create/send/resend uses one branded provider invoice and re
     const logs =
       await sql`select after_value from commerce_audit where action='invoice.sent' and resource_id=${id}`;
     assert.match(logs[0].after_value.delivery, /no customer email sent/);
-    assert.equal((await core.orderById(sql, id)).paid, 0);
+    const awaitingApproval = await core.orderById(sql, id);
+    assert.equal(awaitingApproval.paid, 0);
+    assert.equal(awaitingApproval.stage, "customer_approval");
+    for (const stage of [
+      "engraving",
+      "assembly",
+      "quality_check",
+      "packaging",
+      "ready_to_ship",
+      "shipped",
+      "delivered",
+      "completed",
+    ])
+      await assert.rejects(
+        () =>
+          mutations.mutate("order.update", { id, version: awaitingApproval.version, stage }, owner),
+        /Full verified payment is required/,
+        "Creating or emailing an invoice must not release unpaid production: " + stage,
+      );
+    assert.equal((await core.orderById(sql, id)).stage, "customer_approval");
   } finally {
     for (const key of [
       "STRIPE_SECRET_KEY",

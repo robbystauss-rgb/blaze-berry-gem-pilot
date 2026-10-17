@@ -398,8 +398,9 @@ test("invoice provider status and out-of-band credit alone cannot invent a recei
   assert.equal((await sql`select id from commerce_payments where order_id=${id}`).length, 0);
 });
 
-test("signed invoice event retrieves successful payment intent and deduplicates its actual received amount", async () => {
-  const { id } = await fixture();
+test("signed invoice payment is deduplicated without approving artwork or starting production", async () => {
+  const { id, item, artwork } = await fixture({ stock: true });
+  await sql`update commerce_orders set stage='customer_approval' where id=${id}`;
   const reference = "in_test_" + randomUUID().replaceAll("-", "");
   const intent = "pi_test_" + randomUUID().replaceAll("-", "");
   await sql`insert into commerce_invoices(order_id,provider_id,state) values(${id},${reference},'open')`;
@@ -434,7 +435,18 @@ test("signed invoice event retrieves successful payment intent and deduplicates 
   assert.equal((await deliver(event("invoice.payment_succeeded", reference))).status, 200);
   assert.equal((await deliver(event("invoice.paid", reference))).status, 200);
   assert.equal((await core.orderById(sql, id)).paid, 6000);
+  assert.equal((await core.orderById(sql, id)).stage, "customer_approval");
   assert.equal((await sql`select id from commerce_payments where order_id=${id}`).length, 1);
+  assert.deepEqual(
+    (await sql`select on_hand,reserved,committed from commerce_inventory where id=${id}`)[0],
+    { on_hand: 5, reserved: 0, committed: 1 },
+    "Payment may commit the reserved blank; it must not consume it for production",
+  );
+  assert.deepEqual(
+    Buffer.from((await sql`select artwork from commerce_order_items where id=${item}`)[0].artwork),
+    artwork,
+    "Payment reconciliation must not replace or approve the submitted artwork",
+  );
 });
 
 async function paypalFixture() {
