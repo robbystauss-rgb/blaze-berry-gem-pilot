@@ -136,7 +136,6 @@ export const FAMILY_ORDER: FamilyId[] = [
   "112FP",
   "112FPR",
   "112P",
-  "112PM",
   "112PFP",
   "168",
   "168P",

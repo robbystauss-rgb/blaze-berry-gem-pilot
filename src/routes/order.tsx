@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { isRetiredHatModel } from "@/lib/catalog-lifecycle";
 import { Builder } from "@/components/build/builder";
 import { FAMILIES, colorsForFamily, type FamilyId } from "@/lib/catalog";
 import { MASTER } from "@/lib/studio-store";
@@ -19,6 +20,10 @@ export const Route = createFileRoute("/order")({
     payment: search.payment === "stripe-success" || search.payment === "stripe-canceled" ? search.payment : undefined,
     session_id: typeof search.session_id === "string" ? search.session_id : undefined,
   }),
+  beforeLoad: ({ search }) => {
+    if (search.type !== "patch" && isRetiredHatModel(search.family))
+      throw redirect({ to: "/hats", statusCode: 302 });
+  },
   component: OrderPage,
 });
 

@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import catalogJson from "@/data/master-catalog.json";
+import { isRetiredHatModel } from "./catalog-lifecycle";
+import { isExcludedMediaSource } from "./media-policy";
 
 export type RichardsonStatus = "current" | "legacy" | "unknown";
 export type AssetStatus = "complete" | "partial" | "missing";
@@ -58,10 +60,20 @@ export type MasterCatalog = {
   work: CatalogWork[];
 };
 
-export const MASTER = catalogJson as MasterCatalog;
+// The source catalog and frozen photographs remain intact for historical orders.
+// All active discovery paths consume this filtered catalog.
+export const MASTER: MasterCatalog = {
+  ...(catalogJson as MasterCatalog),
+  models: (catalogJson as MasterCatalog).models.filter((m) => !isRetiredHatModel(m.id)),
+  work: (catalogJson as MasterCatalog).work.filter((w) => !isExcludedMediaSource(w.driveId)),
+};
+/** Private administration/history only; never add these to discovery or purchase lists. */
+export const ARCHIVED_MODELS = (catalogJson as MasterCatalog).models.filter((m) =>
+  isRetiredHatModel(m.id),
+);
 
 export const FAMILIES: { id: string; name: string; modelIds: string[] }[] = [
-  { id: "112", name: "Richardson 112", modelIds: ["112", "112FP", "112FPR", "112P", "112PFP", "112PM"] },
+  { id: "112", name: "Richardson 112", modelIds: ["112", "112FP", "112FPR", "112P", "112PFP"] },
   { id: "168", name: "Richardson 168", modelIds: ["168", "168P"] },
   { id: "256", name: "Umpqua Gramps", modelIds: ["256", "256P"] },
 ];
@@ -224,7 +236,7 @@ export function findColor(id: string) {
 }
 
 export function drivePhoto(id: string | undefined, size = 640) {
-  if (!id) return null;
+  if (!id || isExcludedMediaSource(id)) return null;
   if (id.startsWith("/assets/hats/")) return id;
   return `https://lh3.googleusercontent.com/d/${id}=w${size}`;
 }

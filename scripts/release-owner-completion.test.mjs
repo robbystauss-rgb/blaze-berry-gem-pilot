@@ -24,6 +24,10 @@ const entries = [...OWNER_BASELINE, ...OWNER_MIGRATIONS],
   };
 async function fixture(work) {
   const db = new PGlite();
+  // Freeze this historical release fixture at its reviewed fourteen-file scope.
+  const fixtureDirectory = await mkdtemp(join(tmpdir(), "rec-owner-release-baseline-"));
+  for (const name of entries)
+    await writeFile(join(fixtureDirectory, name), await readFile(new URL(name, directory)));
   await db.waitReady;
   try {
     await db.exec(
@@ -38,9 +42,13 @@ async function fixture(work) {
         return params ? db.query(sql, params) : (await db.exec(sql)).at(-1) || { rows: [] };
       },
     };
-    await work(db, { env, connect: async () => client, log() {} });
+    await work(db, { env, directory: fixtureDirectory, connect: async () => client, log() {} });
   } finally {
     await db.close();
+    assert.ok(
+      resolve(fixtureDirectory).startsWith(resolve(tmpdir()) + sep + "rec-owner-release-baseline-"),
+    );
+    await rm(fixtureDirectory, { recursive: true, force: true });
   }
 }
 test("owner release has a distinct exact flag, production database and commit boundary", async () => {

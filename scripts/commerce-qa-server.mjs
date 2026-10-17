@@ -47,6 +47,21 @@ for (const role of ["owner", "customer"]) {
   await sql`insert into commerce_mfa_sessions(session_hash,user_id,expires_at) values(${"expired-" + role},${users[role].id},now()-interval '1 day')`;
 }
 const actor = { userId: users.owner.id, role: "owner" };
+if (process.env.REC_REVIEW_IMPORT_MANIFEST) {
+  const { importReviewedBundle } = await import("./import-reviewed-media.mjs");
+  const result = await importReviewedBundle(server, actor, process.env.REC_REVIEW_IMPORT_MANIFEST);
+  const repeated = await importReviewedBundle(
+    server,
+    actor,
+    process.env.REC_REVIEW_IMPORT_MANIFEST,
+  );
+  if (repeated.some((r) => !r.duplicate)) throw Error("Reviewed import must be idempotent.");
+  mkdirSync("screenshots/catalog-retirement", { recursive: true });
+  writeFileSync(
+    "screenshots/catalog-retirement/reviewed-import.private.json",
+    JSON.stringify(result, null, 2),
+  );
+}
 const { id: orderId } = await mutate(
   "order.draft",
   {

@@ -5,6 +5,7 @@ import { stripeClient } from "./providers.server";
 import { reserveInventory, audit, orderById, notify } from "./core.server";
 import { attachCheckout } from "./checkout.server";
 import { getSessionUser } from "@/lib/auth/verify.server";
+import { hasRetiredModelOption } from "@/lib/catalog-lifecycle";
 export async function createCatalogCheckout(data: {
   variantId: string;
   quantity: number;
@@ -24,8 +25,9 @@ export async function createCatalogCheckout(data: {
       price: number;
       options: Record<string, string>;
       product_images: string[];
-    }>`select v.*,p.title as product_title,p.images as product_images from commerce_variants v join commerce_products p on p.id=v.product_id where v.id=${data.variantId} and v.active and p.state='active' and (p.publish_at is null or p.publish_at<=now()) for share of v,p`;
+    }>`select v.*,p.title as product_title,p.images as product_images from commerce_variants v join commerce_products p on p.id=v.product_id where v.id=${data.variantId} and v.active and p.state='active' and p.builder_family is null and (p.publish_at is null or p.publish_at<=now()) for share of v,p`;
     if (!variant || variant.price <= 0) throw new Error("This product variant is not available.");
+    if (hasRetiredModelOption(variant.options)) throw Error("This hat model is no longer offered.");
     const existing = await tx<{
       total: number;
       customer_email: string;

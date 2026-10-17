@@ -5,6 +5,7 @@ import { reserveInventory, audit, changeAllocation, notify, orderById } from "./
 import type { PaymentBuild } from "@/lib/payments";
 import { getSessionUser } from "@/lib/auth/verify.server";
 import catalog from "@/data/master-catalog.json";
+import { assertHatModelAvailable } from "@/lib/catalog-lifecycle";
 import { MAX_NEW_UPLOAD_BYTES, MAX_NEW_UPLOAD_DATA_URL_LENGTH } from "@/lib/upload-limits";
 
 export function decodeArtwork(data: string | undefined) {
@@ -62,6 +63,7 @@ export async function createCheckoutOrder(
   provider: "stripe" | "paypal" | "manual_venmo",
   resolveUser = getSessionUser,
 ) {
+  assertHatModelAvailable(quote.build.orderType, quote.build.family);
   if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL?.trim())
     throw new Error("Durable order storage is not configured. Contact the store before paying.");
   const artwork = decodeArtwork(quote.build.artworkDataUrl);

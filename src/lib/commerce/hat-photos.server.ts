@@ -6,6 +6,8 @@ import { assertPermission, audit } from "./core.server";
 import type { Calibration } from "@/lib/crown-geometry";
 import type { Role } from "./types";
 import type { PhotoGeometry } from "@/lib/patch-physical";
+import { isRetiredHatModel } from "@/lib/catalog-lifecycle";
+import { assertMediaPublicationAllowed } from "./media-policy.server";
 type PhotoRow = {
   id: string;
   model_id: string;
@@ -65,6 +67,7 @@ export async function registerHatPhoto(raw: unknown, actor: { userId: string; ro
     assetId = randomUUID(),
     id = "uploaded:" + randomUUID();
   await sql.transaction(async (tx) => {
+    await assertMediaPublicationAllowed(tx, [p.mediaId]);
     const [m] = await tx<{
       bytes: Uint8Array;
       width: number;
@@ -86,6 +89,7 @@ export async function registerHatPhoto(raw: unknown, actor: { userId: string; ro
   return (await exactHatPhoto(id))!;
 }
 export async function publishedHatPhoto(modelId: string, colorway: string) {
+  if (isRetiredHatModel(modelId)) return null;
   const sql = await getSql();
   const [p] = await sql<
     PhotoRow & { published: PhotoGeometry }

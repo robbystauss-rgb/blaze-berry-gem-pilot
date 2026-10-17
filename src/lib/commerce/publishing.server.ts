@@ -13,6 +13,9 @@ import {
 import type { Role } from "./types";
 import manifest from "@/data/crown-calibrations.json";
 import { FAMILIES, LEATHERETTES, PATCH_SHAPES, colorsForFamily } from "@/lib/catalog";
+import { isRetiredHatModel } from "@/lib/catalog-lifecycle";
+import { ARCHIVED_MODELS } from "@/lib/studio-store";
+import { assertMediaPublicationAllowed } from "./media-policy.server";
 
 export const documentInput = z.object({
   scope: z.enum(["calibration", "gallery", "storefront", "pricing"]),
@@ -72,6 +75,8 @@ export async function saveDocument(raw: unknown, actor: { userId: string; role: 
         manifest.records.find((r) => r.id === p.key) ??
         (await (await import("./hat-photos.server")).exactHatPhoto(p.key, tx));
       if (!photo) throw Error("Choose an exact verified catalog photograph.");
+      if (isRetiredHatModel(photo.modelId) && (p.action === "publish" || p.action === "revert"))
+        throw Error("This hat model is archived and cannot be republished.");
       const g = calibrationSchema.parse(body);
       if (g.imageVersion !== photo.sha256)
         throw Error("Photo changed. Recalibrate this exact image.");
@@ -87,6 +92,14 @@ export async function saveDocument(raw: unknown, actor: { userId: string; role: 
     } else if (p.scope === "gallery") {
       z.string().uuid().parse(p.key);
       const g = gallerySchema.parse(body);
+      if (
+        isRetiredHatModel(g.family) &&
+        (p.action === "publish" || p.action === "revert") &&
+        !g.archived
+      )
+        throw Error(
+          "This hat model is archived. Keep its project private for historical reference.",
+        );
       if (g.family && !(g.family in FAMILIES)) throw Error("Choose a verified Richardson model.");
       const media = await tx<{
         id: string;
@@ -94,6 +107,8 @@ export async function saveDocument(raw: unknown, actor: { userId: string; role: 
       }>`select id,alt from commerce_media where id=any(${g.mediaIds}::text[]) and not archived for share`;
       if (media.length !== new Set(g.mediaIds).size)
         throw Error("One or more photos are unavailable.");
+      if ((p.action === "publish" || p.action === "revert") && !g.archived)
+        await assertMediaPublicationAllowed(tx, g.mediaIds);
       if (p.action !== "draft" && !g.archived && (!g.consent || media.some((m) => !m.alt.trim())))
         throw Error("Confirm permission to publish and add alt text for every photo.");
       body = g;
@@ -101,6 +116,8 @@ export async function saveDocument(raw: unknown, actor: { userId: string; role: 
       if (p.key !== "main") throw Error("Unknown storefront document.");
       const g = storefrontSchema.parse(body);
       if (g.heroMediaId) {
+        if (p.action === "publish" || p.action === "revert")
+          await assertMediaPublicationAllowed(tx, [g.heroMediaId]);
         const [m] = await tx<{
           alt: string;
         }>`select alt from commerce_media where id=${g.heroMediaId} and not archived`;
@@ -124,7 +141,12 @@ export async function saveDocument(raw: unknown, actor: { userId: string; role: 
             !Object.keys(FAMILIES).some(
               (f) =>
                 k.startsWith(f + ":") &&
-                colorsForFamily(f as keyof typeof FAMILIES).includes(k.slice(f.length + 1)),
+                [
+                  ...colorsForFamily(f as keyof typeof FAMILIES),
+                  ...(ARCHIVED_MODELS.find((m) => m.id === f)?.colorways.map(
+                    (c) => c.officialName,
+                  ) ?? []),
+                ].includes(k.slice(f.length + 1)),
             ),
         )
       )
