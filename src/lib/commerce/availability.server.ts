@@ -1,7 +1,9 @@
 import type { Sql } from "@/lib/db";
 import type { PriceSelection } from "./price-calculation";
 import type { VariantRow } from "./types";
+import { assertHatModelAvailable } from "@/lib/catalog-lifecycle";
 export async function checkBuildAvailability(sql: Sql, s: PriceSelection, orderId?: string) {
+  assertHatModelAvailable(s.orderType, s.family);
   const key = s.orderType + ":" + s.family + ":" + s.colorway;
   const rows = await sql<{
     on_hand: number | null;
@@ -23,5 +25,5 @@ export async function checkBuildAvailability(sql: Sql, s: PriceSelection, orderI
     );
 }
 export async function publishedVariants(sql: Sql, productIds: string[]) {
-  return sql<VariantRow>`select v.*,(select case when count(*)=0 then null when count(i.on_hand)<count(*) then 0 else min(greatest(0,(i.on_hand-i.reserved-i.committed)/r.units_per_item)) end::int from commerce_inventory_rules r join commerce_inventory i on i.id=r.inventory_id where r.product_key='variant:'||v.id) as available from commerce_variants v where v.active and v.product_id=any(${productIds}::text[]) order by v.title`;
+  return sql<VariantRow>`select v.*,(select case when count(*)=0 then null when count(i.on_hand)<count(*) then 0 else min(greatest(0,(i.on_hand-i.reserved-i.committed)/r.units_per_item)) end::int from commerce_inventory_rules r join commerce_inventory i on i.id=r.inventory_id where r.product_key='variant:'||v.id) as available from commerce_variants v where v.active and v.product_id=any(${productIds}::text[]) and not (v.options @> '{"family":"112PM"}'::jsonb or v.options @> '{"modelId":"112PM"}'::jsonb or v.options @> '{"model":"112PM"}'::jsonb) order by v.title`;
 }

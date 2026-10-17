@@ -13,6 +13,8 @@ import {
 } from "./core.server";
 import { CONTENT_KEYS, STAGES, type Role } from "./types";
 import { FAMILIES } from "@/lib/catalog";
+import { isRetiredHatModel, hasRetiredModelOption } from "@/lib/catalog-lifecycle";
+import { assertMediaPublicationAllowed } from "./media-policy.server";
 
 const id = z.string().uuid(),
   text = z.string().trim(),
@@ -338,7 +340,10 @@ export async function mutate(
         assertPermission(actor.role, "website");
         const p = z
           .object({
-            family: text.refine((v) => v in FAMILIES, "Unknown catalog model"),
+            family: text.refine(
+              (v) => v in FAMILIES && !isRetiredHatModel(v),
+              "Choose an active catalog model",
+            ),
             title: text.min(1).max(120),
             description: text.max(10000),
             version: z.number().int().min(0),
@@ -392,9 +397,22 @@ export async function mutate(
               .max(100),
           })
           .parse(payload);
+        if (
+          p.state === "active" &&
+          p.variants.some((v) => v.active && hasRetiredModelOption(v.options))
+        )
+          throw Error("A retired hat model cannot be published or sold.");
         if (p.builderFamily)
           throw new Error(
             "Specialized hat configuration is protected. Use existing Studio for visual review; catalog geometry is not editable here.",
+          );
+        if (p.state === "active")
+          await assertMediaPublicationAllowed(
+            tx,
+            p.images.flatMap((image) => {
+              const match = image.match(/^\/api\/(?:media|catalog-image)\/([a-f0-9-]{36})$/);
+              return match ? [match[1]] : [];
+            }),
           );
         if (
           p.state === "active" &&
@@ -448,11 +466,16 @@ export async function mutate(
         const p = z.object({ id }).parse(payload);
         const [product] = await tx<{
           title: string;
+          builder_family: string | null;
           description: string;
           category: string;
           images: string[];
         }>`select * from commerce_products where id=${p.id}`;
         if (!product) throw new Error("Product not found.");
+        if (isRetiredHatModel(product.builder_family))
+          throw Error(
+            "This exact hat model is archived and cannot be duplicated into the storefront.",
+          );
         const productId = randomUUID();
         await tx`insert into commerce_products(id,title,description,category,state,images) values(${productId},${product.title + " (copy)"},${product.description},${product.category},'draft',${JSON.stringify(product.images)})`;
         const variants = await tx<{

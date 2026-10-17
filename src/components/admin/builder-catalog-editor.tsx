@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FAMILIES, type FamilyId } from "@/lib/catalog";
+import { FAMILIES, FAMILY_ORDER, type FamilyId } from "@/lib/catalog";
 import { HAT_MODEL_LABELS, HAT_MODEL_BLURBS } from "@/lib/hat-models";
 import { mutateAdmin } from "@/lib/commerce/api";
 import type { ProductRow } from "@/lib/commerce/types";
@@ -32,7 +32,7 @@ export function BuilderCatalogEditor({
             setMessage("");
           }}
         >
-          {Object.keys(FAMILIES).map((f) => (
+          {FAMILY_ORDER.map((f) => (
             <option value={f} key={f}>
               {f} · {FAMILIES[f as FamilyId].label}
             </option>

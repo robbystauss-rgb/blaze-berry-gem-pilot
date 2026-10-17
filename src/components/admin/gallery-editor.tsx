@@ -3,7 +3,7 @@ import { getMediaLibrary, saveMedia } from "@/lib/commerce/owner-api";
 import type { MediaRow } from "@/lib/commerce/media.server";
 import { gallerySchema } from "@/lib/commerce/owner-schemas";
 import type { z } from "zod";
-import { FAMILIES } from "@/lib/catalog";
+import { FAMILY_ORDER } from "@/lib/catalog";
 import { PublishingControls } from "./publishing-controls";
 import { useOwnerDocuments } from "./use-owner-documents";
 import { MAX_NEW_UPLOAD_BYTES } from "@/lib/upload-limits";
@@ -360,7 +360,7 @@ export function GalleryEditor() {
                 onChange={(e) => setProject({ ...project, family: e.target.value })}
               >
                 <option value="">Any custom hat</option>
-                {Object.keys(FAMILIES).map((f) => (
+                {FAMILY_ORDER.map((f) => (
                   <option key={f}>{f}</option>
                 ))}
               </select>

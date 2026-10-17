@@ -14,7 +14,7 @@ if (
 const catalog = JSON.parse(readFileSync("src/data/master-catalog.json")),
   patches = JSON.parse(readFileSync("src/data/catalog-patches.json")).models,
   records = JSON.parse(readFileSync("src/data/crown-calibrations.json")).records;
-const cases = ["112", "112FP", "256", "112FPR", "112PM", "168P"].map((model) => {
+const cases = ["112", "112FP", "256", "112FPR", "112PFP", "168P"].map((model) => {
   const photo = records.find(
     (p) => p.modelId === model && (model !== "112FPR" || p.sourceWidth < 800),
   );

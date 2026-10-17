@@ -20,7 +20,7 @@
     "test": "node scripts/run-regressions.mjs && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "check:assets": "node scripts/validate-rec-assets.mjs",
+    "check:assets": "node scripts/validate-rec-assets.mjs && node scripts/validate-catalog-photo-refresh.mjs",
     "check:crowns": "node scripts/validate-crown-calibrations.mjs",
     "check:hat-images": "node scripts/validate-hat-display-images.mjs",
     "test:hat-images": "node --experimental-strip-types --test src/lib/hat-image-quality.test.ts scripts/hat-source-pixel-proof.test.mjs",
@@ -31,7 +31,10 @@
     "test:operations": "node --test --test-concurrency=1 tests/owner-operations.integration.mjs tests/content-pages.integration.mjs tests/owner-tasks.integration.mjs tests/quotes.integration.mjs tests/reorder.integration.mjs tests/order-organization.integration.mjs",
     "db:preview": "node scripts/preview-database.mjs",
     "qa:server": "node scripts/with-app-env.mjs node scripts/commerce-qa-server.mjs",
-    "qa:owner-upgrade": "node scripts/qa-owner-upgrade.mjs"
+    "qa:owner-upgrade": "node scripts/qa-owner-upgrade.mjs",
+    "test:catalog-retirement": "node --test --test-concurrency=1 tests/catalog-retirement.integration.mjs tests/reviewed-media-import.integration.mjs",
+    "release:retire-112pm": "node scripts/release-catalog-retirement.mjs",
+    "qa:catalog-retirement": "node scripts/qa-catalog-retirement.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",

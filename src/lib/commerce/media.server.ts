@@ -6,6 +6,8 @@ import { assertPermission, audit } from "./core.server";
 import { decodeArtwork } from "./checkout.server";
 import type { Role } from "./types";
 import { MAX_NEW_UPLOAD_DATA_URL_LENGTH } from "@/lib/upload-limits";
+import { assertMediaOriginalAllowed } from "./media-policy.server";
+import { EXCLUDED_MEDIA_MD5 } from "@/lib/media-policy";
 export type MediaRow = {
   id: string;
   name: string;
@@ -43,6 +45,7 @@ async function processUpload(raw: unknown, actor: { userId: string; role: Role }
   const file = decodeArtwork(p.data);
   if (!file || !["image/png", "image/jpeg", "image/webp"].includes(file.mime))
     throw Error("Upload a PNG, JPG or WebP photo, up to 3 MB.");
+  assertMediaOriginalAllowed(file.bytes);
   const image = sharp(file.bytes, {
     limitInputPixels: 24_000_000,
     animated: false,
@@ -158,9 +161,10 @@ export async function mediaIsPublished(id: string) {
   const sql = await getSql();
   const [row] = await sql<{
     published: boolean;
-  }>`select exists(select 1 from commerce_documents d where
+  }>`select (exists(select 1 from commerce_documents d where
     (d.scope='gallery' and d.published->>'consent'='true' and d.published->>'archived'='false' and d.published->'mediaIds' @> ${JSON.stringify([id])}::jsonb)
     or (d.scope='storefront' and d.published->>'heroMediaId'=${id}))
-    or exists(select 1 from commerce_products p where p.state='active' and (p.publish_at is null or p.publish_at<=now()) and p.images @> ${JSON.stringify(["/api/media/" + id])}::jsonb) as published`;
+    or exists(select 1 from commerce_products p where p.state='active' and (p.publish_at is null or p.publish_at<=now()) and p.images @> ${JSON.stringify(["/api/media/" + id])}::jsonb))
+    and not exists(select 1 from commerce_media m where m.id=${id} and md5(m.original)=any(${EXCLUDED_MEDIA_MD5}::text[])) as published`;
   return !!row?.published;
 }

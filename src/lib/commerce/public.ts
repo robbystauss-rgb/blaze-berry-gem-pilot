@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { z } from "zod";
+import { isRetiredHatModel } from "@/lib/catalog-lifecycle";
 export const getPublishedProduct = createServerFn({ method: "GET" })
   .validator(z.string().uuid())
   .handler(async ({ data }) => {
@@ -11,11 +12,13 @@ export const getPublishedProduct = createServerFn({ method: "GET" })
     >`select id,title,description,category,state,images,seo_title,seo_description,version,builder_family from commerce_products where id=${data} and state='active' and (publish_at is null or publish_at<=now()) and builder_family is null`;
     if (!product) return null;
     const variants = await (await import("./availability.server")).publishedVariants(sql, [data]);
+    if (!variants.length) return null;
     return { product, variants };
   });
 export const getBuilderContent = createServerFn({ method: "GET" })
   .validator(z.string().max(20))
   .handler(async ({ data }) => {
+    if (isRetiredHatModel(data)) return null;
     const { getSql } = await import("@/lib/db");
     const sql = await getSql();
     const [content] = await sql<{
@@ -51,7 +54,10 @@ export const getPublishedProducts = createServerFn({ method: "GET" }).handler(as
     sql,
     products.map((p) => p.id),
   );
-  return { products, variants };
+  return {
+    products: products.filter((p) => variants.some((v) => v.product_id === p.id)),
+    variants,
+  };
 });
 export const buyCatalogProduct = createServerFn({ method: "POST" })
   .validator(

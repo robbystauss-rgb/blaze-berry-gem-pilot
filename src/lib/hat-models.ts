@@ -45,7 +45,7 @@ export const HAT_MODEL_BLURBS: Record<FamilyId, string> = {
   "112FP": "Five-panel trucker. Its supplied photos and colorways stay separate from every other 112 variant.",
   "112FPR": "Five-panel trucker with rope. Only verified supplied angles are shown; missing views are never substituted.",
   "112P": "Printed trucker in camo and pattern colorways, using only the supplied 112P photo library.",
-  "112PM": "Printed mesh trucker. It stays visible as a distinct model and is not populated with another model's photos.",
+  "112PM": "Archived model. Retained for historical order identification only.",
   "112PFP": "Printed five-panel trucker with its own supplied color library, separate from 112P and 112FP.",
   "168": "Seven-panel mesh-back cap. Only verified 168 product assets belong to this model.",
   "168P": "Printed seven-panel mesh-back cap. Printed 168P assets remain separate from the standard 168.",
@@ -68,7 +68,7 @@ export const HAT_COLLECTIONS: Array<{
     id: "112",
     label: "112 Trucker Collection",
     description: "The 112-based trucker models stay separated by exact model number, including five-panel, rope, printed, and mesh variants.",
-    modelIds: ["112", "112FP", "112FPR", "112P", "112PM", "112PFP"],
+    modelIds: ["112", "112FP", "112FPR", "112P", "112PFP"],
   },
   {
     id: "seven-panel",

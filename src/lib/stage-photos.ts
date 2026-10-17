@@ -1,6 +1,8 @@
 import type { FamilyId } from "@/lib/catalog";
 import { MASTER, drivePhoto, workDecision, type WorkDecision } from "@/lib/studio-store";
 import { crownCalibration } from "./crown-calibration";
+import { isRetiredHatModel } from "./catalog-lifecycle";
+import { refreshedCatalogPhoto } from "./catalog-photo-refresh";
 
 export type StageViews = { front: string | null; side: string | null; back: string | null };
 
@@ -28,7 +30,8 @@ export function stageViews(family: FamilyId, colorway: string): StageViews {
   const color = model.colorways.find((item) => norm(item.officialName) === needle);
   if (!color) return empty;
   return {
-    front: crownCalibration(family, color.views.front)?.imageUrl ?? drivePhoto(color.views.front, 1200),
+    front:
+      crownCalibration(family, color.views.front)?.imageUrl ?? drivePhoto(color.views.front, 1200),
     side: drivePhoto(color.views.side, 1200),
     back: drivePhoto(color.views.back, 1200),
   };
@@ -39,13 +42,18 @@ export function stageThumb(family: FamilyId, colorway: string) {
   if (!model) return null;
   const needle = norm(colorway);
   const color = model.colorways.find((item) => norm(item.officialName) === needle);
-  return drivePhoto(color?.views.front, 360);
+  return refreshedCatalogPhoto(family, color?.id) ?? drivePhoto(color?.views.front, 360);
 }
 
 export function familyHero(family: FamilyId) {
   const model = MASTER.models.find((item) => item.id === family);
   if (!model) return null;
-  return drivePhoto(model.heroDriveId ?? model.colorways[0]?.views.front, 900);
+  const hero =
+    model.colorways.find((c) => c.views.front === model.heroDriveId) ?? model.colorways[0];
+  return (
+    refreshedCatalogPhoto(family, hero?.id) ??
+    drivePhoto(model.heroDriveId ?? hero?.views.front, 900)
+  );
 }
 
 export function familyHeroCalibration(family: FamilyId) {
@@ -56,7 +64,7 @@ export function familyHeroCalibration(family: FamilyId) {
 export function galleryWork(work: Record<string, WorkDecision>) {
   return MASTER.work
     .map((item, index) => ({ item, index, decision: workDecision({ work }, item.id) }))
-    .filter((entry) => !entry.decision.hidden)
+    .filter((entry) => !entry.decision.hidden && !isRetiredHatModel(entry.decision.modelId))
     .sort(
       (a, b) =>
         Number(b.decision.featured) - Number(a.decision.featured) ||

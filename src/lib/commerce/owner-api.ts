@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { z } from "zod";
 import type { OwnerScope } from "./owner-schemas";
+import { EXCLUDED_MEDIA_MD5 } from "@/lib/media-policy";
 const quoteInput = z.object({
   orderType: z.enum(["hat", "patch"]),
   family: z.string().max(12),
@@ -132,7 +133,7 @@ export const getPublicGallery = createServerFn({ method: "GET" }).handler(async 
     key: string;
     published: import("zod").infer<typeof import("./owner-schemas").gallerySchema>;
     media: { id: string; alt: string; version: number }[];
-  }>`select d.key,d.published,coalesce((select jsonb_agg(jsonb_build_object('id',m.id,'alt',m.alt,'version',m.version)) from commerce_media m where d.published->'mediaIds' @> to_jsonb(m.id) and not m.archived),'[]'::jsonb) as media from commerce_documents d where d.scope='gallery' and d.published->>'consent'='true' and d.published->>'archived'='false' order by d.updated_at desc limit 100`;
+  }>`select d.key,d.published,coalesce((select jsonb_agg(jsonb_build_object('id',m.id,'alt',m.alt,'version',m.version)) from commerce_media m where d.published->'mediaIds' @> to_jsonb(m.id) and not m.archived),'[]'::jsonb) as media from commerce_documents d where d.scope='gallery' and d.published->>'consent'='true' and d.published->>'archived'='false' and coalesce(d.published->>'family','')<>'112PM' and not exists(select 1 from commerce_media m where d.published->'mediaIds' @> to_jsonb(m.id) and md5(m.original)=any(${EXCLUDED_MEDIA_MD5}::text[])) order by d.updated_at desc limit 100`;
 });
 export const getStorefrontPreview = createServerFn({ method: "GET" })
   .middleware([authMiddleware])

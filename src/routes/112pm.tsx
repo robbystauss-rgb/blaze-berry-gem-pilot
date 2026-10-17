@@ -1,4 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { CatalogPage } from "@/components/catalog/catalog-page";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/112pm")({ component: () => <CatalogPage family="112PM" /> });
+export const Route = createFileRoute("/112pm")({
+  beforeLoad: () => {
+    throw redirect({ to: "/hats", statusCode: 301 });
+  },
+});

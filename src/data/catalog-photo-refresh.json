@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "source": "Owner-supplied Drive 168P color chart. Cropped at native resolution without enlargement, recoloring or generated detail. Product discovery only; frozen builder photographs and historical snapshots remain unchanged.",
+  "records": [
+    {
+      "modelId": "168P",
+      "colorwayId": "168P:saltwater-duck-camo-ice-grey",
+      "imageUrl": "/assets/catalog-refresh/8225dbbe5695cdb4526444f4d36bb41565f1a9dd459f9217a27c593775cba4e4.webp",
+      "sha256": "8225dbbe5695cdb4526444f4d36bb41565f1a9dd459f9217a27c593775cba4e4",
+      "width": 660,
+      "height": 458,
+      "crop": {
+        "left": 20,
+        "top": 550,
+        "width": 660,
+        "height": 458
+      },
+      "sourceImageUrl": "/assets/catalog-refresh/182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8.png",
+      "sourceSha256": "182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8",
+      "originalSourceSha256": "92a660803339a271ab102017b4865e620f8a105b88d16f351c8b77bae766233f",
+      "sourceDriveId": "1U1bSocKIhagEpw-Q0vKV7zJ-z8y0rbZR",
+      "role": "catalog-photo-only",
+      "sourceLabel": "Saltwater Duck Camo/Ice Grey"
+    },
+    {
+      "modelId": "168P",
+      "colorwayId": "168P:harvest-duck-camo-sandstone",
+      "imageUrl": "/assets/catalog-refresh/3154ac45ecec7edba255add3a92a7504476fcdcfa4af049e71a57158604a6c63.webp",
+      "sha256": "3154ac45ecec7edba255add3a92a7504476fcdcfa4af049e71a57158604a6c63",
+      "width": 660,
+      "height": 458,
+      "crop": {
+        "left": 700,
+        "top": 550,
+        "width": 660,
+        "height": 458
+      },
+      "sourceImageUrl": "/assets/catalog-refresh/182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8.png",
+      "sourceSha256": "182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8",
+      "originalSourceSha256": "92a660803339a271ab102017b4865e620f8a105b88d16f351c8b77bae766233f",
+      "sourceDriveId": "1U1bSocKIhagEpw-Q0vKV7zJ-z8y0rbZR",
+      "role": "catalog-photo-only",
+      "sourceLabel": "Harvest Duck Camo/Sandstone"
+    },
+    {
+      "modelId": "168P",
+      "colorwayId": "168P:marsh-duck-camo-loden",
+      "imageUrl": "/assets/catalog-refresh/ec0bceac33b5e2060e32c1288fefab9c43d155fdabbdb69ddfa03bf64f297a3b.webp",
+      "sha256": "ec0bceac33b5e2060e32c1288fefab9c43d155fdabbdb69ddfa03bf64f297a3b",
+      "width": 668,
+      "height": 458,
+      "crop": {
+        "left": 1380,
+        "top": 550,
+        "width": 668,
+        "height": 458
+      },
+      "sourceImageUrl": "/assets/catalog-refresh/182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8.png",
+      "sourceSha256": "182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8",
+      "originalSourceSha256": "92a660803339a271ab102017b4865e620f8a105b88d16f351c8b77bae766233f",
+      "sourceDriveId": "1U1bSocKIhagEpw-Q0vKV7zJ-z8y0rbZR",
+      "role": "catalog-photo-only",
+      "sourceLabel": "Marsh Duck Camo/Loden"
+    },
+    {
+      "modelId": "168P",
+      "colorwayId": "168P:mossy-oak-bottomland-loden",
+      "imageUrl": "/assets/catalog-refresh/df605f649f7ce5338b7f9811fd8b3624918b9aa71f1a5cd82418af04464c9ce7.webp",
+      "sha256": "df605f649f7ce5338b7f9811fd8b3624918b9aa71f1a5cd82418af04464c9ce7",
+      "width": 660,
+      "height": 480,
+      "crop": {
+        "left": 700,
+        "top": 1260,
+        "width": 660,
+        "height": 480
+      },
+      "sourceImageUrl": "/assets/catalog-refresh/182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8.png",
+      "sourceSha256": "182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8",
+      "originalSourceSha256": "92a660803339a271ab102017b4865e620f8a105b88d16f351c8b77bae766233f",
+      "sourceDriveId": "1U1bSocKIhagEpw-Q0vKV7zJ-z8y0rbZR",
+      "role": "catalog-photo-only",
+      "sourceLabel": "Mossy Oak Bottomland/Loden"
+    },
+    {
+      "modelId": "168P",
+      "colorwayId": "168P:bark-duck-camo-brown",
+      "imageUrl": "/assets/catalog-refresh/8dc4742bb2ec25c93e5e9d02b326eea995013613111d87a150099f69ab5f687c.webp",
+      "sha256": "8dc4742bb2ec25c93e5e9d02b326eea995013613111d87a150099f69ab5f687c",
+      "width": 668,
+      "height": 480,
+      "crop": {
+        "left": 1380,
+        "top": 1260,
+        "width": 668,
+        "height": 480
+      },
+      "sourceImageUrl": "/assets/catalog-refresh/182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8.png",
+      "sourceSha256": "182b7d30348ac4e794bc1fbc7bea61f0605ea9d84c5fdc27482c7147d85bf8b8",
+      "originalSourceSha256": "92a660803339a271ab102017b4865e620f8a105b88d16f351c8b77bae766233f",
+      "sourceDriveId": "1U1bSocKIhagEpw-Q0vKV7zJ-z8y0rbZR",
+      "role": "catalog-photo-only",
+      "sourceLabel": "Bark Duck Camo/Brown"
+    }
+  ]
+}

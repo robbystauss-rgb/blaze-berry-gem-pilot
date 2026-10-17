@@ -60,7 +60,7 @@ try {
   await page.getByRole("heading", { name: "Calibrate an exact product photograph" }).waitFor();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
-    for (const model of ["112", "112PM"]) {
+    for (const model of ["112", "168P"]) {
       const photo = photos.find((p) => p.modelId === model),
         display = displays.find((d) => d.calibrationId === photo.id);
       await page.getByLabel("Richardson model", { exact: true }).selectOption(model);

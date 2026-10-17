@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "records": [
+    {
+      "id": "synthetic-hat-assortment",
+      "reason": "Synthetic product imagery rejected for storefront use.",
+      "driveIds": ["12gEjZLyIQubcX64TMvYoOoc24pQxG78t"],
+      "sha256": [
+        "f8724d66dda3a6981215273003051c0a8aca3ef92f823aefc51f58715ce63882",
+        "39326296830e9d7009d8d2ad54e59e09dc7cd5e15d4c910586afdd4662791a52"
+      ],
+      "md5": ["be67e4e19776a77c7a04c8f255db6ed6", "6cf453ce3e0153f0c78a6c1d20049482"]
+    },
+    {
+      "id": "synthetic-nopsi-cbd-trio",
+      "reason": "Synthetic product imagery rejected for storefront use.",
+      "driveIds": ["1Q1eHmqv6IUs4ngqQOZad2k109lyK3xl3"],
+      "sha256": [
+        "067440afe69981adc52ceb8bcc75f3babec28729d076602c63d71cc25ebe4810",
+        "ec6d8b0ec1bced6568329df4559b900273efaeecef34b8915eef1c4bf24b7b40"
+      ],
+      "md5": ["7387f00a932371f61afcb2aa41d699a4", "a0cffe7dae9d054a741bf7e04dbded3d"]
+    }
+  ]
+}

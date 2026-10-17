@@ -33,7 +33,8 @@ const records = manifest.records.map((record) => {
 });
 const canonical = { small: 2.5 / 7.5, medium: 3 / 7.5, large: 3.5 / 7.5 };
 const sizes = Object.keys(canonical);
-const models = ["112", "112FP", "112FPR", "112P", "112PM", "112PFP", "168", "168P", "256", "256P"];
+const models = ["112", "112FP", "112FPR", "112P", "112PFP", "168", "168P", "256", "256P"];
+const activeRecords = records.filter((record) => models.includes(record.modelId));
 const pixelTolerance = 0.75;
 const anchorTolerance = 1e-5;
 const evidence = { baseUrl, startedAt: new Date().toISOString(), tolerances: { pixelTolerance, anchorTolerance }, matrix: [], responsive: [], behaviors: [], consoleErrors: [], pageErrors: [], contactSheets: [], actualInventory: [] };
@@ -245,7 +246,7 @@ try {
         await capture(page, filename);
         evidence.matrix.push({ ...result, filename, assetId: record.assetId });
       }
-      console.log(`matrix ${model} ${colorway}: all three sizes (${evidence.matrix.length}/${records.length * 3})`);
+      console.log(`matrix ${model} ${colorway}: all three sizes (${evidence.matrix.length}/${(representative ? models.length : activeRecords.length) * 3})`);
     }
     writeFileSync(resolve(artifactDir,"results.json"), JSON.stringify(evidence,null,2));
   }
@@ -261,7 +262,7 @@ try {
     console.log(JSON.stringify({smokePassed:true,matrix:evidence.matrix.length,anchor}));
     await context.close(); await browser.close(); process.exit(0);
   }
-  assert.equal(evidence.matrix.length, (representative?models.length:records.length) * 3);
+  assert.equal(evidence.matrix.length, (representative?models.length:activeRecords.length) * 3);
 
   // Every model is checked at every responsive breakpoint, using an actual color selection.
   const viewports = representative?[[1280,800],[390,844],[320,740],[844,390]]:[[1280,800], [1024,768], [1023,768], [768,1024], [767,1024], [640,960], [639,960], [390,844], [320,740], [844,390]];
@@ -289,7 +290,7 @@ try {
         evidence.responsive.push({ ...result, viewport: { width, height }, filename: size === "medium" ? filename : null });
       }
     }
-    console.log(`responsive ${width}x${height}: ten models, three sizes`);
+    console.log(`responsive ${width}x${height}: ${models.length} models, three sizes`);
     writeFileSync(resolve(artifactDir,"results.json"), JSON.stringify(evidence,null,2));
   }
 

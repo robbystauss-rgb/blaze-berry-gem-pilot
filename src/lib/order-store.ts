@@ -12,6 +12,7 @@ import type {
 import { FAMILIES } from "./catalog";
 import type { CrownPosition } from "./crown-geometry";
 import { MAX_NEW_UPLOAD_BYTES } from "./upload-limits";
+import { isRetiredHatModel } from "./catalog-lifecycle";
 import type { ReorderSettings } from "./commerce/reorder-types";
 
 export type OrderDraft = {
@@ -77,6 +78,22 @@ type Store = OrderDraft & {
   restoreReorder: (settings: ReorderSettings, notice: string) => void;
 };
 
+export function restoreActiveOrderDraft(saved: Partial<OrderDraft>, current: Store): Store {
+  if (isRetiredHatModel(saved.family))
+    return {
+      ...current,
+      ...saved,
+      family: "112",
+      tier: "standard",
+      colorway: "",
+      patchPosition: undefined,
+      previewIdentity: undefined,
+      reorderNotice:
+        "Your saved hat model is no longer offered. Choose an available model and color; your artwork is retained.",
+    };
+  return { ...current, ...saved };
+}
+
 export const useOrder = create<Store>()(
   persist(
     (set) => ({
@@ -101,6 +118,10 @@ export const useOrder = create<Store>()(
     }),
     {
       name: "rec-mama-order",
+      merge: (persisted, current) => {
+        const saved = (persisted ?? {}) as Partial<OrderDraft>;
+        return restoreActiveOrderDraft(saved, current);
+      },
       partialize: (s) => {
         const {
           set: _set,
