@@ -9,6 +9,7 @@ import { getPublishedContent } from "@/lib/commerce/public";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { FeaturedProducts } from "./featured-products";
 import { usePriceBook, minimumPrice, minimumPatchPrice } from "@/lib/commerce/use-pricebook";
+import { footerLinksSchema, parsePublicField } from "@/lib/commerce/content-fields";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -269,6 +270,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
                   >
                     Account sign in
                   </Link>
+                  <a
+                    href="/quote-request"
+                    className="flex min-h-11 items-center text-bark transition-colors hover:text-ink"
+                  >
+                    Bulk & custom quote request
+                  </a>
                   <Link
                     to="/info"
                     search={{ page: "shipping_policy" }}
@@ -276,6 +283,17 @@ export function SiteShell({ children }: { children: ReactNode }) {
                   >
                     Shipping policy
                   </Link>
+                  {(parsePublicField(footerLinksSchema, content.footer_links) ?? []).map(
+                    (link, index) => (
+                      <a
+                        key={index}
+                        href={link.path}
+                        className="flex min-h-11 items-center text-bark transition-colors hover:text-ink"
+                      >
+                        {link.label}
+                      </a>
+                    ),
+                  )}
                   <Link
                     to="/info"
                     search={{ page: "refund_policy" }}

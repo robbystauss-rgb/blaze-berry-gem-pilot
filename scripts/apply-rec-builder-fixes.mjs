@@ -23,6 +23,7 @@ const homePath = "src/routes/index.tsx";
 const studioPath = "src/routes/studio.tsx";
 const catalogPath = "src/lib/catalog.ts";
 const hatPreviewPath = "src/components/hat/hat-preview.tsx";
+const patchFacePath = "src/components/hat/patch-face.tsx";
 const checkoutPath = "src/components/build/checkout-panel.tsx";
 const paymentsPath = "src/lib/payments.ts";
 
@@ -32,6 +33,7 @@ const home = read(homePath);
 const studio = read(studioPath);
 const catalog = read(catalogPath);
 const hatPreview = read(hatPreviewPath);
+const patchFace = read(patchFacePath);
 const checkout = read(checkoutPath);
 const payments = read(paymentsPath);
 
@@ -61,7 +63,10 @@ requireText(payments, paymentsPath, "PayPal server checkout", "PAYPAL_CLIENT_SEC
 
 // Patch-preview safety: real leatherette texture is rendered directly, without a fake color wash.
 forbidText(hatPreview, hatPreviewPath, "fake patch material gradient", "linear-gradient(160deg");
-requireText(hatPreview, hatPreviewPath, "real patch texture", 'backgroundImage: leather.texture ? `url(${leather.texture})` : undefined');
+forbidText(patchFace, patchFacePath, "fake patch material gradient", "linear-gradient(160deg");
+requireText(patchFace, patchFacePath, "real shared patch texture", 'backgroundImage: leather.texture ? `url(${leather.texture})` : undefined');
+requireText(hatPreview, hatPreviewPath, "hat uses shared patch surface", '<PatchFace material={leather.id}');
+requireText(hatPreview, hatPreviewPath, "loose patch uses shared patch surface", '<PatchFace material={leatherette}');
 
 // Patch-only wording must accurately describe the physical product and application status.
 requireText(

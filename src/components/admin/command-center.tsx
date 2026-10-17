@@ -50,7 +50,6 @@ import {
 import {
   PERMISSIONS,
   STAGES,
-  CONTENT_KEYS,
   label,
   money,
   type Permission,
@@ -71,6 +70,11 @@ import { GalleryEditor } from "./gallery-editor";
 import { PricingEditor, PromotionEditor } from "./pricing-editor";
 import { StorefrontEditor } from "./storefront-editor";
 import { BusinessSearch } from "./business-search";
+import { InventoryCsv } from "./inventory-csv";
+import { ContentPagesEditor } from "./content-pages-editor";
+import { QuotesEditor } from "./quotes-editor";
+import { OwnerTasks, OwnerDashboardInsights } from "./owner-tasks";
+import { reportBounds, businessMidnight, shiftBusinessDay } from "@/lib/commerce/business-dates";
 
 type Section = (typeof sections)[number];
 const NAV: { id: Section; name: string; icon: typeof Menu; permission: Permission | "security" }[] =
@@ -78,6 +82,7 @@ const NAV: { id: Section; name: string; icon: typeof Menu; permission: Permissio
     { id: "overview", name: "Overview", icon: LayoutDashboard, permission: "orders" },
     { id: "orders", name: "Orders", icon: ShoppingBag, permission: "orders" },
     { id: "payments", name: "Payments & invoices", icon: CreditCard, permission: "finance" },
+    { id: "quotes", name: "Quotes & bulk requests", icon: ShoppingBag, permission: "finance" },
     { id: "production", name: "Production queue", icon: Layers, permission: "production" },
     { id: "inventory", name: "Inventory", icon: Package, permission: "inventory" },
     { id: "products", name: "Products", icon: Tags, permission: "products" },
@@ -98,6 +103,7 @@ const DESCRIPTION: Record<Section, string> = {
   overview: "A clear view of your business, from payment to packaging.",
   orders: "Every order, its original specifications and the next step.",
   payments: "Verified receipts and invoices, with a complete financial trail.",
+  quotes: "Customer requests, reviewed estimates and accepted work ready for invoicing.",
   production: "Custom work, organized around the way you make it.",
   inventory: "Real stock counts, commitments and material movements.",
   products: "Manage ordinary merchandise without opening source code.",
@@ -276,6 +282,7 @@ export function CommandCenter() {
   const [navOpen, setNavOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState<"" | "low" | "normal" | "high">("");
   const [page, setPage] = useState(0);
   const [range, setRange] = useState("30");
   const [from, setFrom] = useState("");
@@ -321,7 +328,9 @@ export function CommandCenter() {
     if (
       !access ||
       !permitted ||
-      ["security", "calibration", "gallery", "pricing", "promotions", "content"].includes(section)
+      ["security", "calibration", "gallery", "pricing", "promotions", "content", "quotes"].includes(
+        section,
+      )
     ) {
       setLoading(false);
       return;
@@ -330,16 +339,11 @@ export function CommandCenter() {
     setError("");
     try {
       const dates = ["overview", "reports"].includes(section)
-        ? {
-            from: from
-              ? new Date(from + "T00:00:00").toISOString()
-              : new Date(Date.now() - Number(range) * 86400000).toISOString(),
-            to: to ? new Date(to + "T23:59:59").toISOString() : new Date().toISOString(),
-          }
+        ? reportBounds(range, from, to)
         : from || to
           ? {
-              from: from ? new Date(from + "T00:00:00").toISOString() : undefined,
-              to: to ? new Date(to + "T23:59:59").toISOString() : undefined,
+              from: from ? businessMidnight(from) : undefined,
+              to: to ? businessMidnight(shiftBusinessDay(to, 1)) : undefined,
             }
           : {};
       setData(
@@ -347,11 +351,18 @@ export function CommandCenter() {
           data: {
             section: section as Exclude<
               Section,
-              "security" | "calibration" | "gallery" | "pricing" | "promotions" | "content"
+              | "security"
+              | "calibration"
+              | "gallery"
+              | "pricing"
+              | "promotions"
+              | "content"
+              | "quotes"
             >,
             search,
             page,
             status,
+            priority: ["orders", "production"].includes(section) ? priorityFilter : "",
             ...dates,
           },
         }),
@@ -361,7 +372,7 @@ export function CommandCenter() {
     } finally {
       setLoading(false);
     }
-  }, [access, permitted, section, search, page, status, from, to, range]);
+  }, [access, permitted, section, search, page, status, priorityFilter, from, to, range]);
   useEffect(() => {
     const timer = setTimeout(() => void load(), search ? 250 : 0);
     return () => clearTimeout(timer);
@@ -369,6 +380,7 @@ export function CommandCenter() {
   useEffect(() => {
     setSearch(query ?? "");
     setStatus("");
+    setPriorityFilter("");
     setPage(0);
     setEditor(null);
     setSuccess("");
@@ -590,6 +602,8 @@ export function CommandCenter() {
             <PromotionEditor />
           ) : section === "content" ? (
             <StorefrontEditor />
+          ) : section === "quotes" ? (
+            <QuotesEditor onOpenOrder={openOrder} />
           ) : orderId ? (
             <OrderDetail
               id={orderId}
@@ -610,7 +624,10 @@ export function CommandCenter() {
                       setTo("");
                     }}
                   >
-                    <option value="1">Today / last 24 hours</option>
+                    <option value="today">Today (Chicago)</option>
+                    <option value="week">This week (Monday–today)</option>
+                    <option value="month">This calendar month</option>
+                    <option value="1">Last 24 hours</option>
                     <option value="7">Last 7 days</option>
                     <option value="30">Last 30 days</option>
                     <option value="90">Last 90 days</option>
@@ -684,6 +701,21 @@ export function CommandCenter() {
                         ))}
                       </select>
                     )}
+                    {["orders", "production"].includes(section) && (
+                      <select
+                        aria-label="Filter production priority"
+                        value={priorityFilter}
+                        onChange={(e) => {
+                          setPriorityFilter(e.target.value as typeof priorityFilter);
+                          setPage(0);
+                        }}
+                      >
+                        <option value="">All priorities</option>
+                        <option value="high">High priority</option>
+                        <option value="normal">Normal priority</option>
+                        <option value="low">Low priority</option>
+                      </select>
+                    )}
                     {["orders", "activity", "payments"].includes(section) && (
                       <>
                         <label>
@@ -710,7 +742,17 @@ export function CommandCenter() {
               ) : (
                 data && (
                   <>
-                    {section === "overview" && <Overview data={data} openOrder={openOrder} />}
+                    {section === "overview" && (
+                      <>
+                        <Overview data={data} openOrder={openOrder} />
+                        {access.role === "owner" && (
+                          <>
+                            <OwnerTasks />
+                            <OwnerDashboardInsights />
+                          </>
+                        )}
+                      </>
+                    )}
                     {["orders", "production"].includes(section) && (
                       <OrderList
                         orders={data.orders}
@@ -800,13 +842,21 @@ export function CommandCenter() {
                       </>
                     )}
                     {section === "inventory" && (
-                      <Inventory
-                        data={data}
-                        edit={(item, mode) => {
-                          setInventory(item);
-                          setEditor(mode);
-                        }}
-                      />
+                      <>
+                        <InventoryCsv
+                          onApplied={async (message) => {
+                            setSuccess(message);
+                            await load();
+                          }}
+                        />
+                        <Inventory
+                          data={data}
+                          edit={(item, mode) => {
+                            setInventory(item);
+                            setEditor(mode);
+                          }}
+                        />
+                      </>
                     )}
                     {section === "products" && (
                       <>
@@ -908,38 +958,7 @@ export function CommandCenter() {
                         )}
                       </div>
                     )}
-                    {section === "website" && (
-                      <div className="cc-grid">
-                        {CONTENT_KEYS.map((key) => {
-                          const value = data.content.find((c) => c.key === key);
-                          return (
-                            <div key={key} className="cc-panel">
-                              <h2>{label(key)}</h2>
-                              <p className="cc-content-preview">
-                                {value?.value || "Using existing storefront content."}
-                              </p>
-                              <button
-                                className="cc-button secondary"
-                                onClick={() => setEditor("content:" + key)}
-                              >
-                                Edit content
-                              </button>
-                            </div>
-                          );
-                        })}
-                        <div className="cc-panel">
-                          <h2>Deployment version</h2>
-                          <p>
-                            {data.config.version ??
-                              "No deployment metadata available in this environment."}
-                          </p>
-                          <p>
-                            Routine content saves use the database. Source changes require a
-                            separately approved release.
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                    {section === "website" && <ContentPagesEditor />}
                     {section === "activity" && (
                       <div className="cc-panel">
                         {data.audit.length ? (
@@ -1169,10 +1188,11 @@ export function CommandCenter() {
                                     section: section as "orders",
                                     search,
                                     status,
-                                    from: from
-                                      ? new Date(from + "T00:00:00").toISOString()
-                                      : undefined,
-                                    to: to ? new Date(to + "T23:59:59").toISOString() : undefined,
+                                    priority: ["orders", "production"].includes(section)
+                                      ? priorityFilter
+                                      : "",
+                                    from: from ? businessMidnight(from) : undefined,
+                                    to: to ? businessMidnight(shiftBusinessDay(to, 1)) : undefined,
                                   },
                                 });
                                 const url = URL.createObjectURL(
@@ -1567,8 +1587,8 @@ function Overview({ data, openOrder }: { data: AdminData; openOrder: (id: string
         {[
           ["Collected in period", money(m.collected)],
           ["Net after refunds", money(m.net_collected)],
-          ["New orders", m.new_orders],
-          ["Awaiting payment", m.awaiting_payment],
+          ["Orders placed in period", m.new_orders],
+          ["Awaiting payment · all time", m.awaiting_payment],
         ].map(([title, value]) => (
           <div key={title} className="cc-metric">
             <span>{title}</span>
@@ -1582,12 +1602,13 @@ function Overview({ data, openOrder }: { data: AdminData; openOrder: (id: string
       <div className="cc-overview-grid">
         <div className="cc-panel">
           <div className="cc-panel-heading">
-            <h2>Collections over time</h2>
+            <h2>Collections & orders over time</h2>
             <span>Actual receipts · USD</span>
           </div>
           <p className="cc-help">
             Collected includes recorded tax and shipping after discounts. Net collected subtracts
-            successful refunds. Unpaid orders are excluded.
+            successful refunds. Unpaid orders are excluded from collections. Orders placed use the
+            right-hand count axis and include unpaid/canceled orders in the selected period.
           </p>
           {data.trend.length ? (
             <div className="cc-chart">
@@ -1595,9 +1616,26 @@ function Overview({ data, openOrder }: { data: AdminData; openOrder: (id: string
                 <AreaChart data={data.trend}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => "$" + Number(v) / 100} />
-                  <Tooltip formatter={(v) => money(Number(v))} />
+                  <YAxis
+                    yAxisId="money"
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(v) => "$" + Number(v) / 100}
+                  />
+                  <YAxis
+                    yAxisId="orders"
+                    orientation="right"
+                    allowDecimals={false}
+                    tick={{ fontSize: 11 }}
+                    width={28}
+                  />
+                  <Tooltip
+                    formatter={(v, name) =>
+                      name === "Orders placed" ? `${Number(v)} orders` : money(Number(v))
+                    }
+                  />
                   <Area
+                    yAxisId="money"
+                    name="Collected"
                     type="monotone"
                     dataKey="collected"
                     stroke="var(--color-wine)"
@@ -1605,18 +1643,29 @@ function Overview({ data, openOrder }: { data: AdminData; openOrder: (id: string
                     fillOpacity={0.18}
                   />
                   <Area
+                    yAxisId="money"
+                    name="Refunds"
                     type="monotone"
                     dataKey="refunds"
                     stroke="var(--color-bark)"
                     fill="var(--color-pill)"
+                  />
+                  <Area
+                    yAxisId="orders"
+                    name="Orders placed"
+                    type="linear"
+                    dataKey="orders"
+                    stroke="var(--color-ink)"
+                    fill="transparent"
+                    strokeDasharray="4 3"
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           ) : (
             <Empty
-              title="No collections in this period"
-              body="This chart appears when trusted payment receipts are recorded."
+              title="No orders or collections in this period"
+              body="This chart appears when real orders or trusted payment receipts are recorded."
             />
           )}
           <div className="cc-inline-stats">
@@ -1635,9 +1684,14 @@ function Overview({ data, openOrder }: { data: AdminData; openOrder: (id: string
         </div>
         <div className="cc-panel">
           <h2>Needs attention</h2>
+          <p className="cc-help">
+            Current operational backlog · all time, independent of the report date range.
+          </p>
           <div className="cc-attention">
             {[
               ["production", "Awaiting / in production", m.production],
+              ["production", "Artwork review", m.artwork_review],
+              ["production", "Awaiting customer approval", m.customer_approval],
               ["orders", "Ready to ship", m.ready_to_ship],
               ["payments", "Open invoices", m.open_invoices],
               ["inventory", "Low stock", m.low_stock],
@@ -1653,12 +1707,20 @@ function Overview({ data, openOrder }: { data: AdminData; openOrder: (id: string
           </div>
           <div className="cc-inline-stats">
             <span>
-              <small>Completed</small>
+              <small>Completed · all time</small>
               <b>{m.completed}</b>
             </span>
             <span>
-              <small>Fulfilled</small>
+              <small>Fulfilled · all time</small>
               <b>{m.fulfilled}</b>
+            </span>
+            <span>
+              <small>Canceled · all time</small>
+              <b>{m.canceled}</b>
+            </span>
+            <span>
+              <small>Orders with refunds · all time</small>
+              <b>{m.refunded_orders}</b>
             </span>
           </div>
         </div>
@@ -1725,7 +1787,10 @@ function OrderList({
                 <small>{new Date(o.created_at).toLocaleString()}</small>
                 <small>{label(o.source)}</small>
               </td>
-              <td data-label="Products">{o.titles}</td>
+              <td data-label="Products">
+                {o.titles}
+                {!!o.tags.length && <small>Tags: {o.tags.join(" · ")}</small>}
+              </td>
               <td data-label={production ? "Production" : "Payment"}>
                 <Badge
                   value={
@@ -1747,6 +1812,7 @@ function OrderList({
                   }
                 />
                 {o.due_at && <small>Due {new Date(o.due_at).toLocaleDateString()}</small>}
+                {o.priority !== "normal" && <small>{label(o.priority)} priority</small>}
                 {o.tracking && (
                   <small>
                     {o.carrier} · {o.tracking}

@@ -183,6 +183,8 @@ export async function runReleaseDatabase({
   directory = migrationsDir,
   log = console.log,
   maxSnapshotBytes = MAX_SNAPSHOT_BYTES,
+  configuration = releaseConfiguration,
+  plan = releasePlan,
 } = {}) {
   if (env.REC_RELEASE_SCHEMA_AUDIT === "read-only") {
     await runReleaseSchemaAudit({
@@ -193,7 +195,7 @@ export async function runReleaseDatabase({
     });
     throw new Error("Release refused: intentional deployment stop after read-only schema audit.");
   }
-  const config = releaseConfiguration(env);
+  const config = configuration(env);
   if (!config) return { skipped: true }; // Deliberately no DB query or connection.
   const entries = await readdir(directory);
   let pool;
@@ -227,7 +229,7 @@ export async function runReleaseDatabase({
     );
     let pending;
     try {
-      pending = releasePlan(entries, applied);
+      pending = plan(entries, applied);
     } catch (error) {
       log(
         "[release-database] Applied migration filenames:",

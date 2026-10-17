@@ -19,7 +19,12 @@ const fixture = JSON.parse(
     "utf8",
   ),
 );
-if (process.env.DATABASE_URL || process.env.STRIPE_SECRET_KEY || process.env.PAYPAL_CLIENT_SECRET)
+if (
+  process.env.DATABASE_URL ||
+  process.env.STRIPE_SECRET_KEY ||
+  process.env.PAYPAL_CLIENT_SECRET ||
+  process.env.RESEND_API_KEY
+)
   throw Error("QA refuses provider credentials and persistent databases.");
 const screenshots = resolve(
     root,
@@ -100,7 +105,7 @@ async function published() {
 }
 try {
   await login("owner");
-  if (built) {
+  if (built && process.env.QA_OWNER_ALREADY_ACTIVATED !== "1") {
     await page.goto(fixture.ownerSetupUrl);
     await page.getByRole("button", { name: "Activate owner access", exact: true }).click();
     await page.waitForURL(/\/admin(?:\?|$)/);
@@ -201,7 +206,10 @@ try {
   await page.getByLabel("Status", { exact: true }).selectOption("active");
   await page.getByRole("button", { name: "Save promotion", exact: true }).click();
   await page.getByRole("status").filter({ hasText: "Promotion saved." }).waitFor();
-  await page.locator(".cc-project-preview").getByText(/\$28\.80/).waitFor();
+  await page
+    .locator(".cc-project-preview")
+    .getByText(/\$28\.80/)
+    .waitFor();
   await capture("promotion-desktop");
   await publicPage.goto(base + "/order?family=112&color=Black&type=hat");
   await publicPage.locator("[data-patch-overlay]").waitFor();
@@ -240,8 +248,14 @@ try {
     await page.getByLabel("Search all business records").fill("TEST FIXTURE checkout");
     await page.locator(".cc-global-results a").filter({ hasText: "Order #" }).first().click();
     await page.getByRole("heading", { name: "Saved customer mockup", exact: true }).waitFor();
-    assert.equal(await page.locator(".cc-specs dt").getByText(/Expected\s*Preview|Preview\s*Version|Product\s*Images/i).count(), 0);
-    await page.locator(".cc-specs dt").getByText("Patch Size", {exact:true}).waitFor();
+    assert.equal(
+      await page
+        .locator(".cc-specs dt")
+        .getByText(/Expected\s*Preview|Preview\s*Version|Product\s*Images/i)
+        .count(),
+      0,
+    );
+    await page.locator(".cc-specs dt").getByText("Patch Size", { exact: true }).waitFor();
     await capture("order-saved-mockup-desktop");
     const originalDownload = page.waitForEvent("download");
     await page.getByRole("button", { name: "Download original artwork", exact: true }).click();
@@ -312,7 +326,11 @@ try {
   await customerContext.close();
   await publicContext.close();
   assert.equal(results.pageErrors.length, 0);
-  assert.equal(results.consoleErrors.length, 0, "owner and public browser flows have no console errors");
+  assert.equal(
+    results.consoleErrors.length,
+    0,
+    "owner and public browser flows have no console errors",
+  );
   results.passed = true;
   console.log(
     JSON.stringify({

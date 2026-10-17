@@ -12,6 +12,7 @@ import type {
 import { FAMILIES } from "./catalog";
 import type { CrownPosition } from "./crown-geometry";
 import { MAX_NEW_UPLOAD_BYTES } from "./upload-limits";
+import type { ReorderSettings } from "./commerce/reorder-types";
 
 export type OrderDraft = {
   customerName: string;
@@ -41,6 +42,8 @@ export type OrderDraft = {
   artworkDataUrl: string;
   notes: string;
   promo: string;
+  /** Informational account-to-builder transition; never persisted across sessions. */
+  reorderNotice?: string;
 };
 
 const DEFAULTS: OrderDraft = {
@@ -63,6 +66,7 @@ const DEFAULTS: OrderDraft = {
   artworkDataUrl: "",
   notes: "",
   promo: "",
+  reorderNotice: undefined,
 };
 
 type Store = OrderDraft & {
@@ -70,6 +74,7 @@ type Store = OrderDraft & {
   patch: (partial: Partial<OrderDraft>) => void;
   reset: () => void;
   setFamily: (family: FamilyId) => void;
+  restoreReorder: (settings: ReorderSettings, notice: string) => void;
 };
 
 export const useOrder = create<Store>()(
@@ -79,6 +84,14 @@ export const useOrder = create<Store>()(
       set: (key, value) => set({ [key]: value } as Partial<OrderDraft>),
       patch: (partial) => set(partial),
       reset: () => set(DEFAULTS),
+      restoreReorder: (settings, notice) =>
+        set({
+          ...DEFAULTS,
+          ...settings,
+          tier: FAMILIES[settings.family].tier,
+          previewIdentity: undefined,
+          reorderNotice: notice,
+        }),
       setFamily: (family) =>
         set({
           family,
@@ -94,6 +107,8 @@ export const useOrder = create<Store>()(
           patch: _patch,
           reset: _reset,
           setFamily: _sf,
+          restoreReorder: _restore,
+          reorderNotice: _notice,
           artworkDataUrl,
           ...rest
         } = s;

@@ -21,6 +21,7 @@ export type ReadInput = {
   from?: string;
   to?: string;
   status: string;
+  priority?: "" | "low" | "normal" | "high";
 };
 export type AdminData = {
   orders: OrderRow[];
@@ -56,7 +57,7 @@ export type AdminData = {
     created_at: string;
   }[];
   metrics: Record<string, number>;
-  trend: { day: string; collected: number; refunds: number }[];
+  trend: { day: string; collected: number; refunds: number; orders: number }[];
   topProducts: { product_key: string; title: string; quantity: number }[];
   total: number;
   config: {
@@ -130,9 +131,9 @@ export async function readAdmin(
   }
   if (["orders", "production", "payments"].includes(input.section)) {
     const production = input.section === "production";
-    const where = `where ($1='' or o.customer_name ilike $2 or o.customer_email ilike $2 or o.number::text ilike $2 or exists(select 1 from commerce_order_items i where i.order_id=o.id and (i.title ilike $2 or i.specifications::text ilike $2)))
+    const where = `where ($1='' or o.customer_name ilike $2 or o.customer_email ilike $2 or o.number::text ilike $2 or o.tags::text ilike $2 or exists(select 1 from commerce_order_items i where i.order_id=o.id and (i.title ilike $2 or i.specifications::text ilike $2)))
    and ($3='' or ${input.section === "payments" ? `o.id in (select id from (${ORDER_SELECT}) financial where financial.payment_status=$3)` : "o.stage=$3"}) and ($4::timestamptz is null or o.created_at>=$4) and ($5::timestamptz is null or o.created_at<$5)
-   and (not $6 or o.stage not in ('completed','canceled','shipped','delivered')) and ($7::text is null or o.assigned_to=$7)`;
+   and (not $6 or o.stage not in ('completed','canceled','shipped','delivered')) and ($7::text is null or o.assigned_to=$7) and ($8='' or o.priority=$8)`;
     const params = [
       input.search,
       search,
@@ -141,9 +142,10 @@ export async function readAdmin(
       input.to ?? null,
       production,
       actor.role === "production" ? actor.userId : null,
+      input.priority ?? "",
     ];
     result.orders = await sql.query<OrderRow>(
-      `${ORDER_SELECT} ${where} order by o.created_at desc limit 50 offset $8`,
+      `${ORDER_SELECT} ${where} order by ${production ? "case o.priority when 'high' then 0 when 'normal' then 1 else 2 end,o.due_at asc nulls last," : ""}o.created_at desc limit 50 offset $9`,
       [...params, input.page * 50],
     );
     const [count] = await sql.query<{ count: number }>(
@@ -261,11 +263,15 @@ export async function readAdmin(
   coalesce(sum(amount) filter(where kind='payment' and occurred_at>=now()-interval '90 days'),0)::int as days90 from commerce_payments`;
     const [counts] = await sql<
       Record<string, number>
-    >`select count(*)::int as orders,count(*) filter(where stage='new' and source<>'stripe_history_review')::int as new_orders,
+    >`select count(*)::int as orders,count(*) filter(where created_at>=${from} and created_at<${to} and source<>'stripe_history_review')::int as new_orders,
   count(*) filter(where stage='new' and source='stripe_history_review')::int as history_review,
   count(*) filter(where stage='completed')::int as completed,count(*) filter(where stage in ('shipped','delivered','completed'))::int as fulfilled,
   count(*) filter(where stage in ('artwork_review','customer_approval','ready_for_production','engraving','assembly','quality_check','packaging'))::int as production,
   count(*) filter(where stage='ready_to_ship')::int as ready_to_ship,
+  count(*) filter(where stage='artwork_review')::int as artwork_review,
+  count(*) filter(where stage='customer_approval')::int as customer_approval,
+  count(*) filter(where stage='canceled')::int as canceled,
+  count(*) filter(where exists(select 1 from commerce_payments p where p.order_id=o.id and p.kind='refund'))::int as refunded_orders,
   count(*) filter(where stage<>'canceled' and total>coalesce((select sum(amount) from commerce_payments p where p.order_id=o.id and kind='payment'),0))::int as awaiting_payment from commerce_orders o`;
     const [stock] = await sql<
       Record<string, number>
@@ -274,10 +280,15 @@ export async function readAdmin(
       open_invoices: number;
     }>`select count(*)::int as open_invoices from commerce_invoices where state in ('open','draft','creating')`;
     result.metrics = { ...metrics, ...counts, ...stock, ...invoices };
-    result.trend = await sql<
-      AdminData["trend"][number]
-    >`select (occurred_at at time zone 'America/Chicago')::date::text as day,
-  coalesce(sum(amount) filter(where kind='payment'),0)::int as collected,coalesce(sum(amount) filter(where kind='refund'),0)::int as refunds from commerce_payments where occurred_at>=${from} and occurred_at<${to} group by day order by day`;
+    result.trend = await sql<AdminData["trend"][number]>`with daily as (
+      select (occurred_at at time zone 'America/Chicago')::date::text as day,
+        coalesce(sum(amount) filter(where kind='payment'),0)::int as collected,
+        coalesce(sum(amount) filter(where kind='refund'),0)::int as refunds,0::int as orders
+        from commerce_payments where occurred_at>=${from} and occurred_at<${to} group by day
+      union all
+      select (created_at at time zone 'America/Chicago')::date::text as day,0::int,0::int,count(*)::int
+        from commerce_orders where created_at>=${from} and created_at<${to} and source<>'stripe_history_review' group by day
+      ) select day,sum(collected)::int as collected,sum(refunds)::int as refunds,sum(orders)::int as orders from daily group by day order by day`;
     result.topProducts = await sql<
       AdminData["topProducts"][number]
     >`select i.product_key,max(i.title) as title,sum(i.quantity)::int as quantity from commerce_order_items i join commerce_orders o on o.id=i.order_id

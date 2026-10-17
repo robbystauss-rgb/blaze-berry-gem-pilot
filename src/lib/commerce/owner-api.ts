@@ -13,7 +13,7 @@ const quoteInput = z.object({
   promo: z.string().max(40).default(""),
   email: z.string().max(254).default(""),
 });
-const scope = z.enum(["calibration", "gallery", "storefront", "pricing"]);
+const scope = z.enum(["calibration", "gallery", "storefront", "pricing", "content"]);
 export const searchBusiness = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .validator(z.string().trim().min(2).max(80))
@@ -70,7 +70,9 @@ export const getOwnerDocuments = createServerFn({ method: "GET" })
     const { requireAccess } = await import("./access.server");
     const { readDocuments, documentPermission } = await import("./publishing.server");
     await requireAccess(context.userId, documentPermission(data), context.bearerToken);
-    return readDocuments(data);
+    return data === "content"
+      ? (await import("./content-pages.server")).contentDocuments()
+      : readDocuments(data);
   });
 export const updateOwnerDocument = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
@@ -92,7 +94,9 @@ export const updateOwnerDocument = createServerFn({ method: "POST" })
       documentPermission(data.scope),
       context.bearerToken,
     );
-    return saveDocument(data, actor);
+    return data.scope === "content"
+      ? (await import("./content-pages.server")).saveContentDocument(data, actor)
+      : saveDocument(data, actor);
   });
 export const getMediaLibrary = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
@@ -176,4 +180,31 @@ export const updatePromotion = createServerFn({ method: "POST" })
     const actor = await requireAccess(context.userId, "finance", context.bearerToken);
     const { savePromotion } = await import("./pricing.server");
     return savePromotion(data, actor);
+  });
+
+export const previewInventoryCsv = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(z.unknown())
+  .handler(async ({ data, context }) => {
+    const { requireAccess } = await import("./access.server");
+    const actor = await requireAccess(context.userId, "inventory", context.bearerToken);
+    const { previewInventoryImport } = await import("./inventory-import.server");
+    return previewInventoryImport(data, actor);
+  });
+export const importInventoryCsv = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(z.unknown())
+  .handler(async ({ data, context }) => {
+    const { requireAccess } = await import("./access.server");
+    const actor = await requireAccess(context.userId, "inventory", context.bearerToken);
+    const { commitInventoryImport } = await import("./inventory-import.server");
+    return commitInventoryImport(data, actor);
+  });
+export const exportInventoryCsv = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const { requireAccess } = await import("./access.server");
+    const actor = await requireAccess(context.userId, "inventory", context.bearerToken);
+    const { exportInventoryCounts } = await import("./inventory-import.server");
+    return exportInventoryCounts(actor);
   });

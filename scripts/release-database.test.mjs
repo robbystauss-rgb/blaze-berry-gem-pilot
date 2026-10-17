@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, mkdtemp, cp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve, sep } from "node:path";
-import { test } from "node:test";
+import { test, before, after } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 import {
   BASELINE_MIGRATIONS,
@@ -14,6 +14,20 @@ import {
 
 const directory = new URL("../migrations/", import.meta.url);
 const entries = [...BASELINE_MIGRATIONS, ...RELEASE_MIGRATIONS];
+// This retired one-release helper is intentionally pinned to its approved files.
+// Future migrations must continue to be refused rather than expanding approval.
+let approvedDirectory;
+before(async () => {
+  approvedDirectory = await mkdtemp(join(tmpdir(), "rec-approved-release-test-"));
+  for (const name of entries)
+    await writeFile(join(approvedDirectory, name), await readFile(new URL(name, directory)));
+});
+after(async () => {
+  const target = resolve(approvedDirectory);
+  assert.ok(target.startsWith(resolve(tmpdir()) + sep));
+  assert.ok(target.split(sep).at(-1).startsWith("rec-approved-release-test-"));
+  await rm(target, { recursive: true, force: true });
+});
 const env = {
   REC_MIGRATION_TARGET: "production-approved",
   DATABASE_URL: "postgres://isolated-test.invalid/never-connected",
@@ -41,7 +55,13 @@ async function fixture(work) {
     await db.close();
   }
 }
-const options = (client, more = {}) => ({ env, connect: async () => client, log() {}, ...more });
+const options = (client, more = {}) => ({
+  env,
+  directory: approvedDirectory,
+  connect: async () => client,
+  log() {},
+  ...more,
+});
 
 test("release build helper does no connection or query without the exact owner-approved flag", async () => {
   let connected = false;
@@ -221,7 +241,7 @@ test("snapshot cap and missing baseline fail before schema/data mutations", asyn
 test("failure in the second migration rolls back both first migration and snapshot", async () => {
   const temporary = await mkdtemp(join(tmpdir(), "rec-release-test-"));
   try {
-    await cp(directory, temporary, { recursive: true });
+    await cp(approvedDirectory, temporary, { recursive: true });
     await writeFile(
       join(temporary, RELEASE_MIGRATIONS[1]),
       "select this_is_an_intentional_isolated_test_failure();",

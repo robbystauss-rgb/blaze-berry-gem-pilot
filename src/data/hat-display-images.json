@@ -1,0 +1,3810 @@
+{
+  "version": 1,
+  "source": "Larger original bytes from exact approved Drive asset IDs; canonical calibration photographs unchanged. WebP quality93, no upscaling, sharpening or recoloring.",
+  "records": [
+    {
+      "calibrationId": "112:biscuit-true-blue@8a5490a7d6ef",
+      "modelId": "112",
+      "assetId": "1MSM6UsGLiouhx3aaBMTatelLa8Vzg3Ru",
+      "baseSha256": "8a5490a7d6efa2f79a09be843e9343afa134400f7b754540daf9f9c70f4405cc",
+      "imageUrl": "/assets/hat-display/e0144c686c9b6b1863ab555b48b7c9968e61d5ce41ed5e1687dc43ce666b05ad.webp",
+      "sha256": "e0144c686c9b6b1863ab555b48b7c9968e61d5ce41ed5e1687dc43ce666b05ad",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 430560,
+      "sourceSha256": "12f3bfe072de290539249524a0d6e6b4afb9e652ddfdcb91e597ec564f0b94d4",
+      "baselineSourceSha256": "f4593a87408af478fc52c6a0b5d40df6cd76578e8fd10ec65b341139e1e18dd3",
+      "comparisonMeanRgbDifference": 0.247106,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:black-charcoal@c0c7702fbf9d",
+      "modelId": "112",
+      "assetId": "1ky6hanjFU83s2x9zd6Qsc7E6woFVLM3t",
+      "baseSha256": "c0c7702fbf9d5b11ec1ad9d0cf59fa36b8058ede18cb71e15a11ea114ca69392",
+      "imageUrl": "/assets/hat-display/d3e3608736f875af63b4a10956ff3fb39db0e9cec4d663c6c29c6fdf9976acc8.webp",
+      "sha256": "d3e3608736f875af63b4a10956ff3fb39db0e9cec4d663c6c29c6fdf9976acc8",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 342400,
+      "sourceSha256": "a6250df14a9a09aa8f1da49c810ab3bf63bd23a7f9e21164836fc05c17a2af6c",
+      "baselineSourceSha256": "44353bdfe751379ef0d10233e4b251ec9339dca76757d8abb25799eb58d7c8a4",
+      "comparisonMeanRgbDifference": 0.182075,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:black-gold@eff86e3ee7e1",
+      "modelId": "112",
+      "assetId": "1XXKgsJSGc9xBcDfA80ZIOMK_g-x8E8DM",
+      "baseSha256": "eff86e3ee7e1ed6b1d183b9d803635ea4528c46e14e354b67af544fee49d60a5",
+      "imageUrl": "/assets/hat-display/05f9b129f6ac440687568b35d38f9a96042d87a5763edbf8c282472625919725.webp",
+      "sha256": "05f9b129f6ac440687568b35d38f9a96042d87a5763edbf8c282472625919725",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 387844,
+      "sourceSha256": "a46cd10c118ce1414727905f69eb76cab382a2ecf48e25fd7b718c85de12c30d",
+      "baselineSourceSha256": "3f19ce11c111915d992c89f9a9bd87155e744166d94b7c14bd3de0bdd73baf59",
+      "comparisonMeanRgbDifference": 0.217376,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:black-vegas-gold@a81ee5efb7ae",
+      "modelId": "112",
+      "assetId": "1ZiG6hbDTKVmCTmCUK9k9dIYlEgMujUQy",
+      "baseSha256": "a81ee5efb7aedf3e3127677af604b827a2023ee6f2fb85ddcdba9439fcdb6d71",
+      "imageUrl": "/assets/hat-display/4b580fa39ef209e44c56fcc27c3edabcf07a455d7ba2d3cbdf9427309ea5bcd9.webp",
+      "sha256": "4b580fa39ef209e44c56fcc27c3edabcf07a455d7ba2d3cbdf9427309ea5bcd9",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 347304,
+      "sourceSha256": "42e5c1edd4679250e74366a9142d1c44ac2ba8db756381ee3e21a3bfabf43664",
+      "baselineSourceSha256": "73e17903a17241617602ebcdb96690680249f1a208c3f4d5e73e17c768d2dcb6",
+      "comparisonMeanRgbDifference": 0.212457,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:black-white-heather-grey@ffe409460543",
+      "modelId": "112",
+      "assetId": "1idj6Kay0PhZxzr8veSE2OgjGn4TMqseI",
+      "baseSha256": "ffe40946054367e61cff8601237168cbf37edb8bba5714575f85582efd86cc54",
+      "imageUrl": "/assets/hat-display/185c643804567b7105bd75bb9e34d47c57d8b8b61d4d217a2a7fa572c040fd60.webp",
+      "sha256": "185c643804567b7105bd75bb9e34d47c57d8b8b61d4d217a2a7fa572c040fd60",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 378436,
+      "sourceSha256": "580543f80e183f751c9fbd7a8381eb81bf5fde4c1c9570ae9e3d1cd0339cb4a3",
+      "baselineSourceSha256": "3b41ca4729d7d29342ef25cb7d610a4d32ff447c98e02092377c1b48981b04ee",
+      "comparisonMeanRgbDifference": 0.218822,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:black-white-red@9d26628ab436",
+      "modelId": "112",
+      "assetId": "1N9Xqcow9n2lZOMAcCM05m2JzZfki60_9",
+      "baseSha256": "9d26628ab436e042f6f30048286f48fa01f5a092f1049589e2a61e268bb4c879",
+      "imageUrl": "/assets/hat-display/9e2d3dfb7d7d1e9c383c50616fcae22bfd20c5ac185257c4bc3c58c0b75bd90d.webp",
+      "sha256": "9e2d3dfb7d7d1e9c383c50616fcae22bfd20c5ac185257c4bc3c58c0b75bd90d",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 384026,
+      "sourceSha256": "950b204234466491f8aaedb2a71a201f69ba6a7eb8cae36440da579f8eef5190",
+      "baselineSourceSha256": "70f7cf77fe2022cbb8453d131a510d01fa03f1ca2e409f5e96f11a8662301a17",
+      "comparisonMeanRgbDifference": 0.176432,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:black-white@a42f5c0aa506",
+      "modelId": "112",
+      "assetId": "1nZ7kDjAI6dJGV9-6ZIjbweWHVfTfd9GP",
+      "baseSha256": "a42f5c0aa506c402e775f99717c84f68bf2346a4e30cdde554cb20eb14ad69b7",
+      "imageUrl": "/assets/hat-display/305960af002b4de91d0d965e54d8deb76eac8d4b15dcd53e97a2d6126df975b1.webp",
+      "sha256": "305960af002b4de91d0d965e54d8deb76eac8d4b15dcd53e97a2d6126df975b1",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 347468,
+      "sourceSha256": "881beb7aa1f281801b24faa8eb32e872ba52706d552f676e76b73229812633da",
+      "baselineSourceSha256": "a3aa4a364592bc651f6e26d0cc78c8497f272a25b7c959ec7c6e90f3f729ed59",
+      "comparisonMeanRgbDifference": 0.281865,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:black-yellow@6089b86362de",
+      "modelId": "112",
+      "assetId": "1kEPb_VyO7V3e8V3jQXtID0Vw9nK7Jm2E",
+      "baseSha256": "6089b86362deeb3447c0ff1d988ef211fb7e681181c8288b8f9e4b42347793c1",
+      "imageUrl": "/assets/hat-display/844ce7750deb4198144df471f9487ffe20f1cb8827eb7a0ec9283c5a822943ed.webp",
+      "sha256": "844ce7750deb4198144df471f9487ffe20f1cb8827eb7a0ec9283c5a822943ed",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 456670,
+      "sourceSha256": "18d0ceb95da16050954ba62603ae55190e3d3c20186c16b7a8eda5660d711fd7",
+      "baselineSourceSha256": "10e0d23cb4889c42d3965b35b83ad4c462c02275e1e980b0e647f3818f5c50ae",
+      "comparisonMeanRgbDifference": 0.207827,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:black@5052fc83fe6c",
+      "modelId": "112",
+      "assetId": "18WKN7V9j3edlRDZ9626EsOOAel6Av1VE",
+      "baseSha256": "5052fc83fe6ca1a108d1c67725c90b483b1b15b97e34355da6d2481713390db0",
+      "imageUrl": "/assets/hat-display/b65abee11495da851c9a96eafeb0bc8b49c220397ce7ec4611f28e8c7e35ca8e.webp",
+      "sha256": "b65abee11495da851c9a96eafeb0bc8b49c220397ce7ec4611f28e8c7e35ca8e",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 373754,
+      "sourceSha256": "53c7514997b0263af542c377232d1d9fda75df0d363db347d27fde1e6d54bcbc",
+      "baselineSourceSha256": "2463173cf0c0cb5df490d97d9f058cd1f9cde9b39706ab2b5350386f3e696472",
+      "comparisonMeanRgbDifference": 0.148112,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:blue-teal-birch-navy@b6d046d85193",
+      "modelId": "112",
+      "assetId": "1ndgbGho95E_llbsWygH8zoWA_eXzKk2f",
+      "baseSha256": "b6d046d8519376e628735686ac9cd41947cceda087d6ecc95997a8175b53a6ee",
+      "imageUrl": "/assets/hat-display/726a242a3d751040c6698915e96fcc8f665f51f3b60c573666ca69c9b8700632.webp",
+      "sha256": "726a242a3d751040c6698915e96fcc8f665f51f3b60c573666ca69c9b8700632",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 408430,
+      "sourceSha256": "272f9ec2d9fb4c238883f4653dd3aa485676646e9b67c7ecec957cf4fa4b4f21",
+      "baselineSourceSha256": "82fa81fd9f35221e4ac764d1ed661609072a8c6cbea607e83fdd55ed1c8daf7e",
+      "comparisonMeanRgbDifference": 0.390553,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:brown-khaki@5043b7b36c38",
+      "modelId": "112",
+      "assetId": "1SgegXQrXGsy_3l9iuJKxDfb7VuANwJv9",
+      "baseSha256": "5043b7b36c386c3d29e02debb5832956891edb06f636e9cae2bf82e0d898adf5",
+      "imageUrl": "/assets/hat-display/b6344069eb97f99e0d4137fa5ddac923386e21a99c36ea026ba6797d2aa5053c.webp",
+      "sha256": "b6344069eb97f99e0d4137fa5ddac923386e21a99c36ea026ba6797d2aa5053c",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 446138,
+      "sourceSha256": "23e138070fa90f9ca48bd8634d3e6a5590fd759b9e6d1abedb3aae78a3e30019",
+      "baselineSourceSha256": "328dd9bdf257c22e5da0ccd57dea281f6497db5ae0c676b690a413441c2bc804",
+      "comparisonMeanRgbDifference": 0.192347,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:caramel-black@aef268fff2e6",
+      "modelId": "112",
+      "assetId": "1yVZgNuqKc1Qm2p1IW_KtyU-hcF5KjMWK",
+      "baseSha256": "aef268fff2e6fda275e64eb073be18465f7e6398700d1d565448fbd5603daf11",
+      "imageUrl": "/assets/hat-display/e82c3af41dc8caaadcadd179b6df97027c7cda4c3cbc58ed031e255090e28709.webp",
+      "sha256": "e82c3af41dc8caaadcadd179b6df97027c7cda4c3cbc58ed031e255090e28709",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 405708,
+      "sourceSha256": "8ae2695f2f08aaa8c90212e06dced23b0d2b4bf9b414ec86a943d96547f510eb",
+      "baselineSourceSha256": "9300a106dca3b7efd88419bfca5ad01b32987b62f295ad48903d3c3ffb157b0d",
+      "comparisonMeanRgbDifference": 0.251194,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:cardinal-black@d5fd4edbf3f5",
+      "modelId": "112",
+      "assetId": "1oNcTSZB9lPz5jLHvR8BgUPlNwX2XgPKS",
+      "baseSha256": "d5fd4edbf3f51fe7c272a40eb4b5476a41621cc8d027893dd5169e6d7db1e58d",
+      "imageUrl": "/assets/hat-display/45d9c4f5c4a6fb4ba8729163b38e15e6e87f105bde3e496d0c742c0afb548afc.webp",
+      "sha256": "45d9c4f5c4a6fb4ba8729163b38e15e6e87f105bde3e496d0c742c0afb548afc",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 343886,
+      "sourceSha256": "066caedc180296ac9d191cc4eef5082e554904917fee4d570a7cbe29ba03f9ff",
+      "baselineSourceSha256": "b6d9ce39ddb7faf5e09e043e3b1d6c4114fddf0a2e27a97bbec543d34b2cfaa6",
+      "comparisonMeanRgbDifference": 0.139648,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:cardinal-white@dff342a35a89",
+      "modelId": "112",
+      "assetId": "1qgnmgDynmBbW6mwmoKmrkhH7ydZ81aHc",
+      "baseSha256": "dff342a35a899a8b425483acd46473df27248556117014c1d10c880ab1248ed2",
+      "imageUrl": "/assets/hat-display/900fb5e1f39c8aaf99232feddad9f8fc19260953dfd21dafeba5aeb83e194b04.webp",
+      "sha256": "900fb5e1f39c8aaf99232feddad9f8fc19260953dfd21dafeba5aeb83e194b04",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 414368,
+      "sourceSha256": "545cc009a1ebceb784545676d67c48567239f8bc36375f286570178f5f3ec021",
+      "baselineSourceSha256": "a659ed4e19f79c07ab990c4c33e4509bf50969c74d39727d397b5dfddcc4f0e6",
+      "comparisonMeanRgbDifference": 0.218135,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:cardinal@71dc11b75f8e",
+      "modelId": "112",
+      "assetId": "1nurAB5aKdVUUXVHAWAKXLSJVRUiagI19",
+      "baseSha256": "71dc11b75f8ec36fbaebf9845b86461d26a126ac38af96173057f36436afd5b1",
+      "imageUrl": "/assets/hat-display/84eeb3862cd64d06d605a56f4a0e7398ca45ef41eaa4c7b7ad2901a7e2e951f3.webp",
+      "sha256": "84eeb3862cd64d06d605a56f4a0e7398ca45ef41eaa4c7b7ad2901a7e2e951f3",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 396514,
+      "sourceSha256": "a48bbe5f3d94fac734ede3060b20691088fdbb16ed28fa4a29c15b896adcf318",
+      "baselineSourceSha256": "fd7daba3d57f3e984cc29ac73878c877dafa1e0797ed28c565a7d2d3bedf3e72",
+      "comparisonMeanRgbDifference": 0.139612,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-black@04db2a682e88",
+      "modelId": "112",
+      "assetId": "1NX8GNj4OiyRoR_p3cOSXtZBYXxxvY9vv",
+      "baseSha256": "04db2a682e88e1e1d3e31cf33b00b5f3840e7cd6f2942d4e82d9bdd9a0787653",
+      "imageUrl": "/assets/hat-display/eff698603b755744ec9fc91d2be196d1bad081afee2936c5d55929eed61e19fc.webp",
+      "sha256": "eff698603b755744ec9fc91d2be196d1bad081afee2936c5d55929eed61e19fc",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 481242,
+      "sourceSha256": "eb37a01e991f2553a2b0caf468616c6fb74a034102fbe9d732306d2555cbe5cb",
+      "baselineSourceSha256": "d3c94603985a355e58b4288f5adf47e5d5d15b057c8f929415c063f7b0bc4854",
+      "comparisonMeanRgbDifference": 0.148184,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-columbia-blue@ae6e864d2643",
+      "modelId": "112",
+      "assetId": "1H2o9hvPlXB0PNu-TAajwKX_ls7C9WWqp",
+      "baseSha256": "ae6e864d2643504c6f63600b10045223c9e58244bfff90b43c64ce784d960dad",
+      "imageUrl": "/assets/hat-display/452ca061210fafda75ab2d9092b17c14ac17ba79c574577bff0170515073ec0b.webp",
+      "sha256": "452ca061210fafda75ab2d9092b17c14ac17ba79c574577bff0170515073ec0b",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 630924,
+      "sourceSha256": "a871c4238f6841fd112db2df8e4846fe048ae29d426c2444c706ddc139d58b85",
+      "baselineSourceSha256": "4b40e4bfcb48b626676c83414ca929e6141c3d953b0cd3f3007b481440c47286",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "9c907404cdbd3b3dfc7a136af20a72ba6ede0b8527d05e97eebf676f6ba5c1d9"
+      },
+      "comparisonMeanRgbDifference": 0.209201
+    },
+    {
+      "calibrationId": "112:charcoal-kelly@f74fbeffdc06",
+      "modelId": "112",
+      "assetId": "1K7fY9DM_Be4XNKUZmPZllqirbNlEudwT",
+      "baseSha256": "f74fbeffdc0629d6e6ff4e1c86ac6a0bef326294eb000f7e725256a2051fc9a6",
+      "imageUrl": "/assets/hat-display/8aafd362e0f98423b6b83feec2fa148c3e3fbbbb5daad050bf65de1ee3a2fb03.webp",
+      "sha256": "8aafd362e0f98423b6b83feec2fa148c3e3fbbbb5daad050bf65de1ee3a2fb03",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 580564,
+      "sourceSha256": "7f0fb9b5d9b6fe0191c63af923725214cd361270fc8689306eccdca8cf7154a5",
+      "baselineSourceSha256": "f14aeaaddf3b661aa299858dcdd03c90f7e5d601b747906beeac8b3f52883186",
+      "comparisonMeanRgbDifference": 0.17947,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-navy@d7a2e3f4a70a",
+      "modelId": "112",
+      "assetId": "1OJkSAPhvuLRsx4Q386p458OPBzwWlRw0",
+      "baseSha256": "d7a2e3f4a70a83cdffab706df5b0a37d3f3a346daf60b62a3f2f9b13f2edf045",
+      "imageUrl": "/assets/hat-display/c4648e28dfb12184364771708df1cb84b9038ca88697df9c9c313835fc51b446.webp",
+      "sha256": "c4648e28dfb12184364771708df1cb84b9038ca88697df9c9c313835fc51b446",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 456136,
+      "sourceSha256": "e7d8fe8d53ef4e2ed62ec3f25b93c35be41140cb689aede4ad916594fdf1ec12",
+      "baselineSourceSha256": "c55507091d4acee43aa8b68aad1264a06fd013225b32cf89bfd63ed796a3d13c",
+      "comparisonMeanRgbDifference": 0.148799,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-neon-blue@09108b14215c",
+      "modelId": "112",
+      "assetId": "1GWDM56TnwIaMTDLAK77aoR5clSSbmyhQ",
+      "baseSha256": "09108b14215cc74caa58e532bbcda371fd4a2a66c8ffb7ea03735d9534c1987c",
+      "imageUrl": "/assets/hat-display/21a072c7ef7931963e619f32682b03ca78783634f6fdcc25a89f5064700414f7.webp",
+      "sha256": "21a072c7ef7931963e619f32682b03ca78783634f6fdcc25a89f5064700414f7",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 548220,
+      "sourceSha256": "1926e3d58bf45ee63178fd1289aa4a2f3ce3fd8e4b61d146c84843d81dab79fe",
+      "baselineSourceSha256": "c2d0cc493f2d62c6599b8c80a5a630b0d45bc74dc03d2174f2ba87d397ab92b2",
+      "comparisonMeanRgbDifference": 0.1926,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-neon-green@088e290c933a",
+      "modelId": "112",
+      "assetId": "1Tak6AqA3Mh7M_HdBERmgdX4AnkZ8wjHI",
+      "baseSha256": "088e290c933a6430b72ba8f9fb74a947ee81a72841775f6544e46e98ae3f01d0",
+      "imageUrl": "/assets/hat-display/7c7dd66b47bfde5ead28614b2a8817b6dcdb6fcd59e55bf339145be6d882ae06.webp",
+      "sha256": "7c7dd66b47bfde5ead28614b2a8817b6dcdb6fcd59e55bf339145be6d882ae06",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 381754,
+      "sourceSha256": "ffd570c17bcb9b51b3b5e665926712d246cdb73b4c34ab60880665066594608b",
+      "baselineSourceSha256": "f4493def40ccbfc38eca43023839886601fba34a043a87554a10c8b70ce173cb",
+      "comparisonMeanRgbDifference": 0.162182,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-neon-orange@b1d6bbf2dc2c",
+      "modelId": "112",
+      "assetId": "1ulRlOexTPkcgu-pUAlX2AWqffQ3j3xCN",
+      "baseSha256": "b1d6bbf2dc2cea438f396c79efa780a1b1ad0f1fa523826a38e0e5eafdcfbca3",
+      "imageUrl": "/assets/hat-display/e37796fdc31eedf36f4413de83e4806d613956ac55c04c1958cdc2358d3d704e.webp",
+      "sha256": "e37796fdc31eedf36f4413de83e4806d613956ac55c04c1958cdc2358d3d704e",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 396640,
+      "sourceSha256": "ce77f87e5aa42b4210efdec02a829352d4cd521fb8f9a7cdbad4f5626a67794a",
+      "baselineSourceSha256": "8c2c9a1fabab08e0a48fcca3baed809760363e65124c113872feb2f4e720d601",
+      "comparisonMeanRgbDifference": 0.186957,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-neon-pink@c8d404e91495",
+      "modelId": "112",
+      "assetId": "1jW1Td5NWsdDbH9BSFOdJ6CceyBEKNpon",
+      "baseSha256": "c8d404e914958d5506bfd710f2eb0b7c8d1e6342f2ff7e3516eaf8c095ff8648",
+      "imageUrl": "/assets/hat-display/0db694834af3e0552f36fa3dee8413a082dc99e8ff92f5ddec55d3411220193f.webp",
+      "sha256": "0db694834af3e0552f36fa3dee8413a082dc99e8ff92f5ddec55d3411220193f",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 657492,
+      "sourceSha256": "41ffb542b9b8b2293f6a4c9d6881eab1ac3216f9a71ea5664da673e0d8d82a87",
+      "baselineSourceSha256": "6cf4df0ef6a601ded511428088c0fadfbf28442952ca601d0b5dab171db8e150",
+      "comparisonMeanRgbDifference": 0.20685,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-neon-yellow@992595e60203",
+      "modelId": "112",
+      "assetId": "19t90bfQBYx2e19P7OGWRZtir0Vp45OUF",
+      "baseSha256": "992595e60203e1fc9f2ff72bddf0d8da49b4abd1ee7335589fb77aa5b239910b",
+      "imageUrl": "/assets/hat-display/61f7b6b2ed6bf5a4dabba2a2ea8d804f61c3b708ac40132dfb73b602b7ee399a.webp",
+      "sha256": "61f7b6b2ed6bf5a4dabba2a2ea8d804f61c3b708ac40132dfb73b602b7ee399a",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 609536,
+      "sourceSha256": "353749aacd0d7b72577023f2ee527b76c00292e47ffda6c59ab91766ae2cc8cf",
+      "baselineSourceSha256": "1b00ddf5f405bf668778eb9ad870259ae92f42fbd985d407992f17c4aa4bd2ff",
+      "comparisonMeanRgbDifference": 0.250868,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-orange@86cce44506e1",
+      "modelId": "112",
+      "assetId": "12FZ446q90KkKCtuEDaAF8ALeGjpCaa-S",
+      "baseSha256": "86cce44506e11dfc4545acef88fceb6b63f29e649e6a5ba1d93b7c52be216f10",
+      "imageUrl": "/assets/hat-display/bced9750b7fadceeb6b628f1b0a330772f0287e45dd005f360c717c296665fb2.webp",
+      "sha256": "bced9750b7fadceeb6b628f1b0a330772f0287e45dd005f360c717c296665fb2",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 394252,
+      "sourceSha256": "351f5bb80d6bd56eef5045c8466e01e21205f83585ab71917fa912f3822aeee2",
+      "baselineSourceSha256": "51972ba1728bd2da763bc177bc0c970d19c1284b383b7a17972b617183c5ecbc",
+      "comparisonMeanRgbDifference": 0.202727,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-red@721958a82cd7",
+      "modelId": "112",
+      "assetId": "1Q3Pfd-hvX07AH3hyd7EewpZ29z7lQ9Xs",
+      "baseSha256": "721958a82cd74d1a1d24e3b64eef68ff5409c3adfcbeeed52d7f0f4c1b8376e5",
+      "imageUrl": "/assets/hat-display/17d09e7860aa3a4be4f22b922a20e495dee85498f56817820a7d1b94b8bf8372.webp",
+      "sha256": "17d09e7860aa3a4be4f22b922a20e495dee85498f56817820a7d1b94b8bf8372",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 482804,
+      "sourceSha256": "16e73160332e4d288a6f321ee5660e0ad49402d4a218c8bedb44c3f250eb713f",
+      "baselineSourceSha256": "8b571bedb967987e7e6924bf8410db57bd9f5c6f0f6fcaa73d993de67ef86752",
+      "comparisonMeanRgbDifference": 0.167824,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-royal@3f58bbb68cfc",
+      "modelId": "112",
+      "assetId": "1C8k3ByRjJ4HKvFg5Cjj7gITlRYXcOoM3",
+      "baseSha256": "3f58bbb68cfcab92d0070a0fdc97197da9183e928908eee4211200dbbd67e0d5",
+      "imageUrl": "/assets/hat-display/e44a995803aaec331c4c5a1222c9fadf11c6ff334bccf2a6c7ff7092c5e6f916.webp",
+      "sha256": "e44a995803aaec331c4c5a1222c9fadf11c6ff334bccf2a6c7ff7092c5e6f916",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 458738,
+      "sourceSha256": "167c9506da719bdb27c1650cc43c56792017da04a43188e53c1bd47a283fe7ea",
+      "baselineSourceSha256": "5afabcd4de9822967d9b45adb2037ed8dfbff6496727bc2494ff56338c421819",
+      "comparisonMeanRgbDifference": 0.138383,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:charcoal-white@34d10b236ef5",
+      "modelId": "112",
+      "assetId": "1Q1G2bU2hnot0-qVRlsf0sD8JosiQgvca",
+      "baseSha256": "34d10b236ef5ae81d2428704a8ad7e958ff6b8cc1a41a128ffe689efe116b821",
+      "imageUrl": "/assets/hat-display/157e6dc27424024f56770fe4d183cfa07dee429dd6bfb29f3998950da7b10557.webp",
+      "sha256": "157e6dc27424024f56770fe4d183cfa07dee429dd6bfb29f3998950da7b10557",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 442210,
+      "sourceSha256": "4a002620802a4c88b074e78ddd0c850d53865521752629fdd18040e4fdf146fc",
+      "baselineSourceSha256": "06eb44501eeb254a7f9dcee3b0afa6473cdbb37831d16994ceb1d8162cbeb519",
+      "comparisonMeanRgbDifference": 0.241247,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:chocolate-chip-birch@f0a942cb0e98",
+      "modelId": "112",
+      "assetId": "1addduW0FVlIP2GA1hWP2c7yXTifI9PC0",
+      "baseSha256": "f0a942cb0e98cb8d06af7197a3b133161365a449e447a86d88db57c606e727b8",
+      "imageUrl": "/assets/hat-display/3e2502b744474bd0410671431b266c4f51c1ea3215d6c02f0e452851d9db0a66.webp",
+      "sha256": "3e2502b744474bd0410671431b266c4f51c1ea3215d6c02f0e452851d9db0a66",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 386238,
+      "sourceSha256": "933482da2be5749a28a7015555d23ba465403c50ebe121b7f7212f4fbfe53e29",
+      "baselineSourceSha256": "fcccb197c91c0c3e6dfd8003545c6045f950cd8cd01e5622810702ddbecafe42",
+      "comparisonMeanRgbDifference": 0.352648,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:columbia-blue-black@46425c284a77",
+      "modelId": "112",
+      "assetId": "1B7SrM_asKPBx8L0K7BE-Dgj5AzHQdW0v",
+      "baseSha256": "46425c284a77578f412d5cfcced5d4c01782417bdf9ffc24d2bdd1a3b2735c3d",
+      "imageUrl": "/assets/hat-display/2bf7a68f27add78c8108fb7a7e770715cd3e81342c21d1aceb8216cfe3c4880c.webp",
+      "sha256": "2bf7a68f27add78c8108fb7a7e770715cd3e81342c21d1aceb8216cfe3c4880c",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 585052,
+      "sourceSha256": "e36c21e6af1d3914a9847a09e1accb906fc5ee0c53139ee2f2be26094eaa49ad",
+      "baselineSourceSha256": "d5db13f92f49c8dd90b06533fffd9e7007eceecd246bdf76c290d0b222ca6bbe",
+      "comparisonMeanRgbDifference": 0.207574,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:columbia-blue-khaki@c2d2e5c38a7c",
+      "modelId": "112",
+      "assetId": "1WGatK6sRqMHOSddb6ig6CjkCpTCZDxvX",
+      "baseSha256": "c2d2e5c38a7cbdfa1bdb4e11e7dd234bab2763663b4714b1f0f51c3719c1d3c3",
+      "imageUrl": "/assets/hat-display/508d9d4d262b345a5ba2eca375aee395bb994bcd6507808db4fd4c6c9d98f950.webp",
+      "sha256": "508d9d4d262b345a5ba2eca375aee395bb994bcd6507808db4fd4c6c9d98f950",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 422334,
+      "sourceSha256": "319b783ea6bd88c9ff7b4d7bac3aa176c9825af27a74c0e7ca97ab63c266e458",
+      "baselineSourceSha256": "2bb434a855e863338ec632ac29625b8c3282b154c2cc6c199237a479514c7200",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "13f6fb36e4d2fafe28340adc6a816de6e377f24da390782a2e52e136326dc681"
+      },
+      "comparisonMeanRgbDifference": 0.106518
+    },
+    {
+      "calibrationId": "112:columbia-blue-white-navy@b3bbb323d2c4",
+      "modelId": "112",
+      "assetId": "1N8C9XHu_taJcjesw4mF2uhlWbvX_QG3U",
+      "baseSha256": "b3bbb323d2c4ce17ca2820941fd7d141b7cd4b99bcd8dbb04663cd2c7c4b35cb",
+      "imageUrl": "/assets/hat-display/8408e51dc2f1db3a60fe7e2774d0f291fa8a1b81bc91885076d13c4768cb274c.webp",
+      "sha256": "8408e51dc2f1db3a60fe7e2774d0f291fa8a1b81bc91885076d13c4768cb274c",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 436970,
+      "sourceSha256": "d0f6394da28b7680dc6dcbb66a5b9d85a643a70884b2f7bb29f68c1c5968d685",
+      "baselineSourceSha256": "143cfd798ca1f1e4e029388dc452a31f507cca17140c386e0797a3b39cf6f1c6",
+      "comparisonMeanRgbDifference": 0.203342,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:columbia-blue-white@5f14db9aa8f3",
+      "modelId": "112",
+      "assetId": "1KNY0evEp_gb2T16RUPKvzDmGP-12O334",
+      "baseSha256": "5f14db9aa8f3f0a4faaf176fb40ecab10c77acf61c447636d5ed417545046257",
+      "imageUrl": "/assets/hat-display/f8f0c221456d284a2fdd340acaf53557509a775239ed5131c6ffbc37a3ec25f6.webp",
+      "sha256": "f8f0c221456d284a2fdd340acaf53557509a775239ed5131c6ffbc37a3ec25f6",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 423804,
+      "sourceSha256": "f11e615c52771b16504519888fd46c1116d79c5db51e4e584c4ceafc88d804a2",
+      "baselineSourceSha256": "6510eaa645fac0c73bbab02f6bf09ceb72d2546b537bc9dffcf2ec2d04b441af",
+      "comparisonMeanRgbDifference": 0.149052,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:columbia-blue@6e1b81279acc",
+      "modelId": "112",
+      "assetId": "1iWZI70a5ECpxDKN-2HU43B8GYmC3HbPB",
+      "baseSha256": "6e1b81279acc69cd84371f4c0d3918c9873477dcb8bee978c9c1d4b929f655b0",
+      "imageUrl": "/assets/hat-display/40018493fc657e97e86a578086f19ae7040d0e7f5780e75863409d74c6719b27.webp",
+      "sha256": "40018493fc657e97e86a578086f19ae7040d0e7f5780e75863409d74c6719b27",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 470174,
+      "sourceSha256": "f3add335a6a859bead092793fa8c846cbaf971f2d0485bcfebc5eeda2fb53465",
+      "baselineSourceSha256": "d0f9feadb715df641f53b5dadd43b1ede3b7fc110798f8f68a978319035c2645",
+      "comparisonMeanRgbDifference": 0.124421,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:cyan-white@45a3af8fb848",
+      "modelId": "112",
+      "assetId": "1KVy4Pul8jtSYG6RDOgwGkPVU1NKffCGV",
+      "baseSha256": "45a3af8fb8485b8b59f772bec49310e4ef403dd81730f1d2cda3e0e7b0cc8591",
+      "imageUrl": "/assets/hat-display/94f3205d67ed8fd9a1a0a7e4fdf37333d8826d5774efe13f0b32bc45cb41d19a.webp",
+      "sha256": "94f3205d67ed8fd9a1a0a7e4fdf37333d8826d5774efe13f0b32bc45cb41d19a",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 410148,
+      "sourceSha256": "d2f37f07427d0d9e929ccc3b21df8b95205474183e794f311a9933da116163aa",
+      "baselineSourceSha256": "52c8f265aebc063e7e5bb40e308b22ef3fd5b7be905faf2a0bed02fb25538a75",
+      "comparisonMeanRgbDifference": 0.122323,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:dark-green-gold@6a4f41e613d4",
+      "modelId": "112",
+      "assetId": "12PnrvMe4ZhOKFNfpY7x8UHBDO9bZuitV",
+      "baseSha256": "6a4f41e613d42dee1f8adf4fce5a75b33e7f3f03fc15314caef118ef03c44e4c",
+      "imageUrl": "/assets/hat-display/14a57a5f909401e118d884437a258ea2fa64fff1e97a12498a95f55a6c57c5aa.webp",
+      "sha256": "14a57a5f909401e118d884437a258ea2fa64fff1e97a12498a95f55a6c57c5aa",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 469816,
+      "sourceSha256": "8c43915e55c2f243c86a6de0afc9c2b8e18dd1e8d9cedd6d17de726933e26a6d",
+      "baselineSourceSha256": "6ccc3b743ae05b104fbb732088587adfe3a204005ebdfbdc7d76e74d7f413ba6",
+      "comparisonMeanRgbDifference": 0.229384,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:dark-green-white-heather-grey@d02741b7c1dd",
+      "modelId": "112",
+      "assetId": "19kSR5q7orKSZa1C5K6WGvUHeqGXbVub6",
+      "baseSha256": "d02741b7c1dd381ded8cc7a96ca735dc94f89928632ecbf423383481382fc5b2",
+      "imageUrl": "/assets/hat-display/af8c17b4dc489df002ace966d7819ab92d3f283ecfb327a3d6887c31e56b686b.webp",
+      "sha256": "af8c17b4dc489df002ace966d7819ab92d3f283ecfb327a3d6887c31e56b686b",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 479592,
+      "sourceSha256": "d83212732e3107bbfc3fc30436959f0343d0cbb6ac606ad300cf252839021aa1",
+      "baselineSourceSha256": "ba03d004c0cb1e3b91eeb6d82959d576ae2796e4f55abf82eea061f53ed1af7d",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "85ddf22b6f726e24b3f02664c3ea57ca04e794ad1402eaf389f22ed1c7427fa4"
+      },
+      "comparisonMeanRgbDifference": 0.186704
+    },
+    {
+      "calibrationId": "112:dark-green-white@8a15810053ee",
+      "modelId": "112",
+      "assetId": "1JW3h9n-2efGaGSw0clZH8tElFbVuYiTR",
+      "baseSha256": "8a15810053eecb71e6477229b7072ddbea1140c0404c55fc86ed1699abce2433",
+      "imageUrl": "/assets/hat-display/580f6f56ebba2b797dcc63352dbeda35eec5d1d0d027fb92fd10bf5ff30fe7a5.webp",
+      "sha256": "580f6f56ebba2b797dcc63352dbeda35eec5d1d0d027fb92fd10bf5ff30fe7a5",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 406888,
+      "sourceSha256": "1668376e1de8b5878c899eeed11705d3d50203d3c59974be6efbdbce97387562",
+      "baselineSourceSha256": "e2070eced10fdd5d93c6723fecc04db06bde0611c86408db1e6b4d7a47b01980",
+      "comparisonMeanRgbDifference": 0.241464,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:dark-green-yellow@eb4302097563",
+      "modelId": "112",
+      "assetId": "12OFswKrp5cigmcVqbwjjsBIPUUfansW9",
+      "baseSha256": "eb4302097563ae0612269962faac1d7424819803e12d3bfb0802a378cb673588",
+      "imageUrl": "/assets/hat-display/dfc53af6a94641648a9d571aa199db708c8a0ca14bd49048ca8e29ba277d8e9d.webp",
+      "sha256": "dfc53af6a94641648a9d571aa199db708c8a0ca14bd49048ca8e29ba277d8e9d",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 495870,
+      "sourceSha256": "8fc768fa239f611168052241040664f4018c848af89df9dcc217cceab03fd471",
+      "baselineSourceSha256": "dfcd1d633e5dbbc60a4ced5cd940c44f062de9eb77af59202b3165b06e571ea3",
+      "comparisonMeanRgbDifference": 0.205874,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:dark-green@aa71097aa7b5",
+      "modelId": "112",
+      "assetId": "1_CDjy_gPdvgc7JbFAHseX2RM6nfNZuvB",
+      "baseSha256": "aa71097aa7b51c097ae2f17489d9f1711b49967751e3417fb6408473e4af30da",
+      "imageUrl": "/assets/hat-display/3c7b53d419a253edf07ad9e24c4b09bd3ef8bfb57d6ff121c9c3aaa450aec722.webp",
+      "sha256": "3c7b53d419a253edf07ad9e24c4b09bd3ef8bfb57d6ff121c9c3aaa450aec722",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 428000,
+      "sourceSha256": "458fb401ad922204fa75608d901471091bccda0009f197d62a8e5718066b9556",
+      "baselineSourceSha256": "307b8dff0941323944ba1555aa4117ac40934927e4c0ff35c51708e6ce1d65f1",
+      "comparisonMeanRgbDifference": 0.163701,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:grey-charcoal-black@c482fcbba085",
+      "modelId": "112",
+      "assetId": "1ov5LudFEZqLC9IGRHRFhEt8OtxlIG8W_",
+      "baseSha256": "c482fcbba085caf1b10d3326b412aa8f20dbfa4fd6a4cc2186ec13e69a85b4d7",
+      "imageUrl": "/assets/hat-display/5174d274739fb3ae802f1df633b82e13451474a8cb22b65e3ae29283dac551f9.webp",
+      "sha256": "5174d274739fb3ae802f1df633b82e13451474a8cb22b65e3ae29283dac551f9",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 441904,
+      "sourceSha256": "e78e037acfa57624eb306f5915553a0caa660c39e4ef585c65031f84ef68a881",
+      "baselineSourceSha256": "33037d1e161d7ae8dd563b5d9e6536e6abdf05693791ea9bbc13a4fafa6f7e2c",
+      "comparisonMeanRgbDifference": 0.170464,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:grey-charcoal-navy@fd36fdf9850e",
+      "modelId": "112",
+      "assetId": "1otBUQB4HehE5m58iZTMYQ6AvmdwCHNus",
+      "baseSha256": "fd36fdf9850ef6d254fc1ead76da4726c2d748cee4d6d2f24b8120831cb0c86c",
+      "imageUrl": "/assets/hat-display/783ac7aac25292114d6ccf1536285d42c4a1684067a5922452afd35bb0d798ee.webp",
+      "sha256": "783ac7aac25292114d6ccf1536285d42c4a1684067a5922452afd35bb0d798ee",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 519172,
+      "sourceSha256": "8e9ce369ae369be64e9b09ca409096d8ba83c56316bfadfb17c694e69e9a2938",
+      "baselineSourceSha256": "6400dc3f77f7a4c87a4a51013fe237ea5a014f0474869fb0030850ea72a32a96",
+      "comparisonMeanRgbDifference": 0.187283,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-birch-amber-gold@3172d3b04aa2",
+      "modelId": "112",
+      "assetId": "142rh0-AUPzAb2-1QSn34gM2wFsYAvASg",
+      "baseSha256": "3172d3b04aa288051c34cb40d5daacaecf602d355ec8116fba3cd42a50e01a41",
+      "imageUrl": "/assets/hat-display/8a9f1c6262c87116edec5b482cf0c71243a05e794b855a16b0a66fb37b4dbe93.webp",
+      "sha256": "8a9f1c6262c87116edec5b482cf0c71243a05e794b855a16b0a66fb37b4dbe93",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 440274,
+      "sourceSha256": "8482a23a59a6cb6b478872328e830be7189fbba3f6582944dab37255ff045682",
+      "baselineSourceSha256": "004931969aa562c8678827090f3d906e49ad6cb83760bd3ccb86f190ddfaef81",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "5e41e23c8c24154aa0e0d277033af02691eed69b738a66ff5edb7b9b480ec289"
+      },
+      "comparisonMeanRgbDifference": 0.262334
+    },
+    {
+      "calibrationId": "112:heather-grey-birch-army-olive@b43d4cab2fb3",
+      "modelId": "112",
+      "assetId": "1Y97CpQaZyXw3YyZYPOCHbzhej4DEw2lX",
+      "baseSha256": "b43d4cab2fb394a64703b50ecd6693719065e0ed3ebb6b980279ce775491818c",
+      "imageUrl": "/assets/hat-display/df3a0e7ce64a0f22980d22f42ab7d6d3f332a445ba20f7e9a83879a3d72bfc05.webp",
+      "sha256": "df3a0e7ce64a0f22980d22f42ab7d6d3f332a445ba20f7e9a83879a3d72bfc05",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 440438,
+      "sourceSha256": "d0f7ce6b9997e397ad6a033409383e6557e413839d2b614e324f16510af8ee60",
+      "baselineSourceSha256": "40e2aa5570d8389e98601186d1e12ef2bc90afa3c85da255a297ff766e501f60",
+      "comparisonMeanRgbDifference": 0.351635,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-black@71dc8a1ce50b",
+      "modelId": "112",
+      "assetId": "1wbdwRcaf7U48bJHQExr_j0nHgfhhioXv",
+      "baseSha256": "71dc8a1ce50b530c7a75e40daff4806211188703e74d579dc3a642f2133a3c9b",
+      "imageUrl": "/assets/hat-display/e687022678117be0e0da45d7f4e11100809e6b2c58b072bffadcbf406ce25fd9.webp",
+      "sha256": "e687022678117be0e0da45d7f4e11100809e6b2c58b072bffadcbf406ce25fd9",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 475782,
+      "sourceSha256": "a5f2f312680551997ea508a5ff0ec03d6122fedff61441be525a8208cf5b9b86",
+      "baselineSourceSha256": "7f518d42e8bf599e5f75f480b5e9ba31476e6c5201176d26b1ef8551e9f4943f",
+      "comparisonMeanRgbDifference": 0.199146,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-cardinal-navy@8eb8728eea8e",
+      "modelId": "112",
+      "assetId": "1P38s33H105CyPo7fLfk9K05k_55Y9VpC",
+      "baseSha256": "8eb8728eea8e54d04d5359dffe93146d20e347e7c5a035a19b5050cd95c4be72",
+      "imageUrl": "/assets/hat-display/e57ddfada6e227eca411c5b7b780b42f0497e35931daa443f8e87ae22f354304.webp",
+      "sha256": "e57ddfada6e227eca411c5b7b780b42f0497e35931daa443f8e87ae22f354304",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 503988,
+      "sourceSha256": "3fcabcc72a8dfe403330ffbee986ddd578e04a6a7e862ce1b68e0da62adf12ed",
+      "baselineSourceSha256": "79de6954dd6283d03b33c79be96cd40df70e444e2d5f9724d8446163e415fd82",
+      "comparisonMeanRgbDifference": 0.184896,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-charcoal-dark-orange@2cef5b110305",
+      "modelId": "112",
+      "assetId": "1Rp0ThsljLm2SRu9S1DAqFuCcxuMtChuN",
+      "baseSha256": "2cef5b1103052473bb9299dca87c4f4ce472b25b9f3c8e035931af4110fe42c0",
+      "imageUrl": "/assets/hat-display/8bcbfa76d41c6047eaad6e263449b91e272ca5b45444c4f5c9a4dcebc38348a6.webp",
+      "sha256": "8bcbfa76d41c6047eaad6e263449b91e272ca5b45444c4f5c9a4dcebc38348a6",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 543618,
+      "sourceSha256": "c3a925a75bdb16072292ba351b30fc154615e2b6d751a3e7cd27f64f3c8a4452",
+      "baselineSourceSha256": "2e08a206ce6ded047256f39aa6bd48aa9847ef75ffc712c353731b185dde3a4b",
+      "comparisonMeanRgbDifference": 0.174913,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-charcoal-maroon@626d0efe5c9e",
+      "modelId": "112",
+      "assetId": "10QBi8qQaNQfCG_cjLkMOKxMB2GEJWBcw",
+      "baseSha256": "626d0efe5c9ea2290150f8938cb16e4260509628ded09c000c1d8d238e6148f1",
+      "imageUrl": "/assets/hat-display/64e3ecf9fa62da474736ae1c61bf5b7cab62e19447588bce844ffe3c0627d90e.webp",
+      "sha256": "64e3ecf9fa62da474736ae1c61bf5b7cab62e19447588bce844ffe3c0627d90e",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 504186,
+      "sourceSha256": "b225b694fc614a08f22e2bc0e983673cf82f844ee3e63f05ab7dbe3b5d22f08a",
+      "baselineSourceSha256": "6d35b442c43b1a38e218f774c571b47ec8f7e37a8dfdb80504b5c22bb5225607",
+      "comparisonMeanRgbDifference": 0.191442,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-dark-green-black@51075490aa72",
+      "modelId": "112",
+      "assetId": "1wXBwdDPbKHOy3Nbz3KvOnwDYibLckz6F",
+      "baseSha256": "51075490aa72bcd40e840967f0600e93b3a6e79c5091ef1e9b772aa48237dec2",
+      "imageUrl": "/assets/hat-display/6d1005071c422f777d41f6d5d3170c60c893669adeab4b833ec57bfdd67c32d0.webp",
+      "sha256": "6d1005071c422f777d41f6d5d3170c60c893669adeab4b833ec57bfdd67c32d0",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 305442,
+      "sourceSha256": "555a7221978a72278a1545931824d316c18f3d58b458c2bc7eed429382231413",
+      "baselineSourceSha256": "556334848b28788835b8c048e41d63c50d4d9ba4e5a38932fe0e254d6830fc83",
+      "comparisonMeanRgbDifference": 0.17173,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-dark-green@01038caa4014",
+      "modelId": "112",
+      "assetId": "1B3FlDcBlSL6Ss0mJhMDgwmxhJCuWCQG4",
+      "baseSha256": "01038caa40149fa344161a2ab7a87356eb40a79497b9021c0d961378a7831c50",
+      "imageUrl": "/assets/hat-display/c8d6ce478d92b82c748c0ff0d55c7fb8f362822e85ba61a779ce05c0a2a026d5.webp",
+      "sha256": "c8d6ce478d92b82c748c0ff0d55c7fb8f362822e85ba61a779ce05c0a2a026d5",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 457294,
+      "sourceSha256": "cda13739efc108ba64662251676a84459503f394fa2e46628b2575729a66e888",
+      "baselineSourceSha256": "c8bc1bdad3675c31dafd6d141baa381085f6a8dde9652ce95ed4e76f785cc85a",
+      "comparisonMeanRgbDifference": 0.14001,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-light-grey@b87f2b6d707d",
+      "modelId": "112",
+      "assetId": "1AHU12I2TT_SHJJaRgi72v6WdA2L7QBpk",
+      "baseSha256": "b87f2b6d707d16f97bef90acc724b563289891704a7d752836ea30f6a5105e62",
+      "imageUrl": "/assets/hat-display/1ff6c522b09c84e50c791fe844a15f1822e0bd04433a25a8de145c408a320de3.webp",
+      "sha256": "1ff6c522b09c84e50c791fe844a15f1822e0bd04433a25a8de145c408a320de3",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 528498,
+      "sourceSha256": "9273791b725806e9310970f25e7b054320922a84ec778837e35dbed7ff448817",
+      "baselineSourceSha256": "fdbe48ac9f3b69ca39e0e2092473fc93235a732e727dfcbde66e6d49cb7bae3e",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "2a21a552029eea8cb627cd77750e6d1ebfe152ec821abc949fabc9fff92ce14d"
+      },
+      "comparisonMeanRgbDifference": 0.154948
+    },
+    {
+      "calibrationId": "112:heather-grey-navy@7578d8f0fbb7",
+      "modelId": "112",
+      "assetId": "1Asvag72y24MMciCsAccK2VUdjVeICA9J",
+      "baseSha256": "7578d8f0fbb76a5b2511c03a7195cde2b348d112cd6d2d537f9d7d2ea71c8cc1",
+      "imageUrl": "/assets/hat-display/e6b0f63af696b9991eb2153672aa421aa0c3f268e396af1d146b928d6eb5d196.webp",
+      "sha256": "e6b0f63af696b9991eb2153672aa421aa0c3f268e396af1d146b928d6eb5d196",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 428712,
+      "sourceSha256": "9b82a81b70f8a62776fcad54355f69bf7cd1543d7e8bce667c1fd44c91a2b56c",
+      "baselineSourceSha256": "36ee58871b526ce16491e47716996fac608d17b490267a9616ce459393f17242",
+      "comparisonMeanRgbDifference": 0.173105,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-red-black@6345e3c9ad15",
+      "modelId": "112",
+      "assetId": "1W2sGQq7QktNptPrbQdtt0hUonKTF3VIW",
+      "baseSha256": "6345e3c9ad159d0616f1969fb56bcf45e2e5c7ae092adb9483a50c4d6ea989e7",
+      "imageUrl": "/assets/hat-display/d9835242d2ceb3adcec17cc71c1137886d8de4efd21773c2d2e9f9210393279b.webp",
+      "sha256": "d9835242d2ceb3adcec17cc71c1137886d8de4efd21773c2d2e9f9210393279b",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 335370,
+      "sourceSha256": "a4b7290f8d324f81f91e01d6acc3e3d9816abb7a6a35a876e9e0cd83bf7f5140",
+      "baselineSourceSha256": "462d57b4050e4a493ba470ab043569f99b59fd497e129d8e99f81d184c4540bd",
+      "comparisonMeanRgbDifference": 0.200412,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-red@73a17450c783",
+      "modelId": "112",
+      "assetId": "1uZOCEIeNseg0LX1DDx5Ich8JvJVYGMQR",
+      "baseSha256": "73a17450c783c59e2eb060b5ded0bf4d95cfc0510e9512a3a8e020e86d217eef",
+      "imageUrl": "/assets/hat-display/71e86126795cd4c3b1c91edb55a6593c37b58eb33a922925d0a18b762d790d74.webp",
+      "sha256": "71e86126795cd4c3b1c91edb55a6593c37b58eb33a922925d0a18b762d790d74",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 556316,
+      "sourceSha256": "1d7ef2fef09f4f13f379ccc43da8d1e489e58d58575f2b8970a46fc2473e6a5d",
+      "baselineSourceSha256": "73ca2f50de2fb2531ccfd38232e735ea22d7800508f8cc6aff022ac68897ac3b",
+      "comparisonMeanRgbDifference": 0.170175,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-royal@b55f0833ab9e",
+      "modelId": "112",
+      "assetId": "1DObAgsLA2gzvhgbiIoyPBxa9Qu6M7cCm",
+      "baseSha256": "b55f0833ab9e9ced1665aaa5acad6b7976892e99284dc2dfed258a222b023b4e",
+      "imageUrl": "/assets/hat-display/afb9f01904125a2e988494e72e38f06c765ba599205bcc5971500a319a7df5ac.webp",
+      "sha256": "afb9f01904125a2e988494e72e38f06c765ba599205bcc5971500a319a7df5ac",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 459210,
+      "sourceSha256": "da792ae8dfc3fb89bcf681a088858b22d2eefa8951098b60b04267de3d369272",
+      "baselineSourceSha256": "ffe7325013b49e58d6fba400fe937088611992160d5cb64eed26b8dfe567a6c0",
+      "comparisonMeanRgbDifference": 0.146593,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:heather-grey-white@a36e852af8a3",
+      "modelId": "112",
+      "assetId": "1T24FBZkGHmolnIjCmGu9PN_kY6ZCZiqP",
+      "baseSha256": "a36e852af8a385ee598a3feda521f9f4904addda52e0b4a6f9814ab4ec38d07c",
+      "imageUrl": "/assets/hat-display/ae2608b261d63b56d1c39c119017121e3516087c5d8352692f30e1d5f2c3aa93.webp",
+      "sha256": "ae2608b261d63b56d1c39c119017121e3516087c5d8352692f30e1d5f2c3aa93",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 426572,
+      "sourceSha256": "8c17165f82ad00fad0b44308510d8ddaaae7dde68816a3cb1a8e1dd6c0c35ba4",
+      "baselineSourceSha256": "45ba2461bba3c750a7f27b3312e801a4130a184f3d99f7af5850671dbf5428f7",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "db5a28fad0ff30466553464d37454da068e5fedf5c25c0d43195d791b931aba2"
+      },
+      "comparisonMeanRgbDifference": 0.164171
+    },
+    {
+      "calibrationId": "112:hot-pink-black@9469221633c9",
+      "modelId": "112",
+      "assetId": "1BlPFahRu7A9zXwLUDuvhpxZtmxvxYDW8",
+      "baseSha256": "9469221633c91f77a39bbd5002bd0907a595bd3b42f91de7249abe6ebed2c6d6",
+      "imageUrl": "/assets/hat-display/4269e2eea92e46a8a76452c0f2626f599f03a30bb83331b17d84228cd7c70be8.webp",
+      "sha256": "4269e2eea92e46a8a76452c0f2626f599f03a30bb83331b17d84228cd7c70be8",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 461940,
+      "sourceSha256": "7dde0c8619b54e33d20b82fa12c0c25fbe3fd5a663bc86da819f2364dccb6672",
+      "baselineSourceSha256": "f0542bc5eec7fe2952077042528360aecd4eaadd6a6393b866a7601bc7fb6656",
+      "comparisonMeanRgbDifference": 0.166088,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:hot-pink-white@9ea52b27ea3f",
+      "modelId": "112",
+      "assetId": "1QdKZsHWRQ3HcmS34ExS5Rxz66GOT8Oyw",
+      "baseSha256": "9ea52b27ea3f79bcbffd645c7b8f8d7d292722f46828c855f9ba180dcef9f9cf",
+      "imageUrl": "/assets/hat-display/0ba7f54ac75729e95e826aa6b970af5ba5d0aa40b768dccfa22fd357f9d6208c.webp",
+      "sha256": "0ba7f54ac75729e95e826aa6b970af5ba5d0aa40b768dccfa22fd357f9d6208c",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 427066,
+      "sourceSha256": "c000652c1095bc516e8cad8c5118be21db197a3f3d564a939c397dc9ff080ca0",
+      "baselineSourceSha256": "d457296ea305e2092d97e68edd7c7c5483b63e910f3c19bfc10fc32545a7443f",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 2,
+        "maximumChange": 1,
+        "currentSourceSha256": "c45d6730f0ab6981d888940ee11c1a9250e01f4327bb5ab8a292ecc4fafd9c7f"
+      },
+      "comparisonMeanRgbDifference": 0.126302
+    },
+    {
+      "calibrationId": "112:kelly-black@76179960cae8",
+      "modelId": "112",
+      "assetId": "1o0eDVKmDxXo6f5jSAIgRjGf4fOYorVEo",
+      "baseSha256": "76179960cae840e18d163b589ba325e3d850bc03d8b030239fc7d754edd8c346",
+      "imageUrl": "/assets/hat-display/e8e33c7b7732908fa96c8838e35989a849549a8017fd53d98ce08273ef797696.webp",
+      "sha256": "e8e33c7b7732908fa96c8838e35989a849549a8017fd53d98ce08273ef797696",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 553074,
+      "sourceSha256": "0b9318f12d8bd5abb5d5a58ef531d03af435ce4f283b70345e975815be102779",
+      "baselineSourceSha256": "3805cc8e04c2e1cd6c7780493deff9f14a7d884f6671d74edd937f8f5a34baca",
+      "comparisonMeanRgbDifference": 0.153356,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:kelly-white@99aa752bf2e5",
+      "modelId": "112",
+      "assetId": "1RBDtXR5UfD1iVVv2_Hrip_vol9pzlWXa",
+      "baseSha256": "99aa752bf2e56c99e367adb1b6476f484af3060ca4d4d35dca1f2605595bfe5f",
+      "imageUrl": "/assets/hat-display/4293147f519f4efc598db9d0428196048c5c0656e5bd06e142da7f49e2923876.webp",
+      "sha256": "4293147f519f4efc598db9d0428196048c5c0656e5bd06e142da7f49e2923876",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 494754,
+      "sourceSha256": "ef962ff941b6646b238895ff9c07f305852b695fd9bfb7a9391e2f0cbf062af2",
+      "baselineSourceSha256": "4efc4c86426d17d5fbcad2647dd1b013ba76fb97c08d82bdbfee1137a4055751",
+      "comparisonMeanRgbDifference": 0.188549,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:khaki-burgundy@19f09a5dc134",
+      "modelId": "112",
+      "assetId": "1v_EgYXAw33btG1riLL4tILi3iaZBf3C4",
+      "baseSha256": "19f09a5dc1348ced067f9fa3b728aeeabd5562a4ba2813a4258cd71e353dc893",
+      "imageUrl": "/assets/hat-display/0eb3394f5f19a63304a5e7a9aec5bf4db0857fc48c7a1998bbf50daf51949484.webp",
+      "sha256": "0eb3394f5f19a63304a5e7a9aec5bf4db0857fc48c7a1998bbf50daf51949484",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 455998,
+      "sourceSha256": "1c66a059b29562473e13ac7fdfbba17bd2efc76c3f25ecf714def0e6db7af5d0",
+      "baselineSourceSha256": "626039cdc324e55b8cd0a412f0d98701c668241f553303b8bdb409f07ff1ce08",
+      "comparisonMeanRgbDifference": 0.137912,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:khaki-coffee@d7f0a0616f47",
+      "modelId": "112",
+      "assetId": "1s1gfa7EjMWUG8k1ZOTHIx4-VWxvypRg-",
+      "baseSha256": "d7f0a0616f47e21c05870dc734640e0770da9cead1db700e77ff1f9a9a7352ea",
+      "imageUrl": "/assets/hat-display/63470368e3bf493c0ca81cbbd67e2ec6164131fc6ee2462b832d256238c75b4a.webp",
+      "sha256": "63470368e3bf493c0ca81cbbd67e2ec6164131fc6ee2462b832d256238c75b4a",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 398554,
+      "sourceSha256": "9948ff3866f9d183969dcd4cbffe8dd88b9a08b96fd0ccc276a580ca6a9257a3",
+      "baselineSourceSha256": "f644b3d3332a7e75d6439e26827465b26dbe62bd0476306435545571b145275f",
+      "comparisonMeanRgbDifference": 0.122215,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:khaki-white@02a59f76ffa9",
+      "modelId": "112",
+      "assetId": "1GWkwIoRh8k9dIwAeURNDd1twjz-tdiHV",
+      "baseSha256": "02a59f76ffa90ed50edbaca4fa48eedf136c764a2be84eb53024324e7d1ca8dc",
+      "imageUrl": "/assets/hat-display/4ecbd936c9194551de477a5b26103dddeb9e45970792a852145106e82d5c52fc.webp",
+      "sha256": "4ecbd936c9194551de477a5b26103dddeb9e45970792a852145106e82d5c52fc",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 383576,
+      "sourceSha256": "bebbcda235cfb35351284ede1e7cb5b0421d0195e64cb42347ca2d8320bce0eb",
+      "baselineSourceSha256": "627375bc079fff6546425a6078f54a0ac289b7aa183125bb7a619ad7726e2b8d",
+      "comparisonMeanRgbDifference": 0.11849,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:loden-black@b5b5faa3cfc3",
+      "modelId": "112",
+      "assetId": "1MCkjnX5eptvy2rupCQd0jwdolBo1tojZ",
+      "baseSha256": "b5b5faa3cfc36c8ba0f93a8d02054efde6058f3195f1e5c5e29ffdfdb77c010a",
+      "imageUrl": "/assets/hat-display/97c3cc260dfb74655f80e20fcf18fe1cbb6b7d3f023357f3dc791524b7ca5572.webp",
+      "sha256": "97c3cc260dfb74655f80e20fcf18fe1cbb6b7d3f023357f3dc791524b7ca5572",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 369792,
+      "sourceSha256": "3a65fbb735b64d576b79d7d363a19ea5b7d0c9529fdb552ccaa20f134bc8d45d",
+      "baselineSourceSha256": "3c5eae997dda587ed092136aa88f0937e4c9c972400e0d4524bfea8d379e5230",
+      "comparisonMeanRgbDifference": 0.30617,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:loden@4540d220caeb",
+      "modelId": "112",
+      "assetId": "1Rv36ju2IETBU7JC4rfgncwghgsCebMA6",
+      "baseSha256": "4540d220caeb8820ed39d383abe71dd9b1ef8d7c7bb7e5d6e5e32c45e814c175",
+      "imageUrl": "/assets/hat-display/064c2c8fc62ebfcb5a71e97a43b429164f6873743908175b48630db2824ae9d6.webp",
+      "sha256": "064c2c8fc62ebfcb5a71e97a43b429164f6873743908175b48630db2824ae9d6",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 343872,
+      "sourceSha256": "84863206e52ba592b2d901532ca14ad0ee3a27515c94e082360bede5c7ee07e1",
+      "baselineSourceSha256": "38b634ec2c959e97e91859567e8ee72cdcf7ebb494d7c0a1ba3678e61814383d",
+      "comparisonMeanRgbDifference": 0.144387,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:maroon-white@f9ffa91db2fd",
+      "modelId": "112",
+      "assetId": "1hy5SCBVU77zuuCr0ftWQz0vLU_p1gg_e",
+      "baseSha256": "f9ffa91db2fd9a2d86bfaa57c88c05f0fcd03b9c5c4fe9df18c1dfaa4773247d",
+      "imageUrl": "/assets/hat-display/52e5f813b272fddb220bb712a54696ee93de9536740af09fdb8093bb4bd94df4.webp",
+      "sha256": "52e5f813b272fddb220bb712a54696ee93de9536740af09fdb8093bb4bd94df4",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 389360,
+      "sourceSha256": "33668d3222b9a38d26456aa05bbd657a24b3aabe9e6faf5a28fbdbfcbe9de48f",
+      "baselineSourceSha256": "f5896b37d50d96ca8365e38042ad61afca7807329a1fdf0d33f9182f6cec91b8",
+      "comparisonMeanRgbDifference": 0.222331,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:mink-beige-charcoal-amber-gold@d88583909241",
+      "modelId": "112",
+      "assetId": "1K2FwXnVwNyl4wqU4iM-SJ9uRAZo79myl",
+      "baseSha256": "d885839092414ddd4f862bfd52a12c881cd6a6096bcafe54173fad715375fd27",
+      "imageUrl": "/assets/hat-display/f79bcdd1ec7f90883f195e84e310e7c9d617ff8e2c03267fd426f0c0bd559224.webp",
+      "sha256": "f79bcdd1ec7f90883f195e84e310e7c9d617ff8e2c03267fd426f0c0bd559224",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 420680,
+      "sourceSha256": "2d077a86e22855dfb10b00392658ddbf717d229dcb1088d3865983bee68899da",
+      "baselineSourceSha256": "79bec8f2bcffadabda0df7a6ecba68c4cf7371675f7ba4bf95f19cdb8f123666",
+      "comparisonMeanRgbDifference": 0.210576,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy-caramel@06a1ed264d42",
+      "modelId": "112",
+      "assetId": "15y3TRsagXIRJT309uMOkpHyG7TYxnc9x",
+      "baseSha256": "06a1ed264d42b4e4e282c5fd409f165aec8c33152d7db917da3337995ece0ef6",
+      "imageUrl": "/assets/hat-display/3cc1b9e0c39faa9fff156c6957ef2ccfc625cb7fa2f27e99a82287af781f1a18.webp",
+      "sha256": "3cc1b9e0c39faa9fff156c6957ef2ccfc625cb7fa2f27e99a82287af781f1a18",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 375462,
+      "sourceSha256": "800ef58efeb7a819a8617fc14bcd122df1337ba029c344cdc9e455831818bddb",
+      "baselineSourceSha256": "9307b775185d49f8f5a39a994f5751e5ca0befa9b2fd17411cc607c4b532a311",
+      "comparisonMeanRgbDifference": 0.19958,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy-charcoal@e273f027301d",
+      "modelId": "112",
+      "assetId": "19R0HpA6OIcNY8CRBn2EbBDOw592NwIy6",
+      "baseSha256": "e273f027301d3174196cd34e751e16c6adb5017dbbd457194f4dfbf24712cf4c",
+      "imageUrl": "/assets/hat-display/819b47aa50580f202606c6df9be8a56d5917f4646aa0135a0eb763d0a695ac8e.webp",
+      "sha256": "819b47aa50580f202606c6df9be8a56d5917f4646aa0135a0eb763d0a695ac8e",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 326550,
+      "sourceSha256": "564114fbce41f8700ae4fc7fd17b5bca3e2e7654624ffdf52c2e68fa6814a5dd",
+      "baselineSourceSha256": "96f718c71e7464bf0b646abee5fc4b69f252b891afaf9e82575e781c72758297",
+      "comparisonMeanRgbDifference": 0.196868,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy-khaki@e9353f92b574",
+      "modelId": "112",
+      "assetId": "1lCAP5vRoEfqniV27j8rkAhrhGbTG7TSR",
+      "baseSha256": "e9353f92b574d06e332e375355f780b786f17608d555b77d1fef83d0aeff6874",
+      "imageUrl": "/assets/hat-display/ba61ff31a825474ea779888d5ae62295e269b99f9b79a3b013fa1d9dd08e2440.webp",
+      "sha256": "ba61ff31a825474ea779888d5ae62295e269b99f9b79a3b013fa1d9dd08e2440",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 368236,
+      "sourceSha256": "8a60bb75904c8ccddc5ab90fe1baaa2429a181455fcbac6a09c992a8aed595fe",
+      "baselineSourceSha256": "091c779ab773b27997b822d21e0fa9c1bb8aca3519ee55a2bb7e922fcb50e66e",
+      "comparisonMeanRgbDifference": 0.394133,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy-orange@09b0ae429de1",
+      "modelId": "112",
+      "assetId": "1ydWQsG6clIZ6m3_FinIpP2YGuGg2rpZs",
+      "baseSha256": "09b0ae429de13fe017b0b1f76b302cda75a6f1fb1cdeb11fe3c875a9e0b105dd",
+      "imageUrl": "/assets/hat-display/c52ac809512dccee6d1066b3a5a69b7240c1723fa8ee50bc09677efd85bdd192.webp",
+      "sha256": "c52ac809512dccee6d1066b3a5a69b7240c1723fa8ee50bc09677efd85bdd192",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 453818,
+      "sourceSha256": "206a29da89bfd0d2a9fef25624b5d64a8784b69ae147e254841c3ba78ade499d",
+      "baselineSourceSha256": "d05393fbab1a9430ba22ffa31177c0fa8516335299bdc1d2ce51ac7e7929f778",
+      "comparisonMeanRgbDifference": 0.214663,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy-red@e62746a1d350",
+      "modelId": "112",
+      "assetId": "1CmaXidvyEzdyDzCLuDMAZ5lYHe6QMuZE",
+      "baseSha256": "e62746a1d350ee282b36dff89e990b309a6cef000b896af867f65a99d75d70dd",
+      "imageUrl": "/assets/hat-display/860326cad5ece56100100a2c3bb982b13ccc2ef18b336c543b4d87038c43e545.webp",
+      "sha256": "860326cad5ece56100100a2c3bb982b13ccc2ef18b336c543b4d87038c43e545",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 391862,
+      "sourceSha256": "ddcfd7a9abd2348b96ae1744fd8403b957c95bb5ff1b0c838d88d05aa3ff040d",
+      "baselineSourceSha256": "02b1218b06bfa75df72b630892424895ec0f94a7417da4f73d0d5ef83b95331f",
+      "comparisonMeanRgbDifference": 0.160229,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy-white-heather-grey@8de36deae79b",
+      "modelId": "112",
+      "assetId": "1o5XkSvfluOHEY13ST29mfja9TG4_jdTf",
+      "baseSha256": "8de36deae79b25a79ce8d819e6982cd8e49dbcd664d9d5dde5373112a64a1d06",
+      "imageUrl": "/assets/hat-display/16dda5e5d1cc4ea2a20f0c60da16776eafd62c386d58c993699a1f2997bd80e3.webp",
+      "sha256": "16dda5e5d1cc4ea2a20f0c60da16776eafd62c386d58c993699a1f2997bd80e3",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 429794,
+      "sourceSha256": "1d70ac7aab91c8d4b2e9260199bbefc38acfb661e01a2607b2079b9dcb486fd8",
+      "baselineSourceSha256": "8a81c701f6245f080c029b3ac245d0f25562c15b960fa19a4598ae7ead5a4c86",
+      "comparisonMeanRgbDifference": 0.167643,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy-white-red@099ca4a94c66",
+      "modelId": "112",
+      "assetId": "1-meKEI1x38m1zmHiAn4U22yilNYvXB0Q",
+      "baseSha256": "099ca4a94c66fad8c84be65b500a282005bda36b011fca4eab5aa24f6a43ff5b",
+      "imageUrl": "/assets/hat-display/bad8a78033f87d4d4261043c50158a294ecd46f7435a74fb1f6701d273c2b0ef.webp",
+      "sha256": "bad8a78033f87d4d4261043c50158a294ecd46f7435a74fb1f6701d273c2b0ef",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 414096,
+      "sourceSha256": "f5e0b29358758fee047ab8b010cd3907d9aabc60582afbe6de94b1f90af9f600",
+      "baselineSourceSha256": "4dd388397518981be321d89719b39dc95239b09d5eca4f53c1da1a442b196661",
+      "comparisonMeanRgbDifference": 0.245913,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy-white@10d16a261460",
+      "modelId": "112",
+      "assetId": "1GKLYI4bsT6X_on9NFnD3_LcPP1iMeUuP",
+      "baseSha256": "10d16a2614603ab36108aa74898ad1633bb9d962de4c0a2bdb4b902405b79a44",
+      "imageUrl": "/assets/hat-display/6c3e9661ebac48bb2c3a1d440c4c3affc19507defffcda300eac72b8b05039c4.webp",
+      "sha256": "6c3e9661ebac48bb2c3a1d440c4c3affc19507defffcda300eac72b8b05039c4",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 403878,
+      "sourceSha256": "0bcf96424fa007b4d4d2abb1bbd1c999694fcea3170c8dff84dab0940c4bfbd7",
+      "baselineSourceSha256": "1fc1412fed2209557dd2b4429906b0f44e524b1ef212076ed323a761c779cb8e",
+      "comparisonMeanRgbDifference": 0.317636,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:navy@d4b26bfef111",
+      "modelId": "112",
+      "assetId": "1IpZEaftNFrOBk1gr9zb2pF-K2TyIl_Ks",
+      "baseSha256": "d4b26bfef111d525c0dc99d52d8e897328036c28b2253785fc0044cf41b6f3db",
+      "imageUrl": "/assets/hat-display/a99c266f228733df51b356ca222e6a0150f271969a66e06676b51a442f987686.webp",
+      "sha256": "a99c266f228733df51b356ca222e6a0150f271969a66e06676b51a442f987686",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 462180,
+      "sourceSha256": "3d5e5d181219954157d3b1c899edd6b0ef086d3a79c9e04f0e4dbe558bfae860",
+      "baselineSourceSha256": "44603b21800700d81d384c5a470b7a39c6094d066d1654146fc6cace9f4c0c2e",
+      "comparisonMeanRgbDifference": 0.168837,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:orange-black@799c3f61018a",
+      "modelId": "112",
+      "assetId": "1s8mmf3-CPWzmjzBrwFmU9xxob6rf1n0y",
+      "baseSha256": "799c3f61018aab3140c107c719b0aa57abe41426ca1a71c0c91a5bed129b78e6",
+      "imageUrl": "/assets/hat-display/dfd03044d0b4d77a78070748ba9556a9cba62d7b1a62b380e50380e771c34e10.webp",
+      "sha256": "dfd03044d0b4d77a78070748ba9556a9cba62d7b1a62b380e50380e771c34e10",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 463508,
+      "sourceSha256": "c46456e75f808971641898cb6feb4537c417a7dbb6d94e9c387da1c819e86c19",
+      "baselineSourceSha256": "60d4c616bd83eda570e40711b95170e2b7017752905951e4b348c3de45b1b08c",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "6b1bd98ebefa4e7c112d28c598090c4edb6b909dfb39bd57a64e79cb50dcf5d3"
+      },
+      "comparisonMeanRgbDifference": 0.152018
+    },
+    {
+      "calibrationId": "112:orange-white-black@b1bdf353b92a",
+      "modelId": "112",
+      "assetId": "1Bjtrs8Al-X1zOK9WmwWJf4x1lO97PZOt",
+      "baseSha256": "b1bdf353b92a8c3c08bdcee3ed716aa3ce174ee69cc3eed63bc99667f6d18cb2",
+      "imageUrl": "/assets/hat-display/3c76fd71c297428ab297c766adb44e219ea2825eedc43eb86007611cb2abe221.webp",
+      "sha256": "3c76fd71c297428ab297c766adb44e219ea2825eedc43eb86007611cb2abe221",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 431232,
+      "sourceSha256": "7e6f3fa302e6b0a57adb101df875eefc67553c7f9012e6ae4ff519e20822f893",
+      "baselineSourceSha256": "5e1b96d7667b77951e9fc8240a6effc0a02298f2ef49330073bf59cb39b60a23",
+      "comparisonMeanRgbDifference": 0.194915,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:orange-white@8f615f6bec23",
+      "modelId": "112",
+      "assetId": "1wY1ujuKrfoS60l5X-coBZKdllTenhwKt",
+      "baseSha256": "8f615f6bec237f70d41d2f5f1222434ffc370246f26797b99bbf20e0301a4876",
+      "imageUrl": "/assets/hat-display/952e24084d0dc8a44b5953d78e44302573181d0edc0e859742d00029416c74f7.webp",
+      "sha256": "952e24084d0dc8a44b5953d78e44302573181d0edc0e859742d00029416c74f7",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 427558,
+      "sourceSha256": "7a93e950635a79524965e45db7592573a937c1bdaca6c4e4bdb6f707641c5a4f",
+      "baselineSourceSha256": "e0d7414a1861e962ab787a0e52d2ac546021c1b76b8b29e37ccf01653e2ab3d2",
+      "comparisonMeanRgbDifference": 0.140119,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:orange@77fccb9b7b18",
+      "modelId": "112",
+      "assetId": "1fvdiE0CDhiyrvttW7qSYvhlAYJdXHE7W",
+      "baseSha256": "77fccb9b7b18b3c4ac3bcaa12e0ccfaae10bf1f8d8a9bb42a5ce5739a19d5ca5",
+      "imageUrl": "/assets/hat-display/b65aa1a4295b411649a316d64c420190a92da0798bb6ddd5e0d761cef930e029.webp",
+      "sha256": "b65aa1a4295b411649a316d64c420190a92da0798bb6ddd5e0d761cef930e029",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 460806,
+      "sourceSha256": "a58d1d534bc9fa5778b8a4b60b8f3b7b5504fd5c10e389bc5005f176245afe75",
+      "baselineSourceSha256": "84651746d78898ab2eb5d274c984ee06ca99cbfe373725f4eedf0c27019239a0",
+      "comparisonMeanRgbDifference": 0.129702,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:purple-white@d11eb05ed2f3",
+      "modelId": "112",
+      "assetId": "1BhMtAnH7-fJUWjY3lsmFTDtKizDe4fdY",
+      "baseSha256": "d11eb05ed2f3a76857e0443254979635b189168eb8d253bb9191007c9d14fe8c",
+      "imageUrl": "/assets/hat-display/741f9f9d9b67d38e180e73ad1fe50ac3953241782ec8aafdb6651ba36a971235.webp",
+      "sha256": "741f9f9d9b67d38e180e73ad1fe50ac3953241782ec8aafdb6651ba36a971235",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 401758,
+      "sourceSha256": "a54c1f5c1e15bb35217b28900f476f25ba4d1a2bacfa265aa6d74eb0358ef0bb",
+      "baselineSourceSha256": "9d69aa1a490f06b7f09730c5b48065bc184728014b07836db2013059cc4f6ec6",
+      "comparisonMeanRgbDifference": 0.200955,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:purple@a362bae791c4",
+      "modelId": "112",
+      "assetId": "1wMbmW4Tv_BEg_aQIvDLWY-0PMbgGhW9_",
+      "baseSha256": "a362bae791c4e1dda9243f42ea7349d29cc91106ff86602300adebd36a1dfc9a",
+      "imageUrl": "/assets/hat-display/5bc8d4606bcdb195f31a8e6066201bfc90b66504f99cf05c2590f437a3e3a632.webp",
+      "sha256": "5bc8d4606bcdb195f31a8e6066201bfc90b66504f99cf05c2590f437a3e3a632",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 495012,
+      "sourceSha256": "f5d697244834288ae284ef715382f65748669925eea46ec4191e5b5755a1c604",
+      "baselineSourceSha256": "aca199201b9a9115b5385c815847b06a9fd1071d58635ae8a8b8945ea41631a0",
+      "comparisonMeanRgbDifference": 0.170428,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:quarry@ce161f67b4a9",
+      "modelId": "112",
+      "assetId": "12_2DTTjelZ9O-zYXi7LfYeKuQKFUsfma",
+      "baseSha256": "ce161f67b4a973f425c75c0ddd7722c5276af37895afe0cde0818afb409179ba",
+      "imageUrl": "/assets/hat-display/7852dc58919071377bbc1a67b6fba98571add9976b7e5e7706d485882cd852eb.webp",
+      "sha256": "7852dc58919071377bbc1a67b6fba98571add9976b7e5e7706d485882cd852eb",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 225270,
+      "sourceSha256": "e14fd7d1eeed4fb1c1955f369ff480be711e49aca7125a7a21bcd774d1c63f68",
+      "baselineSourceSha256": "42ef684adf61e53f6060b07503ecc23589a498a455828e9901ec7e1d4b61673e",
+      "comparisonMeanRgbDifference": 0.11093,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:red-black@f0dfc153c03c",
+      "modelId": "112",
+      "assetId": "1N38Ug7sL26Fa-WPKI05Y5L2jetd1ZzX1",
+      "baseSha256": "f0dfc153c03cbe62222d1470b948f0ac51700a1975adf690d74f5a41d23e6aab",
+      "imageUrl": "/assets/hat-display/6d6cfaa14de2b13e0b79cd549e8d8f3af31870ce20030b0a5c05c9b906b7b115.webp",
+      "sha256": "6d6cfaa14de2b13e0b79cd549e8d8f3af31870ce20030b0a5c05c9b906b7b115",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 416796,
+      "sourceSha256": "42e97212e3ca8c6773fed074c2ab7a5ffe22514c8f7a7d24d0d055dab1b87352",
+      "baselineSourceSha256": "4fbc2e23e7b72494c0cbe96e8fcf4c7f7cc9d850f65baf5d63062ee687a6ad2b",
+      "comparisonMeanRgbDifference": 0.143736,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:red-white-black@669dd6c86b77",
+      "modelId": "112",
+      "assetId": "1lsbilDdf_mMfWGgJ0WqtXEvqE3aMaE3j",
+      "baseSha256": "669dd6c86b7740c833d8e83202e8883b30fed47b1a723a1d25b7f12488102463",
+      "imageUrl": "/assets/hat-display/8213e8eea7a37f5c9bab188fd18fb97c273c823d806c32a17cc3045eb8d9874d.webp",
+      "sha256": "8213e8eea7a37f5c9bab188fd18fb97c273c823d806c32a17cc3045eb8d9874d",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 368812,
+      "sourceSha256": "e32cd10f48597648305e1893f5f0f7063c6a743ffe1dcd36af065a30a06ef267",
+      "baselineSourceSha256": "4ab7869491d6755c09d27574b739a16ed5b782e12bdce49b011ed8c08881c81e",
+      "comparisonMeanRgbDifference": 0.222729,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:red-white-heather-grey@d99c01328e6f",
+      "modelId": "112",
+      "assetId": "1VjgoPqA_O325GTmOnw4LjDOdhCbfnI5p",
+      "baseSha256": "d99c01328e6f696dbb1bf32171a08163af1df7648fac37baf1cc6b2c52f5c37e",
+      "imageUrl": "/assets/hat-display/ba42acc5481fe509c955eb7eb2a6484152a4d1022317ebd1ebe4ee5f304a26dc.webp",
+      "sha256": "ba42acc5481fe509c955eb7eb2a6484152a4d1022317ebd1ebe4ee5f304a26dc",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 440370,
+      "sourceSha256": "c47415030a511b361957f6cb2cf5abc0bc9a183423f56a6471f337dacad2e09c",
+      "baselineSourceSha256": "fa873f1f59f44270952548583920fc5054d6af45dc4d2a234c5ad1c0be3ce126",
+      "comparisonMeanRgbDifference": 0.147027,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:red-white-navy@71882e66159c",
+      "modelId": "112",
+      "assetId": "1-hYrHJywM8Yesxyb7AqUkI5IGfsx8Rss",
+      "baseSha256": "71882e66159ceba54f8af408789300a48adf99c0bedefc1b5b269f0e3239e75d",
+      "imageUrl": "/assets/hat-display/d67af34cd838cc5e692c2da8b6c22b73a969040d0aca8d3c79e4ddde29100ed4.webp",
+      "sha256": "d67af34cd838cc5e692c2da8b6c22b73a969040d0aca8d3c79e4ddde29100ed4",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 365806,
+      "sourceSha256": "20a9d1df95e80137013d3f85de38339dd2c3789a85cd10bcacb4c69d3ae90c90",
+      "baselineSourceSha256": "cdd74aede2dd7f2311fd926802a32a5c46f3f78c77b8f2f40a4cfcd33238855a",
+      "comparisonMeanRgbDifference": 0.403935,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:red-white@d2044c067a80",
+      "modelId": "112",
+      "assetId": "1be7VDIESd7WvGgcScrIOi6DC8NDhdnxX",
+      "baseSha256": "d2044c067a80049f513f7d40407c21807a811831a1fe503f89d1b6a2076c63ff",
+      "imageUrl": "/assets/hat-display/9a2e5e437523cf5679ed1e59d20196a07244a507b5a11609917062b9dd802208.webp",
+      "sha256": "9a2e5e437523cf5679ed1e59d20196a07244a507b5a11609917062b9dd802208",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 364926,
+      "sourceSha256": "1e859321dc81fe8c84effae1522648f51786b465bb27972e0839c6a01d554941",
+      "baselineSourceSha256": "90fc2a27de4aa9ce394822874c9ab56e1c50e8c2b66a41cca8fcc714de0ae428",
+      "comparisonMeanRgbDifference": 0.154225,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:red@fd6a775ac013",
+      "modelId": "112",
+      "assetId": "1PUfXNu5wHrg5E36vLzlq-FXQRbNk7bfk",
+      "baseSha256": "fd6a775ac0133255d1af423c3580f42f87d98b221b03866cb998bd9826c70159",
+      "imageUrl": "/assets/hat-display/f8130cac7e1e96aab30c6c112ec063d71d0126e2d399021d050d40bf36024ec4.webp",
+      "sha256": "f8130cac7e1e96aab30c6c112ec063d71d0126e2d399021d050d40bf36024ec4",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 440018,
+      "sourceSha256": "20955369cf356f39067587070f9a996358cd270a181da91d65810b32cf3d401f",
+      "baselineSourceSha256": "ee391338ee48dab0530aae4b2fd1f701a7ec460682c349fe9e19b7777107052c",
+      "comparisonMeanRgbDifference": 0.144676,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:royal-black@698114d071c4",
+      "modelId": "112",
+      "assetId": "1UGsfQ_tM0qDi3eZ2aVNZ82CBVm_YgL6p",
+      "baseSha256": "698114d071c4df68d9b8269d22a304982e8fd4ff8ae824870f6f0d7e33e37d36",
+      "imageUrl": "/assets/hat-display/425f396e5f2739c289da87c0be61b35cd09f39d2d23676d2dc474c689e52145f.webp",
+      "sha256": "425f396e5f2739c289da87c0be61b35cd09f39d2d23676d2dc474c689e52145f",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 477844,
+      "sourceSha256": "ff16adf11d6b3225c18183dd48ec42b027f599dd0928957e32ec40c2700c549a",
+      "baselineSourceSha256": "17d42f5f116a98d4830ae1cf1b134d7a3c4581180c95f3e44cb042180d396417",
+      "comparisonMeanRgbDifference": 0.146557,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:royal-red@04410303815c",
+      "modelId": "112",
+      "assetId": "1ht42XcUeIA8mNQPO7gv89I44DR6K-Y11",
+      "baseSha256": "04410303815cbe898724bfe91a00905d73722d1018c5f74ed41fb187daff7c01",
+      "imageUrl": "/assets/hat-display/28606a37292074c648e5ec10d0b39d11cf4537ce664c3b0437756a8d57bd8aea.webp",
+      "sha256": "28606a37292074c648e5ec10d0b39d11cf4537ce664c3b0437756a8d57bd8aea",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 471344,
+      "sourceSha256": "39d406b46e862e8a6027f9928ca080bcfc1648832688fc26eb5c57b39b6341e8",
+      "baselineSourceSha256": "bf8496b3d534b699d595ec0eacaf4f9335cfc44a596607af69445bd271437900",
+      "comparisonMeanRgbDifference": 0.158999,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:royal-white-heather-grey@7c55e789d692",
+      "modelId": "112",
+      "assetId": "1jRb5X00fqSJjKV-SbTtgWn7HBZdwUr1z",
+      "baseSha256": "7c55e789d6923b4ebc63cf8e8663d18bbd77ef5d5e4ca3df8add8372fed360cd",
+      "imageUrl": "/assets/hat-display/5deec137aea18aae15cb9b0344dbefd832a4657c93c77ea66f25b1faacb339de.webp",
+      "sha256": "5deec137aea18aae15cb9b0344dbefd832a4657c93c77ea66f25b1faacb339de",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 455240,
+      "sourceSha256": "68e325c2c5abd83affbd45468660bbd1e844c9a818cb412dcf556ce2d9d051cd",
+      "baselineSourceSha256": "37d22daad8b24f6f8e2a9b4d1b0ff56942acba56628c6c9d0c2f2fce22fb298c",
+      "comparisonMeanRgbDifference": 0.152452,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:royal-white-red@c8e5182f9702",
+      "modelId": "112",
+      "assetId": "167uEr6jX2ylY5p7qiGWVUQdMDtkThkF-",
+      "baseSha256": "c8e5182f970298126f61b127ce989fa49ad9dbcc086a4242e77eaa1c7a4e2c21",
+      "imageUrl": "/assets/hat-display/239879acc2d04e90af6a94e08efd7367ee7abfc128eca3c1f41a58b46aca7de5.webp",
+      "sha256": "239879acc2d04e90af6a94e08efd7367ee7abfc128eca3c1f41a58b46aca7de5",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 425180,
+      "sourceSha256": "b2188a2ba86b64f9d4feeb565c60fb63308055c33fc4116ccbbe38babb646945",
+      "baselineSourceSha256": "40bcfbca200c3d57e0fa10387bcc84718f84c798ae33f9ac442b65816d7fe244",
+      "comparisonMeanRgbDifference": 0.182509,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:royal-white@586f9dbace31",
+      "modelId": "112",
+      "assetId": "1UeMZ23QwFiS3sklXMyIMaI02XAi1kZFq",
+      "baseSha256": "586f9dbace3122e78328141a6d30751412b78edfc77258b018002a5318bbd1b7",
+      "imageUrl": "/assets/hat-display/3f1f050f4431c0401175b9adaf65de16cf472e6365586143d8a6c5bd6fc54498.webp",
+      "sha256": "3f1f050f4431c0401175b9adaf65de16cf472e6365586143d8a6c5bd6fc54498",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 399858,
+      "sourceSha256": "e72db0815d8cda8def5de3144faa5148e1a07214eaa92f645f46f43204686918",
+      "baselineSourceSha256": "841a02bd5dbca475f650c8cbfcdb8d82b7188effb0c7f6b00f2f27baf9a79654",
+      "comparisonMeanRgbDifference": 0.169633,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:royal@4391229d7cd0",
+      "modelId": "112",
+      "assetId": "1IUbwc6vNwbkfEX3GGZ1wghHChky_RFMw",
+      "baseSha256": "4391229d7cd0ab753c2bb37fd669a607d87d8ba4b0cbfc6dcf574724f84c5b9a",
+      "imageUrl": "/assets/hat-display/8d571ec954e0743045f27b0f02318faabfbabc40bad6dfc0a67ed27639ad6e3a.webp",
+      "sha256": "8d571ec954e0743045f27b0f02318faabfbabc40bad6dfc0a67ed27639ad6e3a",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 548834,
+      "sourceSha256": "6c43e3d6c9f18722d93197cb6be91615af455df848b6f78e810c1b401ff0d65c",
+      "baselineSourceSha256": "1a36381af8b096816f44fcf31aad45e46ffc28f853389d446dbc73f60ede94ff",
+      "comparisonMeanRgbDifference": 0.165943,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:white-aluminum-black@7eac20da36a2",
+      "modelId": "112",
+      "assetId": "1NE130_tLPTp8-R-PV8ynBv3KXe3oQDC-",
+      "baseSha256": "7eac20da36a2ec6b9e98c859d4c4738800d00f5d32372ee36c87252a99efd719",
+      "imageUrl": "/assets/hat-display/c83e3f466927c9b088353538937e9658f12985c8b5809085aca3621a956afbb6.webp",
+      "sha256": "c83e3f466927c9b088353538937e9658f12985c8b5809085aca3621a956afbb6",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 205178,
+      "sourceSha256": "c4f8d19845771f615df06a78b1056afd106ead8d74354f28ad688fcee406f210",
+      "baselineSourceSha256": "5ab172677538723f1ed10ad10140741a2e8fd11c20a60e612a1ccb91ad00c8bb",
+      "comparisonMeanRgbDifference": 0.252062,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:white-aluminum-navy@51a28bf55cc5",
+      "modelId": "112",
+      "assetId": "1a_1Tc73_gQu83b5z1dQ7dEaQWC_TlHJa",
+      "baseSha256": "51a28bf55cc5219bd840826efa6b223c04fcd1eb2ad201d4e2cc0d76c64f7516",
+      "imageUrl": "/assets/hat-display/b8aa240e781ebd617821f3ad8e42e63af6ea89af2605652cd92877feab14b9c3.webp",
+      "sha256": "b8aa240e781ebd617821f3ad8e42e63af6ea89af2605652cd92877feab14b9c3",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 214908,
+      "sourceSha256": "e66e4af90833eddd74e32a9f74f3033f81e36e33c2e15dbec2553022b0245234",
+      "baselineSourceSha256": "993d064843f01c8c7f2dcd60f55e83d567e1b353290e0c4d075e900ac574183f",
+      "comparisonMeanRgbDifference": 0.249494,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:white-black@0736d4c83c8d",
+      "modelId": "112",
+      "assetId": "1Fq6GAfaSzB7u8qP2cSxqZvRoxoRUJlcZ",
+      "baseSha256": "0736d4c83c8d0f19a7249b6e9dedde1370b978d5e1680e701237817fa30f68be",
+      "imageUrl": "/assets/hat-display/81aa9f3226fc1a364d4976c3e21b32b84f78d539c9d454e06f515445adacfc03.webp",
+      "sha256": "81aa9f3226fc1a364d4976c3e21b32b84f78d539c9d454e06f515445adacfc03",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 240440,
+      "sourceSha256": "8c375c395f869a66b2a8c6674d9f2fa1c622e816c197143390956c43ca6d5651",
+      "baselineSourceSha256": "b60fcefb3c9b6890b994bae65bc1f4188ba9341805b9a0e46db7145d04774cc9",
+      "comparisonMeanRgbDifference": 0.132595,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:white-columbia-blue-yellow@5a40373d5a8b",
+      "modelId": "112",
+      "assetId": "1c5hCYTmNK-8hpUggH3-qulCCOQgzWb8I",
+      "baseSha256": "5a40373d5a8bbeef850326835dc5724e127064ef15cf7c63db3d050ffe81085a",
+      "imageUrl": "/assets/hat-display/dbdfb0603eb50e773f69d6af9be5c6a897e5bb7427e86d9f54f909a68ca738cb.webp",
+      "sha256": "dbdfb0603eb50e773f69d6af9be5c6a897e5bb7427e86d9f54f909a68ca738cb",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 328052,
+      "sourceSha256": "721b70d8d8697cbdc12f992ad631f2fa68d75679cc811dd7e028384e9f37c3c9",
+      "baselineSourceSha256": "8954da321953864f3012db69ad4163dee404c2c77458fd93ac3ee638834ac7da",
+      "comparisonMeanRgbDifference": 0.19137,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:white-dark-green@26dcdf2b80e5",
+      "modelId": "112",
+      "assetId": "1lBIoRyQYDZeQeKbFfrbMRGgd0VTnveKK",
+      "baseSha256": "26dcdf2b80e58fea91f7e0babf5a5156891e589afdccc84c0ca2fd9db70fb652",
+      "imageUrl": "/assets/hat-display/444cc6849c3d3d9630542ba1ee9aaaf8e744f628e461901228eb28ae58e695c7.webp",
+      "sha256": "444cc6849c3d3d9630542ba1ee9aaaf8e744f628e461901228eb28ae58e695c7",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 323762,
+      "sourceSha256": "14fde8aefe746ac86462c31f5e3c1b7fd083572a4df366556c61d1728bb57a5d",
+      "baselineSourceSha256": "a8957694b4e956cf4676b49c1c30382542ac6e46ae8631963a901976c49229f5",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "b04ef778948ffdb4d80cce7c112b22f7f9eac36bf88456675b0f40cab8bea328"
+      },
+      "comparisonMeanRgbDifference": 0.167607
+    },
+    {
+      "calibrationId": "112:white-navy@8144fb81e061",
+      "modelId": "112",
+      "assetId": "1cNxInzDHcLxvC_JF6wAQ-7JiMqC4hHxQ",
+      "baseSha256": "8144fb81e06126a6b44d9d2d821fd34d2b0dd769d0b3248e42271783106e0a32",
+      "imageUrl": "/assets/hat-display/48ca1359c890bbe62795bc3e47b792b4c4cd127b7817a9884c4d54ba88a7920e.webp",
+      "sha256": "48ca1359c890bbe62795bc3e47b792b4c4cd127b7817a9884c4d54ba88a7920e",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 276858,
+      "sourceSha256": "07eb20905b51736348a08f92cb72951d77cf80335fa50ab76b6ee55e1f5dc136",
+      "baselineSourceSha256": "0f35bff1f14a1c8a80da73e5432cc1c8e9212fb8e90a6460be0db5a1953d7c93",
+      "baselineProof": {
+        "method": "decoded-calibration-pixels",
+        "changedChannels": 1,
+        "maximumChange": 1,
+        "currentSourceSha256": "7e071650db51b4358c86f43a80692c6a2acb72cc995e3c5b0c5617e578ee4efe"
+      },
+      "comparisonMeanRgbDifference": 0.154152
+    },
+    {
+      "calibrationId": "112:white-red@b2d2630f1286",
+      "modelId": "112",
+      "assetId": "1dFP-3V_P0errozB5fOg1Le3nOvJrPOGR",
+      "baseSha256": "b2d2630f12861576036d997851881c3359fa3a69cb4c49314c952bef2acbee59",
+      "imageUrl": "/assets/hat-display/5ee3d67d123b359ae634ed5fdbbde03d13006ec960e15a9e6ebd7bf8d71fe18c.webp",
+      "sha256": "5ee3d67d123b359ae634ed5fdbbde03d13006ec960e15a9e6ebd7bf8d71fe18c",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 323198,
+      "sourceSha256": "763790a35b1c866a417a06568a33505df8d43fc823691e43fedf4e5b77fa8cea",
+      "baselineSourceSha256": "1a90ffa33d99bb8f165bcfec4904ce35b2437b741f68213a45e62029d1786d50",
+      "comparisonMeanRgbDifference": 0.139034,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:white-royal@17f886e6bf9e",
+      "modelId": "112",
+      "assetId": "1jhYcc6sqhHVKQL-D--MWU_l0Bcvlcds7",
+      "baseSha256": "17f886e6bf9e8c2bd3bccbbdf551a7dd36a4eeca47182dc909c7576d10d537bf",
+      "imageUrl": "/assets/hat-display/608f9316a07f5fa2ff61b3dcadb17493615c8f794d8b59087f81df3a1fe85c90.webp",
+      "sha256": "608f9316a07f5fa2ff61b3dcadb17493615c8f794d8b59087f81df3a1fe85c90",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 298342,
+      "sourceSha256": "eb9f2550c9a58bb534936df9bfc5246ff8174671ae775a4bdfc65bbc52013d87",
+      "baselineSourceSha256": "d3d262a3cc74db1ad98412ea81c2b4a16f0261553351a1233d07f5913269cc18",
+      "comparisonMeanRgbDifference": 0.160988,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112:white@70e343b695c5",
+      "modelId": "112",
+      "assetId": "152NXkf_ralnKAvmMKchxpmHQ_2KF-0Hv",
+      "baseSha256": "70e343b695c5945f4af3b8f8f4ae3c1d80c40301e081e03022d3ebefc93d85a6",
+      "imageUrl": "/assets/hat-display/3277ba5f05009f05a8843db94c1e792f1172e5f680c4ab2a81d349a8db2d84c5.webp",
+      "sha256": "3277ba5f05009f05a8843db94c1e792f1172e5f680c4ab2a81d349a8db2d84c5",
+      "width": 3000,
+      "height": 2500,
+      "bytes": 108106,
+      "sourceSha256": "18d998eb2529de2b547a78b887c27574840daa4130bc7d38828664e0a75383c5",
+      "baselineSourceSha256": "00efbf039990eb7e068161d98b86853ae748faad841616eb7be33d76acb2512a",
+      "comparisonMeanRgbDifference": 0.070638,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:army-olive-green-tan@54c2a316a044",
+      "modelId": "112FP",
+      "assetId": "13sTz3sZz6Mt3cincoTnb5qz4IiKmo39d",
+      "baseSha256": "54c2a316a044be1df822e7010f680d59bf8db77eb03f7bb9628cd1e605da1433",
+      "imageUrl": "/assets/hat-display/b25ad0a8243c30a5f1e9170bbf250bcd007adbddb95fc8b42f216b735b91a2bf.webp",
+      "sha256": "b25ad0a8243c30a5f1e9170bbf250bcd007adbddb95fc8b42f216b735b91a2bf",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 497108,
+      "sourceSha256": "10275b0c7409ca8f6729573a45e41e837e91bfebebca8598141d38973dac2014",
+      "baselineSourceSha256": "3b0cd07302d713483ecefff22ffcdbc1b8bc4d4786428ef3da365e3807b25951",
+      "comparisonMeanRgbDifference": 0.219365,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:beetle-quarry@c60f5e8d12f4",
+      "modelId": "112FP",
+      "assetId": "1JHut5w5poAanUtWIsi_zT7BuI_Hihk04",
+      "baseSha256": "c60f5e8d12f4286048c2cecab85752e962a02ea03e4d4a0cec4efcbb0dcebedb",
+      "imageUrl": "/assets/hat-display/477db781f02f6a0f1fad53c51d119402eb16dd478eb5c06d20341e26903273f4.webp",
+      "sha256": "477db781f02f6a0f1fad53c51d119402eb16dd478eb5c06d20341e26903273f4",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 519576,
+      "sourceSha256": "bdf2ecc482d02affe49dcb7255c7d98eb3ce0c14d7d943669a6a779d0fa151af",
+      "baselineSourceSha256": "cd256a3d665c9c29fb646333da583b15a60381cf5bfe23f8d5fad0839d929ee5",
+      "comparisonMeanRgbDifference": 0.260417,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:black-white@70d058c924ec",
+      "modelId": "112FP",
+      "assetId": "1ctaVSAgMHz2TFPkpchAMr-tAAZjWSjaC",
+      "baseSha256": "70d058c924ec45e4e51c6af2704a4056894f2c032dd8531f0c80ea86b6305432",
+      "imageUrl": "/assets/hat-display/a101c93120f1b64a23b87beaabf73970bbaac5f1a54ef015bda386acf86729aa.webp",
+      "sha256": "a101c93120f1b64a23b87beaabf73970bbaac5f1a54ef015bda386acf86729aa",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 386598,
+      "sourceSha256": "e5e547cbf58935600f5e10de029dd182407238ac34deae7b8686add62ac9e4a6",
+      "baselineSourceSha256": "3eac7b3739f0e1a0d71757edd4623f00c495bf1d66430246d090d1c2c18899a5",
+      "comparisonMeanRgbDifference": 0.32874,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:black@3f59ce09ec0d",
+      "modelId": "112FP",
+      "assetId": "1hxptpyQhYVum5WaJ6k0ZajXmKRhBlunY",
+      "baseSha256": "3f59ce09ec0d4f5bee220fc0138465edd6b1570ba713476009dcb9668386aa03",
+      "imageUrl": "/assets/hat-display/e5e237161c44efb373b4ce2df5131cd1447ee81541ad6cc2c6a72580b3628404.webp",
+      "sha256": "e5e237161c44efb373b4ce2df5131cd1447ee81541ad6cc2c6a72580b3628404",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 306482,
+      "sourceSha256": "139988c8c5f5cdd2855d3bf6cdb8bec4fef81e09194293ca5a6e532b9ce156c3",
+      "baselineSourceSha256": "89072717040328f5cbd609ee959f3c2461811fa8e30254ac5ef224548ac0efd1",
+      "comparisonMeanRgbDifference": 0.267795,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:blue-teal-birch-navy@d9c4b85119fd",
+      "modelId": "112FP",
+      "assetId": "1nlBSavxr1CTzrOtSWzjpTgMMPFokCfvM",
+      "baseSha256": "d9c4b85119fd564e2bd6e131472844cf5034bd51acdd389b0b433e31e2a7908b",
+      "imageUrl": "/assets/hat-display/8ebfb8ed95a2097a2f5f99eddf012c3dda922cdbd93733a0e5c20c32467b6c46.webp",
+      "sha256": "8ebfb8ed95a2097a2f5f99eddf012c3dda922cdbd93733a0e5c20c32467b6c46",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 483418,
+      "sourceSha256": "8214a688da557a52a494e3365b3f1949d61e8a747936dbe4aded348f9103baf7",
+      "baselineSourceSha256": "434a17b90b9f12c9f1550e36d5b06a1c8f26f7f36aa47895d89c9b050f91e325",
+      "comparisonMeanRgbDifference": 0.468244,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:charcoal-black@a7021697cce6",
+      "modelId": "112FP",
+      "assetId": "1D6eHuQOfP8AgKhDXbU6z5hxIBYhC7VP3",
+      "baseSha256": "a7021697cce6265e614aa0c70287e50537da15f3e4a28653897b238896ef1cd5",
+      "imageUrl": "/assets/hat-display/0959514394b8e3a36088cb6c9f98f46fe39dea4602d8c248572729183ab7ff8b.webp",
+      "sha256": "0959514394b8e3a36088cb6c9f98f46fe39dea4602d8c248572729183ab7ff8b",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 455384,
+      "sourceSha256": "853c27fa82f8a92acaf09101725bc77c26f3721fc89d1780819fabcda8185194",
+      "baselineSourceSha256": "8c5f72ac0f0e390e0f3e8e5a42654de49095aa331e18e6fe5e53f3e98f8c5c1c",
+      "comparisonMeanRgbDifference": 0.159541,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:charcoal-white@57b6802e8ee6",
+      "modelId": "112FP",
+      "assetId": "1iEHU6xgqGgxRPtmQlMlqAIf5w_eCpY2q",
+      "baseSha256": "57b6802e8ee6123dc79bffd70bec3713dc4a3ee7f3b2c8e29e42006bb0e34f22",
+      "imageUrl": "/assets/hat-display/a41188c9fc7f703001758fb23dc1f2bb0179e77fccd9ba1edf173e92342a8f48.webp",
+      "sha256": "a41188c9fc7f703001758fb23dc1f2bb0179e77fccd9ba1edf173e92342a8f48",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 489716,
+      "sourceSha256": "1b182cc6baf9dbfac736bd31b3a4a5ab5a7db4f574f7119640a378abb6519562",
+      "baselineSourceSha256": "5e7d2a55a26e46c5816c4a18bfa5d65e9d06cd4acc1481ad8fb5828696ee452f",
+      "comparisonMeanRgbDifference": 0.258391,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:chocolate-chip-birch@de030b6e94a9",
+      "modelId": "112FP",
+      "assetId": "1xAo_Fh8JRBdU_Y7iMgc2pJNDYQw2cu76",
+      "baseSha256": "de030b6e94a92e3fbb314857f6807cf5c03de6abec5a68b038635aa538e0dd6a",
+      "imageUrl": "/assets/hat-display/56a2e176de15ce714225ced915324e80f4bab19113343f10f4491abcec6b1429.webp",
+      "sha256": "56a2e176de15ce714225ced915324e80f4bab19113343f10f4491abcec6b1429",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 498248,
+      "sourceSha256": "5358de839325b040005fc5632f134a0018419b622710d06ff8175ce6401fb382",
+      "baselineSourceSha256": "ad3020ca9e8e585b7b1c025b34e0c9237c12a2b12541253a840c5263bbcc01fc",
+      "comparisonMeanRgbDifference": 0.484881,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:cobalt-blue-grey@ed41c30de984",
+      "modelId": "112FP",
+      "assetId": "1wBxylj1bUwGQRhfWGddZaszf5b4mbMDF",
+      "baseSha256": "ed41c30de98401d0472419ee0dff2b9448cfa44a2b1291e5637f28b0b8255011",
+      "imageUrl": "/assets/hat-display/c60cbe12a80cc2d790144769eb2d61592d5d8dcc8adb64f6badbc3859c3e73f0.webp",
+      "sha256": "c60cbe12a80cc2d790144769eb2d61592d5d8dcc8adb64f6badbc3859c3e73f0",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 549912,
+      "sourceSha256": "94bbbbbf16f23649c1b3b3e39542148f7511d8edd55c541ba0f23063923d4f7c",
+      "baselineSourceSha256": "fcf83e2e943ace26208bb42e4c2faacaea6f263f44851355903f25805d022223",
+      "comparisonMeanRgbDifference": 0.249783,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:heather-grey-amber-gold@342e151095ca",
+      "modelId": "112FP",
+      "assetId": "1sVcblUbdBYXWIUnHVR4-1wFnoxHH9fzF",
+      "baseSha256": "342e151095cadeb909018aca1a99f9595825bd22796ae3974243973aba7354d4",
+      "imageUrl": "/assets/hat-display/319f2cd4fe22665eea9ec80ebdcb0121e0f33586b256b6c757f2092cbec8ba7f.webp",
+      "sha256": "319f2cd4fe22665eea9ec80ebdcb0121e0f33586b256b6c757f2092cbec8ba7f",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 547846,
+      "sourceSha256": "f323e2ccd6785925155e8d6c530386ce2d1de4f070781b80bb8d7aedbafdea89",
+      "baselineSourceSha256": "2cb1f76121ac0582a0790f78dc69810c11d8390a7c21ce946fee580d5b6ff138",
+      "comparisonMeanRgbDifference": 0.204897,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:heather-grey-birch-army-olive@11f63ec8a713",
+      "modelId": "112FP",
+      "assetId": "19THD46ljbn_F_l-jj_LphYVFULFa6loH",
+      "baseSha256": "11f63ec8a713e0feb5e56f89158f46e53d02d2211e8fcdd90924bc71090d7eb5",
+      "imageUrl": "/assets/hat-display/bd35c53080ef99ffa643fcb545af104f398d80faf7809d42c3ef68acdaf1ddbc.webp",
+      "sha256": "bd35c53080ef99ffa643fcb545af104f398d80faf7809d42c3ef68acdaf1ddbc",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 516104,
+      "sourceSha256": "245925ed0f7b05c396128c68c60282a4dc8e3f95d0643e5dbb08da7b28cfaaa7",
+      "baselineSourceSha256": "5f049ecf822d12a8e6ae85e9b6e05b8bbefb1d72400edc0b2c3faf1ee152d0fc",
+      "comparisonMeanRgbDifference": 0.456706,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:heather-grey-black@04d40e45aab9",
+      "modelId": "112FP",
+      "assetId": "1Geex8Dmz8CheCwXF50O_CynOYHEVmhPK",
+      "baseSha256": "04d40e45aab9c0cb04875beddf3ff04b125dfb54a3ef0c41dd3344e4a348e3d4",
+      "imageUrl": "/assets/hat-display/383c26aa7212589988ce5b49b5572b499cde9565589f105a1e7b50237dd83d96.webp",
+      "sha256": "383c26aa7212589988ce5b49b5572b499cde9565589f105a1e7b50237dd83d96",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 569618,
+      "sourceSha256": "cf2136c866e3dc47793b4a08a1d34b016dbec593a633f1dc394d4d029dd659c4",
+      "baselineSourceSha256": "c4b382caa66bab17fb784ac9f3ca5be5eba69b24c9c9b70c2d600058252a3223",
+      "comparisonMeanRgbDifference": 0.300926,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:khaki-coffee@59688bee018f",
+      "modelId": "112FP",
+      "assetId": "1ksoX0j-E6ltZW8KsYNiN7bogOyk54rWg",
+      "baseSha256": "59688bee018f5f3f8e477a30d18cf536514d2f53d26058bc54b559c30ae5c296",
+      "imageUrl": "/assets/hat-display/383542450d98e8eca5359a722f3d473da21faa2dfb131667e35d0c00b9313292.webp",
+      "sha256": "383542450d98e8eca5359a722f3d473da21faa2dfb131667e35d0c00b9313292",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 429676,
+      "sourceSha256": "d527862b1ec362c9dbe128e2530829e8ebe1cd05b808a34e05c45021009a930f",
+      "baselineSourceSha256": "3aa323699bd7112ddecde6b900498bd08d82e1f75aff915482025d652592f628",
+      "comparisonMeanRgbDifference": 0.188043,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:loden-green-black@deb2bf46d82a",
+      "modelId": "112FP",
+      "assetId": "1mDHXhwGLfYK1JQVdtU-VXhhAfNk-f6VK",
+      "baseSha256": "deb2bf46d82a370944a48ae7cad68150204ba591c37466167c4aadeddc0bab6e",
+      "imageUrl": "/assets/hat-display/628f33adf4c4a4203a4813f8433ad781097dd2994d906aee3cc114f3ea03c26d.webp",
+      "sha256": "628f33adf4c4a4203a4813f8433ad781097dd2994d906aee3cc114f3ea03c26d",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 485572,
+      "sourceSha256": "13ebeac30f6b61f4db923b67921018ba2c185d9d8f1b2e7a786573c05b238948",
+      "baselineSourceSha256": "4cd25c53e75221fa64e0c512892fa57ed856cadcd30c488ede3c3ff0c527eb6d",
+      "comparisonMeanRgbDifference": 0.264612,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:navy-white@1b42d94dbf2f",
+      "modelId": "112FP",
+      "assetId": "12Gck6qNN064gLZnno4wFUBYLCKcZtosc",
+      "baseSha256": "1b42d94dbf2fb684abcc89cf3f37f7415c805247151882e0a0966378baf2d113",
+      "imageUrl": "/assets/hat-display/5f750d50405da866c2756ce08838702c5f5f96b4e96091a371661f3016c574d6.webp",
+      "sha256": "5f750d50405da866c2756ce08838702c5f5f96b4e96091a371661f3016c574d6",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 395924,
+      "sourceSha256": "e8feacf1d0c2a4fa3ce354d8eee043a010d44b90a0d9f8b1cafa833bba34f508",
+      "baselineSourceSha256": "4b09593dd23bdc03620ea1822ebf1d20f8cf89a5b3e9c07b9e9f91de82c040fd",
+      "comparisonMeanRgbDifference": 0.280671,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:navy@08ecac30b0bd",
+      "modelId": "112FP",
+      "assetId": "1pM3qnZ0fvdyfc22tKEVqs_OV4-u9QXI0",
+      "baseSha256": "08ecac30b0bd9d064507ce85c9c809ffc16e46f55bb708a807708c51af2370d2",
+      "imageUrl": "/assets/hat-display/af0375ad8923559d0bfa5e2c0c9c6c59681798449b021f1b7cebd2331532d220.webp",
+      "sha256": "af0375ad8923559d0bfa5e2c0c9c6c59681798449b021f1b7cebd2331532d220",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 324726,
+      "sourceSha256": "0512f1025e0140dacca0306cdf37c01a2c3000796830dd8e82b74aa305e5d3be",
+      "baselineSourceSha256": "0bdb4f586c0b27868639f7bd76a349b8b098acd47830676b34243ef312492bbe",
+      "comparisonMeanRgbDifference": 0.247432,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:ombre-blue-navy@fe585e06ec59",
+      "modelId": "112FP",
+      "assetId": "1DiVHOrAer2ietHl-kZjmEq3kV1ChB6PC",
+      "baseSha256": "fe585e06ec598e8329548d89db4c657b3a0cd7546d98e85911601026ede2f02e",
+      "imageUrl": "/assets/hat-display/85a080b2352c8d07a439ed07086d2d400874b30098e295eb3d93303c36bcc95a.webp",
+      "sha256": "85a080b2352c8d07a439ed07086d2d400874b30098e295eb3d93303c36bcc95a",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 547444,
+      "sourceSha256": "a02363fe5d32deba99c7506e90f34d51a8234ad3b14cfa1fe15dae9cb0b761e5",
+      "baselineSourceSha256": "442bdaf75b2b2201e03634feaa9e3313e594fd611262b59f25302008add30be1",
+      "comparisonMeanRgbDifference": 0.197483,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:pale-khaki-loden-green@bd2e1e57c744",
+      "modelId": "112FP",
+      "assetId": "15Cd5KeOVAjZIr3ZMMDOdrYt_Exp3bayK",
+      "baseSha256": "bd2e1e57c74408a884ebff37335c6b92d44ba883d97d3536796673d592bfadea",
+      "imageUrl": "/assets/hat-display/d263de2dc77a84505d5a12943abd4a89291cb5d6153216015fda1f6abfd0f64f.webp",
+      "sha256": "d263de2dc77a84505d5a12943abd4a89291cb5d6153216015fda1f6abfd0f64f",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 397620,
+      "sourceSha256": "14a29109f0b7a9d5f6657c7019f2808a24112062f2c362aeaac567f57ea61fc4",
+      "baselineSourceSha256": "2ae6096851da6b6180ac67ab3fe7e8b8b390c41440d845952093f79852fcf82f",
+      "comparisonMeanRgbDifference": 0.15115,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FP:white@281beb213f6e",
+      "modelId": "112FP",
+      "assetId": "1YyNgabtNS9wlNq_yNaJa6IlFGoHj33hf",
+      "baseSha256": "281beb213f6e6fbf3c1328b22a9756dc9156c413d622babaaf66f3ff765a288a",
+      "imageUrl": "/assets/hat-display/3b323971ee51aafe4936982938f9f19d2c2825004bc515b0bef94d528b301c54.webp",
+      "sha256": "3b323971ee51aafe4936982938f9f19d2c2825004bc515b0bef94d528b301c54",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 243498,
+      "sourceSha256": "f5c0382047be97a1961d8a7de18e36e1217fa9ec08656155df3c9abb8d90d4e0",
+      "baselineSourceSha256": "32fdcd109198fd12c885f8eb9ad03b24b5bd51c8ab8520b3d1cbfe350ab8a2f2",
+      "comparisonMeanRgbDifference": 0.13227,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:black-charcoal@6395672fc945",
+      "modelId": "112FPR",
+      "assetId": "1zNgMo-51xzUEBIFjihA5-f1tnuoo6FNV",
+      "baseSha256": "6395672fc9456453f96c541ca93e8032a273c84cd876b543bb482aa0b51c462c",
+      "imageUrl": "/assets/hat-display/fc458d8d12d09712a9a344801a06358194039beb826af810092bed1ee0479820.webp",
+      "sha256": "fc458d8d12d09712a9a344801a06358194039beb826af810092bed1ee0479820",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 413534,
+      "sourceSha256": "5fdafd8250fdb10caa5911c74cb13499c1b3446e417f75ae7a5c6d15175f290f",
+      "baselineSourceSha256": "59c6a85292acc034ebe3ffe2a00d57718304cd3b39b24985cbb66162ded0993a",
+      "comparisonMeanRgbDifference": 0.247938,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:black-white@8d1cc74ad5e7",
+      "modelId": "112FPR",
+      "assetId": "14GHlKzdjDaZbgJde9Gp-XgfCidV3DI2g",
+      "baseSha256": "8d1cc74ad5e7d4693970cbc405dfed5ee58d0876bc04f4e4dc0b96d502051bb0",
+      "imageUrl": "/assets/hat-display/e55906b601513149b952239169336b94babcee300b0bd656975d4a8805c564ab.webp",
+      "sha256": "e55906b601513149b952239169336b94babcee300b0bd656975d4a8805c564ab",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 415032,
+      "sourceSha256": "0481d22edeabe46988513c4f1a8d24bc30eb175affe75e701d49e8b10ad8469b",
+      "baselineSourceSha256": "1228de4296e813e76d43ea89d1189e292a82838124040cf177b1825e527d5292",
+      "comparisonMeanRgbDifference": 0.313079,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:caramel-black@f1336ea927ae",
+      "modelId": "112FPR",
+      "assetId": "1wrMhAmZlUvKG7DPpGyqIIHFDceKxx2Wt",
+      "baseSha256": "f1336ea927aec8816be725505900e56add9cdf5700b5edb78b68f556a4209803",
+      "imageUrl": "/assets/hat-display/8a781b6c48652209aad093d96caa7ba50f880b8c865aa502686340822b78fbbe.webp",
+      "sha256": "8a781b6c48652209aad093d96caa7ba50f880b8c865aa502686340822b78fbbe",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 475992,
+      "sourceSha256": "42dd6f56400fdfadf9ecce99540fa0a3f75bb730d933e77080dd4930e4a4e8d9",
+      "baselineSourceSha256": "35eadc995863c179ade9d3efc193613b987626832012dd77a9f37f4f92a3b3f3",
+      "comparisonMeanRgbDifference": 0.259006,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:charcoal@ecaa9ddc9f94",
+      "modelId": "112FPR",
+      "assetId": "1g3MAOK8DloOjxrnX10VD0NzlFNI8bzgO",
+      "baseSha256": "ecaa9ddc9f949304e89328d0ef19735a8931acf348c56de1182b6b2a8e5f9b82",
+      "imageUrl": "/assets/hat-display/774105ad90f64c97fe2b6729902e9f68016704dcf5bb50f6caa00271285e36f6.webp",
+      "sha256": "774105ad90f64c97fe2b6729902e9f68016704dcf5bb50f6caa00271285e36f6",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 450196,
+      "sourceSha256": "17e14609494e1145009322bea3074c67ac1796ac62c1fd7a6a144e2ae75bd956",
+      "baselineSourceSha256": "00d71cb831094b59031a86b416697c18d035ef190584f589c57a848f3424626b",
+      "comparisonMeanRgbDifference": 0.236437,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:heather-grey-black@3520ab75d28a",
+      "modelId": "112FPR",
+      "assetId": "1ALWtsQBwYtsXUfr8HU1zxnpErJXZt0fH",
+      "baseSha256": "3520ab75d28a797fea44210bab354784d967180d69078a586dae3c3d5e857fd9",
+      "imageUrl": "/assets/hat-display/687b05e33063d4909ba92f0dec3f814a30b522e5e705ab1c3d061547014975df.webp",
+      "sha256": "687b05e33063d4909ba92f0dec3f814a30b522e5e705ab1c3d061547014975df",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 513262,
+      "sourceSha256": "42bbb8f714d1b789774b9431ced8075887efc057af30fc4593f50b2d4189eb44",
+      "baselineSourceSha256": "9a4b4481b1926d9cbf3841eff5faa3e81369c1c3bbcc564fc96a7f46dc4533ca",
+      "comparisonMeanRgbDifference": 0.283348,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:heather-grey-white@93f7bd58a1f7",
+      "modelId": "112FPR",
+      "assetId": "1OhLC2D9W86EFL2amRrQ0ztugcsgee4Xn",
+      "baseSha256": "93f7bd58a1f78525d70b6975f8efb611c29a05d76b6bdeb8cb0e8cf921e8f00e",
+      "imageUrl": "/assets/hat-display/a5a663fb5cfc43ad5b22e79aa253df980c51e3c2f571683f986a7337565758a1.webp",
+      "sha256": "a5a663fb5cfc43ad5b22e79aa253df980c51e3c2f571683f986a7337565758a1",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 487954,
+      "sourceSha256": "31392d936cc17f4548712cbf47f34898597ddee5ec7fc1a82681f65b56f82c15",
+      "baselineSourceSha256": "b1939cdd9a2081814da496617a5f5d23d595e86605b9f24431d5de45b10e0c13",
+      "comparisonMeanRgbDifference": 0.271557,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:loden-green-black@3b3fa563bafa",
+      "modelId": "112FPR",
+      "assetId": "1gcyvAx0pTp26Teo_eCdktbzkDvG3n9r_",
+      "baseSha256": "3b3fa563bafa3a0285e8631e5690dbc0ad4d0e49fb065aa4eb99770ab9b75a44",
+      "imageUrl": "/assets/hat-display/355344470d6e240e57b76f6a2a23eb3256edf13c4fc06ce43e0d11b6d394aa64.webp",
+      "sha256": "355344470d6e240e57b76f6a2a23eb3256edf13c4fc06ce43e0d11b6d394aa64",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 467028,
+      "sourceSha256": "62fadaf11375a89a454a799a90a32c3d8c743e27b9ee1d5fc523a9f1c1257a43",
+      "baselineSourceSha256": "0abf119fe643f224480801ff010c2e25392ad3c45dbf75483882461fa0e8e8e5",
+      "comparisonMeanRgbDifference": 0.262623,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:navy-white@378a843f7597",
+      "modelId": "112FPR",
+      "assetId": "1mqXXHSCj5PU19jaisC3ddQbKggZA_sL_",
+      "baseSha256": "378a843f7597a2865f065e5b9ee111f7326b828d2088510f4753bccb74096ad1",
+      "imageUrl": "/assets/hat-display/1c53091fe6b286eb7841e38246203b3d8e7b37f243e613e421ab1b992f463d97.webp",
+      "sha256": "1c53091fe6b286eb7841e38246203b3d8e7b37f243e613e421ab1b992f463d97",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 424742,
+      "sourceSha256": "12c4457c347f19c887eb47d2565a3c1790c78bc4c321f572054b8ec91f42e527",
+      "baselineSourceSha256": "6e255e216e49571847494c6ad222ee1f8b26c3b81f75bd9b8bfbfb2bf1bc4370",
+      "comparisonMeanRgbDifference": 0.310619,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:white-black@9ed36bfabc05",
+      "modelId": "112FPR",
+      "assetId": "114cYScdPn27TAqMonvOuiFX9VVqAAaSK",
+      "baseSha256": "9ed36bfabc05f027d1f930392a947a03c18f28223679423a48e590e68e60c8f2",
+      "imageUrl": "/assets/hat-display/3f12cab8e8ad9749b1a9e78adcce8f05f6288835cce1d3bd8a42c75769314693.webp",
+      "sha256": "3f12cab8e8ad9749b1a9e78adcce8f05f6288835cce1d3bd8a42c75769314693",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 332872,
+      "sourceSha256": "9ad87828eaf23a17f3bd7d9567efa562ce4b51a68eff4d1912f0250e07fb202d",
+      "baselineSourceSha256": "68b770331caec577a0cce9700d34775666c9800ebce05e6d3c8d8335fe2c60d8",
+      "comparisonMeanRgbDifference": 0.22338,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112FPR:white-navy@d78aefc2bcd0",
+      "modelId": "112FPR",
+      "assetId": "1O8Q1ZhIlJ-i0H2v95wFM2oNZukY3Q_qh",
+      "baseSha256": "d78aefc2bcd0a81fbf6da0bab92e2fe0c410a76270f74737084ee76e27ddeeeb",
+      "imageUrl": "/assets/hat-display/06395394f42552bbb32c4e7de74875be0a61727709dd1b79e4199e02c0b65a20.webp",
+      "sha256": "06395394f42552bbb32c4e7de74875be0a61727709dd1b79e4199e02c0b65a20",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 341522,
+      "sourceSha256": "74da9fa3d822d84e7b9f5486053a3ae3d1cff73fc4d871fd5e0e3b607e32844f",
+      "baselineSourceSha256": "c58f0a69ce9ed79511f82579f3db65eaab4aeab31c6d8d00e8dbd5d9ab76930a",
+      "comparisonMeanRgbDifference": 0.232928,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:army-camo-black@a0cf9ce967ea",
+      "modelId": "112P",
+      "assetId": "1xqNnxQfgKeA401wp0ZIOJykuHGFBm77V",
+      "baseSha256": "a0cf9ce967ea4fb9631fc444c043ab1dca8408a2d1a90dabc3fecacc1498d797",
+      "imageUrl": "/assets/hat-display/b1d56cb102bd300fc83fe3a54c86a986bee82a50cb15dbe8a8b97c916cf28942.webp",
+      "sha256": "b1d56cb102bd300fc83fe3a54c86a986bee82a50cb15dbe8a8b97c916cf28942",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 455890,
+      "sourceSha256": "76c5f7d7a5730ab0631079d8f516652690dd02f4a823d1384f293b37f16721af",
+      "baselineSourceSha256": "2aee8a9f0246ca2aa4ad44db4f802b857d3c0e35bc1f71e9d841373a7d228a04",
+      "comparisonMeanRgbDifference": 0.19383,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:army-camo-white@2ed6e46a0b7c",
+      "modelId": "112P",
+      "assetId": "1cpNzHhaI-SGR7OM52B8KlnY8gmmbr8JL",
+      "baseSha256": "2ed6e46a0b7c5c4dc467f7abc67d358e5ffee7eed2bde749bfd7df713d85e334",
+      "imageUrl": "/assets/hat-display/469d504bf3819d677ae0011eb14527b2936a1ebe7fd7f913cb219c15ffc781d1.webp",
+      "sha256": "469d504bf3819d677ae0011eb14527b2936a1ebe7fd7f913cb219c15ffc781d1",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 432696,
+      "sourceSha256": "2c9996aaaf7fd760eb73e0ef71757644eed6e05d7b1b09846e9857925beaf6da",
+      "baselineSourceSha256": "6e1bdd5a9f9216a51b1fb9f7ba241a1c40e7693897a66578bcf3724b2c023b3e",
+      "comparisonMeanRgbDifference": 0.206453,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:kryptek-highlander-buck@1585d5b6b739",
+      "modelId": "112P",
+      "assetId": "1IofCne-StCOLwpRQON-sUN2UTbpfHrmf",
+      "baseSha256": "1585d5b6b7390806ddaddce7bcaaf817316376cac1977561e27cce6060a5bdd8",
+      "imageUrl": "/assets/hat-display/4a6e46dae16dabf8dff034e6e9af65e8bd92a60a9d34bd385182ca89e60921f1.webp",
+      "sha256": "4a6e46dae16dabf8dff034e6e9af65e8bd92a60a9d34bd385182ca89e60921f1",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 476592,
+      "sourceSha256": "4c671d78ec8266b35a11a7488e1ab239de0a58030f0a303227a24649c38342e9",
+      "baselineSourceSha256": "d292f20c70a126f7c51d3c95c318e3353c75516a900d54905795c209a51adeef",
+      "comparisonMeanRgbDifference": 0.290292,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:kryptek-typhon-black@d319ed9a2b32",
+      "modelId": "112P",
+      "assetId": "1gtrsZZqcmMfeXvsTnK28URRvGBYanB4d",
+      "baseSha256": "d319ed9a2b320f0b4357b6a4a3c83b31c44b7225128e5c576ad93cc655a698d9",
+      "imageUrl": "/assets/hat-display/f31f1f7827b32efffb078585bbd9229f71212a9136863a32cc13e80364a0fd73.webp",
+      "sha256": "f31f1f7827b32efffb078585bbd9229f71212a9136863a32cc13e80364a0fd73",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 446294,
+      "sourceSha256": "83be75719f77d0bc3afb19f44e78f864243f0f4f3129bfc76450a97456793608",
+      "baselineSourceSha256": "3025a1de82c5e1c92554d8b95538055f008bbe63d6050270585ac5e2f902c4dd",
+      "comparisonMeanRgbDifference": 0.182653,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:military-digital-camo-light-green@dd765199d5b0",
+      "modelId": "112P",
+      "assetId": "1qzO2xNPNxltVepiJch-IGbJvCOyNg96f",
+      "baseSha256": "dd765199d5b03bd85c0dbd5db171fb974199738cf0f82df5a2534fc8a42b014c",
+      "imageUrl": "/assets/hat-display/406ee91e55a63e24a75b756e7db618f246bf9c1fcf58519f00d29756413912cb.webp",
+      "sha256": "406ee91e55a63e24a75b756e7db618f246bf9c1fcf58519f00d29756413912cb",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 385528,
+      "sourceSha256": "25bca936ce85b89ff6bf9bfbcdb9a528ff28805606c99591ebc7ae26446fcd50",
+      "baselineSourceSha256": "1e71548d835861fb9332a7a6bc75e83cdbc551950506524f67f8cc7d413035ec",
+      "comparisonMeanRgbDifference": 0.213108,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:mossy-oak-bottomland-loden@9eedac2d1924",
+      "modelId": "112P",
+      "assetId": "1Jh8o30GstItU1SCZxXcUVx_cuMiEznka",
+      "baseSha256": "9eedac2d1924ce40c2c8798052bf423a8d106d95d151a3a698249b8619cda0e6",
+      "imageUrl": "/assets/hat-display/cedb45911bb129d8c3fad33cbf74a41aed2a7c6e4d6135a587af616dc03add54.webp",
+      "sha256": "cedb45911bb129d8c3fad33cbf74a41aed2a7c6e4d6135a587af616dc03add54",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 701956,
+      "sourceSha256": "ad9bdba278bd6b10acc4e969119e59d8b967dd561ea433a4bbb211b2c71d599f",
+      "baselineSourceSha256": "f0be4f4af53f703238aa41f30c93f0189503cd11c56bca4bbdd210c69b6bfae9",
+      "comparisonMeanRgbDifference": 0.263491,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:mossy-oak-country-dna-black@72f099dfffb7",
+      "modelId": "112P",
+      "assetId": "1VlKPoyK43z7s3-joThIvY3-Bq7FW8m0a",
+      "baseSha256": "72f099dfffb7e2a602648779a091b11a94d1a18eb5ce46913db90df875a2a90d",
+      "imageUrl": "/assets/hat-display/ad716890196ff37c03b831399e15fb26936ebdadb965a0e481b6cf30b46db4e3.webp",
+      "sha256": "ad716890196ff37c03b831399e15fb26936ebdadb965a0e481b6cf30b46db4e3",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 661228,
+      "sourceSha256": "f39fb52b3a841541244884cc3bb391843ba06c15a018ced67942a4ffaaf79be7",
+      "baselineSourceSha256": "7f31ad7ca5f10e3a9e3f220e4d4ab7544d483dc8f59ebde7222ed935085c8ee9",
+      "comparisonMeanRgbDifference": 0.327329,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:realtree-edge-brown@a0edf66cdee0",
+      "modelId": "112P",
+      "assetId": "13pOOFm4DzsGU-YyiZNjgYOQHH-hTxPTG",
+      "baseSha256": "a0edf66cdee0fe4da1e9eaddbc21fece232468b59194e5f7dfc31e3d48cde4e8",
+      "imageUrl": "/assets/hat-display/7f39eef67055f9f9e0ba7c4987c9276dc623b5ed70a4a79e8f0afeb22040bf69.webp",
+      "sha256": "7f39eef67055f9f9e0ba7c4987c9276dc623b5ed70a4a79e8f0afeb22040bf69",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 636370,
+      "sourceSha256": "a7d69a6e8d126fad26fd58ec310c91c879a8f8dc13c9ead1b4a79d9813ce705f",
+      "baselineSourceSha256": "d9ca24d30f4f905198a7d3e0116683d6544fac87b78ce98bbd53e7bde60b52a1",
+      "comparisonMeanRgbDifference": 0.396195,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:realtree-max-7-buck@33befdd1f330",
+      "modelId": "112P",
+      "assetId": "1pn-3WWrPJ2B5AHO-b0kzsLmhdwgGD0a2",
+      "baseSha256": "33befdd1f3308734d475ca3f7ea3caaff420dd0d7f32154cd7119dcf8a4d07e0",
+      "imageUrl": "/assets/hat-display/7fb318538aad487bde5c099dafc3243ca2978f717d44455d3bdae882e5e45f5f.webp",
+      "sha256": "7fb318538aad487bde5c099dafc3243ca2978f717d44455d3bdae882e5e45f5f",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 511726,
+      "sourceSha256": "4f27c73ec81bbd3c9baa8c0d332f9ed3014e514ca587a9acf1f2dab518a0b6ad",
+      "baselineSourceSha256": "a96741eb32f195de77b5522326cd6097cb9c4a561b0cfdfb8e6a1c24e8d71dda",
+      "comparisonMeanRgbDifference": 0.465639,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112P:realtree-original-black@8b9936701c8d",
+      "modelId": "112P",
+      "assetId": "162d--ZaYMxlXluLOq7ByrJrnsaffI791",
+      "baseSha256": "8b9936701c8d63f04bcbdab975217773c0efa331fc1f545fcbaf66968d6f3734",
+      "imageUrl": "/assets/hat-display/b6249a6956c396d1afa474d9e343341fdb727cbdeb80251f0d0aaa616f84911c.webp",
+      "sha256": "b6249a6956c396d1afa474d9e343341fdb727cbdeb80251f0d0aaa616f84911c",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 501310,
+      "sourceSha256": "41916a4772bda03fea4d096d968fa9557d1ffcc3b3232f913606f1e4bbddb43b",
+      "baselineSourceSha256": "9fa33de0bf7c795ed1fc8e9945fc4cb6db69ee073805b99893886932b9db8b72",
+      "comparisonMeanRgbDifference": 0.22139,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:admiral-duck-camo-black@bb04b6dd98b6",
+      "modelId": "112PFP",
+      "assetId": "178FdppJSI7-jAcqWUV_uBL1iFLQOBBYR",
+      "baseSha256": "bb04b6dd98b6b2ede0c42f2f92eee171fe1f8e7923aa6133e7f94c1cecc04ce3",
+      "imageUrl": "/assets/hat-display/8b5705974dfbc9d073e4e621b37902132e396c6c84867b31bd4e058e35e0f363.webp",
+      "sha256": "8b5705974dfbc9d073e4e621b37902132e396c6c84867b31bd4e058e35e0f363",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 527480,
+      "sourceSha256": "10f0b02ca1a74e7eadfa4620572a1ddc88d9c78084dc755296a263a6b2aa534c",
+      "baselineSourceSha256": "8c9b00c5205667ac7ed509ddc1d72929e9baa4e31115cb7c44fe682916b9dbe2",
+      "comparisonMeanRgbDifference": 0.228841,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:bark-duck-camo-brown@babc8b4acb09",
+      "modelId": "112PFP",
+      "assetId": "1TJp0zr3yXT-aktNYjmNACgtr7ilWTgc4",
+      "baseSha256": "babc8b4acb094e76b4d02de7b5be7479cc41bebc0a2a42e620352dfef89fabbd",
+      "imageUrl": "/assets/hat-display/202df26350077de917685d983763ed7c9f1655ea72a18a42ebd42a3c309d40ff.webp",
+      "sha256": "202df26350077de917685d983763ed7c9f1655ea72a18a42ebd42a3c309d40ff",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 553778,
+      "sourceSha256": "77c2824505350d7d29d252f5cad42a3445272208e982388acdc8b5a1b58f2b93",
+      "baselineSourceSha256": "251f661c4ebd7ca2d1af45652e30af0ae54ea6a144f83aa7c1a322875b7063a7",
+      "comparisonMeanRgbDifference": 0.221209,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:blaze-duck-camo-blaze@75c7ce6b1e76",
+      "modelId": "112PFP",
+      "assetId": "1it7elrnA-nZNa7qGpkpZ5WUNg6qwqz-R",
+      "baseSha256": "75c7ce6b1e76f371d6b31eaa45f9c382d7d7b0c611a122cb7e5aa510503270b2",
+      "imageUrl": "/assets/hat-display/f714b05703b176ed9d807ed5c4109c7ac1a0b3dd382c6eea7ceff49430b28fd9.webp",
+      "sha256": "f714b05703b176ed9d807ed5c4109c7ac1a0b3dd382c6eea7ceff49430b28fd9",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 654296,
+      "sourceSha256": "117c2c3e1010dfd3da444e23a55e9b1475827f809404d7fc6f70b7721d5f580d",
+      "baselineSourceSha256": "6632a7e1fd90fbcde59e24f3da4dfaeee2fb429cf382f16db098fe43148aea84",
+      "comparisonMeanRgbDifference": 0.20855,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:desert-camo-brown@6dd8b99a5000",
+      "modelId": "112PFP",
+      "assetId": "1aIMGc4UVB-32NxZwhiUvI4pnMUy0JKDY",
+      "baseSha256": "6dd8b99a5000e05bf077aeecc4b8fe5e34c047640e904621c4a79a3b7c307d64",
+      "imageUrl": "/assets/hat-display/0fb5f60df495b1b515a0256832476b2c0bcd796616168c62ebbd40dff10c31da.webp",
+      "sha256": "0fb5f60df495b1b515a0256832476b2c0bcd796616168c62ebbd40dff10c31da",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 595514,
+      "sourceSha256": "3c724a629b190df5abd9b525037afc6f387bb590e5fcdcb9e0c1927900ebc219",
+      "baselineSourceSha256": "fb5288efbcfb389cb468eac1b91c48f5e9ae88a5e6ac565b81102a36665b49f6",
+      "comparisonMeanRgbDifference": 0.231337,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:digital-camo-light-green@6d4bb3a201d6",
+      "modelId": "112PFP",
+      "assetId": "1_38Y3_M3_THeeRH4yx8VrQKzzPiHRfpf",
+      "baseSha256": "6d4bb3a201d6f5ae9917d95209117f872c0b4ad4e43b24a0d38d33308da107f4",
+      "imageUrl": "/assets/hat-display/f43787002abcba1c3a885c91094fda6285d6391b35055a8c9b6df555539aa9cd.webp",
+      "sha256": "f43787002abcba1c3a885c91094fda6285d6391b35055a8c9b6df555539aa9cd",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 610118,
+      "sourceSha256": "1fb1ac8c208180a57a8cbe98ad8c25fa4ab09101ca908416d361da5eb214a72f",
+      "baselineSourceSha256": "b6da663cc9ec03b44a370b428935acf93fa5a504419d0c0802e229e18391b4ca",
+      "comparisonMeanRgbDifference": 0.197917,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:green-camo-black@a634f2575631",
+      "modelId": "112PFP",
+      "assetId": "1qjPpicFx90T79Ub7pKMzqgVYHU4DSoDR",
+      "baseSha256": "a634f257563160337aa046f2a2befad3dd159cbc2e92bff010c3d06d624d907a",
+      "imageUrl": "/assets/hat-display/5f50fd6001203c415b00517c03aa6f984a6bb426cf64107a06cc5748f3bda355.webp",
+      "sha256": "5f50fd6001203c415b00517c03aa6f984a6bb426cf64107a06cc5748f3bda355",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 548498,
+      "sourceSha256": "b51e940e14cd059c39475990537fcd7b2595aa1f1edfc2337912a9e7a9826e52",
+      "baselineSourceSha256": "dc43d642066f6567bd681eb800e1c6f78bb8dee3940f29255cb6c7cd299d21a7",
+      "comparisonMeanRgbDifference": 0.252785,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:green-camo-white@30873e517551",
+      "modelId": "112PFP",
+      "assetId": "1LfFJGqntM2w5wz3tDJVC2PQwYIeIPU_M",
+      "baseSha256": "30873e517551943126b4a76ab37e1dc1ea8f3de82ab82d3cc84cf5e925d7bfb2",
+      "imageUrl": "/assets/hat-display/a11ad3b27e46636238ebd91d8372030a4532a09661c3d878c528682044f45e34.webp",
+      "sha256": "a11ad3b27e46636238ebd91d8372030a4532a09661c3d878c528682044f45e34",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 526588,
+      "sourceSha256": "a7a512053bfb4098db47033eba7224ff44debac78f73e76cded4dc344c171f69",
+      "baselineSourceSha256": "c96a4e2e0bd0f75ec31bd85a89fc54f2d4cafcc64e2b79d48c3a5b06e0ae76c1",
+      "comparisonMeanRgbDifference": 0.220016,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-highlander-buck@a3582f87f489",
+      "modelId": "112PFP",
+      "assetId": "1RnwASZyUQr9Pv4j2ONgoFhtZEycH_G-x",
+      "baseSha256": "a3582f87f4891ad87ac5e5a2ae484eebea0b36518742e76c26b861c78fe79af8",
+      "imageUrl": "/assets/hat-display/7da3c1eb04e84825f3f5d62b173636d453d81d74c23fdb3a5b99a699ced3436e.webp",
+      "sha256": "7da3c1eb04e84825f3f5d62b173636d453d81d74c23fdb3a5b99a699ced3436e",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 570126,
+      "sourceSha256": "50ecc16326b49d76ba801bf48fda0d9d44897dbc555d1d9e9e98c3f32034399f",
+      "baselineSourceSha256": "91c67fb8ea48eac14e23a5d338f03901526cff7ce9202c6b4538dd25e1a90053",
+      "comparisonMeanRgbDifference": 0.20808,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-inferno-black@0d618d2c6a48",
+      "modelId": "112PFP",
+      "assetId": "1dh3T6rjS2MEsU_8DkkdcycuhOfc3pXxt",
+      "baseSha256": "0d618d2c6a483c604c03d656510f4e556c6b9dda4e65972d8d436024fbab37f0",
+      "imageUrl": "/assets/hat-display/5e4ea0b1f68b195025393665f9546d0497d243b29b60b81f1cd88c1110d91dc1.webp",
+      "sha256": "5e4ea0b1f68b195025393665f9546d0497d243b29b60b81f1cd88c1110d91dc1",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 676550,
+      "sourceSha256": "ee72f1123d88c05c001e2cda946d80c983a7417c291f8de93505278226a302f3",
+      "baselineSourceSha256": "4d68a646ca3d04d05277eb2b81cfd2b88bead39bb8be1b7026fb0a8151699e5b",
+      "comparisonMeanRgbDifference": 0.244358,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-inferno-blaze-orange@989355cbda0b",
+      "modelId": "112PFP",
+      "assetId": "1TnoXIc7jae9hePgaFROQWqs1X0Nxywgb",
+      "baseSha256": "989355cbda0b1aefc51df78294eff33db1405349f26574d669d66eef7eb45018",
+      "imageUrl": "/assets/hat-display/4cb49a56a6bad09cfa1d6df1db8eeb1190215cb5d7853d3fcb85de752f6e9be7.webp",
+      "sha256": "4cb49a56a6bad09cfa1d6df1db8eeb1190215cb5d7853d3fcb85de752f6e9be7",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 658434,
+      "sourceSha256": "0e858aaece06acc5fbe40c553fc19914b9fb4b2f779d06bffb6db6bcbe26bcaf",
+      "baselineSourceSha256": "d874efd2b83f67524d4f90100996064d49b1d82608468a425af32547df1d970e",
+      "comparisonMeanRgbDifference": 0.19524,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-neptune-black@5106191cc1cc",
+      "modelId": "112PFP",
+      "assetId": "1Vy7QMg0T-fnioWhxmnMTKoGg0YG6eidX",
+      "baseSha256": "5106191cc1cc333421a6533826cdc2d5be3c61bebffd5793679de0e27eba2a37",
+      "imageUrl": "/assets/hat-display/546f301f8b9b5131ac5955220c7f812e5a95b4cf82f7d81d4b664f90375e1044.webp",
+      "sha256": "546f301f8b9b5131ac5955220c7f812e5a95b4cf82f7d81d4b664f90375e1044",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 550980,
+      "sourceSha256": "26498b35b0ad82c251b62ff443cb59995f01dd0c97f1ab6a8378e41479082d8f",
+      "baselineSourceSha256": "d00e2462ab1716899197da6b63463e8e3de01974a5c878e4a2c7816d02c6d3df",
+      "comparisonMeanRgbDifference": 0.242766,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-neptune-white@2866ff2199d5",
+      "modelId": "112PFP",
+      "assetId": "1CI8wOCM8xgwZ14kpSQjncMz46lViPK7r",
+      "baseSha256": "2866ff2199d57c28e95f0ccb0463f64627481d158ef519539340c6cd06fbff5a",
+      "imageUrl": "/assets/hat-display/0f15668ed0af0375e3fec6b354424a7df2210fcac3d6583f0f37652896de4830.webp",
+      "sha256": "0f15668ed0af0375e3fec6b354424a7df2210fcac3d6583f0f37652896de4830",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 512224,
+      "sourceSha256": "a3c6a680a7813641fb33872575a05a6366add55900368269f247b18a7b8066cb",
+      "baselineSourceSha256": "d6d3a3f88ec9cbf2842011cc0cb9aa2f5d33172f1298ace24b3268f92713c0c1",
+      "comparisonMeanRgbDifference": 0.185294,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-pontus-white@6d593c5338f9",
+      "modelId": "112PFP",
+      "assetId": "1OTX9k5GTWLWYaYZOxPbFuEdkywdDmi2K",
+      "baseSha256": "6d593c5338f9a0c9b93150e95914e5d222474415ea51c5ee549439aaedc69eb0",
+      "imageUrl": "/assets/hat-display/ea1ff10b302db73d0c458790a91fff483cf86a6c35209b587c7af1d8277976a8.webp",
+      "sha256": "ea1ff10b302db73d0c458790a91fff483cf86a6c35209b587c7af1d8277976a8",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 637120,
+      "sourceSha256": "cb49466bac4ecc5b7ae381d4e5d8b7f0853fee29d0425498b755a73c944fccd2",
+      "baselineSourceSha256": "7fda645ff21e16cb273fa9bb9097fcfeb9de5f2fe4a96cb1970816e3e67c9b91",
+      "comparisonMeanRgbDifference": 0.277742,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-typhon-black@b10733fdb389",
+      "modelId": "112PFP",
+      "assetId": "1BnZOnzf6dL-kd7gqQnkc7w4uwPkoXzGu",
+      "baseSha256": "b10733fdb389e7227a461576dd2f892906e2a6855199c2b53625fe8037452937",
+      "imageUrl": "/assets/hat-display/0d6a716fd8f2007549993d242a927d042e4d9c41ebc0cc0122c852b14f1078fc.webp",
+      "sha256": "0d6a716fd8f2007549993d242a927d042e4d9c41ebc0cc0122c852b14f1078fc",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 502148,
+      "sourceSha256": "72700113348e116e8de83cc09264cfe4ba435e82b83e9b3b2fd908c389f140cc",
+      "baselineSourceSha256": "e8c6792fcffc74b582fe54c8037ae2f283ceff59fcf937fc1a0dbee366d7ff74",
+      "comparisonMeanRgbDifference": 0.24924,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-typhon-neon-orange@a5b96242ecf7",
+      "modelId": "112PFP",
+      "assetId": "1_ynrfpbjuSfNHp1YQ2A-VKxR5Y2b7-EE",
+      "baseSha256": "a5b96242ecf7d512f996d16d0a277d7509f33e4efa848446e3621285eb685072",
+      "imageUrl": "/assets/hat-display/e93d8eee816e9fd6b746e0e2143576463d70b0d54f16ea3893115f634e557357.webp",
+      "sha256": "e93d8eee816e9fd6b746e0e2143576463d70b0d54f16ea3893115f634e557357",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 593676,
+      "sourceSha256": "f9ea5fdd888b173547604a4a8d6552f9af0bff1005d6b91d0f072a3607346449",
+      "baselineSourceSha256": "9f2f520c593d085d5285abb4aa137684ff0795f1fe863a5e923ec281a5558a82",
+      "comparisonMeanRgbDifference": 0.230179,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-typhon-neon-pink@00d208ecec2c",
+      "modelId": "112PFP",
+      "assetId": "1YHgM8H3gqx43rStYhrQpV-wyS-2O1RCn",
+      "baseSha256": "00d208ecec2ca6259684d7be99f79a97e2da934326b69ad082e6ebc75c211041",
+      "imageUrl": "/assets/hat-display/918f162db9b31c18da9f5d3ce9d71f2ab44262e3a0884cea2930844614a08284.webp",
+      "sha256": "918f162db9b31c18da9f5d3ce9d71f2ab44262e3a0884cea2930844614a08284",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 553694,
+      "sourceSha256": "94510f6ab60b8bf89247c79612ee406bd04d37bef138fab1ca4c6849527fb286",
+      "baselineSourceSha256": "764330b42d2ee35a65a2405dbbd204d900d8329e53ccace18380905269e83c06",
+      "comparisonMeanRgbDifference": 0.271123,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:kryptek-typhon-neon-yellow@eff1e09a603f",
+      "modelId": "112PFP",
+      "assetId": "1j6vkhjwpoOVGbVYSO2a43xRUMrlMJMpQ",
+      "baseSha256": "eff1e09a603f7291d10f36e525c35b8528ec5b8044322b5cb818acec3ee1d2e7",
+      "imageUrl": "/assets/hat-display/044cef613489353b5c41c0e71746a59dd629f6597001d0bccff1c7db7dc74f39.webp",
+      "sha256": "044cef613489353b5c41c0e71746a59dd629f6597001d0bccff1c7db7dc74f39",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 576740,
+      "sourceSha256": "602d2f9373fbb9ec1d084e8c6ad60845739ddbfc5d70471fb885a5737967153d",
+      "baselineSourceSha256": "f429f37bc312a7397cd8090c27af9797fcbb1915c8a48f1205d2da879cecaafd",
+      "comparisonMeanRgbDifference": 0.299443,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:marsh-duck-camo-loden@6c8825ac491f",
+      "modelId": "112PFP",
+      "assetId": "1QoCPAGpdISASHoDyhMDQhthUg_FSegdB",
+      "baseSha256": "6c8825ac491fe44ca43c0db2032e30c6ef0b53a76a77cc2b4cad333be49d8e7c",
+      "imageUrl": "/assets/hat-display/15a2e6c33fd5bf8697d62dc02c455b70c433199c5f0025ee86908b7a7be02f9c.webp",
+      "sha256": "15a2e6c33fd5bf8697d62dc02c455b70c433199c5f0025ee86908b7a7be02f9c",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 574858,
+      "sourceSha256": "3ba3febed7b0d638288aa936663130c968ac71374a2bb0af45649ef2c1f0524f",
+      "baselineSourceSha256": "4af7f13ff7a361d1ea744f0937776e8177ceee27054c307d8ce8920c951fcbd1",
+      "comparisonMeanRgbDifference": 0.187428,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:mossy-oak-bottomland-loden@6c0132c007fb",
+      "modelId": "112PFP",
+      "assetId": "1QW64AGgOvT6K9i2O-tjx3nS5OYLwCEJU",
+      "baseSha256": "6c0132c007fb105f40996c7fe96c0ba1284662836c4c7d729e34557eb8c4a3e7",
+      "imageUrl": "/assets/hat-display/df330327f1e6ee3d8dbc50b6fde2f3ed52235c6580d33d17775bf044bf1b42bc.webp",
+      "sha256": "df330327f1e6ee3d8dbc50b6fde2f3ed52235c6580d33d17775bf044bf1b42bc",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 612906,
+      "sourceSha256": "60176c63cea0c34290425b0d93662d07bf3097e4c543f6551d4c302f6a2d64ae",
+      "baselineSourceSha256": "cbd44ec28bf52c55296f883cf54be7c87c610472f1c68849644281d24639f485",
+      "comparisonMeanRgbDifference": 0.201389,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:mossy-oak-country-dna-black@0083f0d4dccd",
+      "modelId": "112PFP",
+      "assetId": "1XX1u9-5qh_RZin7m1YdjsmWxIL2PkpQa",
+      "baseSha256": "0083f0d4dccda29d63e4afab9b7dd2adf5bc4b6729e3d5c1b9adcb4b1f016721",
+      "imageUrl": "/assets/hat-display/776dea5418a44b13b176f165b30bbae31e2522b7fe9d4b0f3c5e556690826a4d.webp",
+      "sha256": "776dea5418a44b13b176f165b30bbae31e2522b7fe9d4b0f3c5e556690826a4d",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 593618,
+      "sourceSha256": "c8e662e1ea39f8550cddc23c3796b0a222176ef33ecb60771362a6affb1d9a1d",
+      "baselineSourceSha256": "2967c0b8edbe6b8a8986d92156ffae4ae6d225c2d455785fbd37f7c7174ff032",
+      "comparisonMeanRgbDifference": 0.238643,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:mossy-oak-elements-blacktip-charcoal@9270b81ebf58",
+      "modelId": "112PFP",
+      "assetId": "1LD-fu1Bo1TYkwJAwW3A5K5NfdceZzycQ",
+      "baseSha256": "9270b81ebf582b9b3397436521b3d46b6138741a4d29b71e5a1bbb3023934bef",
+      "imageUrl": "/assets/hat-display/c497c23a10dfb3954d9528c3c787b74f1901e57ab75e77f8f0e60b8e4b72b076.webp",
+      "sha256": "c497c23a10dfb3954d9528c3c787b74f1901e57ab75e77f8f0e60b8e4b72b076",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 633558,
+      "sourceSha256": "2d653352af9d361a796091daa832796a44fb013c5fddf416e0a4edea1045fa45",
+      "baselineSourceSha256": "0271dbccd1b9b9672ae41270a9634f3e130db9ef19813a7ca190ada59772da48",
+      "comparisonMeanRgbDifference": 0.195566,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:mossy-oak-elements-bone-light-grey@e079418ec70e",
+      "modelId": "112PFP",
+      "assetId": "1BqEB8zucSwJhBdBC90-15j4AYE_xBUE0",
+      "baseSha256": "e079418ec70e8d69d8ee886306cc918d26183443468a3220d2cc702bb4b9899f",
+      "imageUrl": "/assets/hat-display/6341f06449650fb1d2626f5e502a89303c3ca42c1b0b69d51be58cbaaff72033.webp",
+      "sha256": "6341f06449650fb1d2626f5e502a89303c3ca42c1b0b69d51be58cbaaff72033",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 598340,
+      "sourceSha256": "19489b25302e319aa43feb5a89d8b35802200de2773b772fb3e7f7462846a748",
+      "baselineSourceSha256": "4c4efe751c352429c63219c08eeaf40ae91415fa265fa18cf30df329e66ac957",
+      "comparisonMeanRgbDifference": 0.172309,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:mossy-oak-habitat-brown@4541b51676fa",
+      "modelId": "112PFP",
+      "assetId": "1yPO7HHcOzijih3DYtPGchOQ18ZA4AeD0",
+      "baseSha256": "4541b51676fa7f13c967ca6ce7960a9d04ef475d71c17194773cf1339b367a9d",
+      "imageUrl": "/assets/hat-display/fc250cf6f08cb92f420040ba8eaf31054515cdb891ead35c300b61c960dd34d1.webp",
+      "sha256": "fc250cf6f08cb92f420040ba8eaf31054515cdb891ead35c300b61c960dd34d1",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 597414,
+      "sourceSha256": "35527e92fb491163a1d4e5833d874cf6c639b8d2fc1b902c1d5e97a1f1c9d100",
+      "baselineSourceSha256": "7a390a4e6d09f3bf73ec37e9fff1ec626393ec4b0434dfbda9798b185c26802c",
+      "comparisonMeanRgbDifference": 0.223958,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-edge-brown@cead45c84941",
+      "modelId": "112PFP",
+      "assetId": "1WjK3mU0LaS31-hG30yEpM0De7WMH_1EA",
+      "baseSha256": "cead45c849419b0f705e1237d49a5b3b3381a2a7f9b6138a64d35b1565f22030",
+      "imageUrl": "/assets/hat-display/e219f543674ac50593678807fc2d0991d0806f227c8eeb9ae4149db77b145fd1.webp",
+      "sha256": "e219f543674ac50593678807fc2d0991d0806f227c8eeb9ae4149db77b145fd1",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 839728,
+      "sourceSha256": "9ec7b6c79d3743a7bbdddb1bbba606185a3e262e0072573edf6bbb3a6119a478",
+      "baselineSourceSha256": "02e3fc2f308a8c1d076c8987178cfad20ff47e0724c44b5f367144e3371fc190",
+      "comparisonMeanRgbDifference": 0.302734,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-edge-neon-orange@8aef279924b8",
+      "modelId": "112PFP",
+      "assetId": "1KF73FC0ft0cyxEALhphIvuR2sLKMD7P5",
+      "baseSha256": "8aef279924b854801a45a39f98a01199d431d59a0412c1ed78ad69b249805222",
+      "imageUrl": "/assets/hat-display/c127af3a9c3a3c0b236908b14f047f5ce64224ccd9d779dd12bd558e8f8ce37f.webp",
+      "sha256": "c127af3a9c3a3c0b236908b14f047f5ce64224ccd9d779dd12bd558e8f8ce37f",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 844440,
+      "sourceSha256": "d2298354a199070f76d621e3fccfb209794387380be06addf8dfd06d1cbf8742",
+      "baselineSourceSha256": "78ebf3500fe5c19495ebec5ba39ca91c6d2fafcf5714e909a56d9fbe8a1bb521",
+      "comparisonMeanRgbDifference": 0.273474,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-edge-neon-pink@4be95d53acb9",
+      "modelId": "112PFP",
+      "assetId": "1n2r20lwjif69HCOSiSsiZ_1tAULKESoT",
+      "baseSha256": "4be95d53acb90323ab552112eb0b60b3ea65ce5545738ea6c936ae1750d2e6bd",
+      "imageUrl": "/assets/hat-display/8e1a77e8598d970e1b2a673c56278d455d4e1dc9aa76672a15bf502261186ac1.webp",
+      "sha256": "8e1a77e8598d970e1b2a673c56278d455d4e1dc9aa76672a15bf502261186ac1",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 794560,
+      "sourceSha256": "4ae16dd1aff09d9d19240a5ab686f981aa947a1941c9c5a011e35338b5187f14",
+      "baselineSourceSha256": "c02c175975634899f8df967216dc97986057fec14f17e09f6027ecfb748a3111",
+      "comparisonMeanRgbDifference": 0.284035,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-edge-neon-yellow@64ceafe316a7",
+      "modelId": "112PFP",
+      "assetId": "1RGz1nVAqb3zBNsbTgkHrNB6JmbqRhUi_",
+      "baseSha256": "64ceafe316a733bd1b845ab1fb6cdc4bf1ee0b79251afe0ab91f15759db548e5",
+      "imageUrl": "/assets/hat-display/b4144cbda0df1a0d3c3e70c60022da1bad2bacabe4f59b9626bbb01148329149.webp",
+      "sha256": "b4144cbda0df1a0d3c3e70c60022da1bad2bacabe4f59b9626bbb01148329149",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 834822,
+      "sourceSha256": "e5e627aa4cc8dae6ebffa1f5853c3822445730e9f4954d2f039b3028481130f6",
+      "baselineSourceSha256": "937d7310a392510f63646d86f603b601914cda88d738e12b2bfcf30141e10688",
+      "comparisonMeanRgbDifference": 0.302228,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-escape-black@b5e7a200dea8",
+      "modelId": "112PFP",
+      "assetId": "1uEJGRsUV3gXoC5BPz-aSTOrVvLV0qBgY",
+      "baseSha256": "b5e7a200dea89772a68c77254aec63dfa249c0d05210102a73b0edff70ef4834",
+      "imageUrl": "/assets/hat-display/29f2f8a213ff8f7da4c690c96e9a087f5de391c19f7e12f972c67268cd6d9fe1.webp",
+      "sha256": "29f2f8a213ff8f7da4c690c96e9a087f5de391c19f7e12f972c67268cd6d9fe1",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 634244,
+      "sourceSha256": "88281d84d1036976c0b3f469f688c6826ded18b775011ced07069f7c7d8c19c2",
+      "baselineSourceSha256": "2ee76f93f8adf1d9ad5d176ad56c217d8222e0b3cca05afc4335b558d3f1d027",
+      "comparisonMeanRgbDifference": 0.322772,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-fishing-light-blue-navy@b906b1de7c3e",
+      "modelId": "112PFP",
+      "assetId": "1BeaFWp4IyZ6Ww20cO9dP9b2uSMTpP5k7",
+      "baseSha256": "b906b1de7c3e847fbbe27f2c2a6b71c4756523fcc24e04edc0c5d5de37642db1",
+      "imageUrl": "/assets/hat-display/ac4e07d7f62bdf7bde63f4f970648f098bf27f12774d6c0a5bbc455c4ee8a667.webp",
+      "sha256": "ac4e07d7f62bdf7bde63f4f970648f098bf27f12774d6c0a5bbc455c4ee8a667",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 617662,
+      "sourceSha256": "8a31c7bbd8a1ec3e2b95d4acbad4cbe0257324160093572066228dd6a79e962e",
+      "baselineSourceSha256": "303baebf755a5fa21e81f58cfdb6ecd209ec0189c585b19e013df7bc2d5d7c97",
+      "comparisonMeanRgbDifference": 0.233181,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-fishing-light-blue-white@0b149c7192c6",
+      "modelId": "112PFP",
+      "assetId": "1A6Sc0lObdWDYdmxpo8BFoIF8ra7PdaUX",
+      "baseSha256": "0b149c7192c61e2894067027f995845d04f8553235699e08b81bc47aef5cca9f",
+      "imageUrl": "/assets/hat-display/16883e64d88d7294676ab5c0447b3eabdf8a6e110d8a9fa42a2affe33cbc203d.webp",
+      "sha256": "16883e64d88d7294676ab5c0447b3eabdf8a6e110d8a9fa42a2affe33cbc203d",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 596342,
+      "sourceSha256": "4c28d2d55f569d0e35aa964308ec227c66f2145e3fcff679aa1c71d86c20041d",
+      "baselineSourceSha256": "435be9c598067418666fbae3e62150e79558e2a0404d1672ab97f22e22313a3c",
+      "comparisonMeanRgbDifference": 0.206163,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-max-1-brown@76204d72f070",
+      "modelId": "112PFP",
+      "assetId": "1ZTnyeoOFStCZt-W5hpMulexk-1y0RAU6",
+      "baseSha256": "76204d72f070e9502de2dce9ceced88ef904cfd2554086436a86861597d671f5",
+      "imageUrl": "/assets/hat-display/f78c59841facd3254a5e2dc48ee4ae51b4641102e0d109cb1323ec3be514926d.webp",
+      "sha256": "f78c59841facd3254a5e2dc48ee4ae51b4641102e0d109cb1323ec3be514926d",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 642660,
+      "sourceSha256": "4030b3c6690e9148b846765f9f9d518bbeae4c3dbb5b105441d20ed7ae99b103",
+      "baselineSourceSha256": "2b829f57ffe55b9aff6dc45a6c5847b22e97528f9aea7cdadba67ec612e5575d",
+      "comparisonMeanRgbDifference": 0.281033,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-max-7-buck@4581e306611c",
+      "modelId": "112PFP",
+      "assetId": "1vAtQg3IDX5hx1J2c0xYQn7ugE90dUUz7",
+      "baseSha256": "4581e306611c35cbd2344cd2e36de2c0a89a8cdbd6a524362e2df1d5ee588a23",
+      "imageUrl": "/assets/hat-display/5dff95c51b987ee698c5ead1f8bed45437bdcb9b77cb0d4ecbc108d0d25c2650.webp",
+      "sha256": "5dff95c51b987ee698c5ead1f8bed45437bdcb9b77cb0d4ecbc108d0d25c2650",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 607922,
+      "sourceSha256": "67aacdf7744ab1834f7c7aa3b7e399cdbf72c795cd9cc6c1e19da4c7700ec724",
+      "baselineSourceSha256": "b43f8a6e150980320095d9c844b9a0bf6dfc634ba3010f98fb93ce79e505a708",
+      "comparisonMeanRgbDifference": 0.237594,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-original-black@dd97dd3de540",
+      "modelId": "112PFP",
+      "assetId": "1NYvc9HQtNvM34rEQrWdnidaewfVj7_Vx",
+      "baseSha256": "dd97dd3de54011248b301a9570dcec39b000a8f838c6c5035e675792da46cdb5",
+      "imageUrl": "/assets/hat-display/bb69ae29fd6b15fc68a051c23939e457d4d86c529706772125a779abd94a6516.webp",
+      "sha256": "bb69ae29fd6b15fc68a051c23939e457d4d86c529706772125a779abd94a6516",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 619276,
+      "sourceSha256": "dc605a5fcb6f204e07d2bde80916725d54264ba4739bf04cfdd7ed055cea50e5",
+      "baselineSourceSha256": "40ebccc608fad42ec2e1d672e147f321aa8b599dbc1a3ca8b4c4c7cdc2166963",
+      "comparisonMeanRgbDifference": 0.283022,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:realtree-timber-black@471ad30aac75",
+      "modelId": "112PFP",
+      "assetId": "1IVY8fa7xtzkDYYKS-37VwvWeby4RVtMD",
+      "baseSha256": "471ad30aac75cec50284d018d2f593ed9a9f501903c75acb91f37da8e8e78738",
+      "imageUrl": "/assets/hat-display/95f51f3f58c8ac65d0ec58bd9eed0daa294db4b8703b31849e249e1095a1c020.webp",
+      "sha256": "95f51f3f58c8ac65d0ec58bd9eed0daa294db4b8703b31849e249e1095a1c020",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 669162,
+      "sourceSha256": "b9e2ce333a94632abf95e5326cdccdbbb71feea5cad432ac35b3f35cb0364cd1",
+      "baselineSourceSha256": "1fa61af38eae8c80f08960d03a33c5d5bf4afccff48332f922d33440081e3760",
+      "comparisonMeanRgbDifference": 0.296405,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:sable-duck-camo-black@e8c08f70d194",
+      "modelId": "112PFP",
+      "assetId": "1aY82pKSQzPKMX8E5r-GxPQFcLIvdAhnJ",
+      "baseSha256": "e8c08f70d1945b1d890277800111073b6840c9cf7c61b5ce6f57c7a3096100f7",
+      "imageUrl": "/assets/hat-display/d4f49164fedfeb7ca46f3402a021c4a6872cc640226e9761bba0cb862027a098.webp",
+      "sha256": "d4f49164fedfeb7ca46f3402a021c4a6872cc640226e9761bba0cb862027a098",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 457750,
+      "sourceSha256": "18cf2d4adb0a6e37656f2762e7c50c81231c1fa16c8753ce2155c337f4561489",
+      "baselineSourceSha256": "0a3e2410c8a7ab1bd00b4053fb1b94c6ddf1fb5a3aa2e630c1b89dfdc603be20",
+      "comparisonMeanRgbDifference": 0.251411,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "112PFP:saltwater-duck-camo-charcoal@4af69179d6f7",
+      "modelId": "112PFP",
+      "assetId": "1yFWwUgq7h53VQVKYIMuPPdDm-WuD_X6Q",
+      "baseSha256": "4af69179d6f7048acf94769f63cfe7f2fb34b7c1a659011d95e4b41ed5196c6f",
+      "imageUrl": "/assets/hat-display/981ded7f140ac0a45b619a76e5eb015d0ffd0b13bc130376f6fe685c3ca5d421.webp",
+      "sha256": "981ded7f140ac0a45b619a76e5eb015d0ffd0b13bc130376f6fe685c3ca5d421",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 617040,
+      "sourceSha256": "9010c7e7f52691f02aadd3f1efbc2ff60d99a7227cf626f9c1a04d4e7ede7017",
+      "baselineSourceSha256": "1934f99581c043ed7e5edc823fe5dea39bd01195eec36dace87fa04c2f2df8e3",
+      "comparisonMeanRgbDifference": 0.190538,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:black-camo-loden@43bc29cddd1b",
+      "modelId": "168",
+      "assetId": "1mTjCaBFgV2TdVqW8YE33sDJf-7_sJFfA",
+      "baseSha256": "43bc29cddd1b81364860f71c1cbec50533f9c947eabdbc02d3c961eefc69ae49",
+      "imageUrl": "/assets/hat-display/fe56cb6203ff0c2667fe28108c650dd30c8bcd307f6cd266d2d11349fc7c3d71.webp",
+      "sha256": "fe56cb6203ff0c2667fe28108c650dd30c8bcd307f6cd266d2d11349fc7c3d71",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 482364,
+      "sourceSha256": "c844f675440dc2d86d181c5efc0e14b8b89a8e5863904f5f375301cc2aacab36",
+      "baselineSourceSha256": "d47d50b1c20705284166f759f9974a902d8bb78c8cfec0dc19904c5c7e47db27",
+      "comparisonMeanRgbDifference": 0.261212,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:black@c36f1f0ed1c9",
+      "modelId": "168",
+      "assetId": "10-he64AHKvwZERIQCZvuic1xDMgMN595",
+      "baseSha256": "c36f1f0ed1c93b54aa974c096d3f7a9a7198a9593b00e18c60cc4d3d5a53ff45",
+      "imageUrl": "/assets/hat-display/1a872e443e69612737d9336b8d888d4dc5fd4d715fb59d70fc3938500d1ce27c.webp",
+      "sha256": "1a872e443e69612737d9336b8d888d4dc5fd4d715fb59d70fc3938500d1ce27c",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 304152,
+      "sourceSha256": "dc9be7aea52db0d36416eb76af909afbd18b8dfe253f8a953a98356665c99d3d",
+      "baselineSourceSha256": "c37203ecfe696587fcaee260a9934710905c97248e2f6dbe2e625ac56c88da09",
+      "comparisonMeanRgbDifference": 0.159867,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:brown-khaki@f9db5be4f20a",
+      "modelId": "168",
+      "assetId": "14bQBb7N-kNIrKX-Ch9fWxjV_456atIhu",
+      "baseSha256": "f9db5be4f20a82acb1a68e251a6dddaef03f40aab5bc00f668974cbfb35cf5a6",
+      "imageUrl": "/assets/hat-display/001c02f81dc42cc90857d0c157a2bf77e797dd32afb8e04ad9df3098e489cc86.webp",
+      "sha256": "001c02f81dc42cc90857d0c157a2bf77e797dd32afb8e04ad9df3098e489cc86",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 558696,
+      "sourceSha256": "4ef092748a87b67391e03cb956cbc380225fec76f3100148c48aa01ed0944b39",
+      "baselineSourceSha256": "7efd0e19cb0da3209863dff6484f99cbecf3f7c888baeea9a9f01c874afab12a",
+      "comparisonMeanRgbDifference": 0.252351,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:caramel@b9372cc5c452",
+      "modelId": "168",
+      "assetId": "1jGjeTHqjmzEtvHQcHwVJQ0D-Y23DRnJW",
+      "baseSha256": "b9372cc5c452cbd3fbb8070f2d94ee8849bd49926935b73e65aef4ac7e6caada",
+      "imageUrl": "/assets/hat-display/db48f42f9285ae5ee69d8a597f2ebff423b97a753b3b5936cbf8cd95fe65db77.webp",
+      "sha256": "db48f42f9285ae5ee69d8a597f2ebff423b97a753b3b5936cbf8cd95fe65db77",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 540164,
+      "sourceSha256": "6004786085a1286206bd79af3bae6d61a9dcfbedb4fd224ad737ad112e7df84f",
+      "baselineSourceSha256": "6487b4b972392220ac36e648ac53714337910133cd62ec2b3a17694a6ff9c9d0",
+      "comparisonMeanRgbDifference": 0.265697,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:charcoal-black-white@485f911cea99",
+      "modelId": "168",
+      "assetId": "13qhNWO1rZr4NbaXrDx9d0ccGV-9__B0S",
+      "baseSha256": "485f911cea992eddaffb3f6f2ce066a87af334b836681a410f5513cf559f3f87",
+      "imageUrl": "/assets/hat-display/bf822a5b3bb15d20004a9fb6c9825c59701570e2fcd8a1e2cec896e19da035e9.webp",
+      "sha256": "bf822a5b3bb15d20004a9fb6c9825c59701570e2fcd8a1e2cec896e19da035e9",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 419382,
+      "sourceSha256": "e8f9d3c19d926a95ac7eb86c781644ac26f17516f86424e281d7076ddedea6b9",
+      "baselineSourceSha256": "0603351d2df3208b9d4ba30e7979a2cd048e2658f0c5be0d3593fa5e55465ece",
+      "comparisonMeanRgbDifference": 0.200774,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:charcoal-black@62505efa4083",
+      "modelId": "168",
+      "assetId": "1-sqW9tF8J3cxI3uA-dyhkI7d8YloQSAd",
+      "baseSha256": "62505efa40832b0b55e463ab8e64c37c245b1c92b7f3421cfbdc310620c0525f",
+      "imageUrl": "/assets/hat-display/911371d937fbbca409542e53eec13b6e02cd227119c9e58a19b44086ba92b448.webp",
+      "sha256": "911371d937fbbca409542e53eec13b6e02cd227119c9e58a19b44086ba92b448",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 588716,
+      "sourceSha256": "ddc5981f98a9dbbf239a070a5e11a31290d5d4457d699a7a7352f09c926d7072",
+      "baselineSourceSha256": "5bfd95c2e77ff0e6e43ba5f98f74cc75dd29c4c8873fa1946c9d50cfc8f06a45",
+      "comparisonMeanRgbDifference": 0.241211,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:charcoal-burnt-orange-black@769b089b9d62",
+      "modelId": "168",
+      "assetId": "1g9kf2aPGQlz8ruVGk4Ui46GaiDcxBDsR",
+      "baseSha256": "769b089b9d62458af06450a36432ce1e642e0bd96076d31f228bfd312dfcc63d",
+      "imageUrl": "/assets/hat-display/c246f57021ff30184dedd0e195008e94cdc52c793ebce2f4a11ff51365f81ff7.webp",
+      "sha256": "c246f57021ff30184dedd0e195008e94cdc52c793ebce2f4a11ff51365f81ff7",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 562814,
+      "sourceSha256": "2f1b96b61ea9692155cc6d1e9edad8dc1dec4a36474a23973358fb42cc974c3a",
+      "baselineSourceSha256": "8c2711f7a6258b3b7b9fd1299b6251af7cd19de8bacef2df25489902e731af03",
+      "comparisonMeanRgbDifference": 0.220775,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:charcoal-old-gold@7da9e5279ba6",
+      "modelId": "168",
+      "assetId": "13LGq79u8uR78aV0j6nC2seSwaq_AMfVS",
+      "baseSha256": "7da9e5279ba6d252209fd2fe0b46983d2a368592459a814fa796bb0a77f9f135",
+      "imageUrl": "/assets/hat-display/d86b3039d0aca181c0aac68f3c08ab15b1783e4b90fa583dce58f59bfc307ea3.webp",
+      "sha256": "d86b3039d0aca181c0aac68f3c08ab15b1783e4b90fa583dce58f59bfc307ea3",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 536564,
+      "sourceSha256": "37b0a7b02baf7bdcc40f5e63c2374f5ba2b0515fe34d4b2f068c07db3f614314",
+      "baselineSourceSha256": "1cf06032bb4b472336eae6fe93c1bff6c4eafeac8c1fa5a6f022bfcae32bd2ff",
+      "comparisonMeanRgbDifference": 0.206923,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:charcoal@02c3dc2aadc8",
+      "modelId": "168",
+      "assetId": "1h4iPhXkLNpxi0LAgV7ZFbutkUTEFCFAy",
+      "baseSha256": "02c3dc2aadc8f639b08809c8c67562a956234066f6f136225e38ea3da0b1b3ca",
+      "imageUrl": "/assets/hat-display/839659edaee1a6cd0774aa4e88ce0c7571198b988254c28367541258179d6be0.webp",
+      "sha256": "839659edaee1a6cd0774aa4e88ce0c7571198b988254c28367541258179d6be0",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 526386,
+      "sourceSha256": "00c645c5724eb391f7275016297e9bd0d2ecf28ee215d56d9763be5f5ce85336",
+      "baselineSourceSha256": "4488af7d0d7b61efcb2f4e0c072cad009ee184790aeca9f18499922835bf0557",
+      "comparisonMeanRgbDifference": 0.27521,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:dark-green-black@b84543cb06e8",
+      "modelId": "168",
+      "assetId": "1YmkfvYuzGm94Mli-HjlcTuX0Th1I55sw",
+      "baseSha256": "b84543cb06e8dd0f8b8cd7cbd233629cd123454f34eac48412b9523eb91b2eb7",
+      "imageUrl": "/assets/hat-display/f9b68dbd0d073a5573eb5b5f1b06a9a52f997b70d170647630f8856a4ff1829b.webp",
+      "sha256": "f9b68dbd0d073a5573eb5b5f1b06a9a52f997b70d170647630f8856a4ff1829b",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 528238,
+      "sourceSha256": "776cbc1ad5031612436ba30d187c3f846f5aaf165b5bad83192eca839c485461",
+      "baselineSourceSha256": "5964978911ec81406698add67e2dfad4a61cf8113b8139a0813060dbd988614c",
+      "comparisonMeanRgbDifference": 0.206019,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:heather-grey-black@1eb7a86dd43c",
+      "modelId": "168",
+      "assetId": "1-gpCs6rev8arle1KFPdKYQNmMJLL-tjO",
+      "baseSha256": "1eb7a86dd43c38f04868d640667195f5c8e633214fbb2c3a4d047b6b21faf8b0",
+      "imageUrl": "/assets/hat-display/0defa15a9c127f49b14c5ff663563fb2eb17e65d482143fa1f4332f2a505c368.webp",
+      "sha256": "0defa15a9c127f49b14c5ff663563fb2eb17e65d482143fa1f4332f2a505c368",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 509944,
+      "sourceSha256": "842371bcea0816210a841b8e194fc3bc89a6915e1018e8070f5a449344b25c89",
+      "baselineSourceSha256": "2fd4267a663afa1f3af3ccdaaa2e081dee9aad9dafcef8c8f238ecd42fb270ad",
+      "comparisonMeanRgbDifference": 0.207755,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:loden-green@535171ed2e8d",
+      "modelId": "168",
+      "assetId": "1MZGjTZF4ig9xOv8QBld3CBpZm1ccMMjA",
+      "baseSha256": "535171ed2e8d47947f1c18601a9234451d32159a51b6e97f1ae2c89c15b092a0",
+      "imageUrl": "/assets/hat-display/542570c48a0a9b025608c18ed7fd3905cef871aa6a7a576be5951d4fe902d3d2.webp",
+      "sha256": "542570c48a0a9b025608c18ed7fd3905cef871aa6a7a576be5951d4fe902d3d2",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 513002,
+      "sourceSha256": "965807c8bf3d91f90f28a46dadb2cad0f9af3cf5624b276f1a3f4c2c954d2705",
+      "baselineSourceSha256": "2781be598ec51801e18e459f2c9f18008e221407b05a303fe2ed6b6a650a795c",
+      "comparisonMeanRgbDifference": 0.272823,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:navy@cd9ecdc98b52",
+      "modelId": "168",
+      "assetId": "1AibmqL5P9n3gTATgRO4hrug8LHoEcAhi",
+      "baseSha256": "cd9ecdc98b52d93208dbaffaa2c322cc81286fe98a757d6702efd10b6617caa4",
+      "imageUrl": "/assets/hat-display/33960ed31b043e151178a554c2f3e3033b6ba23aaad437e321da98b505c640ab.webp",
+      "sha256": "33960ed31b043e151178a554c2f3e3033b6ba23aaad437e321da98b505c640ab",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 556400,
+      "sourceSha256": "722d445d1523cfee87f0af61237d5bf36b87601598a907986c577cb669c23ec0",
+      "baselineSourceSha256": "f43f480c80173dfe4a03a01a6503687a65c1063da568518a7a62bfa009d10151",
+      "comparisonMeanRgbDifference": 0.290907,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:pale-khaki-loden-green@705acc925713",
+      "modelId": "168",
+      "assetId": "169L_vsenXsDPrT9Xodo6g9NlY0Eas4qz",
+      "baseSha256": "705acc925713583bcac1583331a2bbaeb43150793b2864bbab737f051e240255",
+      "imageUrl": "/assets/hat-display/70dfa3744aad09990b764f85508f2fa93575ca8f4c3499d4676ab11d8b5854cd.webp",
+      "sha256": "70dfa3744aad09990b764f85508f2fa93575ca8f4c3499d4676ab11d8b5854cd",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 525650,
+      "sourceSha256": "462e1a1703f01da7c5abd5e423defafc3324da71746b15601634f1b7e552caf3",
+      "baselineSourceSha256": "6a0fcd91aa766b2968b5ba23764d2ba218f8eaa0ca427350002aefd6d0e7be33",
+      "comparisonMeanRgbDifference": 0.257957,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:red-black@a98579e791cc",
+      "modelId": "168",
+      "assetId": "1kwDhctnTuJjPjDBBt57x1EJ6TMXdbejQ",
+      "baseSha256": "a98579e791cc6e5ef0f7b83a920976b2482a48fa1891b5093484c610225a9012",
+      "imageUrl": "/assets/hat-display/af8eb701610001e375e3ebb96b4ea234f2d637a79d84f465cd6d436d29cb71ce.webp",
+      "sha256": "af8eb701610001e375e3ebb96b4ea234f2d637a79d84f465cd6d436d29cb71ce",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 503934,
+      "sourceSha256": "b84c202e298894fb3a0b1eedf88707480379922047e7a16383d454158520d324",
+      "baselineSourceSha256": "1d86a399aaf0e5206e2f0a889268a3f0d743de89ef74c6a3e650e1e3b8fb9f9f",
+      "comparisonMeanRgbDifference": 0.21271,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:royal-black@5a519cfa3ddd",
+      "modelId": "168",
+      "assetId": "1kpIQq0hYAeWnMSzJawG_gNuNAlFLev6D",
+      "baseSha256": "5a519cfa3ddd30e1994cee7c4df5a29c4e7b73a8aa86f86b5bf2932d5924f579",
+      "imageUrl": "/assets/hat-display/82dd7265d66e1435b3e19dcdc1dcf467840519c66923b54488725ab55be804f1.webp",
+      "sha256": "82dd7265d66e1435b3e19dcdc1dcf467840519c66923b54488725ab55be804f1",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 499396,
+      "sourceSha256": "40a9f1c9e380c0c54ca5eb8c18cbd69ac98d616a7a2ff2c72911f8c8fb7055e3",
+      "baselineSourceSha256": "2ae83305fa73940898bdca576853e1ec0db63cca7b4b81a443cf154c5468c3ac",
+      "comparisonMeanRgbDifference": 0.192455,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "168:white@04205d8131b0",
+      "modelId": "168",
+      "assetId": "1ifmSLO_7hwlrASs7w1iDXg3_GLznYwLf",
+      "baseSha256": "04205d8131b052a5548f1ca258d2d93ffdb648d2f663fa8cd8ca8716461441ea",
+      "imageUrl": "/assets/hat-display/289be85e638dddff5a70995107bb1805ff1c2313c2fbc8f9627611b573181b9e.webp",
+      "sha256": "289be85e638dddff5a70995107bb1805ff1c2313c2fbc8f9627611b573181b9e",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 310478,
+      "sourceSha256": "3a244e392898886bde94173790d33949b7a3667ad62a4958ead44a8664f96693",
+      "baselineSourceSha256": "42dc843f15aa7ae64027bcd26847e0e60e3f73084ec0b4248fc7061e040c5778",
+      "comparisonMeanRgbDifference": 0.162218,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:birch-black@f3109fcabb8c",
+      "modelId": "256",
+      "assetId": "1xHEVXNhdwS7C7aJfobZVHazpFBC64PzD",
+      "baseSha256": "f3109fcabb8c3adfb6ca1734ac1d243577f6ae83440122c5378994c7286b768e",
+      "imageUrl": "/assets/hat-display/f67d775ca0e663705db0c5651a0dc7cf45ba7b2083a4d681e85785e7b689b29c.webp",
+      "sha256": "f67d775ca0e663705db0c5651a0dc7cf45ba7b2083a4d681e85785e7b689b29c",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 417188,
+      "sourceSha256": "ea8d3e5a94f73c4b6751dd5c12d7099f6f6d7ee8a5877683db76079b4511289e",
+      "baselineSourceSha256": "972bd6845b6de145c1bd8dfb5f713dd01756a8b073188cb3853833e2d249f1d3",
+      "comparisonMeanRgbDifference": 0.11556,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:biscuit-black@3efc762ea380",
+      "modelId": "256",
+      "assetId": "1oxELVCEsAGL4dUqwt05wFDb6B8OZMk3Y",
+      "baseSha256": "3efc762ea38016a137664590c45cb9bea88d5a0bdcbf347bea025da2d4a53c42",
+      "imageUrl": "/assets/hat-display/ff05ec95f425b461c540049ae38d2cb7dbf51b13e21e6da6fa95cded87131cf2.webp",
+      "sha256": "ff05ec95f425b461c540049ae38d2cb7dbf51b13e21e6da6fa95cded87131cf2",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 412354,
+      "sourceSha256": "c4d12f095aa972d94fe47a600ae38f82085fdc29100a343b850b9b5120eb453b",
+      "baselineSourceSha256": "6bf00eefe0971fbd088cedeb7d0a301eabbca34393c7a7fbc07475f8a832cbbf",
+      "comparisonMeanRgbDifference": 0.109447,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:black-black@9d9ff8ea456e",
+      "modelId": "256",
+      "assetId": "12FBoj7cD6tsHbYMR_L3A17a7L9GY2PNi",
+      "baseSha256": "9d9ff8ea456e94930040332582a4320ab9b47c6fcc01af6960e5c54d1a765084",
+      "imageUrl": "/assets/hat-display/6af5a9072565f3b54fd8dc30f3badeb16eb250646b84c17d886e1e040a707e04.webp",
+      "sha256": "6af5a9072565f3b54fd8dc30f3badeb16eb250646b84c17d886e1e040a707e04",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 178906,
+      "sourceSha256": "ee9d3ad1ba6da44d71a354380895bca32565ddddf82ee996e4192f0037b1955c",
+      "baselineSourceSha256": "4aa645688b14b5bb052e85f09d04702639f6ea6d007e27bb8ad7efbc5330bdc7",
+      "comparisonMeanRgbDifference": 0.07487,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:black-white@de9282192e26",
+      "modelId": "256",
+      "assetId": "1lWcYc3ddFCZ8odNyIWHplWvcT_NmUcb9",
+      "baseSha256": "de9282192e265c678e7c9c52a1e25a479882ebcade9064bf81d74f8a93971721",
+      "imageUrl": "/assets/hat-display/6bbbef476748b13eb1182ba21aec28d8bf2c0e57b4bf1b16daf7027549278772.webp",
+      "sha256": "6bbbef476748b13eb1182ba21aec28d8bf2c0e57b4bf1b16daf7027549278772",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 182698,
+      "sourceSha256": "0b73dcef5667ad17397163cbbc5f03a77f535e7c68beb89b8ac9581627ec2044",
+      "baselineSourceSha256": "b757bff3c112d2c8d702beee5487057832de54cf5106acc9cb4cafa7ecad5ffd",
+      "comparisonMeanRgbDifference": 0.08988,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:cardinal-white@2c76f0249d44",
+      "modelId": "256",
+      "assetId": "1Tn9rf7CNrY7_MK5WVBzps5OrszYLeUPv",
+      "baseSha256": "2c76f0249d44d4b56e638063377cb1ab3b6aef3c92548cacea38d53aa2bd54e3",
+      "imageUrl": "/assets/hat-display/be328eb4b65b1f6d4171ffbf1cfaf5927a5b773ba24f77782405704f7ac41489.webp",
+      "sha256": "be328eb4b65b1f6d4171ffbf1cfaf5927a5b773ba24f77782405704f7ac41489",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 272832,
+      "sourceSha256": "27736d8352957487df7e10608f30f09bc26b2f699af1a22b5b9dd738982e6ad4",
+      "baselineSourceSha256": "181ad3f58830ec8b90253307eaf7f3af5791d0a18e2dbad0e9c86353a075decf",
+      "comparisonMeanRgbDifference": 0.112775,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:charcoal-white@63d122cf4b40",
+      "modelId": "256",
+      "assetId": "12GrtbHSluuWwLU6p5s96kAEjGcvyRvSA",
+      "baseSha256": "63d122cf4b40fad5d24cbe1ebd3a77d419c1798fb86fb380e33ed26f60880479",
+      "imageUrl": "/assets/hat-display/d00225dce62251ab5a4f84a0920403e684c3decb3f4addf210df8cde1bc2e2a4.webp",
+      "sha256": "d00225dce62251ab5a4f84a0920403e684c3decb3f4addf210df8cde1bc2e2a4",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 264200,
+      "sourceSha256": "1ba587102c463011fe9f005f417048788e002563fd26bbb8d623f048dd45127f",
+      "baselineSourceSha256": "b044e35f32b8bf7c87f7d869d42b82844936c6c47a91fac27a58a8bf01ff3156",
+      "comparisonMeanRgbDifference": 0.101671,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:dark-mocha-desert@a4f9364df4c0",
+      "modelId": "256",
+      "assetId": "1dIARqA14mugHFhfiY7scXVAVwO4cuFvL",
+      "baseSha256": "a4f9364df4c0b0982d1b9ee46387ad75a72bad4a4ed070eddfea7e73a714b9c9",
+      "imageUrl": "/assets/hat-display/0ceda9a42afd589ccef5047dedc6f22c25a2174f6e1cb8b7d55d5948e31197ce.webp",
+      "sha256": "0ceda9a42afd589ccef5047dedc6f22c25a2174f6e1cb8b7d55d5948e31197ce",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 361254,
+      "sourceSha256": "fbdfc428e1db7aefb4fb1c73244a4978826ba8e68835808a5e2fde511e462fdf",
+      "baselineSourceSha256": "38cfa2be2dd2f244fcfdd8c24184e7781cac5e00a624c1762ff195a9834611c0",
+      "comparisonMeanRgbDifference": 0.111039,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:dark-orange-black@c4062292e3e8",
+      "modelId": "256",
+      "assetId": "1W-SQ0BAeSVjwqxeXDmoZBwXS6FstziVr",
+      "baseSha256": "c4062292e3e860ad7b85af62efbca7ceded0fcb7691066c962420e0181ce57f5",
+      "imageUrl": "/assets/hat-display/9db0bf99f6428e70bd2388294fa73ce8e7f62a0b8c97edc47b3c59a828295e97.webp",
+      "sha256": "9db0bf99f6428e70bd2388294fa73ce8e7f62a0b8c97edc47b3c59a828295e97",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 307030,
+      "sourceSha256": "76d4dd5f3d4ff46bee3d5c909168075e13ba8fe78a673c91431cbf9ff409203a",
+      "baselineSourceSha256": "160459e02c668c8bacb4ca72b628802fb2b6647da78f088c0c183cfd72feeeb7",
+      "comparisonMeanRgbDifference": 0.104456,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:dusty-blue-white@d2c0ab1dd7e3",
+      "modelId": "256",
+      "assetId": "1au6rOPdsy_24_WjUOYAlydTLBG91clTx",
+      "baseSha256": "d2c0ab1dd7e3ea0d73eab01e73c8444ba1876a393daca09aa8e8e653f956bf7b",
+      "imageUrl": "/assets/hat-display/9ca2fa71224aeb3601aa67071079378f014c9459442caaccdb4e60f00e759390.webp",
+      "sha256": "9ca2fa71224aeb3601aa67071079378f014c9459442caaccdb4e60f00e759390",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 372048,
+      "sourceSha256": "5161fcf79fcfc39eb5b8e093b427dc8cd91b3bde6fe2a75e360831259315c7c2",
+      "baselineSourceSha256": "623fd17e4d5151e8da9990e4fabf2d7430179067422cc74e1700b9665734c3ea",
+      "comparisonMeanRgbDifference": 0.106409,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:dusty-red-white@60b240392e07",
+      "modelId": "256",
+      "assetId": "1qwhpQ8fjYxsC1YCimWuS5CCbX_SWarth",
+      "baseSha256": "60b240392e07f4f0b86607d5b54e16241080162cee4cae2ff9a68b36a2415424",
+      "imageUrl": "/assets/hat-display/2d164c2e7d7f0fc9861372bbd28aba4462bcaea690486ed5136783069306db79.webp",
+      "sha256": "2d164c2e7d7f0fc9861372bbd28aba4462bcaea690486ed5136783069306db79",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 385286,
+      "sourceSha256": "59759e4e11f3dc80737b275722e920c1aa1ac253ab083e1ae9a00450937c01f4",
+      "baselineSourceSha256": "239d7d49f7b369a07c4da485e6530cfb55140b3895c7b0f0fe4aa6c1bba3b065",
+      "comparisonMeanRgbDifference": 0.107096,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:loden-gold@f4a8eaa73c9f",
+      "modelId": "256",
+      "assetId": "1AphTJ79u505A_HOFCD3hyhM4Y0VdRUN1",
+      "baseSha256": "f4a8eaa73c9fe39e1d8367b5c1a13d3050b496cc6a8fed7f178a9e04f8bbbdd6",
+      "imageUrl": "/assets/hat-display/690e84489d629ec27b4e204dbdb86686c3947de52d8a5cd57c31fd2c95c604be.webp",
+      "sha256": "690e84489d629ec27b4e204dbdb86686c3947de52d8a5cd57c31fd2c95c604be",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 254866,
+      "sourceSha256": "9f3a5e02f145b39e4fd1007e942ecf21311b4e1a776cb29673a976afc5df1902",
+      "baselineSourceSha256": "a800e669b4cc4a0aad4c8ec3413d86e87a31006bdde7ad3c3402580e26a30a24",
+      "comparisonMeanRgbDifference": 0.094582,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:midnight-navy-white@68895f140f6b",
+      "modelId": "256",
+      "assetId": "1mHm35w25WgtYjaoYM67aENtM5NYYZxfb",
+      "baseSha256": "68895f140f6bf3f426977a836c1153444ed488782ae3fb9f9c9dcd6883884e3f",
+      "imageUrl": "/assets/hat-display/a60590f34ff5f931ddc6a0682050954376b3a9b983ad0a6ef961f9f74a2cc561.webp",
+      "sha256": "a60590f34ff5f931ddc6a0682050954376b3a9b983ad0a6ef961f9f74a2cc561",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 360258,
+      "sourceSha256": "3b6640777afa12a30b2583e245c7f7ac249cafa1616ef52ed58d4294da409645",
+      "baselineSourceSha256": "6108218c395d17f79983dfe0332dabce2dd974ef34822ab3425eb95e6138b9cb",
+      "comparisonMeanRgbDifference": 0.114511,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:navy-red@186372deebe1",
+      "modelId": "256",
+      "assetId": "1ogrC8ZZEJWdfciboJbYVFsw_5PjmK6jd",
+      "baseSha256": "186372deebe1aea26b4b7370aa3814ee08e8d69ec63382025d4a48c5634b58b7",
+      "imageUrl": "/assets/hat-display/73ae57f634df253d16dd8510345ade9bfd4f1e304df1e6e2158381175112d914.webp",
+      "sha256": "73ae57f634df253d16dd8510345ade9bfd4f1e304df1e6e2158381175112d914",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 265084,
+      "sourceSha256": "19ea10620d46ac232d25f863599333e77e4902c1b3c8f65027849cfac5cd46ac",
+      "baselineSourceSha256": "65b377726f446e93e72b5fc32ddd70092cf2e5a270d8592a15857ecf85779cbc",
+      "comparisonMeanRgbDifference": 0.093641,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:navy-white@c9587cf03012",
+      "modelId": "256",
+      "assetId": "1Po_1GGgoT8jXqOzNKiCsZpBRF5NQ6NmN",
+      "baseSha256": "c9587cf03012f519ce4adf5470582f97f812f5512cf1e6dc081b009acd49db92",
+      "imageUrl": "/assets/hat-display/01b6f21b980e0809629bd93b2000d71e7a1904a63e1440055ed40bf3de5bf761.webp",
+      "sha256": "01b6f21b980e0809629bd93b2000d71e7a1904a63e1440055ed40bf3de5bf761",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 251530,
+      "sourceSha256": "c0d60587b1736e0ef1317493edf47967fa08e12d0bafcebb86fd34a9156ffa13",
+      "baselineSourceSha256": "32e1e61ba1458221abf14824bbcc2ba590d130e7699a5331cbba621a806afcc3",
+      "comparisonMeanRgbDifference": 0.103805,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:pale-peach-maroon@92fe56404ed1",
+      "modelId": "256",
+      "assetId": "1oIpA-7UJAHLjEF8b-qoULiAdP1jotFxW",
+      "baseSha256": "92fe56404ed156721d9af4fe87f7ab8c397dd7524e24fa29c62fb9f33ea66b3a",
+      "imageUrl": "/assets/hat-display/2ba92ab62615da1210b3c791bb93ad5d1c843a8658e42ff78d4c5d6ae8e11020.webp",
+      "sha256": "2ba92ab62615da1210b3c791bb93ad5d1c843a8658e42ff78d4c5d6ae8e11020",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 345476,
+      "sourceSha256": "6de9b86e9e3dd9046a8ff7339456053d135b9d53c30861a92cf162f28eb2fc1d",
+      "baselineSourceSha256": "fb1621771b594f18b647ce54d762b98507309709b8940ce9f6c90e34f23db8a3",
+      "comparisonMeanRgbDifference": 0.100116,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:red-white@0457a964c23c",
+      "modelId": "256",
+      "assetId": "1akj-s8g8tZgcYwvn5kOUhAAN5aM-4lki",
+      "baseSha256": "0457a964c23cdd0b0733ebc8e143df2a48e38cff720560948ffd90be6601f7ff",
+      "imageUrl": "/assets/hat-display/0562a1fb83cb7663be262489be1852cdb9cdbca11c9a3d51c2840b69a6ea49a4.webp",
+      "sha256": "0562a1fb83cb7663be262489be1852cdb9cdbca11c9a3d51c2840b69a6ea49a4",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 292616,
+      "sourceSha256": "67dd0d9f9ca05627368a5bee22d43fb2a63994323f31c0a811576eae977787d5",
+      "baselineSourceSha256": "127aa64fbeae2714bef41f59145dde868a8c4304b13f85ffef4501ee4e334aba",
+      "comparisonMeanRgbDifference": 0.111617,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:sage-white@9e1636661b4e",
+      "modelId": "256",
+      "assetId": "1A8otEChILHvd4qzM1XgWBgJ7UPIptmIX",
+      "baseSha256": "9e1636661b4e7d5010f234802fd3bf713fd508848de8aea2fd73b7878974f312",
+      "imageUrl": "/assets/hat-display/566ad7420dd1f1f14289042d3cf6b4981af7b7eb0f567fd7908f78a6c3b00685.webp",
+      "sha256": "566ad7420dd1f1f14289042d3cf6b4981af7b7eb0f567fd7908f78a6c3b00685",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 369408,
+      "sourceSha256": "14c8f295c9198bcb570d7f974145a425f5296407ea100c0883894cf21ee813c7",
+      "baselineSourceSha256": "9a5e53e7be71e910cf9ff19640490deb3069cc4c895a05b3432788e306f018e9",
+      "comparisonMeanRgbDifference": 0.111111,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:sand-dune-loden@70f04abb570f",
+      "modelId": "256",
+      "assetId": "1yPlxpN6cfODQ_iNz8SUmbR6llJx_obzt",
+      "baseSha256": "70f04abb570f7e5a7fc63db599128ba8938c54511fc07d3c98c39857200a2508",
+      "imageUrl": "/assets/hat-display/45f0d1c4a7ed1f54d4f55338710ce1eb11de142d8007a11a0d7028b343c89cc5.webp",
+      "sha256": "45f0d1c4a7ed1f54d4f55338710ce1eb11de142d8007a11a0d7028b343c89cc5",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 350836,
+      "sourceSha256": "e34e3ac7a2efb9dea1fe316e5f428adc3b4d0175c92827d330c6bc00d3eed4d4",
+      "baselineSourceSha256": "4a539bbe2c079a06d9167c8494869bea5436711c718720caf86cad5a2af9dc68",
+      "comparisonMeanRgbDifference": 0.107639,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256:white-black@273cac259b4c",
+      "modelId": "256",
+      "assetId": "1i8flTJk0u8DN7qUZ0TzcXE6AmAtviOM7",
+      "baseSha256": "273cac259b4c4f1db859254f193cb9bf7b24af4bce6eac7878f43e3f2cc923b5",
+      "imageUrl": "/assets/hat-display/1e34d7e6a83e63fca2b8b5793bba3be1b5dca32280470c84fdef7d55d3a07a98.webp",
+      "sha256": "1e34d7e6a83e63fca2b8b5793bba3be1b5dca32280470c84fdef7d55d3a07a98",
+      "width": 2400,
+      "height": 2400,
+      "bytes": 341704,
+      "sourceSha256": "186be95d48758e19651873ded72a9634a27393fafc4585b10187531fd9cfdd8d",
+      "baselineSourceSha256": "e1f8339d9ca3e2baeb46a2e4d81920b07717c2ede1efbc8e79ab3119540b71c1",
+      "comparisonMeanRgbDifference": 0.106084,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256P:bark-duck-camo-brown@4ac2b4238e59",
+      "modelId": "256P",
+      "assetId": "1cmapIMXsLTJYo8tGK8r9CYFk6pkJVYDN",
+      "baseSha256": "4ac2b4238e594c1ab109741815a82079ff9622008faa12fa4ffdb75abfd25888",
+      "imageUrl": "/assets/hat-display/2fe14787ac2218b918bce1befd8b57c2fdd30b66aa5280ca7628f53b4a4ef6fe.webp",
+      "sha256": "2fe14787ac2218b918bce1befd8b57c2fdd30b66aa5280ca7628f53b4a4ef6fe",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 236366,
+      "sourceSha256": "6b570f5bd6a47dfff1cd196230b52df852c36f7a13f595733ff6c23d6389e768",
+      "baselineSourceSha256": "5d8924325925320ad4c2f6607fb952c1965feb09611ff49b7ff61568ca4ac37d",
+      "comparisonMeanRgbDifference": 0.2415,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256P:blizzard-duck-camo-white@68fa08951357",
+      "modelId": "256P",
+      "assetId": "1z6FNJ497QQkFSaIDLfqxZemMmIkFV40r",
+      "baseSha256": "68fa089513572e75624cdfc7bf12dc3bd34b93e552901dacdc3e2d0ff761381b",
+      "imageUrl": "/assets/hat-display/d78221e7e40f2dea1ea3464b8d2481b3f5404f0f46134f37b7535d5354717ff4.webp",
+      "sha256": "d78221e7e40f2dea1ea3464b8d2481b3f5404f0f46134f37b7535d5354717ff4",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 265012,
+      "sourceSha256": "3745c5a5146140f3e2afcb83e2f29d5a8c107658159787587d1f38eb355f31a3",
+      "baselineSourceSha256": "764340fbc64009e8492476c895c3b92dae55c23f7ce7799bd95701e10f554267",
+      "comparisonMeanRgbDifference": 0.231518,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256P:harvest-duck-camo-light-brown@a99a1757d73f",
+      "modelId": "256P",
+      "assetId": "1iT54LoNVGTU5FsMN58rTTD6Qd7d4d957",
+      "baseSha256": "a99a1757d73f33cfa00c4edafea8a7b993ccc2bf1316ab995fc30297e01e7a7a",
+      "imageUrl": "/assets/hat-display/39fef19d022f134b7e53922a290837652a7c549851c61c6c2a3de271e69ca412.webp",
+      "sha256": "39fef19d022f134b7e53922a290837652a7c549851c61c6c2a3de271e69ca412",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 266590,
+      "sourceSha256": "2c0b6bc45bd3bf1fa0470e8aa2253fa1eecc4e003c3e3ecb873c2c5beb0a880d",
+      "baselineSourceSha256": "1a264b37adf8f9462541cda3c0a1fa7afe8f054b37638ea115fcc03ae0389471",
+      "comparisonMeanRgbDifference": 0.264106,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256P:marsh-duck-camo-olive-green@3233d8e3ab37",
+      "modelId": "256P",
+      "assetId": "1mzisc1rWAv87bDpCYSvrjP6I2GL_mlLJ",
+      "baseSha256": "3233d8e3ab37dd3ae1f343a601855a0054c1374f0d38ff1e79798cb3658a9ad3",
+      "imageUrl": "/assets/hat-display/7dd6a9840323a8bebb5316dc4183c40e07af0b76ed53a566856240788073f91e.webp",
+      "sha256": "7dd6a9840323a8bebb5316dc4183c40e07af0b76ed53a566856240788073f91e",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 244898,
+      "sourceSha256": "22702f2ccdbe7e9ddcae9cbd3469da387079c04500f1dcab4d82e1d701d5b40d",
+      "baselineSourceSha256": "088068e9d416af2606aa1e9f446aef7137ac4a0cf3bcea38b5152f00cc7ca7d8",
+      "comparisonMeanRgbDifference": 0.255606,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256P:mossy-oak-bottomland-black@93be5c610192",
+      "modelId": "256P",
+      "assetId": "1wuziWmId9KzuoWOHSWQbPSG3x-LXXkDc",
+      "baseSha256": "93be5c61019238463af66c15cf0f8eac1f641fa8cbbe24131be40ae7930a2c99",
+      "imageUrl": "/assets/hat-display/d8cb0f4a4b1c881d4396322e2da0f9c6268c5df62873cd7f3307a94aa89de6f3.webp",
+      "sha256": "d8cb0f4a4b1c881d4396322e2da0f9c6268c5df62873cd7f3307a94aa89de6f3",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 306378,
+      "sourceSha256": "b8ccc032d95b18375e5b1242b6e9d95da433e9898801ec15ef381c46e1f33aac",
+      "baselineSourceSha256": "e5d5d073ab51caee57b369a8b0c90a08834038075c31123c226aa2409b4ac885",
+      "comparisonMeanRgbDifference": 0.204319,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256P:realtree-advantage-khaki@7ec38bb28244",
+      "modelId": "256P",
+      "assetId": "1fSs3Ba6HZBIgg7sTcWAVwfn9oKswvBe_",
+      "baseSha256": "7ec38bb282440854f691724d472d5e69d4b7d8ee3c7c887fecfee7c48723614d",
+      "imageUrl": "/assets/hat-display/a66e7e331dd6b3f8cbec2b22b795916017fc75578f6be2a5552aaa2074820ac2.webp",
+      "sha256": "a66e7e331dd6b3f8cbec2b22b795916017fc75578f6be2a5552aaa2074820ac2",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 330364,
+      "sourceSha256": "0deb925e503309a929569ae7ff28eb6a3947069e2eae88a7a18b8315dfde05c0",
+      "baselineSourceSha256": "fb59ea0be05083dca455ab4ee336037b8deb113435048a147e2263f6c8861dfd",
+      "comparisonMeanRgbDifference": 0.340531,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    },
+    {
+      "calibrationId": "256P:saltwater-duck-camo-charcoal@7d506f43a336",
+      "modelId": "256P",
+      "assetId": "1CCDVI2NcMLkqLfwD8rLMyt_TtP0sg4WM",
+      "baseSha256": "7d506f43a336947c67fd809cc1b8e3aff99701c6c94533fb230cac8f6a38db71",
+      "imageUrl": "/assets/hat-display/ccfe40baad52705ce631e6e5a2c4961dc429911fc23538c124596ade3e708c40.webp",
+      "sha256": "ccfe40baad52705ce631e6e5a2c4961dc429911fc23538c124596ade3e708c40",
+      "width": 2000,
+      "height": 2500,
+      "bytes": 278318,
+      "sourceSha256": "d3242091ff2e2ee0cf00d05a3ab9e2aa8cb7ceea4ecf3a292f64363630f8f29d",
+      "baselineSourceSha256": "828af0aefbeb031528d81222cc4b7b7f9fe1c276c776200d44a26757c9cfab19",
+      "comparisonMeanRgbDifference": 0.192564,
+      "baselineProof": {
+        "method": "original-source-sha256"
+      }
+    }
+  ]
+}

@@ -53,6 +53,10 @@ export const CONTENT_KEYS = [
   "seo_title",
   "seo_description",
   "featured_product_ids",
+  "about_story",
+  "faq_items",
+  "footer_links",
+  "page_seo",
 ] as const;
 export const label = (value: string) =>
   value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -73,6 +77,8 @@ export type OrderRow = {
   stage: Stage;
   version: number;
   due_at: string | null;
+  priority: "low" | "normal" | "high";
+  tags: string[];
   assigned_to: string | null;
   tracking: string | null;
   carrier: string | null;

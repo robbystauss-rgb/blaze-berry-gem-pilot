@@ -106,7 +106,9 @@ export function Builder({
     : draft.colorway;
   const patchOnly = orderType === "patch";
   const steps = stepsFor(patchOnly);
-  const [step, setStep] = useState<StepId>(focus ?? (patchOnly ? "material" : "hat"));
+  const [step, setStep] = useState<StepId>(
+    focus ?? (draft.reorderNotice ? "review" : patchOnly ? "material" : "hat"),
+  );
   const [warn, setWarn] = useState("");
   const [drawer, setDrawer] = useState(false);
   const [materialOpen, setMaterialOpen] = useState(false);
@@ -464,6 +466,21 @@ export function Builder({
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto">
+          {draft.reorderNotice && (
+            <div
+              role="status"
+              className="m-5 rounded-xl border border-stage-line bg-stage p-4 text-sm leading-6 text-stage-ink"
+            >
+              <p>{draft.reorderNotice}</p>
+              <button
+                type="button"
+                className="mt-2 min-h-11 font-semibold underline"
+                onClick={() => draft.set("reorderNotice", undefined)}
+              >
+                Dismiss reminder
+              </button>
+            </div>
+          )}
           <div className="flex items-start justify-between gap-4 px-5 pt-5 sm:px-6">
             <p className="min-w-0 flex-1 text-sm font-semibold leading-5 text-stage-ink">
               {patchOnly

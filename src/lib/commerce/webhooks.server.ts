@@ -3,7 +3,7 @@ import { getSql } from "@/lib/db";
 import { stripeClient, paypalToken, paypalBase } from "./providers.server";
 import { recordPayment, changeAllocation, audit, notify, orderById } from "./core.server";
 
-export async function stripeWebhook(request: Request) {
+export async function stripeWebhook(request: Request, client?: Stripe) {
   const { webhookSecrets } = await import("./webhook-config.server");
   let secrets: string[];
   try {
@@ -14,7 +14,7 @@ export async function stripeWebhook(request: Request) {
   if (!secrets.length) return new Response("Webhook not configured", { status: 503 });
   const body = await request.text();
   if (body.length > 1_000_000) return new Response("Payload too large", { status: 413 });
-  const stripe = stripeClient();
+  const stripe = client ?? stripeClient();
   let event: Stripe.Event | undefined;
   for (const secret of secrets)
     try {

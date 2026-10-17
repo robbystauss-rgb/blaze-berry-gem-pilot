@@ -29,9 +29,11 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as OrderRouteImport } from './routes/order'
 import { Route as OwnerSetupRouteImport } from './routes/owner-setup'
 import { Route as PrintedCamoRouteImport } from './routes/printed-camo'
+import { Route as QuoteRequestRouteImport } from './routes/quote-request'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
 import { Route as ApiArtworkIdRouteImport } from './routes/api/artwork/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCatalogImageIdRouteImport } from './routes/api/catalog-image/$id'
@@ -140,6 +142,11 @@ const PrintedCamoRoute = PrintedCamoRouteImport.update({
   path: '/printed-camo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuoteRequestRoute = QuoteRequestRouteImport.update({
+  id: '/quote-request',
+  path: '/quote-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -153,6 +160,11 @@ const StudioRoute = StudioRouteImport.update({
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteTokenRoute = QuoteTokenRouteImport.update({
+  id: '/quote/$token',
+  path: '/quote/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiArtworkIdRoute = ApiArtworkIdRouteImport.update({
@@ -213,9 +225,11 @@ export interface FileRoutesByFullPath {
   '/order': typeof OrderRoute
   '/owner-setup': typeof OwnerSetupRoute
   '/printed-camo': typeof PrintedCamoRoute
+  '/quote-request': typeof QuoteRequestRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
   '/product/$id': typeof ProductIdRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
@@ -245,9 +259,11 @@ export interface FileRoutesByTo {
   '/order': typeof OrderRoute
   '/owner-setup': typeof OwnerSetupRoute
   '/printed-camo': typeof PrintedCamoRoute
+  '/quote-request': typeof QuoteRequestRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
   '/product/$id': typeof ProductIdRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
@@ -278,9 +294,11 @@ export interface FileRoutesById {
   '/order': typeof OrderRoute
   '/owner-setup': typeof OwnerSetupRoute
   '/printed-camo': typeof PrintedCamoRoute
+  '/quote-request': typeof QuoteRequestRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
   '/product/$id': typeof ProductIdRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
@@ -312,9 +330,11 @@ export interface FileRouteTypes {
     | '/order'
     | '/owner-setup'
     | '/printed-camo'
+    | '/quote-request'
     | '/shop'
     | '/studio'
     | '/product/$id'
+    | '/quote/$token'
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
@@ -344,9 +364,11 @@ export interface FileRouteTypes {
     | '/order'
     | '/owner-setup'
     | '/printed-camo'
+    | '/quote-request'
     | '/shop'
     | '/studio'
     | '/product/$id'
+    | '/quote/$token'
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
@@ -376,9 +398,11 @@ export interface FileRouteTypes {
     | '/order'
     | '/owner-setup'
     | '/printed-camo'
+    | '/quote-request'
     | '/shop'
     | '/studio'
     | '/product/$id'
+    | '/quote/$token'
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
@@ -409,9 +433,11 @@ export interface RootRouteChildren {
   OrderRoute: typeof OrderRoute
   OwnerSetupRoute: typeof OwnerSetupRoute
   PrintedCamoRoute: typeof PrintedCamoRoute
+  QuoteRequestRoute: typeof QuoteRequestRoute
   ShopRoute: typeof ShopRoute
   StudioRoute: typeof StudioRoute
   ProductIdRoute: typeof ProductIdRoute
+  QuoteTokenRoute: typeof QuoteTokenRoute
   ApiArtworkIdRoute: typeof ApiArtworkIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCatalogImageIdRoute: typeof ApiCatalogImageIdRoute
@@ -563,6 +589,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrintedCamoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quote-request': {
+      id: '/quote-request'
+      path: '/quote-request'
+      fullPath: '/quote-request'
+      preLoaderRoute: typeof QuoteRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -582,6 +615,13 @@ declare module '@tanstack/react-router' {
       path: '/product/$id'
       fullPath: '/product/$id'
       preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote/$token': {
+      id: '/quote/$token'
+      path: '/quote/$token'
+      fullPath: '/quote/$token'
+      preLoaderRoute: typeof QuoteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/artwork/$id': {
@@ -657,9 +697,11 @@ const rootRouteChildren: RootRouteChildren = {
   OrderRoute: OrderRoute,
   OwnerSetupRoute: OwnerSetupRoute,
   PrintedCamoRoute: PrintedCamoRoute,
+  QuoteRequestRoute: QuoteRequestRoute,
   ShopRoute: ShopRoute,
   StudioRoute: StudioRoute,
   ProductIdRoute: ProductIdRoute,
+  QuoteTokenRoute: QuoteTokenRoute,
   ApiArtworkIdRoute: ApiArtworkIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCatalogImageIdRoute: ApiCatalogImageIdRoute,

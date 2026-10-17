@@ -138,6 +138,7 @@ export const getAdminData = createServerFn({ method: "GET" })
       from: z.string().datetime().optional(),
       to: z.string().datetime().optional(),
       status: z.string().max(50).default(""),
+      priority: z.enum(["", "low", "normal", "high"]).optional(),
     }),
   )
   .handler(async ({ data, context }) => {
@@ -179,6 +180,7 @@ export const mutateAdmin = createServerFn({ method: "POST" })
     z.object({
       action: z.enum([
         "order.update",
+        "order.organize",
         "order.note",
         "order.draft",
         "payment.manual",
@@ -202,6 +204,7 @@ export const mutateAdmin = createServerFn({ method: "POST" })
     const { requireAccess } = await import("./access.server");
     const permissions: Record<string, Permission> = {
       "order.update": "production",
+      "order.organize": "orders",
       "order.note": "production",
       "order.draft": "orders",
       "payment.manual": "finance",
@@ -301,6 +304,7 @@ export const exportAdminRecords = createServerFn({ method: "POST" })
       ]),
       search: z.string().max(200).default(""),
       status: z.string().max(50).default(""),
+      priority: z.enum(["", "low", "normal", "high"]).optional(),
       from: z.string().datetime().optional(),
       to: z.string().datetime().optional(),
     }),
