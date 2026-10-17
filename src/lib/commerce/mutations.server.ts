@@ -124,6 +124,24 @@ export async function mutate(
           (p.stage === "canceled" || STAGES.indexOf(p.stage) < STAGES.indexOf(order.stage))
         )
           throw new Error("Shipment history cannot be rolled back.");
+        if (
+          [
+            "ready_for_production",
+            "engraving",
+            "assembly",
+            "quality_check",
+            "packaging",
+            "ready_to_ship",
+            "shipped",
+            "delivered",
+            "completed",
+          ].includes(p.stage)
+        ) {
+          const { assertProofReady } = await import("./proof-hold.server");
+          await assertProofReady(tx, order);
+        }
+        if (p.stage === "customer_approval" || order.stage === "customer_approval")
+          await tx`insert into commerce_proof_controls(order_id,required) values(${p.id},true) on conflict(order_id) do update set required=true,updated_at=now()`;
         if (p.stage === "shipped" && !(p.tracking || order.tracking))
           throw new Error("Add shipment tracking before marking shipped.");
         if (p.assignedTo) {

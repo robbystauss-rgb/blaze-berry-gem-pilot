@@ -22,17 +22,19 @@ export async function notify(sql: Sql, key: string, title: string, orderId: stri
   const inserted = await sql<{
     id: string;
   }>`insert into commerce_notifications(id,event_key,title,order_id) values(${randomUUID()},${key},${title},${orderId}) on conflict(event_key) do nothing returning id`;
-  if (inserted.length && orderId && /^(custom|catalog|draft|paid):/.test(key)) {
+  if (inserted.length && orderId && /^(custom|catalog|draft|paid|proof-response):/.test(key)) {
     const { queueOrderEmail } = await import("./order-email.server");
     await queueOrderEmail(sql, inserted[0].id, key, orderId);
   }
 }
 export const ORDER_SELECT = `select o.*, coalesce(p.paid,0)::int as paid, coalesce(p.refunded,0)::int as refunded,
+ coalesce((select case when c.required then coalesce(d.state,'awaiting_approval') else 'not_required' end from commerce_proof_controls c left join commerce_studio_documents d on d.id=c.current_proof_id where c.order_id=o.id),case when o.stage='customer_approval' then 'awaiting_approval' else 'not_required' end) as proof_status,
  case when exists(select 1 from commerce_disputes d where d.order_id=o.id and d.state not in ('won','lost','resolved')) then 'disputed'
  when coalesce(p.refunded,0)>0 and p.refunded>=p.paid then 'refunded'
  when coalesce(p.refunded,0)>0 then 'partially_refunded'
  when coalesce(p.paid,0)>=o.total and coalesce(p.paid,0)>0 then 'paid'
  when coalesce(p.paid,0)>0 then 'partially_paid'
+ when exists(select 1 from commerce_invoices i where i.order_id=o.id and i.state='open' and i.last_error is not null) then 'failed'
  when exists(select 1 from commerce_checkouts c where c.order_id=o.id and c.state='failed') then 'failed'
  when exists(select 1 from commerce_checkouts c where c.order_id=o.id and c.state='pending') then 'pending' else 'unpaid' end as payment_status,
  coalesce((select string_agg(i.title,', ') from commerce_order_items i where i.order_id=o.id),'') as titles

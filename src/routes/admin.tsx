@@ -6,6 +6,8 @@ export const sections = [
   "orders",
   "payments",
   "quotes",
+  "invoices",
+  "proofs",
   "production",
   "inventory",
   "products",

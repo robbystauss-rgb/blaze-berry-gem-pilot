@@ -9,9 +9,11 @@ export async function manageInvoice(
   action: "create" | "send" | "resend",
   actor: string,
   client?: Stripe,
+  options?: { dueDate: number; documentId?: string },
 ) {
   const sql = await getSql();
   const stripe = client ?? stripeClient();
+  const obligation = options?.documentId ? `${orderId}:${options.documentId}` : orderId;
   // Do not silently substitute another business's identity or configured Stripe sender.
   if (!financialConfig().invoices)
     throw new Error(
@@ -24,6 +26,11 @@ export async function manageInvoice(
     throw new Error("Invoice sender must match the reviewed REC Mama Made Stripe support email.");
   const claim = await sql.transaction(async (tx) => {
     const order = await orderById(tx, orderId, true);
+    if (options?.documentId) {
+      const [document] =
+        await tx`select id from commerce_studio_documents where id=${options.documentId} and kind='invoice' and order_id=${orderId} and state='issued'`;
+      if (!document) throw Error("This Studio invoice is no longer issued or payable.");
+    }
     if (order.stage === "canceled" || order.paid > 0)
       throw new Error("Invoices require an unpaid, uncanceled order.");
     const checkout = await tx`select reference from commerce_checkouts where order_id=${orderId}`;
@@ -63,22 +70,25 @@ export async function manageInvoice(
               email: claim.order.customer_email,
               metadata: { rec_order_id: orderId },
             },
-            { idempotencyKey: `rec-invoice-customer:${orderId}` },
+            { idempotencyKey: `rec-invoice-customer:${obligation}` },
           );
       await sql`update commerce_invoices set customer_id=${customer.id} where order_id=${orderId}`;
       invoice = await stripe.invoices.create(
         {
           customer: customer.id,
           collection_method: "send_invoice",
-          days_until_due: 14,
+          ...(options ? { due_date: options.dueDate } : { days_until_due: 14 }),
           auto_advance: false,
           pending_invoice_items_behavior: "exclude",
-          metadata: { rec_order_id: orderId },
+          metadata: {
+            rec_order_id: orderId,
+            ...(options?.documentId ? { rec_studio_document_id: options.documentId } : {}),
+          },
           description: `REC Mama Made · Order #${claim.order.number}`,
           footer:
             "Thank you for supporting REC Mama Made. Custom work is confirmed before production.",
         },
-        { idempotencyKey: `rec-invoice:${orderId}` },
+        { idempotencyKey: `rec-invoice:${obligation}` },
       );
       // Persist the provider id before later calls so partial failures resume the same invoice.
       await sql`update commerce_invoices set provider_id=${invoice.id} where order_id=${orderId}`;
@@ -105,7 +115,7 @@ export async function manageInvoice(
             description: `${item.title} × ${item.quantity}`,
             metadata: { rec_order_item_id: item.id },
           },
-          { idempotencyKey: `rec-invoice-item:${orderId}:${item.id}` },
+          { idempotencyKey: `rec-invoice-item:${obligation}:${item.id}` },
         );
       }
       for (const [name, amount] of [
@@ -124,7 +134,7 @@ export async function manageInvoice(
               description: name,
               metadata: { rec_extra: name },
             },
-            { idempotencyKey: `rec-invoice-extra:${orderId}:${name}` },
+            { idempotencyKey: `rec-invoice-extra:${obligation}:${name}` },
           );
       }
       invoice = await stripe.invoices.retrieve(invoice.id);
@@ -135,7 +145,7 @@ export async function manageInvoice(
       invoice = await stripe.invoices.finalizeInvoice(
         invoice.id,
         { auto_advance: false },
-        { idempotencyKey: `rec-invoice-finalize:${orderId}` },
+        { idempotencyKey: `rec-invoice-finalize:${obligation}` },
       );
     }
     if (

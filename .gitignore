@@ -5,6 +5,7 @@ node_modules/
 .env.*
 artifacts/commerce-qa/
 artifacts/crown-qa/
+artifacts/studio/
 screenshots/
 *.log
 

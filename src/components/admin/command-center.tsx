@@ -73,6 +73,7 @@ import { BusinessSearch } from "./business-search";
 import { InventoryCsv } from "./inventory-csv";
 import { ContentPagesEditor } from "./content-pages-editor";
 import { QuotesEditor } from "./quotes-editor";
+import { StudioDocuments } from "./studio-documents";
 import { OwnerTasks, OwnerDashboardInsights } from "./owner-tasks";
 import { reportBounds, businessMidnight, shiftBusinessDay } from "@/lib/commerce/business-dates";
 
@@ -83,6 +84,8 @@ const NAV: { id: Section; name: string; icon: typeof Menu; permission: Permissio
     { id: "orders", name: "Orders", icon: ShoppingBag, permission: "orders" },
     { id: "payments", name: "Payments & invoices", icon: CreditCard, permission: "finance" },
     { id: "quotes", name: "Quotes & bulk requests", icon: ShoppingBag, permission: "finance" },
+    { id: "invoices", name: "Invoices", icon: CreditCard, permission: "finance" },
+    { id: "proofs", name: "Design Proofs", icon: Layers, permission: "finance" },
     { id: "production", name: "Production queue", icon: Layers, permission: "production" },
     { id: "inventory", name: "Inventory", icon: Package, permission: "inventory" },
     { id: "products", name: "Products", icon: Tags, permission: "products" },
@@ -104,6 +107,8 @@ const DESCRIPTION: Record<Section, string> = {
   orders: "Every order, its original specifications and the next step.",
   payments: "Verified receipts and invoices, with a complete financial trail.",
   quotes: "Customer requests, reviewed estimates and accepted work ready for invoicing.",
+  invoices: "Signature Studio documents, secure payment and recorded delivery history.",
+  proofs: "Independent design versions, customer responses and artwork production holds.",
   production: "Custom work, organized around the way you make it.",
   inventory: "Real stock counts, commitments and material movements.",
   products: "Manage ordinary merchandise without opening source code.",
@@ -328,9 +333,17 @@ export function CommandCenter() {
     if (
       !access ||
       !permitted ||
-      ["security", "calibration", "gallery", "pricing", "promotions", "content", "quotes"].includes(
-        section,
-      )
+      [
+        "security",
+        "calibration",
+        "gallery",
+        "pricing",
+        "promotions",
+        "content",
+        "quotes",
+        "invoices",
+        "proofs",
+      ].includes(section)
     ) {
       setLoading(false);
       return;
@@ -358,6 +371,8 @@ export function CommandCenter() {
               | "promotions"
               | "content"
               | "quotes"
+              | "invoices"
+              | "proofs"
             >,
             search,
             page,
@@ -602,6 +617,12 @@ export function CommandCenter() {
             <PromotionEditor />
           ) : section === "content" ? (
             <StorefrontEditor />
+          ) : section === "invoices" || section === "proofs" ? (
+            <StudioDocuments
+              key={section}
+              kind={section === "invoices" ? "invoice" : "proof"}
+              initialOrderId={orderId}
+            />
           ) : section === "quotes" ? (
             <QuotesEditor onOpenOrder={openOrder} />
           ) : orderId ? (
@@ -1802,6 +1823,7 @@ function OrderList({
                   }
                 />
                 {!production && <b>{money(o.total)}</b>}
+                {o.proof_status && <Badge value={o.proof_status} />}
               </td>
               <td data-label="Status">
                 <Badge

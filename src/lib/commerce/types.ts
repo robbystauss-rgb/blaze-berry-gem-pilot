@@ -88,6 +88,7 @@ export type OrderRow = {
   payment_status: string;
   titles: string;
   financial_detail_known: boolean;
+  proof_status?: string;
 };
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 export type ItemRow = {
