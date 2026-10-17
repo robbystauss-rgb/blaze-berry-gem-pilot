@@ -31,6 +31,9 @@ export function SavedHatProof({
   useEffect(() => {
     let alive = true,
       url = "";
+    setArtwork(undefined);
+    setError("");
+    setArtworkReady(!hasArtwork);
     if (hasArtwork) {
       setArtworkReady(false);
       const token = getBearerToken();
@@ -157,7 +160,12 @@ export function SavedHatProof({
         c.textAlign = "center";
         c.textBaseline = "middle";
         c.font = `600 ${Math.min(24, w * 0.12)}px sans-serif`;
-        c.fillText(String(s.patchText || "PDF artwork"), 0, 0, w * 0.82);
+        c.fillText(
+          String(s.patchText || (hasArtwork ? "PDF artwork" : "Your patch")),
+          0,
+          0,
+          w * 0.82,
+        );
       }
       const light = c.createLinearGradient(-w / 2, 0, w / 2, 0);
       light.addColorStop(0, "rgba(25,17,10,.18)");

@@ -29,6 +29,16 @@ Catalog readiness and photo completeness are separate: a verified product photo 
 
 If a model, color, or view is missing, show a neutral unavailable state. Never substitute another Richardson model, a generated hat, or a guessed color rendering.
 
+### Builder photo detail
+
+`src/data/hat-display-images.json` binds larger display renditions to the **same** exact Drive asset, model, frozen calibration ID and base SHA-256. The 222 verified larger fronts use their native 2000×2500, 2400×2400 or 3000×2500 pixels, encoded as optimized WebP without enlargement, sharpening, recoloring or generated detail. Existing `/assets/crown/` images, calibration coordinates, source hashes and historical order snapshots remain immutable. A display rendition is not a new product/photo calibration identity. Failed or incorrectly sized display files fall back to the original exact photograph.
+
+The 21 original PDF/catalog crops (112PM, seven 112FPR colors, and 168P) remain only 226–227 pixels wide. They are explicitly labeled as limited-detail photos and do not offer extra zoom; larger files of those exact hats are required to improve their detail. The owner can register a verified replacement through Hat photo calibration and calibrate/publish it independently. No different model, color or view is substituted.
+
+Side/rear views request density-appropriate larger versions of their existing exact Drive asset IDs. Missing views remain missing. Original photographic resolution is the upper bound on genuine detail.
+
+Run `npm run check:hat-images` and `npm run test:hat-images`. The production build verifies exact bindings, complete larger-front coverage, byte hashes, image dimensions, framing, stripped metadata and size limits. Maintenance recovery is explicit (`REC_FETCH_HAT_ORIGINALS=1 node scripts/recover-hat-display-images.mjs`); ordinary builds make no remote image changes. Source recovery checks the approved baseline hash, or an exceptionally strict full-frame decoded-pixel proof allowing at most four isolated one-level 8-bit differences; changed framing/photo pixels are rejected. Native-source hashes and comparison evidence are retained in the display manifest.
+
 ## Materials
 
 The authoritative material source is the exact Drive file:

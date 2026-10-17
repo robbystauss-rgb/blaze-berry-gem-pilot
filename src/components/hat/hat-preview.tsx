@@ -36,6 +36,12 @@ import {
   type PhotoGeometry,
 } from "@/lib/patch-physical";
 import { PatchFace } from "./patch-face";
+import { hatDisplayImage } from "@/lib/hat-display-images";
+import {
+  detailedDriveView,
+  hatImageDimensionsMatch,
+  limitedPhotoDetail,
+} from "@/lib/hat-image-quality";
 
 type Props = {
   family: FamilyId;
@@ -217,13 +223,33 @@ export function HatPreview({
     height: number;
   } | null>(null);
   const [failedImage, setFailedImage] = useState<string | null>(null);
+  const [failedRendition, setFailedRendition] = useState<string | null>(null);
+  const [pixelRatio, setPixelRatio] = useState(1);
   const [imageBox, setImageBox] = useState<Rect>({ x: 0, y: 0, width: 0, height: 0 });
+  const rendition = hatDisplayImage(calibration);
+  const detailLimited = calibration
+    ? limitedPhotoDetail(
+        rendition?.width ?? calibration.sourceWidth,
+        rendition?.height ?? calibration.sourceHeight,
+      )
+    : loadedImage?.src === src && limitedPhotoDetail(loadedImage.width, loadedImage.height);
+  const expanded = zoom && !detailLimited;
+  const preferredImageSrc = calibration
+    ? (rendition?.imageUrl ?? src)
+    : detailedDriveView(src, imageBox.width, pixelRatio, expanded);
+  const imageSrc = preferredImageSrc === failedRendition ? src : preferredImageSrc;
   const sourceReady =
     loadedImage?.src === src &&
     calibration?.imageUrl === src &&
-    loadedImage.width === calibration.sourceWidth &&
-    loadedImage.height === calibration.sourceHeight;
-  const imageRect = sourceReady && loadedImage ? fittedImageRect(loadedImage, imageBox) : null;
+    hatImageDimensionsMatch(calibration, rendition, loadedImage.width, loadedImage.height);
+  // Delivery pixel density never changes the saved source coordinate system.
+  const imageRect =
+    sourceReady && calibration
+      ? fittedImageRect(
+          { width: calibration.sourceWidth, height: calibration.sourceHeight },
+          imageBox,
+        )
+      : null;
   const showPatch = patchOnly || !src || patchOnView(placement, active);
   const usesDraftTransform =
     !patchOnly &&
@@ -267,28 +293,43 @@ export function HatPreview({
   useEffect(() => {
     const frame = frameRef.current;
     if (!frame) return;
-    const measure = () =>
+    const measure = () => {
       setImageBox({ x: 0, y: 0, width: frame.clientWidth, height: frame.clientHeight });
+      setPixelRatio(window.devicePixelRatio || 1);
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(frame);
-    return () => observer.disconnect();
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   useEffect(() => {
     // SSR/cached images can finish before React attaches onLoad during hydration.
     const image = imageRef.current;
-    if (src && image?.complete && image.getAttribute("src") === src) {
+    if (src && image?.complete && image.getAttribute("src") === imageSrc) {
       if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+        if (
+          rendition &&
+          imageSrc === rendition.imageUrl &&
+          (image.naturalWidth !== rendition.width || image.naturalHeight !== rendition.height)
+        ) {
+          setFailedRendition(imageSrc);
+          return;
+        }
         setFailedImage(null);
         setLoadedImage({ src, width: image.naturalWidth, height: image.naturalHeight });
       } else {
         // An early failure can also precede React's onError attachment.
         setLoadedImage(null);
-        setFailedImage(src);
+        if (imageSrc !== src) setFailedRendition(imageSrc);
+        else setFailedImage(src);
       }
     }
-  }, [src]);
+  }, [src, imageSrc, rendition]);
 
   useEffect(() => {
     if (!calibratedFront || !isFrontPlacement(placement)) {
@@ -461,7 +502,7 @@ export function HatPreview({
           data-crown-bounds={photoGeometry ? JSON.stringify(photoGeometry.bounds) : undefined}
           data-preview-version="3"
           className="absolute inset-0 transition-transform duration-300 ease-out"
-          style={{ transform: zoom ? "scale(1.35)" : "scale(1)" }}
+          style={{ transform: expanded ? "scale(1.35)" : "scale(1)" }}
         >
           {patchOnly || !src ? (
             <div className="grid h-full place-items-center p-5">
@@ -487,11 +528,20 @@ export function HatPreview({
             <img
               ref={imageRef}
               key={src}
-              src={src}
+              src={imageSrc ?? undefined}
               alt={`${FAMILIES[family].label} ${named || "model"} ${active}`}
               className="stage-in h-full w-full object-contain object-center"
               decoding="async"
               onLoad={(event) => {
+                if (
+                  rendition &&
+                  imageSrc === rendition.imageUrl &&
+                  (event.currentTarget.naturalWidth !== rendition.width ||
+                    event.currentTarget.naturalHeight !== rendition.height)
+                ) {
+                  setFailedRendition(imageSrc);
+                  return;
+                }
                 setFailedImage(null);
                 setLoadedImage({
                   src,
@@ -501,7 +551,8 @@ export function HatPreview({
               }}
               onError={() => {
                 setLoadedImage(null);
-                setFailedImage(src);
+                if (imageSrc !== src) setFailedRendition(imageSrc);
+                else setFailedImage(src);
               }}
             />
           )}
@@ -560,11 +611,21 @@ export function HatPreview({
               {photoGeometry.reference
                 ? "Owner-calibrated reference"
                 : "Estimated photo scale · final fit confirmed in proof"}
+              {detailLimited && (
+                <span className="block" data-photo-detail="limited">
+                  Catalog photo · detail limited
+                </span>
+              )}
             </p>
           )}
           {!patchOnly && !calibratedFront && showPatch && (
             <p className="patch-scale-caption">
               Uncalibrated view · final size and placement confirmed in proof
+              {detailLimited && (
+                <span className="block" data-photo-detail="limited">
+                  Catalog photo · detail limited
+                </span>
+              )}
             </p>
           )}
         </div>
@@ -649,9 +710,15 @@ export function HatPreview({
       <button
         type="button"
         onClick={() => setZoom((value) => !value)}
-        className="absolute bottom-3 right-3 z-30 min-h-11 rounded-full bg-stage-photo/92 px-3 text-xs font-semibold text-stage-ink shadow-[0_8px_22px_rgba(45,38,30,0.06)] ring-1 ring-stage-line"
+        disabled={Boolean(detailLimited)}
+        title={
+          detailLimited
+            ? "This catalog photo has limited detail. A higher-resolution exact-model photo is needed for zoom."
+            : undefined
+        }
+        className="absolute bottom-3 right-3 z-30 min-h-11 rounded-full bg-stage-photo/92 px-3 text-xs font-semibold text-stage-ink shadow-[0_8px_22px_rgba(45,38,30,0.06)] ring-1 ring-stage-line disabled:opacity-45"
       >
-        {zoom ? "Fit" : "Zoom"}
+        {expanded ? "Fit" : "Zoom"}
       </button>
       {showCaption && (
         <p className="pointer-events-none absolute left-4 right-4 top-3 z-10 text-center text-sm leading-6 text-stage-muted">
@@ -964,35 +1031,22 @@ export function PatchCard({
   artworkUrl?: string;
   className?: string;
 }) {
-  const leather = getLeatherette(leatherette);
-  const safe = shape;
+  const physical = physicalPatch(shape, size);
   const style: CSSProperties = {
-    clipPath: clipFor(safe),
-    backgroundColor: leather.hex,
-    backgroundImage: leather.texture ? `url(${leather.texture})` : undefined,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    color: leather.ink,
-    width: size === "small" ? 168 : size === "large" ? 300 : 230,
+    width: physical.width * 76,
+    height: "auto",
     maxWidth: "82vw",
-    aspectRatio: safe === "Oval" ? "1.45 / 1" : safe === "Circle" ? "1" : "1.35 / 1",
-    boxShadow: "0 16px 30px rgba(44,33,30,0.16)",
+    aspectRatio: physical.width / physical.height,
   };
   return (
     <div className={cn("grid place-items-center", className)}>
-      <div className="flex items-center justify-center px-3 text-center" style={style}>
-        {artworkUrl && !artworkUrl.startsWith("data:application/pdf") ? (
-          <img
-            src={artworkUrl}
-            alt=""
-            className="max-h-[78%] max-w-[78%] object-contain"
-            style={{ filter: "grayscale(1) contrast(1.35)", mixBlendMode: "multiply" }}
-          />
-        ) : (
-          <span className="font-display text-lg leading-tight font-semibold">
-            {artworkUrl ? "PDF artwork" : patchText.trim() || "Your patch"}
-          </span>
-        )}
+      <div
+        className="physical-patch-mounted"
+        style={style}
+        data-patch-card="true"
+        data-physical-inches={JSON.stringify(physical)}
+      >
+        <PatchFace material={leatherette} shape={shape} text={patchText} artwork={artworkUrl} />
       </div>
     </div>
   );

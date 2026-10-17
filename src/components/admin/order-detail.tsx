@@ -45,7 +45,7 @@ export function OrderDetail({
     void refresh();
   }, [refresh]);
   async function save(
-    action: "order.update" | "order.note" | "payment.manual",
+    action: "order.update" | "order.organize" | "order.note" | "payment.manual",
     payload: Record<string, unknown>,
   ) {
     setBusy(true);
@@ -583,6 +583,9 @@ export function OrderDetail({
       <div className="cc-detail-grid cc-no-print">
         <section className="cc-panel">
           <h2>Production & fulfillment</h2>
+          <p className="cc-help">
+            {label(o.priority)} priority{o.tags.length ? " · " + o.tags.join(" · ") : ""}
+          </p>
           <form
             key={o.version}
             className="cc-form"
@@ -638,6 +641,58 @@ export function OrderDetail({
               Update order
             </button>
           </form>
+          {!production && (
+            <form
+              key={"organization-" + o.version}
+              className="cc-form"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const fields = new FormData(e.currentTarget);
+                await save("order.organize", {
+                  id,
+                  version: o.version,
+                  priority: String(fields.get("priority")),
+                  tags: String(fields.get("tags") || "")
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                });
+              }}
+            >
+              <h3>Shop priority & tags</h3>
+              <label className="cc-field">
+                Production priority
+                <select
+                  name="priority"
+                  aria-label="Production priority"
+                  defaultValue={o.priority}
+                  disabled={busy}
+                >
+                  <option value="low">Low</option>
+                  <option value="normal">Normal</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+              <label className="cc-field">
+                Private order tags
+                <input
+                  name="tags"
+                  aria-label="Private order tags"
+                  defaultValue={o.tags.join(", ")}
+                  maxLength={490}
+                  disabled={busy}
+                />
+              </label>
+              <p className="cc-help">
+                Separate up to 12 tags with commas, up to 40 characters each. These private shop
+                labels do not change prices or customer delivery promises. Production is sorted by
+                priority, then due date.
+              </p>
+              <button className="cc-button secondary" disabled={busy}>
+                Save priority & tags
+              </button>
+            </form>
+          )}
           <p className="cc-help">
             Starting production consumes allocated stock once. Cancellation releases unconsumed
             stock. Consumed or refunded materials require a verified inventory adjustment.

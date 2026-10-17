@@ -7,7 +7,9 @@ if (
   process.env.VERCEL ||
   process.env.NODE_ENV === "production" ||
   process.env.STRIPE_SECRET_KEY ||
-  process.env.PAYPAL_CLIENT_SECRET
+  process.env.PAYPAL_CLIENT_SECRET ||
+  process.env.RESEND_API_KEY ||
+  process.env.REC_ORDER_EMAIL_SENDER_VERIFIED === "true"
 )
   throw Error("Built QA refuses persistent databases, production and provider credentials.");
 const base = "http://localhost:8081",
@@ -25,7 +27,7 @@ const child = spawn(
     stdio: "inherit",
     env: {
       ...process.env,
-      BETTER_AUTH_URL:base,
+      BETTER_AUTH_URL: base,
       REC_OWNER_INVITE_SHA256: createHash("sha256").update(token).digest("hex"),
       REC_OWNER_INVITE_EMAIL: users.owner.email,
       REC_OWNER_INVITE_EXPIRES_AT: new Date(Date.now() + 3600000).toISOString(),

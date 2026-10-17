@@ -31,6 +31,49 @@ export async function mutate(
   const sql = await getSql();
   return sql.transaction(async (tx) => {
     switch (action) {
+      case "order.organize": {
+        assertPermission(actor.role, "orders");
+        const p = z
+          .object({
+            id,
+            version: z.number().int().min(1),
+            priority: z.enum(["low", "normal", "high"]),
+            tags: z
+              .array(
+                text
+                  .min(1)
+                  .max(40)
+                  .refine(
+                    (v) =>
+                      Array.from(v).every((c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127),
+                    "Use single-line tags.",
+                  ),
+              )
+              .max(12),
+          })
+          .strict()
+          .parse(payload);
+        const order = await orderById(tx, p.id, true);
+        if (order.version !== p.version) throw Error("Order changed. Refresh before saving.");
+        const seen = new Set<string>();
+        const tags = p.tags.filter((tag) => {
+          const key = tag.toLocaleLowerCase("en-US");
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        await tx`update commerce_orders set priority=${p.priority},tags=${JSON.stringify(tags)},version=version+1 where id=${p.id}`;
+        await audit(
+          tx,
+          actor.userId,
+          "order.organization_updated",
+          "order",
+          p.id,
+          { priority: order.priority, tags: order.tags },
+          { priority: p.priority, tags },
+        );
+        return { id: p.id };
+      }
       case "order.update": {
         const p = z
           .object({
@@ -51,6 +94,7 @@ export async function mutate(
             ["canceled", "ready_to_ship", "shipped", "delivered", "completed"].includes(p.stage) ||
             p.assignedTo !== undefined ||
             p.tracking !== undefined ||
+            p.carrier !== undefined ||
             p.dueAt !== undefined
           )
             throw new Error("Production staff may update production stages only.");
@@ -425,7 +469,6 @@ export async function mutate(
         return { id: productId };
       }
       case "content.save": {
-        assertPermission(actor.role, "website");
         const p = z
           .object({
             key: z.enum(CONTENT_KEYS),
@@ -433,25 +476,12 @@ export async function mutate(
             version: z.number().int().min(0),
           })
           .parse(payload);
-        const [before] = await tx<{
-          value: string;
-          version: number;
-        }>`select * from commerce_content where key=${p.key} for update`;
-        if ((before?.version ?? 0) !== p.version)
-          throw new Error("Content changed. Refresh before saving.");
-        if (p.key === "contact_email" && p.value && !z.email().safeParse(p.value).success)
-          throw new Error("Enter a valid contact email.");
-        if (
-          p.key === "featured_product_ids" &&
-          p.value &&
-          !p.value.split(",").every((v) => id.safeParse(v.trim()).success)
-        )
-          throw new Error("Use comma-separated product IDs.");
-        await tx`insert into commerce_content(key,value) values(${p.key},${p.value}) on conflict(key) do update set value=excluded.value,version=commerce_content.version+1,updated_at=now()`;
-        await audit(tx, actor.userId, "website.content_edited", "content", p.key, before ?? null, {
-          value: p.value,
-        });
-        return { id: p.key };
+        const { saveContentDocument } = await import("./content-pages.server");
+        return saveContentDocument(
+          { key: p.key, body: { value: p.value }, legacyVersion: p.version, action: "publish" },
+          actor,
+          tx,
+        );
       }
       case "content.restore": {
         assertPermission(actor.role, "website");
@@ -463,24 +493,19 @@ export async function mutate(
         }>`select * from commerce_audit where id=${p.id} and resource_type='content' and action='website.content_edited'`;
         if (!entry || !CONTENT_KEYS.includes(entry.resource_id as (typeof CONTENT_KEYS)[number]))
           throw new Error("Only website content can be restored.");
-        const [current] = await tx<{
-          value: string;
-          version: number;
-        }>`select * from commerce_content where key=${entry.resource_id} for update`;
-        if (!current || current.version !== p.version || current.value !== entry.after_value.value)
-          throw new Error("Newer changes exist. Review current content instead.");
         const next = entry.before_value?.value ?? "";
-        await tx`update commerce_content set value=${next},version=version+1,updated_at=now() where key=${entry.resource_id}`;
-        await audit(
+        const { saveContentDocument } = await import("./content-pages.server");
+        return saveContentDocument(
+          {
+            key: entry.resource_id,
+            body: { value: next },
+            legacyVersion: p.version,
+            expectedValue: entry.after_value.value,
+            action: "publish",
+          },
+          actor,
           tx,
-          actor.userId,
-          "website.content_restored",
-          "content",
-          entry.resource_id,
-          current,
-          { value: next, source_audit_id: p.id },
         );
-        return { id: entry.resource_id };
       }
       case "staff.save": {
         assertPermission(actor.role, "staff");

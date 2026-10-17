@@ -1296,3 +1296,55 @@
   border: 1px solid var(--cc-border);
   border-radius: 12px;
 }
+.cc-inventory-csv {
+  display: grid;
+  gap: 16px;
+}
+.cc-inventory-csv summary {
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.cc-inventory-csv textarea {
+  font-family: ui-monospace, monospace;
+  max-width: 100%;
+}
+.cc-csv-errors {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--color-wine);
+}
+.cc-owner-tasks {
+  display: grid;
+  gap: 16px;
+}
+.cc-task-form {
+  border: 1px solid var(--color-border);
+  padding: 16px;
+  border-radius: 12px;
+}
+.cc-task-notes {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 8px 0;
+}
+.cc-task-row > div:first-child {
+  min-width: 0;
+}
+.cc-task-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+@media (max-width: 640px) {
+  .cc-inventory-csv .cc-panel-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .cc-inventory-csv .cc-actions .cc-button {
+    flex: 1;
+  }
+}

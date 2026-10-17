@@ -18,6 +18,7 @@ import { dirname, join } from "node:path";
 import pg from "pg";
 import { pendingMigrations } from "./migration-plan.mjs";
 import { applyMigrationFiles } from "./migration-runner.mjs";
+import { inspectMigrationCompatibility } from "./migration-safety.mjs";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -56,10 +57,14 @@ async function main() {
   const client = await pool.connect();
   try {
     await client.query("SELECT pg_advisory_lock(hashtext('rec-mama-made:migrations'))");
+    const plan = await inspectMigrationCompatibility(
+      client,
+      pendingMigrations(entries, []).map((m) => m.name),
+    );
     await client.query(
       "CREATE TABLE IF NOT EXISTS public._migrations (name TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())",
     );
-    const applied = (await client.query("SELECT name FROM public._migrations")).rows.map((r) => r.name);
+    const applied = plan.applied;
 
     const count = await applyMigrationFiles(client, {
       migrationsDir,

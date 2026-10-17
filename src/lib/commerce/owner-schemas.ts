@@ -5,6 +5,7 @@ const point = z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1
 const money = z.number().int().min(0).max(1000000);
 export const calibrationSchema = z
   .object({
+    projectionVersion: z.literal(2).optional(),
     imageVersion: z.string().regex(/^[a-f0-9]{64}$/),
     bounds: z
       .object({
@@ -152,7 +153,7 @@ export const promotionSchema = z.object({
   state: z.enum(["draft", "active", "inactive", "archived"]),
   version: z.number().int().min(0),
 });
-export type OwnerScope = "calibration" | "gallery" | "storefront" | "pricing";
+export type OwnerScope = "calibration" | "gallery" | "storefront" | "pricing" | "content";
 export type DocumentRow<T = Json> = {
   scope: OwnerScope;
   key: string;

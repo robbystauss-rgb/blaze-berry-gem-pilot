@@ -7,7 +7,9 @@ if (
   process.env.VERCEL ||
   process.env.NODE_ENV === "production" ||
   process.env.STRIPE_SECRET_KEY ||
-  process.env.PAYPAL_CLIENT_SECRET
+  process.env.PAYPAL_CLIENT_SECRET ||
+  process.env.RESEND_API_KEY ||
+  process.env.REC_ORDER_EMAIL_SENDER_VERIFIED === "true"
 )
   throw Error("QA server refuses persistent databases, production, and payment credentials.");
 // Deliberately retain the obsolete deployment flag to test that it cannot gate access.
@@ -137,6 +139,26 @@ await mutate(
   },
   actor,
 );
+// A historical text-only builder order, isolated test data for the repeat-order
+// UI. Its old price and private note must never be copied into a new selection.
+const repeatOrderId = randomUUID(),
+  repeatItemId = randomUUID();
+const repeatSpec = {
+  orderType: "hat",
+  family: "112FP",
+  colorway: "Army Olive Green/Tan",
+  leatherette: "buckskin",
+  patchShape: "Rounded Rectangle",
+  patchSize: "medium",
+  placement: "front-center",
+  patchText: "REPEAT THIS TEXT",
+  notes: "PRIVATE HISTORICAL NOTE",
+  promo: "OLD-FIXTURE-CODE",
+  preview: { physicalInches: { width: 3, height: 2 } },
+  previewPlacement: { position: { version: 2, anchor: { x: 0.5, y: 0.5 } } },
+};
+await sql`insert into commerce_orders(id,customer_user_id,customer_name,customer_email,source,subtotal,total) values(${repeatOrderId},${users.customer.id},'TEST FIXTURE Repeat Buyer',${users.customer.email},'test_fixture',200,200)`;
+await sql`insert into commerce_order_items(id,order_id,product_key,title,quantity,fulfilled_quantity,unit_amount,specifications) values(${repeatItemId},${repeatOrderId},'hat:112FP:Army Olive Green/Tan','TEST FIXTURE repeatable builder hat',2,2,100,${JSON.stringify(repeatSpec)})`;
 mkdirSync("artifacts/commerce-qa", { recursive: true });
 writeFileSync(
   "artifacts/commerce-qa/session.json",
@@ -146,6 +168,8 @@ writeFileSync(
       orderId,
       unpaidOrderId,
       inventoryId,
+      repeatOrderId,
+      repeatItemId,
       ownerSetupUrl: `http://localhost:8080/owner-setup#token=${ownerSetupToken}`,
     },
     null,

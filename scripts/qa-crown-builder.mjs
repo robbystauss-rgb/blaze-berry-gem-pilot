@@ -20,6 +20,9 @@ const artifactDir = resolve(root, "artifacts/crown-qa", suffix);
 mkdirSync(screenDir, { recursive: true });
 mkdirSync(artifactDir, { recursive: true });
 const manifest = JSON.parse(readFileSync(resolve(root, "src/data/crown-calibrations.json"), "utf8"));
+const displayPhotos = JSON.parse(readFileSync(resolve(root, "src/data/hat-display-images.json"), "utf8"));
+const deliveredPhoto = record => displayPhotos.records.find(r=>r.calibrationId===record.id)?.imageUrl ?? record.imageUrl;
+const samePhotoUrl = (url,record) => [record.imageUrl,deliveredPhoto(record)].some(path=>url.endsWith(path));
 const catalog = JSON.parse(readFileSync(resolve(root, "src/data/master-catalog.json"), "utf8"));
 const patches = JSON.parse(readFileSync(resolve(root, "src/data/catalog-patches.json"), "utf8"));
 const effectiveModels = catalog.models.map((model) => ({ ...model, ...(patches.models[model.id] || {}) }));
@@ -34,6 +37,7 @@ const models = ["112", "112FP", "112FPR", "112P", "112PM", "112PFP", "168", "168
 const pixelTolerance = 0.75;
 const anchorTolerance = 1e-5;
 const evidence = { baseUrl, startedAt: new Date().toISOString(), tolerances: { pixelTolerance, anchorTolerance }, matrix: [], responsive: [], behaviors: [], consoleErrors: [], pageErrors: [], contactSheets: [], actualInventory: [] };
+evidence.navigationEvents=[];
 const escape = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const close = (actual, expected, tolerance, name) => assert.ok(Math.abs(actual - expected) <= tolerance, `${name}: ${actual} != ${expected} (+/-${tolerance})`);
@@ -47,6 +51,7 @@ async function pageFor(options = {}) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, ...options });
   const page = await context.newPage();
   lastPage = page;
+  page.on("framenavigated",frame=>{if(frame===page.mainFrame()&&frame.url().startsWith(baseUrl))evidence.navigationEvents.push({path:new URL(frame.url()).pathname,at:new Date().toISOString()});});
   page.on("pageerror", (error) => evidence.pageErrors.push(error.message));
   page.on("console", (message) => { if (message.type() === "error") evidence.consoleErrors.push(message.text()); });
   if (process.env.CROWN_QA_AUTH_URL) {
@@ -65,7 +70,7 @@ async function failedBeforeHydration() {
   const blocked=new Promise(resolve=>{releaseScripts=resolve;});
   await context.route("**/*",async route=>{
     const request=route.request();
-    if(request.url().endsWith(black.imageUrl))return route.abort("failed");
+    if(samePhotoUrl(request.url(),black))return route.abort("failed");
     if(request.resourceType()==="script"&&new URL(request.url()).origin===new URL(baseUrl).origin)await blocked;
     await route.continue();
   });
@@ -73,7 +78,7 @@ async function failedBeforeHydration() {
   await page.waitForFunction(imageUrl=>{
     const image=document.querySelector("[data-hat-preview] > img");
     return image?.src.endsWith(imageUrl)&&image.complete&&image.naturalWidth===0&&!Object.keys(image).some(key=>key.startsWith("__reactProps"));
-  },black.imageUrl);
+  },deliveredPhoto(black));
   releaseScripts();
   await page.getByRole("status").filter({hasText:"Calibrated product photo unavailable"}).waitFor();
   assert.equal(await page.locator("[data-patch-overlay]").count(),0,"pre-hydration error is recovered visibly");
@@ -111,6 +116,7 @@ async function ready(page, expectedRecord) {
 async function geometry(page, expectedSize, _expectedAspect = 1.5) {
   const value = await page.locator("[data-hat-preview]").evaluate((preview) => {
     const patch = preview.querySelector("[data-patch-overlay]");
+    if(!patch){const s=JSON.parse(localStorage.getItem("rec-mama-order")||"{}").state;throw Error("Missing overlay: "+JSON.stringify({family:preview.dataset.hatPreview,color:preview.dataset.colorway,calibration:preview.dataset.calibration,imageRect:preview.dataset.imageRect,src:preview.querySelector("img")?.src,saved:s?{family:s.family,colorway:s.colorway,size:s.patchSize,artBytes:s.artworkDataUrl?.length}:null}));}
     const art = patch.querySelector("img");
     const frame = patch.getBoundingClientRect();
     const artwork = art.getBoundingClientRect();
@@ -234,7 +240,7 @@ try {
         await ready(page, record);
         const result = await geometry(page, size);
         anchorClose(result.anchor, originAnchor);
-        assert.ok(result.source.endsWith(record.imageUrl), "rendered calibrated asset identity");
+        assert.ok(samePhotoUrl(result.source,record), "rendered exact calibrated photo or verified same-photo larger rendition");
         const filename = `${model}-${slug(colorway)}-${size}.png`;
         await capture(page, filename);
         evidence.matrix.push({ ...result, filename, assetId: record.assetId });
@@ -328,7 +334,7 @@ try {
   const delayed = records.find((r) => r.modelId === "112" && r.colorway !== first.colorway);
   let releaseImage;
   const blocked = new Promise((resolve) => { releaseImage = resolve; });
-  await context.route(`**${delayed.imageUrl}`, async (route) => { await blocked; await route.continue(); });
+  await context.route(url=>samePhotoUrl(url.href,delayed), async (route) => { await blocked; await route.continue(); });
   await step(page, "Color"); await chooseColor(page, delayed.colorway);
   await page.waitForFunction(() => document.querySelector("[data-hat-preview]")?.dataset.imageRect === "loading");
   assert.equal(await patch.count(), 0, "old overlay suppressed until new image loads");
@@ -358,7 +364,7 @@ try {
     const { context: failedContext, page: failedPage } = await pageFor();
     await setup(failedPage, png);
     await chooseModel(failedPage, "112"); await chooseColor(failedPage, first.colorway); await ready(failedPage, first);
-    await failedContext.route(`**${delayed.imageUrl}`, (route) => failure === "network-failure" ? route.abort("failed") : route.fulfill({ status:200, contentType:"image/png", body:png }));
+    await failedContext.route(url=>samePhotoUrl(url.href,delayed), (route) => failure === "network-failure" ? route.abort("failed") : route.fulfill({ status:200, contentType:"image/png", body:png }));
     await step(failedPage, "Color"); await chooseColor(failedPage, delayed.colorway);
     await failedPage.getByRole("status").filter({ hasText: "Calibrated product photo unavailable" }).waitFor();
     assert.equal(await failedPage.locator("[data-patch-overlay]").count(), 0, `${failure}: no invented sizing geometry`);

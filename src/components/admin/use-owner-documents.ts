@@ -8,6 +8,7 @@ export function useOwnerDocuments<T>(scope: OwnerScope) {
   >([]);
   const [error, setError] = useState(""),
     [loading, setLoading] = useState(true),
+    [loaded, setLoaded] = useState(false),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
   const refresh = useCallback(async () => {
@@ -15,6 +16,7 @@ export function useOwnerDocuments<T>(scope: OwnerScope) {
       const data = await getOwnerDocuments({ data: scope });
       setRows(data.documents as DocumentRow<T>[]);
       setRevisions(data.revisions);
+      setLoaded(true);
       setError("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to load drafts.");
@@ -74,5 +76,5 @@ export function useOwnerDocuments<T>(scope: OwnerScope) {
       setBusy(false);
     }
   }
-  return { rows, revisions, error, loading, busy, message, refresh, save };
+  return { rows, revisions, error, loading, loaded, busy, message, refresh, save };
 }

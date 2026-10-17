@@ -5,6 +5,11 @@ import {
   defaultPhotoGeometry,
   physicalPatch,
   physicalProjection,
+  geometryFromBoundary,
+  photoGeometryIssues,
+  referenceMeasurement,
+  patchFits,
+  dimensionLabel,
   type PhotoGeometry,
 } from "@/lib/patch-physical";
 import {
@@ -15,6 +20,8 @@ import {
   type PatchSize,
 } from "@/lib/crown-geometry";
 import { PatchFace } from "@/components/hat/patch-face";
+import { hatDisplayImage } from "@/lib/hat-display-images";
+import { limitedPhotoDetail } from "@/lib/hat-image-quality";
 import { PublishingControls } from "./publishing-controls";
 import { useOwnerDocuments } from "./use-owner-documents";
 import { getOwnerHatPhotos, getMediaLibrary, addHatPhoto } from "@/lib/commerce/owner-api";
@@ -43,27 +50,55 @@ export function CalibrationEditor() {
   const [g, setG] = useState(() => defaultPhotoGeometry(photo)),
     [size, setSize] = useState<PatchSize>("medium"),
     [mode, setMode] = useState<"boundary" | "reference" | "anchor">("boundary"),
-    [draw, setDraw] = useState(false);
+    [draw, setDraw] = useState(false),
+    [drawPoints, setDrawPoints] = useState<Point[]>([]),
+    [drawError, setDrawError] = useState("");
   const svg = useRef<SVGSVGElement>(null),
     drag = useRef<{ kind: string; index: number } | null>(null);
   const row = state.rows.find((r) => r.key === photoId);
   useEffect(() => {
     setG(
-      row?.draft ?? {
-        ...defaultPhotoGeometry(photo),
-        ...(photo.id.startsWith("uploaded:") ? { polygon: [] } : {}),
-      },
+      row?.draft
+        ? { ...row.draft, projectionVersion: 2 }
+        : {
+            ...defaultPhotoGeometry(photo),
+            ...(photo.id.startsWith("uploaded:") ? { polygon: [] } : {}),
+          },
     );
     setDraw(false);
+    setDrawPoints([]);
+    setDrawError("");
   }, [photoId, row?.version, photo, row?.draft]);
   const width = 1000,
     height = (photo.sourceHeight / photo.sourceWidth) * width;
-  const patch = physicalProjection(physicalPatch("Rounded Rectangle", size), photo, g, {
-    x: 0,
-    y: 0,
-    width,
-    height,
-  });
+  const issues = photoGeometryIssues(photo, g);
+  const measurement = referenceMeasurement(photo, g);
+  const patch = !issues.length
+    ? physicalProjection(physicalPatch("Rounded Rectangle", size), photo, g, {
+        x: 0,
+        y: 0,
+        width,
+        height,
+      })
+    : null;
+  const fitsSize = (s: PatchSize) =>
+    !issues.length &&
+    patchFits(
+      g.anchor,
+      physicalProjection(physicalPatch("Rounded Rectangle", s), photo, g, {
+        x: 0,
+        y: 0,
+        width,
+        height,
+      }),
+      { width: g.bounds.width * width, height: g.bounds.height * height },
+      g.polygon,
+      g.rotation,
+      g.skew,
+      g.compression,
+    );
+  const measuredPublished = state.rows.filter((r) => r.published?.reference).length;
+  const estimatedPublished = state.rows.filter((r) => r.published && !r.published.reference).length;
   const anchor = crownToSource(g.anchor, g.bounds);
   function sourcePoint(e: React.PointerEvent): Point {
     const b = svg.current!.getBoundingClientRect();
@@ -137,6 +172,13 @@ export function CalibrationEditor() {
       <p>
         Outline the usable crown, then add a measured reference only when its physical length is
         known. Each photo keeps its own draft, image hash and published history.
+      </p>
+      <p className="cc-help" data-calibration-coverage="true">
+        {manifest.records.length} exact catalog photos have visual crown bounds; those are not
+        physical measurements. {measuredPublished} published owner reference
+        {measuredPublished === 1 ? "" : "s"} · {estimatedPublished} published estimated calibration
+        {estimatedPublished === 1 ? "" : "s"}. Physical accuracy requires a known length in this
+        exact photograph, on the same crown plane as the patch.
       </p>
       {state.loading ? (
         <p role="status">Loading calibration drafts…</p>
@@ -259,28 +301,68 @@ export function CalibrationEditor() {
           <p className="cc-help">
             Front · {photo.sourceWidth} × {photo.sourceHeight} · image {photo.sha256.slice(0, 16)} ·{" "}
             {g.reference
-              ? "Measured reference supplied by owner"
-              : "Estimated scale — no physical measurement supplied"}
+              ? "Owner reference entered — verify the real measurement before publishing"
+              : "Estimated scale — 7.5-inch assumed crown width; no physical measurement supplied"}
           </p>
+          {limitedPhotoDetail(photo.sourceWidth, photo.sourceHeight) && (
+            <p role="status" className="cc-help">
+              Limited-detail source photo ({photo.sourceWidth} × {photo.sourceHeight} pixels).
+              Upload a clear, full-size front photo of this exact model and color, then calibrate
+              and publish it. Enlarging this catalog crop cannot recover fabric detail.
+            </p>
+          )}
+          {measurement && (
+            <p className="cc-help">
+              Reference span: {measurement.sourcePixels.toFixed(1)} source pixels. Rotation, shear
+              and horizontal perspective are accounted for once. This remains a local planar
+              approximation of a curved crown.
+            </p>
+          )}
+          {row?.draft && !row.draft.projectionVersion && (
+            <p className="cc-help">
+              This draft uses corrected reference perspective when next published. Existing order
+              snapshots retain their original projection.
+            </p>
+          )}
+          {issues.length > 0 && (
+            <div role="status" className="cc-error">
+              <p>Complete this calibration before saving or publishing:</p>
+              <ul>
+                {issues.map((issue) => (
+                  <li key={issue}>{issue}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {drawError && (
+            <p role="alert" className="cc-error">
+              {drawError}
+            </p>
+          )}
           <div className="cc-calibration-layout">
             <div>
               <div
                 className="cc-calibration-photo"
                 style={{ aspectRatio: `${photo.sourceWidth}/${photo.sourceHeight}` }}
               >
-                <img src={photo.imageUrl} alt={`Exact ${photo.modelId} calibration photograph`} />
-                <div
-                  className="cc-calibration-patch"
-                  style={{
-                    left: `${anchor.x * 100}%`,
-                    top: `${anchor.y * 100}%`,
-                    width: `${(patch.width / width) * 100}%`,
-                    height: `${(patch.height / height) * 100}%`,
-                    transform: `translate(-50%,-50%) rotate(${g.rotation}deg) skewX(${g.skew}deg) scaleX(${g.compression})`,
-                  }}
-                >
-                  <PatchFace material="buckskin" shape="Rounded Rectangle" text="REC MAMA MADE" />
-                </div>
+                <img
+                  src={hatDisplayImage(photo)?.imageUrl ?? photo.imageUrl}
+                  alt={`Exact ${photo.modelId} calibration photograph`}
+                />
+                {patch && (
+                  <div
+                    className="cc-calibration-patch"
+                    style={{
+                      left: `${anchor.x * 100}%`,
+                      top: `${anchor.y * 100}%`,
+                      width: `${(patch.width / width) * 100}%`,
+                      height: `${(patch.height / height) * 100}%`,
+                      transform: `translate(-50%,-50%) rotate(${g.rotation}deg) skewX(${g.skew}deg) scaleX(${g.compression})`,
+                    }}
+                  >
+                    <PatchFace material="buckskin" shape="Rounded Rectangle" text="REC MAMA MADE" />
+                  </div>
+                )}
                 <svg
                   ref={svg}
                   viewBox="0 0 1 1"
@@ -295,32 +377,27 @@ export function CalibrationEditor() {
                   }}
                   onPointerDown={(e) => {
                     if (draw && mode === "boundary") {
-                      const c = sourceToCrown(sourcePoint(e), g.bounds);
-                      setG((v) => ({
-                        ...v,
-                        polygon: [
-                          ...v.polygon,
-                          { x: Math.max(0, Math.min(1, c.x)), y: Math.max(0, Math.min(1, c.y)) },
-                        ],
-                      }));
+                      const source = sourcePoint(e);
+                      setDrawPoints((points) => [...points, source]);
+                      setDrawError("");
                     }
                   }}
                 >
                   <polygon
-                    points={g.polygon
+                    points={(draw ? drawPoints : g.polygon.map((p) => crownToSource(p, g.bounds)))
                       .map((p) => {
-                        const s = crownToSource(p, g.bounds);
-                        return `${s.x},${s.y}`;
+                        return `${p.x},${p.y}`;
                       })
                       .join(" ")}
                     className="cc-crown-polygon"
                   />
-                  {mode === "boundary" &&
+                  {!draw &&
+                    mode === "boundary" &&
                     g.polygon.map((p, i) => {
                       const s = crownToSource(p, g.bounds);
                       return marker(s, i, "polygon");
                     })}
-                  {g.reference && (
+                  {!draw && g.reference && (
                     <>
                       <line
                         x1={g.reference.start.x}
@@ -335,7 +412,7 @@ export function CalibrationEditor() {
                         )}
                     </>
                   )}
-                  {mode === "anchor" && marker(anchor, 0, "anchor")}
+                  {!draw && mode === "anchor" && marker(anchor, 0, "anchor")}
                 </svg>
               </div>
               <p id="calibration-keyboard-help" className="cc-help">
@@ -348,10 +425,17 @@ export function CalibrationEditor() {
                     className={`cc-button ${size === s ? "" : "secondary"}`}
                     onClick={() => setSize(s)}
                   >
-                    {s} · {physicalPatch("Rounded Rectangle", s).width}″
+                    {s} · {dimensionLabel("Rounded Rectangle", s)} ·{" "}
+                    {fitsSize(s) ? "fits" : "outside usable area"}
                   </button>
                 ))}
               </div>
+              {patch && !fitsSize(size) && (
+                <p role="status" className="cc-error">
+                  This rectangle extends beyond the usable area at the default anchor. Move the
+                  anchor, review the measured reference, or test a smaller size.
+                </p>
+              )}
               <p className="cc-help">
                 This is a preview of laser-cut leatherette. Final physical fit and the custom
                 die-cut outline require the production proof.
@@ -374,56 +458,95 @@ export function CalibrationEditor() {
                 className="cc-button secondary"
                 onClick={() => {
                   setMode("boundary");
-                  setDraw(!draw);
-                  if (!draw) setG((v) => ({ ...v, polygon: [] }));
-                  else if (g.polygon.length >= 3) {
-                    const points = g.polygon.map((p) => crownToSource(p, g.bounds)),
-                      xs = points.map((p) => p.x),
-                      ys = points.map((p) => p.y);
-                    const bounds = {
-                      x: Math.min(...xs),
-                      y: Math.min(...ys),
-                      width: Math.max(...xs) - Math.min(...xs),
-                      height: Math.max(...ys) - Math.min(...ys),
-                    };
-                    setG((v) => ({
-                      ...v,
-                      bounds,
-                      polygon: points.map((p) => sourceToCrown(p, bounds)),
-                      anchor: { x: 0.5, y: 0.5 },
-                    }));
+                  if (!draw) {
+                    setDraw(true);
+                    setDrawPoints([]);
+                    setDrawError("");
+                  } else {
+                    try {
+                      setG(geometryFromBoundary(drawPoints, g));
+                      setDraw(false);
+                      setDrawError("");
+                    } catch (e) {
+                      setDrawError(e instanceof Error ? e.message : "Review the usable boundary.");
+                    }
                   }
                 }}
               >
                 {draw ? "Finish drawing boundary" : "Draw new boundary"}
               </button>
+              {draw && (
+                <>
+                  <p className="cc-help">
+                    Tap the corners in order around the usable crown. The new outline can extend
+                    beyond the old bounds. {drawPoints.length} corner
+                    {drawPoints.length === 1 ? "" : "s"} added.
+                  </p>
+                  <div className="cc-actions">
+                    <button
+                      className="cc-button secondary"
+                      disabled={!drawPoints.length}
+                      onClick={() => setDrawPoints((points) => points.slice(0, -1))}
+                    >
+                      Undo last corner
+                    </button>
+                    <button
+                      className="cc-button secondary"
+                      onClick={() => {
+                        setDraw(false);
+                        setDrawPoints([]);
+                        setDrawError("");
+                      }}
+                    >
+                      Cancel drawing
+                    </button>
+                  </div>
+                </>
+              )}
               <button
                 className="cc-button secondary"
                 onClick={() => {
-                  setG(defaultPhotoGeometry(photo));
+                  setG({
+                    ...defaultPhotoGeometry(photo),
+                    ...(photo.id.startsWith("uploaded:") ? { polygon: [] } : {}),
+                  });
                   setDraw(false);
+                  setDrawPoints([]);
+                  setDrawError("");
                 }}
               >
                 Reset to this photo’s visual bounds
               </button>
-              {(["x", "y", "width", "height"] as const).map((k) => (
-                <label key={k} className="cc-field">
-                  Crown {k} (source fraction)
-                  <input
-                    type="number"
-                    min="0"
-                    max="1"
-                    step=".001"
-                    value={g.bounds[k]}
-                    onChange={(e) =>
-                      setG((v) => ({ ...v, bounds: { ...v.bounds, [k]: Number(e.target.value) } }))
-                    }
-                  />
-                </label>
-              ))}
+              <details>
+                <summary>Advanced image coordinates</summary>
+                <p className="cc-help">
+                  The drawing tool sets these fractions of the source photograph. Use the markers
+                  for ordinary calibration.
+                </p>
+                {(["x", "y", "width", "height"] as const).map((k) => (
+                  <label key={k} className="cc-field">
+                    Crown {k} (source fraction)
+                    <input
+                      aria-label={`Crown ${k} (source fraction)`}
+                      type="number"
+                      min="0"
+                      max="1"
+                      step=".001"
+                      value={Number(g.bounds[k].toFixed(6))}
+                      onChange={(e) =>
+                        setG((v) => ({
+                          ...v,
+                          bounds: { ...v.bounds, [k]: Number(e.target.value) },
+                        }))
+                      }
+                    />
+                  </label>
+                ))}
+              </details>
               <label className="cc-field">
                 Known reference length (inches)
                 <input
+                  aria-label="Known reference length (inches)"
                   type="number"
                   min=".25"
                   max="15"
@@ -448,12 +571,25 @@ export function CalibrationEditor() {
               </label>
               <p className="cc-help">
                 Drag both reference markers onto the endpoints of the known length in this
-                photograph. Do not enter an assumed hat width.
+                photograph, on the same plane and near the intended patch location. Do not use a
+                ruler elsewhere in the scene or an assumed hat width. Start with a clear front
+                photo; a single reference cannot recover exact curvature or depth.
               </p>
               {(["rotation", "skew", "compression"] as const).map((k) => (
                 <label key={k} className="cc-field">
-                  {k}
+                  {k === "compression"
+                    ? "Horizontal perspective"
+                    : k === "skew"
+                      ? "Crown shear (degrees)"
+                      : "Crown rotation (degrees)"}
                   <input
+                    aria-label={
+                      k === "compression"
+                        ? "Horizontal perspective"
+                        : k === "skew"
+                          ? "Crown shear (degrees)"
+                          : "Crown rotation (degrees)"
+                    }
                     type="number"
                     step={k === "compression" ? ".01" : "1"}
                     min={k === "compression" ? ".65" : "-20"}
@@ -465,7 +601,9 @@ export function CalibrationEditor() {
               ))}
             </div>
           </div>
-          <PublishingControls state={state} documentKey={photoId} body={g} />
+          <fieldset disabled={draw || issues.length > 0} style={{ minWidth: 0 }}>
+            <PublishingControls state={state} documentKey={photoId} body={g} />
+          </fieldset>
         </>
       )}
     </section>
