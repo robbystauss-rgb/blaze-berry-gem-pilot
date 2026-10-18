@@ -32,13 +32,17 @@ import { Route as PrintedCamoRouteImport } from './routes/printed-camo'
 import { Route as QuoteRequestRouteImport } from './routes/quote-request'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StudioRouteImport } from './routes/studio'
+import { Route as DesignProofTokenRouteImport } from './routes/design-proof/$token'
+import { Route as InvoiceTokenRouteImport } from './routes/invoice/$token'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
+import { Route as StudioPreviewIdRouteImport } from './routes/studio-preview/$id'
 import { Route as ApiArtworkIdRouteImport } from './routes/api/artwork/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCatalogImageIdRouteImport } from './routes/api/catalog-image/$id'
 import { Route as ApiMediaIdRouteImport } from './routes/api/media/$id'
 import { Route as ApiNotificationsOrderEmailRouteImport } from './routes/api/notifications/order-email'
+import { Route as ApiStudioFileIdRouteImport } from './routes/api/studio-file/$id'
 import { Route as ApiWebhooksPaypalRouteImport } from './routes/api/webhooks/paypal'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 
@@ -157,6 +161,16 @@ const StudioRoute = StudioRouteImport.update({
   path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesignProofTokenRoute = DesignProofTokenRouteImport.update({
+  id: '/design-proof/$token',
+  path: '/design-proof/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvoiceTokenRoute = InvoiceTokenRouteImport.update({
+  id: '/invoice/$token',
+  path: '/invoice/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
@@ -165,6 +179,11 @@ const ProductIdRoute = ProductIdRouteImport.update({
 const QuoteTokenRoute = QuoteTokenRouteImport.update({
   id: '/quote/$token',
   path: '/quote/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioPreviewIdRoute = StudioPreviewIdRouteImport.update({
+  id: '/studio-preview/$id',
+  path: '/studio-preview/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiArtworkIdRoute = ApiArtworkIdRouteImport.update({
@@ -193,6 +212,11 @@ const ApiNotificationsOrderEmailRoute =
     path: '/api/notifications/order-email',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiStudioFileIdRoute = ApiStudioFileIdRouteImport.update({
+  id: '/api/studio-file/$id',
+  path: '/api/studio-file/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebhooksPaypalRoute = ApiWebhooksPaypalRouteImport.update({
   id: '/api/webhooks/paypal',
   path: '/api/webhooks/paypal',
@@ -228,13 +252,17 @@ export interface FileRoutesByFullPath {
   '/quote-request': typeof QuoteRequestRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/design-proof/$token': typeof DesignProofTokenRoute
+  '/invoice/$token': typeof InvoiceTokenRoute
   '/product/$id': typeof ProductIdRoute
   '/quote/$token': typeof QuoteTokenRoute
+  '/studio-preview/$id': typeof StudioPreviewIdRoute
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
+  '/api/studio-file/$id': typeof ApiStudioFileIdRoute
   '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
@@ -262,13 +290,17 @@ export interface FileRoutesByTo {
   '/quote-request': typeof QuoteRequestRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/design-proof/$token': typeof DesignProofTokenRoute
+  '/invoice/$token': typeof InvoiceTokenRoute
   '/product/$id': typeof ProductIdRoute
   '/quote/$token': typeof QuoteTokenRoute
+  '/studio-preview/$id': typeof StudioPreviewIdRoute
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
+  '/api/studio-file/$id': typeof ApiStudioFileIdRoute
   '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
@@ -297,13 +329,17 @@ export interface FileRoutesById {
   '/quote-request': typeof QuoteRequestRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/design-proof/$token': typeof DesignProofTokenRoute
+  '/invoice/$token': typeof InvoiceTokenRoute
   '/product/$id': typeof ProductIdRoute
   '/quote/$token': typeof QuoteTokenRoute
+  '/studio-preview/$id': typeof StudioPreviewIdRoute
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
+  '/api/studio-file/$id': typeof ApiStudioFileIdRoute
   '/api/webhooks/paypal': typeof ApiWebhooksPaypalRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
 }
@@ -333,13 +369,17 @@ export interface FileRouteTypes {
     | '/quote-request'
     | '/shop'
     | '/studio'
+    | '/design-proof/$token'
+    | '/invoice/$token'
     | '/product/$id'
     | '/quote/$token'
+    | '/studio-preview/$id'
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
     | '/api/media/$id'
     | '/api/notifications/order-email'
+    | '/api/studio-file/$id'
     | '/api/webhooks/paypal'
     | '/api/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
@@ -367,13 +407,17 @@ export interface FileRouteTypes {
     | '/quote-request'
     | '/shop'
     | '/studio'
+    | '/design-proof/$token'
+    | '/invoice/$token'
     | '/product/$id'
     | '/quote/$token'
+    | '/studio-preview/$id'
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
     | '/api/media/$id'
     | '/api/notifications/order-email'
+    | '/api/studio-file/$id'
     | '/api/webhooks/paypal'
     | '/api/webhooks/stripe'
   id:
@@ -401,13 +445,17 @@ export interface FileRouteTypes {
     | '/quote-request'
     | '/shop'
     | '/studio'
+    | '/design-proof/$token'
+    | '/invoice/$token'
     | '/product/$id'
     | '/quote/$token'
+    | '/studio-preview/$id'
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
     | '/api/media/$id'
     | '/api/notifications/order-email'
+    | '/api/studio-file/$id'
     | '/api/webhooks/paypal'
     | '/api/webhooks/stripe'
   fileRoutesById: FileRoutesById
@@ -436,13 +484,17 @@ export interface RootRouteChildren {
   QuoteRequestRoute: typeof QuoteRequestRoute
   ShopRoute: typeof ShopRoute
   StudioRoute: typeof StudioRoute
+  DesignProofTokenRoute: typeof DesignProofTokenRoute
+  InvoiceTokenRoute: typeof InvoiceTokenRoute
   ProductIdRoute: typeof ProductIdRoute
   QuoteTokenRoute: typeof QuoteTokenRoute
+  StudioPreviewIdRoute: typeof StudioPreviewIdRoute
   ApiArtworkIdRoute: typeof ApiArtworkIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCatalogImageIdRoute: typeof ApiCatalogImageIdRoute
   ApiMediaIdRoute: typeof ApiMediaIdRoute
   ApiNotificationsOrderEmailRoute: typeof ApiNotificationsOrderEmailRoute
+  ApiStudioFileIdRoute: typeof ApiStudioFileIdRoute
   ApiWebhooksPaypalRoute: typeof ApiWebhooksPaypalRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
 }
@@ -610,6 +662,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/design-proof/$token': {
+      id: '/design-proof/$token'
+      path: '/design-proof/$token'
+      fullPath: '/design-proof/$token'
+      preLoaderRoute: typeof DesignProofTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invoice/$token': {
+      id: '/invoice/$token'
+      path: '/invoice/$token'
+      fullPath: '/invoice/$token'
+      preLoaderRoute: typeof InvoiceTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
@@ -622,6 +688,13 @@ declare module '@tanstack/react-router' {
       path: '/quote/$token'
       fullPath: '/quote/$token'
       preLoaderRoute: typeof QuoteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio-preview/$id': {
+      id: '/studio-preview/$id'
+      path: '/studio-preview/$id'
+      fullPath: '/studio-preview/$id'
+      preLoaderRoute: typeof StudioPreviewIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/artwork/$id': {
@@ -657,6 +730,13 @@ declare module '@tanstack/react-router' {
       path: '/api/notifications/order-email'
       fullPath: '/api/notifications/order-email'
       preLoaderRoute: typeof ApiNotificationsOrderEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/studio-file/$id': {
+      id: '/api/studio-file/$id'
+      path: '/api/studio-file/$id'
+      fullPath: '/api/studio-file/$id'
+      preLoaderRoute: typeof ApiStudioFileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/webhooks/paypal': {
@@ -700,13 +780,17 @@ const rootRouteChildren: RootRouteChildren = {
   QuoteRequestRoute: QuoteRequestRoute,
   ShopRoute: ShopRoute,
   StudioRoute: StudioRoute,
+  DesignProofTokenRoute: DesignProofTokenRoute,
+  InvoiceTokenRoute: InvoiceTokenRoute,
   ProductIdRoute: ProductIdRoute,
   QuoteTokenRoute: QuoteTokenRoute,
+  StudioPreviewIdRoute: StudioPreviewIdRoute,
   ApiArtworkIdRoute: ApiArtworkIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCatalogImageIdRoute: ApiCatalogImageIdRoute,
   ApiMediaIdRoute: ApiMediaIdRoute,
   ApiNotificationsOrderEmailRoute: ApiNotificationsOrderEmailRoute,
+  ApiStudioFileIdRoute: ApiStudioFileIdRoute,
   ApiWebhooksPaypalRoute: ApiWebhooksPaypalRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
 }

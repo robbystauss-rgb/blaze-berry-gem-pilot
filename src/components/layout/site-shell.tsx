@@ -20,16 +20,17 @@ const LINKS = [
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const privateDocument = /^\/(invoice|design-proof|studio-preview)\//.test(pathname);
   const { user } = useCurrentUserState();
   const book = usePriceBook();
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState<Record<string, string>>({});
   useEffect(() => {
-    if (pathname.startsWith("/admin")) return;
+    if (pathname.startsWith("/admin") || privateDocument) return;
     void getPublishedContent()
       .then(setContent)
       .catch(() => {});
-  }, [pathname]);
+  }, [pathname, privateDocument]);
 
   useEffect(() => {
     void useStudio.persist.rehydrate();
@@ -39,7 +40,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
     setOpen(false);
   }, [pathname]);
 
-  if (pathname.startsWith("/admin")) return <>{children}</>;
+  if (pathname.startsWith("/admin") || privateDocument) return <>{children}</>;
   return (
     <div className="min-h-dvh bg-paper text-ink">
       <a

@@ -858,6 +858,19 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
+.cc-studio-workspace {
+  display: grid;
+  gap: 24px;
+}
+.cc-studio-workspace form > fieldset {
+  display: grid;
+  gap: 20px;
+}
+.cc-studio-workspace .studio-owner-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 .cc-field {
   display: grid;
   gap: 8px;

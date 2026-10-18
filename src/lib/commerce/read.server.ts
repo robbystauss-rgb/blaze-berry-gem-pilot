@@ -358,5 +358,6 @@ export async function readOrder(id: string, actor: { userId: string; role: Role 
         : audit,
     payments,
     invoice: invoice ?? null,
+    proof: await (await import("./proof-hold.server")).proofReadiness(sql, id),
   };
 }

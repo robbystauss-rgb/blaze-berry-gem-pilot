@@ -34,7 +34,7 @@ export async function voidInvoice(orderId: string, actor: string, client?: Strip
       invoice = await stripe.invoices.voidInvoice(
         invoice.id,
         {},
-        { idempotencyKey: `rec-invoice-void:${orderId}` },
+        { idempotencyKey: `rec-invoice-void:${orderId}:${invoice.id}` },
       );
     if (invoice.status !== "void")
       throw new Error("Provider did not confirm the invoice was voided.");

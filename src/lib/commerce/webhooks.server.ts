@@ -113,8 +113,15 @@ export async function processStripeEvent(event: Stripe.Event, stripe: Stripe) {
       if (!id) return;
       const [local] =
         await tx`select order_id from commerce_invoices where order_id=${id} and provider_id=${invoice.id}`;
-      if (!local) return;
-      await tx`update commerce_invoices set state=${invoice.status ?? "unknown"},hosted_url=${invoice.hosted_invoice_url},pdf_url=${invoice.invoice_pdf},updated_at=now() where order_id=${id}`;
+      const [historical] = local
+        ? []
+        : await tx`select provider_id from commerce_invoice_history where order_id=${id} and provider_id=${invoice.id}`;
+      if (!local && !historical) return;
+      const invoiceOrder = await orderById(tx, id, true);
+      if (invoice.currency !== "usd" || invoice.total !== invoiceOrder.total)
+        throw new Error("Invoice currency or total does not match the immutable order.");
+      if (local)
+        await tx`update commerce_invoices set state=${invoice.status ?? "unknown"},hosted_url=${invoice.hosted_invoice_url},pdf_url=${invoice.invoice_pdf},last_error=case when ${invoice.status === "paid"} then null when ${event.type === "invoice.payment_failed"} then 'Payment attempt failed; retry using the current provider invoice.' else last_error end,updated_at=now() where order_id=${id}`;
       if (invoice.status === "paid") {
         // Invoice payment status alone can include credit or out-of-band payments. Count actual successful PaymentIntents only.
         const payments = await stripe.invoicePayments.list({ invoice: invoice.id, limit: 100 });
@@ -131,7 +138,26 @@ export async function processStripeEvent(event: Stripe.Event, stripe: Stripe) {
               ? payment.payment.payment_intent
               : payment.payment.payment_intent.id;
           const intent = await stripe.paymentIntents.retrieve(reference);
-          if (intent.status === "succeeded" && intent.currency === "usd" && payment.amount_paid)
+          if (
+            intent.status === "succeeded" &&
+            (intent.currency !== "usd" ||
+              payment.currency !== "usd" ||
+              typeof payment.amount_paid !== "number" ||
+              !Number.isSafeInteger(payment.amount_paid) ||
+              payment.amount_paid <= 0 ||
+              !Number.isSafeInteger(intent.amount_received) ||
+              intent.amount_received < payment.amount_paid)
+          )
+            throw Error("Invoice payment amount or currency requires provider reconciliation.");
+          if (
+            intent.status === "succeeded" &&
+            intent.currency === "usd" &&
+            payment.amount_paid &&
+            Number.isSafeInteger(payment.amount_paid) &&
+            payment.amount_paid > 0 &&
+            Number.isSafeInteger(intent.amount_received) &&
+            intent.amount_received >= payment.amount_paid
+          )
             await recordPayment(tx, {
               orderId: id,
               provider: "stripe",

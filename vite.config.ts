@@ -35,9 +35,7 @@ function recMamaCatalogOverlayPlugin(): Plugin {
     load(id) {
       if (id !== virtualId) return null;
       const root = process.cwd();
-      const raw = JSON.parse(
-        readFileSync(join(root, "src/data/master-catalog.json"), "utf8"),
-      );
+      const raw = JSON.parse(readFileSync(join(root, "src/data/master-catalog.json"), "utf8"));
       const patchDoc = JSON.parse(
         readFileSync(join(root, "src/data/catalog-patches.json"), "utf8"),
       );
@@ -116,6 +114,14 @@ function authPopupPlugin(): Plugin {
     name: "app-builder:auth-popup",
     apply: "serve",
     configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (/^\/(invoice|design-proof|studio-preview)\//.test(req.url ?? "")) {
+          res.setHeader("Cache-Control", "private, no-store");
+          res.setHeader("Referrer-Policy", "no-referrer");
+          res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+        }
+        next();
+      });
       // Register immediately (not in a returned post-hook) so we run BEFORE
       // TanStack Start / the SPA HTML fallback. A model-authored
       // `src/routes/auth/popup.tsx` React page must never win this path.

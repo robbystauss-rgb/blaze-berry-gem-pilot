@@ -34,7 +34,13 @@
     "qa:owner-upgrade": "node scripts/qa-owner-upgrade.mjs",
     "test:catalog-retirement": "node --test --test-concurrency=1 tests/catalog-retirement.integration.mjs tests/reviewed-media-import.integration.mjs",
     "release:retire-112pm": "node scripts/release-catalog-retirement.mjs",
-    "qa:catalog-retirement": "node scripts/qa-catalog-retirement.mjs"
+    "qa:catalog-retirement": "node scripts/qa-catalog-retirement.mjs",
+    "test:studio": "node --test --test-concurrency=1 tests/studio-documents.integration.mjs tests/studio-migration.integration.mjs tests/invoice-branding.integration.mjs scripts/release-studio-documents.test.mjs",
+    "test:studio:postgres": "node --test --test-force-exit tests/studio-postgres.integration.mjs",
+    "qa:studio:server": "node scripts/with-app-env.mjs node scripts/studio-qa-server.mjs",
+    "qa:studio": "node scripts/qa-studio.mjs",
+    "release:studio": "node scripts/release-studio-documents.mjs",
+    "qa:studio:built": "node scripts/qa-studio-built.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",
@@ -74,6 +80,7 @@
     "jose": "6.2.9",
     "kysely": "^0.28.5",
     "lucide-react": "^0.510.0",
+    "pdf-lib": "1.17.1",
     "pg": "^8.16.3",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",

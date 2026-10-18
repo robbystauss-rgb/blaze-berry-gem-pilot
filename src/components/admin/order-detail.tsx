@@ -164,6 +164,7 @@ export function OrderDetail({
           </div>
           <div className="cc-actions">
             <Badge value={o.payment_status} />
+            <Badge value={data.proof.status} />
             <Badge
               value={
                 o.source === "stripe_history_review" && o.stage === "new"
@@ -192,6 +193,12 @@ export function OrderDetail({
           </div>
         )}
       </div>
+      {data.proof.blocked && (
+        <p className="cc-error" role="status">
+          Artwork Approval Hold: the current proof must be approved before production. Payment does
+          not remove this hold.
+        </p>
+      )}
       {error && (
         <p className="cc-error cc-no-print" role="alert">
           {error}
@@ -383,19 +390,19 @@ export function OrderDetail({
                 <p>
                   {data.invoice
                     ? `Provider status: ${label(data.invoice.state)}`
-                    : "No invoice created."}
+                    : "No Stripe payment invoice prepared."}
                 </p>
                 {data.invoice?.last_error && <p className="cc-error">{data.invoice.last_error}</p>}
                 <div className="cc-actions">
-                  <button
+                  <a
                     className="cc-button secondary"
-                    disabled={busy || o.paid > 0 || o.stage === "canceled"}
-                    onClick={() => void invoice("create")}
+                    href={`/admin?section=invoices&orderId=${o.id}`}
                   >
-                    {data.invoice?.provider_id
-                      ? "Refresh / review invoice"
-                      : "Create invoice for review"}
-                  </button>
+                    Open Signature Studio invoice
+                  </a>
+                  <a className="cc-button secondary" href={`/admin?section=proofs&orderId=${o.id}`}>
+                    Open separate Design Proofs
+                  </a>
                   {data.invoice?.provider_id && (
                     <>
                       <button
@@ -608,7 +615,7 @@ export function OrderDetail({
             }}
           >
             <Field name="stage" title="Workflow stage">
-              <select name="stage" defaultValue={o.stage}>
+              <select name="stage" aria-label="Workflow stage" defaultValue={o.stage}>
                 {STAGES.filter(
                   (s) =>
                     !production ||
