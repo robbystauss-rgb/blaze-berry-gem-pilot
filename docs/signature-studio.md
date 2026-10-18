@@ -39,6 +39,7 @@ Run from the checkout:
 
 ```text
 npm run test:studio
+npm run test:studio:postgres
 npm run test:commerce
 npm run test:providers
 npm run test:operations
@@ -67,6 +68,14 @@ node scripts/qa-studio-built.mjs
 ```
 
 Stop built preview before rebuilding on Windows, since the loaded Sharp DLL locks output files. Real Stripe sandbox payment, externally delivered webhooks, verified sender delivery and persistent preview PostgreSQL still require their own credentials and environment. Do not treat fixture transport results as external-provider evidence.
+
+### Persistent PostgreSQL rehearsal
+
+`test:studio:postgres` is skipped unless `REC_STUDIO_PG_VERIFY_URL` explicitly identifies a disposable database. A localhost database must be named `rec_studio_verification_<suffix>`. The test refuses an inherited application database or payment/email credentials, and refuses a database containing any public tables. It never drops or resets a database. It applies the real fifteen-file baseline, seeds synthetic historical records, rehearses rollback of 0016, commits 0016, and exercises real document services, separate PDFs, proof revisions, approvals and unpaid production holds. It compares exact historical-record fingerprints before and after migration. Evidence goes to ignored `artifacts/studio/postgres/<database-or-project>/`.
+
+Remote execution additionally uses `previewDatabaseConfiguration` and requires `VERCEL_ENV=preview`, distinct pinned `REC_PREVIEW_DATABASE_PROJECT_ID` / `REC_PRODUCTION_DATABASE_PROJECT_ID`, `DATABASE_NEON_PROJECT_ID` matching the preview pin, `REC_PREVIEW_DATABASE_ACTION=initialize`, and a connection using verified TLS (`sslmode=verify-full`). Use a newly provisioned empty preview database; do not point this rehearsal at an existing preview or production application database. The CI PostgreSQL job provides an isolated PostgreSQL 17 service without external credentials and runs the preserved commerce/provider regressions as well as both Studio suites.
+
+Feature-branch Git deployment is disabled in `vercel.json` for `feat/signature-invoice-proof` so preparing the review branch does not authorize publication. Remove that exact branch hold only as part of an explicitly approved preview/release. Preview environment variables must be branch-scoped, payment mode must remain sandbox, and automated email sending must stay disabled until safe recipients and provider credentials are verified. Never copy the production database URL into Preview.
 
 ## Migration, release and rollback
 
