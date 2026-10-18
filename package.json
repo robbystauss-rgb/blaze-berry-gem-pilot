@@ -35,7 +35,7 @@
     "test:catalog-retirement": "node --test --test-concurrency=1 tests/catalog-retirement.integration.mjs tests/reviewed-media-import.integration.mjs",
     "release:retire-112pm": "node scripts/release-catalog-retirement.mjs",
     "qa:catalog-retirement": "node scripts/qa-catalog-retirement.mjs",
-    "test:studio": "node --test --test-concurrency=1 tests/studio-documents.integration.mjs tests/studio-migration.integration.mjs scripts/release-studio-documents.test.mjs",
+    "test:studio": "node --test --test-concurrency=1 tests/studio-documents.integration.mjs tests/studio-migration.integration.mjs tests/invoice-branding.integration.mjs scripts/release-studio-documents.test.mjs",
     "test:studio:postgres": "node --test --test-force-exit tests/studio-postgres.integration.mjs",
     "qa:studio:server": "node scripts/with-app-env.mjs node scripts/studio-qa-server.mjs",
     "qa:studio": "node scripts/qa-studio.mjs",

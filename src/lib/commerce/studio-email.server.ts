@@ -181,7 +181,13 @@ export async function refreshStudioDelivery(
       signal: AbortSignal.timeout(10000),
     },
   );
-  if (!r.ok) throw Error("Provider delivery status unavailable.");
+  if (!r.ok) {
+    if (r.status === 401 || r.status === 403)
+      throw Error(
+        "This Resend credential cannot read delivery status. Review the message in Resend or configure email-read access; sending and delivery confirmation remain separate.",
+      );
+    throw Error("Provider delivery status unavailable.");
+  }
   const result = (await r.json()) as { id: string; to: string[]; last_event: string };
   if (result.id !== email.provider_id || !result.to?.includes(email.payload.to[0]))
     throw Error("Provider message association mismatch.");

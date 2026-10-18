@@ -20,10 +20,28 @@ export async function manageInvoice(
       "Confirm REC Mama Made Stripe branding, sender identity and signed webhook configuration before invoicing.",
     );
   const account = await stripe.accounts.retrieve(null);
-  if (account.business_profile?.name !== "REC Mama Made")
-    throw new Error("The Stripe account business name must be REC Mama Made.");
-  if (account.business_profile?.support_email !== process.env.REC_INVOICE_SENDER)
-    throw new Error("Invoice sender must match the reviewed REC Mama Made Stripe support email.");
+  // Stripe can omit business_profile entirely from its own-account response.
+  // A reported empty/mismatched profile still fails; omission requires the
+  // separately reviewed server-side account pin and the invoice's public name.
+  const profileOmitted = !Object.hasOwn(account, "business_profile");
+  if (profileOmitted) {
+    const reviewedAccount = process.env.REC_INVOICE_STRIPE_ACCOUNT_ID;
+    if (
+      !reviewedAccount ||
+      !/^acct_[A-Za-z0-9]+$/.test(reviewedAccount) ||
+      account.id !== reviewedAccount
+    )
+      throw new Error("Pin the reviewed REC Mama Made Stripe account before invoicing.");
+  } else {
+    if (account.business_profile?.name !== "REC Mama Made")
+      throw new Error("The Stripe account business name must be REC Mama Made.");
+    if (account.business_profile?.support_email !== process.env.REC_INVOICE_SENDER)
+      throw new Error("Invoice sender must match the reviewed REC Mama Made Stripe support email.");
+  }
+  const verifyPublicName = (invoice: Stripe.Invoice) => {
+    if (profileOmitted && invoice.account_name !== "REC Mama Made")
+      throw new Error("The Stripe invoice public business name must be REC Mama Made.");
+  };
   const claim = await sql.transaction(async (tx) => {
     const order = await orderById(tx, orderId, true);
     if (options?.documentId) {
@@ -93,6 +111,7 @@ export async function manageInvoice(
       // Persist the provider id before later calls so partial failures resume the same invoice.
       await sql`update commerce_invoices set provider_id=${invoice.id} where order_id=${orderId}`;
     }
+    verifyPublicName(invoice);
     if (invoice.status === "draft") {
       const existingLines = await stripe.invoices.listLineItems(invoice.id, { limit: 100 });
       if (existingLines.has_more) throw new Error("Invoice requires line-item reconciliation.");
@@ -148,6 +167,7 @@ export async function manageInvoice(
         { idempotencyKey: `rec-invoice-finalize:${obligation}` },
       );
     }
+    verifyPublicName(invoice);
     if (
       invoice.total !== claim.order.total ||
       invoice.currency !== "usd" ||
