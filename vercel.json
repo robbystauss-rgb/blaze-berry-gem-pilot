@@ -1,4 +1,6 @@
 {
   "crons": [{ "path": "/api/notifications/order-email", "schedule": "0 12 * * *" }],
-  "git": { "deploymentEnabled": { "feat/signature-invoice-proof": false } }
+  "git": {
+    "deploymentEnabled": { "feat/signature-invoice-proof": false, "feat/studio-native-text": false }
+  }
 }

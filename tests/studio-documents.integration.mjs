@@ -8,7 +8,7 @@ import Stripe from "stripe";
 for (const key of ["DATABASE_URL", "STRIPE_SECRET_KEY", "RESEND_API_KEY", "STRIPE_WEBHOOK_SECRET"])
   if (process.env[key])
     throw Error("Studio tests refuse external credentials and persistent databases.");
-let server, sql, studio, core, mutations, media, email, hold, webhooks;
+let server, sql, studio, core, mutations, media, email, hold, webhooks, texting, textHelpers;
 const owner = { userId: "studio-test-owner", role: "owner" };
 const originalEnv = { ...process.env };
 const tokenOf = (p) => p.split("/").at(-1);
@@ -63,6 +63,8 @@ before(async () => {
   server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
   sql = await (await server.ssrLoadModule("/src/lib/db.ts")).getSql();
   studio = await server.ssrLoadModule("/src/lib/commerce/studio.server.ts");
+  texting = await server.ssrLoadModule("/src/lib/commerce/studio-text.server.ts");
+  textHelpers = await server.ssrLoadModule("/src/lib/commerce/studio-text.ts");
   core = await server.ssrLoadModule("/src/lib/commerce/core.server.ts");
   mutations = await server.ssrLoadModule("/src/lib/commerce/mutations.server.ts");
   media = await server.ssrLoadModule("/src/lib/commerce/media.server.ts");
@@ -73,6 +75,158 @@ before(async () => {
   await sql`insert into merchant_staff(user_id,role) values(${owner.userId},'owner')`;
   await sql`insert into commerce_content(key,value) values('contact_email','shop@example.invalid'),('contact_phone','TEST FIXTURE CONTACT')`;
   mkdirSync("artifacts/studio", { recursive: true });
+});
+
+test("Phone validation and iPhone, iPad, Android and desktop message URI encoding", () => {
+  const { normalizeCustomerPhone: n, nativeSmsHref: href } = textHelpers;
+  assert.equal(n("(504) 555-0123"), "+15045550123");
+  assert.equal(n("1 504 555 0123"), "+15045550123");
+  assert.equal(n("+44 20 7946 0123"), "+442079460123");
+  assert.equal(n(""), "");
+  for (const v of [
+    "504",
+    "+00012345678",
+    "5045550123;body=bad",
+    "5045550123,5045550124",
+    "5045550123\n",
+    "5045550123 ext 2",
+    "javascript:alert(1)",
+    "+" + "1".repeat(16),
+  ])
+    assert.throws(() => n(v));
+  const message =
+    "Hi! REC Mama Made: https://recmamamade.com/invoice/" + "A".repeat(43) + " & review";
+  for (const [agent, touch, separator] of [
+    ["iPhone", 1, "&"],
+    ["iPad", 1, "&"],
+    ["Macintosh", 5, "&"],
+    ["Android", 1, "?"],
+    ["Windows NT", 0, "?"],
+  ]) {
+    const result = href("+15045550123", message, agent, touch);
+    assert.equal(result, "sms:+15045550123" + separator + "body=" + encodeURIComponent(message));
+    assert.equal(decodeURIComponent(result.split("body=")[1]), message);
+  }
+  assert.throws(() => href("504;bad", message, "iPhone"));
+});
+
+test("Private phone persists across invoice/proof, rejects stale writes and never mutates issued history", async () => {
+  const i = await invoice(),
+    p = await proof(i.view.document.order_id, (await photo()).id);
+  const before =
+    await sql`select id,body,pdf,total from commerce_studio_documents where id=${i.id}`;
+  let c = await texting.readStudioContact(i.id, owner);
+  for (const role of ["manager", "production", null])
+    await assert.rejects(
+      () =>
+        texting.saveStudioContact(
+          { id: i.id, version: c.version, phone: "5045550123" },
+          { ...owner, role },
+        ),
+      /Access denied/,
+    );
+  c = await texting.saveStudioContact(
+    { id: i.id, version: c.version, phone: "(504) 555-0123" },
+    owner,
+  );
+  assert.equal(c.phone, "+15045550123");
+  assert.deepEqual(await texting.readStudioContact(p.id, owner), c);
+  await assert.rejects(
+    () =>
+      texting.saveStudioContact({ id: p.id, version: c.version - 1, phone: "5045550124" }, owner),
+    /changed/,
+  );
+  await assert.rejects(() =>
+    texting.saveStudioContact(
+      { id: i.id, version: c.version, phone: "5045550123", customerEmail: "other@example.invalid" },
+      owner,
+    ),
+  );
+  await assert.rejects(() => texting.readStudioContact(randomUUID(), owner), /not found/);
+  assert.deepEqual(
+    await sql`select id,body,pdf,total from commerce_studio_documents where id=${i.id}`,
+    before,
+  );
+  assert.equal(JSON.stringify(await studio.viewStudio(i.token)).includes("15045550123"), false);
+  const audit =
+    await sql`select before_value,after_value from commerce_audit where action='studio.customer_phone_updated'`;
+  assert.equal(JSON.stringify(audit).includes("15045550123"), false);
+  const cleared = await texting.saveStudioContact(
+    { id: i.id, version: c.version, phone: "" },
+    owner,
+  );
+  assert.equal((await texting.readStudioContact(p.id, owner)).phone, "");
+  assert.ok(cleared.version > c.version);
+});
+
+test("Text preparation reuses current capability, separates payment/approval, and rejects revoked or wrong links", async () => {
+  const i = await invoice(),
+    p = await proof(i.view.document.order_id, (await photo()).id);
+  let contact = await texting.readStudioContact(i.id, owner);
+  await texting.saveStudioContact(
+    { id: i.id, version: contact.version, phone: "5045550123" },
+    owner,
+  );
+  const original =
+    await sql`select id,state,response,pdf from commerce_studio_documents where order_id=${i.view.document.order_id} order by id`;
+  const a = await texting.prepareStudioText(
+    { id: i.id, path: i.path },
+    owner,
+    "https://recmamamade.com",
+  );
+  const b = await texting.prepareStudioText(
+    { id: p.id, path: p.path },
+    owner,
+    "https://recmamamade.com",
+  );
+  assert.ok(a.message.includes("review and pay securely here: https://recmamamade.com" + i.path));
+  assert.ok(
+    b.message.includes(
+      "approve the design or request revisions here: https://recmamamade.com" + p.path,
+    ),
+  );
+  assert.ok(!a.message.includes(p.token) && !b.message.includes(i.token));
+  assert.ok(!JSON.stringify(a).includes("customer@example.invalid"));
+  for (const args of [
+    { id: i.id, path: p.path },
+    { id: p.id, path: i.path },
+    { id: i.id, path: i.path.replace("invoice", "design-proof") },
+  ])
+    await assert.rejects(
+      () => texting.prepareStudioText(args, owner, "https://recmamamade.com"),
+      /current/,
+    );
+  await assert.rejects(
+    () =>
+      texting.prepareStudioText(
+        { id: i.id, path: i.path },
+        { ...owner, role: "manager" },
+        "https://recmamamade.com",
+      ),
+    /Access denied/,
+  );
+  await assert.rejects(
+    () => texting.prepareStudioText({ id: i.id, path: i.path }, owner, "https://attacker.example"),
+    /verified storefront/,
+  );
+  assert.deepEqual(
+    await sql`select id,state,response,pdf from commerce_studio_documents where order_id=${i.view.document.order_id} order by id`,
+    original,
+  );
+  const current = await studio.studioOwnerDocument(i.id, owner);
+  await studio.actOnStudio(
+    { id: i.id, version: current.document.version, action: "rotate" },
+    owner,
+  );
+  await assert.rejects(
+    () => texting.prepareStudioText({ id: i.id, path: i.path }, owner, "https://recmamamade.com"),
+    /current/,
+  );
+  await sql`update commerce_studio_documents set expires_at=now()-interval '1 second' where id=${p.id}`;
+  await assert.rejects(
+    () => texting.prepareStudioText({ id: p.id, path: p.path }, owner, "https://recmamamade.com"),
+    /current/,
+  );
 });
 after(async () => {
   await server?.close();

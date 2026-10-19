@@ -11,6 +11,7 @@ import {
 } from "@/lib/commerce/studio-api";
 import type { StudioRow, InvoiceBody, ProofBody } from "@/lib/commerce/studio-schemas";
 import { money, label } from "@/lib/commerce/types";
+import { StudioTextActions } from "./studio-text-actions";
 type Data = Awaited<ReturnType<typeof getStudioDocuments>>;
 type Detail = Awaited<ReturnType<typeof getStudioDetail>>;
 const emptyInvoice = (): InvoiceBody => ({
@@ -832,13 +833,33 @@ export function StudioDocuments({
                 </>
               )}
             </div>
+            {!path && (
+              <StudioTextActions
+                key={id}
+                id={id}
+                kind={kind}
+                path={path}
+                contact={detail.contact}
+                onSaved={(contact) =>
+                  setDetail((current) => (current ? { ...current, contact } : current))
+                }
+              />
+            )}
             {path && (
               <div className="cc-panel">
                 <label className="cc-field">
                   Private customer link
                   <input readOnly value={new URL(path, window.location.origin).href} />
                 </label>
-                <div className="cc-actions">
+                <StudioTextActions
+                  id={id}
+                  kind={kind}
+                  path={path}
+                  contact={detail.contact}
+                  onSaved={(contact) =>
+                    setDetail((current) => (current ? { ...current, contact } : current))
+                  }
+                >
                   <button
                     className="cc-button secondary"
                     onClick={() =>
@@ -876,7 +897,7 @@ export function StudioDocuments({
                   >
                     Send separate {kind} email
                   </button>
-                </div>
+                </StudioTextActions>
                 <p>
                   Reuse the same send request after an uncertain response. For an intentional resend
                   after acceptance, create a new request below.
