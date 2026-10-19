@@ -83,6 +83,18 @@ Feature-branch Git deployment is disabled in `vercel.json` for `feat/signature-i
 
 ## Migration, release and rollback
 
+### Native invoice and proof texting
+
+After saving a draft, enter **Customer mobile phone** and choose **Save customer phone**. The owner-only contact is shared across that customer's invoices and proofs; it is separate from immutable document bodies and PDFs. US/Canada numbers normalize to +1; other countries require + and country code. Clear and save to remove the number. Concurrent edits require a refresh.
+
+Issue the document or use its existing **Create / replace private link** action. **Text Invoice** and **Text Design Proof** appear beside Copy secure link and email actions. They open a native SMS composer with the saved recipient and a distinct invoice-payment or proof-review message. The owner must review and press Send in their own app. The website never marks SMS as sent or delivered. No SMS provider or new payment/email service is used.
+
+**Copy secure link**, **Copy text message** and a selectable message preview remain available for desktop or unsupported devices. iOS uses the Messages-compatible `&body=` form; Android/desktop use `?body=` with percent-encoded text. Device handlers vary, so copying the prepared message is the fallback if a handset omits prefilled text. Automated platform-format checks and browser layout checks do not prove native app behavior on physical iPhone/Android hardware.
+
+The preparation endpoint checks merchant financial permission, exact document identity, current token, document kind, expiration and revocation. Phone updates use POST, private no-store responses and optimistic versions; audit records contain only change/version metadata, never phone values or secure links. Customer document responses do not include contact records. Existing authentication, link rotation, proof holds, Stripe, Resend and PDF logic remain authoritative.
+
+`0017_studio_customer_contacts.sql` adds only a private contact table. Normal builds cannot migrate it. The approved release runner `release:studio-text` requires its distinct `REC_MIGRATION_TARGET=studio-native-text-2026-10`, exact matching release/deployment SHAs, the verified production database, and all sixteen existing migrations. It snapshots existing records and applies only 0017 transactionally. Keep build-only authorization out of runtime configuration. To roll back this feature, retain the additive contact table and deploy the preceding Studio release; never remove issued documents, financial records or approval holds.
+
 `0016_signature_documents.sql` is additive: document sequences/tables, immutable image/PDF snapshots, email outbox, proof controls and provider reference history. It seeds required holds for existing `customer_approval` orders without changing historical amounts, artwork, payments or order stages. Apply it before serving the new code. Local PGLite applies it to isolated test data; production never does so automatically.
 
 Normal builds and previous release-approval flags cannot apply this migration. After a newly authorized production release, `npm run release:studio` requires `REC_MIGRATION_TARGET=signature-documents-2026-10`, the exact approved `REC_RELEASE_COMMIT_SHA` matching `VERCEL_GIT_COMMIT_SHA`, the verified existing production database/project, and the complete fifteen-file migration baseline. The existing runner locks, snapshots and applies only 0016 transactionally; it refuses foreign/newer scope and snapshots over its established cap. Review a provider-managed restore point/offsite backup first; its same-database logical snapshot is not disaster recovery.

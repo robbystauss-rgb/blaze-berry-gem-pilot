@@ -9,6 +9,32 @@ import {
   studioKind,
 } from "./studio-schemas";
 import { MAX_NEW_UPLOAD_DATA_URL_LENGTH } from "@/lib/upload-limits";
+import { studioContactSchema, studioTextSchema } from "./studio-text";
+export const saveStudioCustomerPhone = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(studioContactSchema)
+  .handler(async ({ data, context }) => {
+    const actor = await (
+      await import("./access.server")
+    ).requireAccess(context.userId, "finance", context.bearerToken);
+    await privacy();
+    return (await import("./studio-text.server")).saveStudioContact(data, actor);
+  });
+export const getStudioText = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(studioTextSchema)
+  .handler(async ({ data, context }) => {
+    const actor = await (
+      await import("./access.server")
+    ).requireAccess(context.userId, "finance", context.bearerToken);
+    await privacy();
+    const { getRequest } = await import("@tanstack/react-start/server");
+    return (await import("./studio-text.server")).prepareStudioText(
+      data,
+      actor,
+      new URL(getRequest().url).origin,
+    );
+  });
 export const getStudioDocuments = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .validator(studioKind)
@@ -40,6 +66,7 @@ export const getStudioDetail = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .validator(z.string().uuid())
   .handler(async ({ data, context }) => {
+    await privacy();
     const actor = await (
       await import("./access.server")
     ).requireAccess(context.userId, "finance", context.bearerToken);

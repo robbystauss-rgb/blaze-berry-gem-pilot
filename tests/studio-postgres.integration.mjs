@@ -111,6 +111,23 @@ test(
         [{ order_id: "pg-old-approval", required: true, current_proof_id: null }],
       );
       check("Existing approval-stage orders receive persistent production holds");
+      const contactMigration = readFileSync("migrations/0017_studio_customer_contacts.sql", "utf8");
+      await client.query("begin");
+      await client.query(contactMigration);
+      await client.query("rollback");
+      assert.equal(
+        (await client.query("select to_regclass('commerce_customer_contacts') as name")).rows[0]
+          .name,
+        null,
+      );
+      await client.query("begin");
+      await client.query(contactMigration);
+      await client.query(
+        "insert into _migrations(name) values('0017_studio_customer_contacts.sql')",
+      );
+      await client.query("commit");
+      assert.deepEqual(await fingerprint(), before);
+      check("Additive 0017 rollback and commit preserve historical records");
       process.env.DATABASE_URL = url;
       server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
       const sql = await (await server.ssrLoadModule("/src/lib/db.ts")).getSql();
@@ -232,6 +249,28 @@ test(
       await assert.rejects(advance, /payment|paid|balance/i);
       check(
         "Separate proof v1 revision and current v2 approval persist; stale link revoked and unpaid production remains held",
+      );
+      const texting = await server.ssrLoadModule("/src/lib/commerce/studio-text.server.ts");
+      await texting.saveStudioContact({ id: invoiceId, version: 0, phone: "5045550123" }, owner);
+      const connection = new pg.Client({ connectionString: url });
+      await connection.connect();
+      try {
+        assert.equal(
+          (await connection.query("select phone from commerce_customer_contacts")).rows[0].phone,
+          "+15045550123",
+        );
+        assert.equal((await texting.readStudioContact(proofs[1].id, owner)).phone, "+15045550123");
+        assert.equal(
+          JSON.stringify(await studio.viewStudio(invoice.path.split("/").at(-1))).includes(
+            "15045550123",
+          ),
+          false,
+        );
+      } finally {
+        await connection.end();
+      }
+      check(
+        "Private customer phone survives independent PostgreSQL reconnection, is reused by proof and absent from customer document data",
       );
       for (const doc of [
         { id: invoiceId, kind: "invoice" },

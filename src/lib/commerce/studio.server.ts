@@ -193,6 +193,7 @@ export async function studioOwnerDocument(id: string, actor: Actor) {
   if (!doc) throw Error("Document not found.");
   return {
     document: doc,
+    contact: await (await import("./studio-text.server")).readStudioContact(id, actor, sql),
     financial: doc.order_id ? await orderById(sql, doc.order_id) : null,
     payments:
       doc.kind === "invoice" && doc.order_id
