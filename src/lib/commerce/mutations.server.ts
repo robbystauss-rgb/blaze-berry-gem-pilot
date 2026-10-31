@@ -106,6 +106,7 @@ export async function mutate(
           );
         if (
           [
+            "ready_for_production",
             "engraving",
             "assembly",
             "quality_check",

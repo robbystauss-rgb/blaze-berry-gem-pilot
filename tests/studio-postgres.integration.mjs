@@ -128,6 +128,12 @@ test(
       await client.query("commit");
       assert.deepEqual(await fingerprint(), before);
       check("Additive 0017 rollback and commit preserve historical records");
+      for (const name of names.filter((name) => name >= "0018")) {
+        await client.query("begin");
+        await client.query(readFileSync("migrations/" + name, "utf8"));
+        await client.query("insert into _migrations(name) values($1)", [name]);
+        await client.query("commit");
+      }
       process.env.DATABASE_URL = url;
       server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
       const sql = await (await server.ssrLoadModule("/src/lib/db.ts")).getSql();

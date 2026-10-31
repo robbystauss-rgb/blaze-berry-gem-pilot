@@ -99,7 +99,9 @@ test("valid Venmo persists exactly once across retries, new request ids, refresh
 test("partial and full receipts preserve original prices and cannot approve required artwork", async () => {
   const id = await draft();
   await sql`insert into commerce_proof_controls(order_id,required) values(${id},true)`;
-  const before = (await read.readOrder(id, owner)).items;
+  const unpaid = await read.readOrder(id, owner);
+  await assert.rejects(() => mutate("order.update", {id, version:unpaid.order.version, stage:"ready_for_production"}, owner), /Full verified payment/);
+  const before = unpaid.items;
   const partial = await mutate(
     "payment.manual",
     receipt(id, { amount: 1201, method: "cash" }),

@@ -1,7 +1,7 @@
 # Commerce upgrade — review and release holds
 
 Baseline: `bbb2f83bf57726bbc4aaa7cb62d80dc041a50c5d` (main inspected 2026-10-30).
-Feature branch: `codex/commerce-reliability-customer-vault`.
+Feature branch: `codex/manual-payment-hotfix`.
 
 ## P0: external payment receipt
 
@@ -62,3 +62,5 @@ until the reviewed correction is restored. Reconcile any in-flight provider
 action before re-enabling collection. Smoke-test role access, one sandbox partial
 receipt, duplicate retry, active-link blocking, invoice/proof secure-link
 separation and unpaid/unapproved production holds before any real receipt.
+
+This isolated P0 release contains migration 0018 only. Customer profiles/vault migration 0019 is in a separate draft PR. Automatic Vercel deployment is disabled for this branch. The unpaid Ready for production transition is also guarded. No live order or provider state has been changed.

@@ -43,6 +43,7 @@ jobs:
       - run: npm run test:commerce
       - run: npm run test:providers
       - run: npm run test:studio
+      - run: npm run test:manual-payments
       - run: npm run test:studio:postgres
 
   validate:
