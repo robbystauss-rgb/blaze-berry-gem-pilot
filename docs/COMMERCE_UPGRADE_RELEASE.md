@@ -146,3 +146,11 @@ Release sequence after explicit approval: back up and rehearse 0018, verify the 
 The final evidence report is [COMMERCE_UPGRADE_EVIDENCE.md](COMMERCE_UPGRADE_EVIDENCE.md). Local browser artifacts stay in ignored screenshots/ and artifacts/ directories; source customer art and test session credentials are never attached to public PRs.
 
 The broader PostgreSQL rehearsal passed at 27d6bca0f3a67bd51f90ebf00f0ce360e542b014. A final financial-readiness regression aligns the stage endpoint with the queue: an open dispute cannot advance a fully funded order, and resolving that dispute does not approve artwork or add a receipt. Consult the exact latest PR head checks before approval.
+
+## Authorized publication and operational migration gate
+
+The owner subsequently authorized publishing the completed upgrades in the task conversation. Release permission is granted; restorable backup and deployment verification are still required. A production read-only preflight verified the established seventeen-file migration history and identified only 0018/0019 as pending. Its diagnostic build intentionally stopped before serving an application. No business records were changed.
+
+`npm run release:commerce` is a separate operational command and is never invoked by an ordinary build. It requires the existing verified production project, an exact commit match, a verified offsite-backup reference bound to that commit, and an explicit scope. The receipts scope applies only 0018 on the full 0017 baseline. The core scope applies only 0019 after 0018. Each uses the existing atomic transaction, restricted logical snapshot and migration-history checks. Snapshot names distinguish the two scopes. Unknown, gapped, duplicate or newer histories are rejected; repeat execution does not duplicate a migration or snapshot.
+
+The logical snapshot is an additional same-database recovery aid, not an offsite backup. Do not set the verified-backup fields until the operator has verified an actual restorable backup. Database management access was not available through the connected deployment tools and browser control was disabled during preflight. Do not copy credentials into source, build commands or logs to work around that access gap.

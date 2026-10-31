@@ -48,6 +48,7 @@ jobs:
       - run: npm run test:artwork
       - run: npm run test:operations
       - run: npm run test:catalog-retirement
+      - run: node --test scripts/release-commerce-upgrade.test.mjs scripts/release-database.test.mjs
       - run: npm run test:studio:postgres
 
   validate:
