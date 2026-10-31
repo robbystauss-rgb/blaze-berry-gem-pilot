@@ -269,13 +269,36 @@ test(
         "Separate proof v1 revision and current v2 approval persist; stale link revoked and unpaid production remains held",
       );
       const texting = await server.ssrLoadModule("/src/lib/commerce/studio-text.server.ts");
-      await texting.saveStudioContact({ id: invoiceId, version: 0, phone: "5045550123" }, owner);
+      const contactBefore = await texting.readStudioContact(invoiceId, owner);
+      await texting.saveStudioContact(
+        { id: invoiceId, version: contactBefore.version, phone: "5045550123" },
+        owner,
+      );
+      await assert.rejects(
+        () =>
+          texting.saveStudioContact(
+            { id: invoiceId, version: contactBefore.version, phone: "5045550124" },
+            owner,
+          ),
+        /phone changed/,
+      );
       const connection = new pg.Client({ connectionString: url });
       await connection.connect();
       try {
         assert.equal(
-          (await connection.query("select phone from commerce_customer_contacts")).rows[0].phone,
+          (
+            await connection.query(
+              "select c.phone_normalized from commerce_studio_documents d join commerce_orders o on o.id=d.order_id join commerce_customers c on c.id=o.customer_id where d.id=$1",
+              [invoiceId],
+            )
+          ).rows[0].phone_normalized,
           "+15045550123",
+        );
+        assert.equal(
+          (await connection.query("select count(*)::int n from commerce_customer_contacts")).rows[0]
+            .n,
+          0,
+          "linked profile contact is not duplicated into the legacy email-keyed table",
         );
         assert.equal((await texting.readStudioContact(proofs[1].id, owner)).phone, "+15045550123");
         assert.equal(

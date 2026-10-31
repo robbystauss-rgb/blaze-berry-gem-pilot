@@ -64,13 +64,15 @@ Evidence-ranked customer friction at baseline: (1) model-only gallery links requ
 
 ## 5. Regression and safety
 
-**VERIFIED:** P0 [PR #10](https://github.com/robbystauss-rgb/blaze-berry-gem-pilot/pull/10) passed both CI jobs, including disposable PostgreSQL, at head b6a86c223b87bd4b74b949f1f100b93f49b5749a. Vercel returned zero deployments. The wider PostgreSQL CRM rehearsal has separate CI coverage and remains pending until its PR runs.
+**VERIFIED:** P0 [PR #10](https://github.com/robbystauss-rgb/blaze-berry-gem-pilot/pull/10) passed both CI jobs, including disposable PostgreSQL, at head b6a86c223b87bd4b74b949f1f100b93f49b5749a. Vercel returned zero deployments. The wider PostgreSQL CRM rehearsal has separate CI coverage. Its current commit-specific outcome is shown in PR #11 checks; passing CI never authorizes a release.
 
 **VERIFIED locally:** default regression suites (234 + 55 tests), commerce 50, providers 20, Studio 19, external receipts 6, customer vault/backfill 9, operations 44, catalog retirement/media 17, intake 4, photo selection 6, geometry 38; counts overlap across script groups and are not a unique-test total. Typecheck and build pass. Lint has no errors; existing warnings are tracked in local logs. Browser fixtures use no real provider credentials, send no real email/text and perform no production writes.
 
 **IMPLEMENTED:** additive migrations `0018_manual_payment_receipts.sql` and `0019_customer_design_vault.sql`; populated historical migration regression; immutable receipts/art/revisions/history; development-only durable-test-storage hook that refuses production/Vercel; build asset provenance gates; PR CI coverage and an opt-in disposable PostgreSQL rehearsal expanded to profile/art/draft/receipt concurrency.
 
-**NEEDS VERIFICATION:** actual PostgreSQL CI result (the opt-in test is skipped locally without a disposable PostgreSQL target), Neon staging, field LCP/CLS/INP, physical assistive-technology and native-device testing. Local density/viewport/keyboard tests are not a WCAG certification or field Core Web Vitals measurement. Private customer originals, test session credentials and secure links remain outside tracked evidence.
+**CI verification:** the expanded PostgreSQL test runs in PR CI and is skipped locally without an explicit disposable PostgreSQL target. Inspect the checks for the exact PR head for the latest outcome. The rehearsal reads the current shared customer-contact version, rejects stale edits, verifies the canonical profile through an independent connection and excludes phone numbers from public invoices.
+
+**NEEDS VERIFICATION:** Neon staging, field LCP/CLS/INP, physical assistive-technology and native-device testing. Local density/viewport/keyboard tests are not a WCAG certification or field Core Web Vitals measurement. Private customer originals, test session credentials and secure links remain outside tracked evidence.
 
 ## 6. Release readiness
 

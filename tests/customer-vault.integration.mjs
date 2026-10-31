@@ -439,6 +439,24 @@ test("25-unit current-price phone order uses existing Studio invoice and indepen
   assert.equal(record.document.order_id, next.id);
   assert.equal(record.document.kind, "invoice");
   assert.equal(record.document.body.lines[0].quantity, 25);
+  const texting = await server.ssrLoadModule("/src/lib/commerce/studio-text.server.ts");
+  const contact = await texting.readStudioContact(invoice.id, owner);
+  await texting.saveStudioContact(
+    { id: invoice.id, version: contact.version, phone: "5045550123" },
+    owner,
+  );
+  await assert.rejects(
+    () =>
+      texting.saveStudioContact(
+        { id: invoice.id, version: contact.version, phone: "5045550124" },
+        owner,
+      ),
+    /phone changed/,
+  );
+  assert.equal(
+    (await crm.readCustomer(customerId, owner)).profile.phone_normalized,
+    "+15045550123",
+  );
   assert.equal(record.document.state, "draft");
   assert.equal(record.financial.paid, 0);
   assert.equal((await read.readOrder(next.id, owner)).proof.blocked, true);
