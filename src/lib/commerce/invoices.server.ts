@@ -44,6 +44,10 @@ export async function manageInvoice(
   };
   const claim = await sql.transaction(async (tx) => {
     const order = await orderById(tx, orderId, true);
+    if (!order.customer_email)
+      throw Error(
+        "Add a genuine customer email before preparing a Stripe invoice. Phone-only orders can remain internal drafts.",
+      );
     if (options?.documentId) {
       const [document] =
         await tx`select id from commerce_studio_documents where id=${options.documentId} and kind='invoice' and order_id=${orderId} and state='issued'`;
@@ -85,7 +89,7 @@ export async function manageInvoice(
         : await stripe.customers.create(
             {
               name: claim.order.customer_name,
-              email: claim.order.customer_email,
+              email: claim.order.customer_email ?? undefined,
               metadata: { rec_order_id: orderId },
             },
             { idempotencyKey: `rec-invoice-customer:${obligation}` },

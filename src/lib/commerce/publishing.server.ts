@@ -42,8 +42,12 @@ export async function readDocuments(scope: OwnerScope) {
     }>`select id,key,revision,created_at,actor_id from commerce_document_revisions where scope=${scope} order by created_at desc limit 100`,
   };
 }
-export async function publishedDocument<T>(scope: OwnerScope, key: string): Promise<T | null> {
-  const sql = await getSql();
+export async function publishedDocument<T>(
+  scope: OwnerScope,
+  key: string,
+  connection?: import("@/lib/db").Sql,
+): Promise<T | null> {
+  const sql = connection ?? (await getSql());
   const [row] = await sql<{
     published: T | null;
   }>`select published from commerce_documents where scope=${scope} and key=${key}`;

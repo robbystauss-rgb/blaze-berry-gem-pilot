@@ -83,7 +83,7 @@ export const getMyOrders = createServerFn({ method: "GET" })
     if (!user) throw new Error("Unauthorized");
     const sql = await getSql();
     return sql.query<import("./types").OrderRow>(
-      `${ORDER_SELECT} where o.customer_user_id=$1 order by o.created_at desc limit 100`,
+      `${ORDER_SELECT} where o.customer_user_id=$1 or exists(select 1 from commerce_customer_accounts a join commerce_customers c on c.id=o.customer_id where a.user_id=$1 and (a.customer_id=c.id or a.customer_id=c.merged_into)) order by o.created_at desc limit 100`,
       [user.id],
     );
   });

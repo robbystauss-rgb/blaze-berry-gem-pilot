@@ -131,7 +131,7 @@ export function StudioDocuments({
       setInvoice((v) => ({
         ...v,
         customerName: result.order.customer_name,
-        customerEmail: result.order.customer_email,
+        customerEmail: result.order.customer_email ?? "",
         shipping: result.order.shipping,
         tax: result.order.tax,
         discount: result.order.discount,

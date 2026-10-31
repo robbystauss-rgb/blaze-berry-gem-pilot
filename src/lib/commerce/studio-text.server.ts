@@ -8,6 +8,14 @@ import type { InvoiceBody, StudioRow } from "./studio-schemas";
 import type { Role } from "./types";
 type Actor = { userId: string; role: Role };
 export type StudioContact = { phone: string; version: number };
+async function linkedProfile(sql: Sql, id: string) {
+  const [row] = await sql<{
+    id: string;
+    phone_normalized: string;
+    version: number;
+  }>`select c.id,c.phone_normalized,c.version from commerce_studio_documents d join commerce_orders o on o.id=d.order_id join commerce_customers source on source.id=o.customer_id join commerce_customers c on c.id=coalesce(source.merged_into,source.id) where d.id=${id}`;
+  return row;
+}
 async function contactKey(sql: Sql, id: string) {
   const [doc] = await sql.query<StudioRow>(STUDIO_SELECT + " where id=$1", [id]);
   if (!doc) throw Error("Document not found.");
@@ -23,6 +31,14 @@ export async function readStudioContact(
   studioAccess(actor);
   const sql = tx ?? (await getSql()),
     email = await contactKey(sql, z.string().uuid().parse(id));
+  const customer = await linkedProfile(sql, id);
+  if (customer)
+    return {
+      phone: /^\+[1-9][0-9]{7,14}$/.test(customer.phone_normalized)
+        ? customer.phone_normalized
+        : "",
+      version: customer.version,
+    };
   const [contact] =
     await sql<StudioContact>`select phone,version from commerce_customer_contacts where customer_email=${email}`;
   return contact ?? { phone: "", version: 0 };
@@ -32,6 +48,23 @@ export async function saveStudioContact(raw: unknown, actor: Actor) {
   const p = studioContactSchema.parse(raw),
     sql = await getSql();
   return sql.transaction(async (tx) => {
+    const customer = await linkedProfile(tx, p.id);
+    if (customer) {
+      const updated =
+        await tx`update commerce_customers set phone=${p.phone},phone_normalized=${p.phone},version=version+1,updated_at=now() where id=${customer.id} and version=${p.version} returning id`;
+      if (!updated.length)
+        throw Error("Customer phone changed. Reopen the document before saving.");
+      await audit(
+        tx,
+        actor.userId,
+        "customer.document_contact_updated",
+        "customer",
+        customer.id,
+        null,
+        { documentId: p.id, phonePresent: !!p.phone, version: p.version + 1 },
+      );
+      return { phone: p.phone, version: p.version + 1 };
+    }
     const email = await contactKey(tx, p.id);
     await tx`select pg_advisory_xact_lock(hashtext(${"studio-contact:" + email}))`;
     const [previous] =

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./components/admin/admin.css";
+@import "./components/admin/customers.css";
 @import "./components/hat/physical-patch.css";
 
 @theme {

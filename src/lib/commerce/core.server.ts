@@ -19,6 +19,8 @@ export async function audit(
  values(${randomUUID()},${actor},${action},${type},${id},${JSON.stringify(before)},${JSON.stringify(after)})`;
 }
 export async function notify(sql: Sql, key: string, title: string, orderId: string | null = null) {
+  if (orderId && /^(custom|catalog|draft|quote-accepted):/.test(key))
+    await ensureOrderCustomer(sql, orderId);
   const inserted = await sql<{
     id: string;
   }>`insert into commerce_notifications(id,event_key,title,order_id) values(${randomUUID()},${key},${title},${orderId}) on conflict(event_key) do nothing returning id`;
@@ -26,6 +28,29 @@ export async function notify(sql: Sql, key: string, title: string, orderId: stri
     const { queueOrderEmail } = await import("./order-email.server");
     await queueOrderEmail(sql, inserted[0].id, key, orderId);
   }
+}
+/** One explicit order-origin profile, never an email/name-based identity merge. */
+export async function ensureOrderCustomer(sql: Sql, orderId: string) {
+  const [order] = await sql<{
+    customer_id: string | null;
+    customer_name: string;
+    customer_email: string | null;
+    phone: string;
+  }>`select o.customer_id,o.customer_name,o.customer_email,coalesce(c.phone,'') as phone from commerce_orders o left join commerce_customer_contacts c on c.customer_email=lower(o.customer_email) where o.id=${orderId} for update of o`;
+  if (!order || order.customer_id) return order?.customer_id ?? null;
+  const id = randomUUID();
+  await sql`insert into commerce_customers(id,name,email,phone,phone_normalized,origin,created_by) values(${id},${order.customer_name},${order.customer_email || null},${order.phone},${order.phone},'order_intake','commerce-order-intake')`;
+  await sql`update commerce_orders set customer_id=${id} where id=${orderId} and customer_id is null`;
+  await audit(
+    sql,
+    "commerce-order-intake",
+    "customer.order_origin_profile_created",
+    "customer",
+    id,
+    null,
+    { orderId },
+  );
+  return id;
 }
 export const ORDER_SELECT = `select o.*, coalesce(p.paid,0)::int as paid, coalesce(p.refunded,0)::int as refunded,
  coalesce((select case when c.required then coalesce(d.state,'awaiting_approval') else 'not_required' end from commerce_proof_controls c left join commerce_studio_documents d on d.id=c.current_proof_id where c.order_id=o.id),case when o.stage='customer_approval' then 'awaiting_approval' else 'not_required' end) as proof_status,

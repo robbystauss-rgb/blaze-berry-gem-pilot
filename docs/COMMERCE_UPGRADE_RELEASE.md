@@ -46,6 +46,65 @@ Do not record a second receipt if payment history already contains it.
 
 ## Release control
 
+## P1: persistent customer profiles, phone orders and private Design Vault
+
+IMPLEMENTED: stable customer ids; name/optional email/phone/preferences/tags;
+name/phone/email/customer/order-number search; duplicate review; owner-reviewed
+profile linking with original ownership retained; archive/restore and private
+record export. New order intake joins the same customer records. Phone contacts
+feed the existing Studio text composer, without claiming SMS delivery.
+
+Original artwork is immutable private database media with original bytes,
+SHA-256, MIME, dimensions, provenance and separate raster preview. Saved designs
+contain exact catalog model/colorway ids, nominal physical dimensions, material,
+shape, text, normalized placement, quantity, instructions and immutable revisions.
+Historical artwork can be retained from the Order Workspace without reuploading.
+No vault artwork becomes public gallery media or a public account automatically.
+
+The phone-order stepper uses the existing published price book, promotion and
+inventory checks, existing order/items/ledger, server-generated frozen photo
+snapshots, Signature Studio invoice, separate proof controls and native text
+sharing. Every new phone order requires a new current proof; historic paid totals
+and approvals remain unchanged. Phone-only customers can retain an unissued
+order with NULL email. Invoice/proof issuing keeps the existing genuine-email
+requirement. Changing a profile never rewrites issued customer documents.
+
+VERIFIED: eight durable integration journeys, including full profile → source
+art → saved design → phone draft → issued secure invoice → rotated proof →
+manual receipt → approval → production, plus current-price repeat ordering and
+separate-process reopening. A separate populated-database migration test verifies
+0019 preserves original financial/artwork rows and separates shared-email people.
+Real Chrome checks at 390×844 and 1440×1000 create a caller with no email, upload
+source art, save exact 112/Black/circle choices, prefill a repeat, retain revisions,
+log out/in from a fresh browser context, search by phone and reject customer and
+production-role media downloads. Evidence is ignored under
+`screenshots/customer-vault/`; fixtures are synthetic and no messages were sent.
+
+Identity linking: public signup does not claim a profile using an email/phone.
+Only a staff-administration permission can create the explicit account association
+after an independently documented identity review and a verified existing account.
+Linked account order visibility uses that association. Self-service vault editing,
+automatic approval reuse and marketing consent are not enabled by a profile tag.
+
+Migration `0019_customer_design_vault.sql` adds CRM tables, order/customer linkage
+and optional order email. Historical profiles are backfilled per order, never
+silently grouped by email. Production requires the existing durable Postgres;
+`REC_TEST_DATABASE_DIR` is an isolated development-only PGlite persistence hook
+which refuses production/Vercel. It is not a production-storage substitute.
+
+Rollback after 0019: retain new tables and all source/revision/ledger records.
+The old app does not safely support phone-only NULL-email drafts. Keep owner
+order/document operations on the corrected application, or disable those
+operations until compatibility is reviewed. Do not reintroduce NOT NULL while
+phone-only drafts exist, and do not fabricate addresses or drop their records.
+
+NEEDS VERIFICATION: Neon concurrency under a representative staging database,
+actual owner/customer data linking review, measured physical crown references,
+and device-native SMS composition on a physical iPhone. Local browser tests
+emulate an iPhone viewport and do not establish real carrier delivery.
+
+## Production release hold
+
 NO-GO for production until approval and live-order/provider verification.
 Nothing is merged, deployed or sent to real customers by this work.
 

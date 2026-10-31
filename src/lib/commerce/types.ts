@@ -67,7 +67,8 @@ export type OrderRow = {
   number: number;
   created_at: string;
   customer_name: string;
-  customer_email: string;
+  customer_email: string | null;
+  customer_id: string | null;
   currency: string;
   source: string;
   total: number;
@@ -175,7 +176,10 @@ export type PaymentRow = {
 };
 export type NoteRow = { id: string; actor_id: string; body: string; created_at: string };
 export type CustomerRow = {
-  email: string;
+  id: string;
+  number: number;
+  phone: string;
+  email: string | null;
   name: string;
   order_count: number;
   paid: number;

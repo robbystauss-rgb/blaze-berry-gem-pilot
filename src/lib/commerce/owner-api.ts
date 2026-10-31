@@ -21,6 +21,7 @@ export const searchBusiness = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const { requireAccess } = await import("./access.server");
     await requireAccess(context.userId, "orders", context.bearerToken);
+    await requireAccess(context.userId, "customers", context.bearerToken);
     const { getSql } = await import("@/lib/db");
     const sql = await getSql(),
       search = "%" + data + "%";
@@ -35,9 +36,10 @@ export const searchBusiness = createServerFn({ method: "GET" })
         title: string;
       }>`select id,title from commerce_products where title ilike ${search} order by updated_at desc limit 3`,
       sql<{
+        id: string;
         customer_email: string;
         customer_name: string;
-      }>`select distinct customer_email,customer_name from commerce_orders where customer_email ilike ${search} or customer_name ilike ${search} limit 3`,
+      }>`select id,coalesce(email,'') as customer_email,name as customer_name from commerce_customers where merged_into is null and (email ilike ${search} or name ilike ${search} or phone ilike ${search} or phone_normalized like ${"%" + data.replace(/\D/g, "") + "%"} and ${data.replace(/\D/g, "")}<>'' or number::text=${data}) limit 5`,
     ]);
     return { orders, products, customers };
   });

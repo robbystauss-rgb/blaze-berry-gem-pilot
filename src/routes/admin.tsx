@@ -28,6 +28,7 @@ export const Route = createFileRoute("/admin")({
   validateSearch: z.object({
     section: z.enum(sections).default("overview"),
     orderId: z.string().uuid().optional(),
+    customerId: z.string().uuid().optional(),
     query: z.string().max(200).optional(),
   }),
   head: () => ({

@@ -63,7 +63,8 @@ import { UserButton } from "@/lib/auth/gates";
 import { FAMILIES, colorsForFamily } from "@/lib/catalog";
 import { OrderDetail } from "./order-detail";
 import { ProductEditor } from "./product-editor";
-import { CustomerDetail } from "./customer-detail";
+import { CustomersWorkspace } from "./customers-workspace";
+import { ownerError } from "@/lib/commerce/errors";
 import { BuilderCatalogEditor } from "./builder-catalog-editor";
 import { CalibrationEditor } from "./calibration-editor";
 import { GalleryEditor } from "./gallery-editor";
@@ -112,7 +113,7 @@ const DESCRIPTION: Record<Section, string> = {
   production: "Custom work, organized around the way you make it.",
   inventory: "Real stock counts, commitments and material movements.",
   products: "Manage ordinary merchandise without opening source code.",
-  customers: "Customer purchase history and internal notes.",
+  customers: "Customer profiles, private artwork and exact designs ready for the next call.",
   website: "Publish routine store content through authorized database updates.",
   activity: "Trusted history of changes made to your business.",
   notifications: "Orders and inventory that need your attention.",
@@ -125,8 +126,7 @@ const DESCRIPTION: Record<Section, string> = {
   promotions: "Manage custom-builder offers, eligibility and recorded redemptions.",
   content: "Preview, publish and revert your homepage content.",
 };
-const errorText = (e: unknown) =>
-  e instanceof Error ? e.message : "Something went wrong. Please try again.";
+const errorText = ownerError;
 export function Badge({ value }: { value: string }) {
   return (
     <span
@@ -276,7 +276,7 @@ function csvDownload(name: string, rows: Record<string, unknown>[]) {
 }
 
 export function CommandCenter() {
-  const { section, orderId, query } = Route.useSearch();
+  const { section, orderId, customerId, query } = Route.useSearch();
   const navigate = useNavigate({ from: "/admin" });
   const [access, setAccess] = useState<Awaited<ReturnType<typeof getMerchantAccess>> | null>(null);
   const [accessError, setAccessError] = useState("");
@@ -305,7 +305,6 @@ export function CommandCenter() {
   const [busy, setBusy] = useState(false);
   const [product, setProduct] = useState<ProductRow | null>(null);
   const [inventory, setInventory] = useState<InventoryRow | null>(null);
-  const [customer, setCustomer] = useState<string | null>(null);
   const refreshAccess = useCallback(
     () =>
       getMerchantAccess()
@@ -534,10 +533,15 @@ export function CommandCenter() {
             </div>
             <div className="cc-heading-actions">
               {section === "orders" && !orderId && (
-                <button className="cc-button" onClick={() => setEditor("draft")}>
-                  <Plus size={17} />
-                  Create draft order
-                </button>
+                <>
+                  <a className="cc-button" href="/admin?section=customers">
+                    New Phone Order
+                  </a>
+                  <button className="cc-button secondary" onClick={() => setEditor("draft")}>
+                    <Plus size={17} />
+                    Create draft order
+                  </button>
+                </>
               )}
               {section === "products" && (
                 <button
@@ -561,9 +565,11 @@ export function CommandCenter() {
           </div>
           {access.storage !== "postgres" && (
             <div className="cc-notice">
-              Development workspace · Local records reset when the server restarts. Production
-              requires persistent PostgreSQL. No live customer messages or charges are part of this
-              test environment.
+              Test workspace ·{" "}
+              {access.storage === "durable local test database"
+                ? "Records persist in isolated test storage."
+                : "Local records reset when the server restarts."}{" "}
+              No live customer messages or charges are part of this test environment.
             </div>
           )}
           {error && (
@@ -622,6 +628,13 @@ export function CommandCenter() {
               key={section}
               kind={section === "invoices" ? "invoice" : "proof"}
               initialOrderId={orderId}
+            />
+          ) : section === "customers" ? (
+            <CustomersWorkspace
+              initialId={customerId}
+              externalSearch={search}
+              owner={access.role === "owner"}
+              openOrder={openOrder}
             />
           ) : section === "quotes" ? (
             <QuotesEditor onOpenOrder={openOrder} />
@@ -948,36 +961,6 @@ export function CommandCenter() {
                           />
                         )}
                       </>
-                    )}
-                    {section === "customers" && (
-                      <div className="cc-panel">
-                        {data.customers.length ? (
-                          <div className="cc-records">
-                            {data.customers.map((c) => (
-                              <div key={c.email}>
-                                <div>
-                                  <button className="cc-link" onClick={() => setCustomer(c.email)}>
-                                    {c.name}
-                                  </button>
-                                  <small>{c.email}</small>
-                                </div>
-                                <span>
-                                  {c.order_count} orders
-                                  <small>
-                                    {money(c.paid - c.refunded)} net collected · {c.open_orders}{" "}
-                                    open · {c.unpaid_invoices} unpaid invoices
-                                  </small>
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <Empty
-                            title="No customers recorded yet"
-                            body="The directory is populated by genuine order records."
-                          />
-                        )}
-                      </div>
                     )}
                     {section === "website" && <ContentPagesEditor />}
                     {section === "activity" && (
@@ -1568,17 +1551,6 @@ export function CommandCenter() {
               <SaveButton busy={busy} />
             </form>
           )}
-        </Modal>
-      )}
-      {customer && (
-        <Modal title="Customer history" close={() => setCustomer(null)}>
-          <CustomerDetail
-            email={customer}
-            open={(id) => {
-              setCustomer(null);
-              openOrder(id);
-            }}
-          />
         </Modal>
       )}
     </div>

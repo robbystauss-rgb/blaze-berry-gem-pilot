@@ -1,5 +1,6 @@
 import { ManualPaymentForm } from "./manual-payment-form";
 import { ownerError } from "@/lib/commerce/errors";
+import { saveOrderToVault, preparePhoneOrderInvoice } from "@/lib/commerce/customer-api";
 import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Printer, Download } from "lucide-react";
 import {
@@ -201,6 +202,36 @@ export function OrderDetail({
           not remove this hold.
         </p>
       )}
+      {!production && o.customer_id && (
+        <div className="cc-quick-actions cc-no-print">
+          <a
+            className="cc-button secondary"
+            href={`/admin?section=customers&customerId=${o.customer_id}`}
+          >
+            Open customer & Design Vault
+          </a>
+          {access.role === "owner" && o.source === "phone_order" && !o.paid && (
+            <button
+              className="cc-button"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                try {
+                  await preparePhoneOrderInvoice({ data: id });
+                  window.location.assign(`/admin?section=invoices&orderId=${id}`);
+                } catch (e) {
+                  setError(ownerError(e));
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              Prepare Studio invoice draft
+            </button>
+          )}
+        </div>
+      )}
       {error && (
         <p className="cc-error cc-no-print" role="alert">
           {error}
@@ -360,6 +391,32 @@ export function OrderDetail({
                 </button>
               )}
               <small>Inventory mapping key: {item.product_key}</small>
+              {!production && o.customer_id && (
+                <button
+                  className="cc-button secondary cc-no-print"
+                  disabled={busy}
+                  onClick={async () => {
+                    const name = window.prompt("Name this customer's reusable design", item.title);
+                    if (!name?.trim()) return;
+                    setBusy(true);
+                    setError("");
+                    try {
+                      await saveOrderToVault({
+                        data: { itemId: item.id, designId: crypto.randomUUID(), name: name.trim() },
+                      });
+                      setSuccess(
+                        "Original artwork and exact configuration saved to this customer's private Design Vault. Future orders require current pricing and proof review.",
+                      );
+                    } catch (e) {
+                      setError(ownerError(e));
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                >
+                  Save this build to customer
+                </button>
+              )}
             </article>
           ))}
         </section>

@@ -88,9 +88,9 @@ export async function registerHatPhoto(raw: unknown, actor: { userId: string; ro
   });
   return (await exactHatPhoto(id))!;
 }
-export async function publishedHatPhoto(modelId: string, colorway: string) {
+export async function publishedHatPhoto(modelId: string, colorway: string, connection?: Sql) {
   if (isRetiredHatModel(modelId)) return null;
-  const sql = await getSql();
+  const sql = connection ?? (await getSql());
   const [p] = await sql<
     PhotoRow & { published: PhotoGeometry }
   >`select p.*,d.published from commerce_hat_photos p join commerce_documents d on d.scope='calibration' and d.key=p.id where p.model_id=${modelId} and p.colorway=${colorway} and d.published is not null order by d.updated_at desc limit 1`;

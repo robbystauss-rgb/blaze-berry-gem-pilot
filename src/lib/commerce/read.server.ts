@@ -205,15 +205,10 @@ export async function readAdmin(
   }
   if (input.section === "customers") {
     result.customers =
-      await sql<CustomerRow>`select lower(o.customer_email) as email,max(o.customer_name) as name,count(*)::int as order_count,
-  coalesce(sum(p.paid),0)::int as paid,coalesce(sum(p.refunded),0)::int as refunded,count(*) filter(where o.stage not in ('completed','canceled'))::int as open_orders,
-  count(*) filter(where i.state in ('open','draft','creating'))::int as unpaid_invoices from commerce_orders o
-  left join(select order_id,sum(amount) filter(where kind='payment') as paid,sum(amount) filter(where kind='refund') as refunded from commerce_payments group by order_id)p on p.order_id=o.id
-  left join commerce_invoices i on i.order_id=o.id where o.customer_name ilike ${search} or o.customer_email ilike ${search}
-  group by lower(o.customer_email) order by max(o.created_at) desc limit 50 offset ${input.page * 50}`;
+      await sql<CustomerRow>`select c.id,c.number,c.email,c.name,c.phone,count(o.id)::int as order_count,coalesce(sum(p.paid),0)::int as paid,coalesce(sum(p.refunded),0)::int as refunded,count(o.id) filter(where o.stage not in ('completed','canceled'))::int as open_orders,count(o.id) filter(where i.state in ('open','draft','creating'))::int as unpaid_invoices from commerce_customers c left join commerce_orders o on o.customer_id=c.id or o.customer_id in(select id from commerce_customers where merged_into=c.id) left join(select order_id,sum(amount) filter(where kind='payment') as paid,sum(amount) filter(where kind='refund') as refunded from commerce_payments group by order_id)p on p.order_id=o.id left join commerce_invoices i on i.order_id=o.id where c.merged_into is null and (c.name ilike ${search} or c.email ilike ${search} or c.phone ilike ${search} or c.number::text ilike ${search}) group by c.id order by c.updated_at desc limit 50 offset ${input.page * 50}`;
     const [count] = await sql<{
       count: number;
-    }>`select count(distinct lower(customer_email))::int as count from commerce_orders where customer_name ilike ${search} or customer_email ilike ${search}`;
+    }>`select count(*)::int as count from commerce_customers where merged_into is null and (name ilike ${search} or email ilike ${search} or phone ilike ${search} or number::text ilike ${search})`;
     result.total = count.count;
   }
   if (input.section === "website")

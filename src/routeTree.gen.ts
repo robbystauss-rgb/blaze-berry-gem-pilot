@@ -40,6 +40,7 @@ import { Route as StudioPreviewIdRouteImport } from './routes/studio-preview/$id
 import { Route as ApiArtworkIdRouteImport } from './routes/api/artwork/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCatalogImageIdRouteImport } from './routes/api/catalog-image/$id'
+import { Route as ApiCustomerArtworkIdRouteImport } from './routes/api/customer-artwork/$id'
 import { Route as ApiMediaIdRouteImport } from './routes/api/media/$id'
 import { Route as ApiNotificationsOrderEmailRouteImport } from './routes/api/notifications/order-email'
 import { Route as ApiStudioFileIdRouteImport } from './routes/api/studio-file/$id'
@@ -201,6 +202,11 @@ const ApiCatalogImageIdRoute = ApiCatalogImageIdRouteImport.update({
   path: '/api/catalog-image/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCustomerArtworkIdRoute = ApiCustomerArtworkIdRouteImport.update({
+  id: '/api/customer-artwork/$id',
+  path: '/api/customer-artwork/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMediaIdRoute = ApiMediaIdRouteImport.update({
   id: '/api/media/$id',
   path: '/api/media/$id',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/customer-artwork/$id': typeof ApiCustomerArtworkIdRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
   '/api/studio-file/$id': typeof ApiStudioFileIdRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/customer-artwork/$id': typeof ApiCustomerArtworkIdRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
   '/api/studio-file/$id': typeof ApiStudioFileIdRoute
@@ -337,6 +345,7 @@ export interface FileRoutesById {
   '/api/artwork/$id': typeof ApiArtworkIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/catalog-image/$id': typeof ApiCatalogImageIdRoute
+  '/api/customer-artwork/$id': typeof ApiCustomerArtworkIdRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/notifications/order-email': typeof ApiNotificationsOrderEmailRoute
   '/api/studio-file/$id': typeof ApiStudioFileIdRoute
@@ -377,6 +386,7 @@ export interface FileRouteTypes {
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
+    | '/api/customer-artwork/$id'
     | '/api/media/$id'
     | '/api/notifications/order-email'
     | '/api/studio-file/$id'
@@ -415,6 +425,7 @@ export interface FileRouteTypes {
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
+    | '/api/customer-artwork/$id'
     | '/api/media/$id'
     | '/api/notifications/order-email'
     | '/api/studio-file/$id'
@@ -453,6 +464,7 @@ export interface FileRouteTypes {
     | '/api/artwork/$id'
     | '/api/auth/$'
     | '/api/catalog-image/$id'
+    | '/api/customer-artwork/$id'
     | '/api/media/$id'
     | '/api/notifications/order-email'
     | '/api/studio-file/$id'
@@ -492,6 +504,7 @@ export interface RootRouteChildren {
   ApiArtworkIdRoute: typeof ApiArtworkIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCatalogImageIdRoute: typeof ApiCatalogImageIdRoute
+  ApiCustomerArtworkIdRoute: typeof ApiCustomerArtworkIdRoute
   ApiMediaIdRoute: typeof ApiMediaIdRoute
   ApiNotificationsOrderEmailRoute: typeof ApiNotificationsOrderEmailRoute
   ApiStudioFileIdRoute: typeof ApiStudioFileIdRoute
@@ -718,6 +731,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCatalogImageIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/customer-artwork/$id': {
+      id: '/api/customer-artwork/$id'
+      path: '/api/customer-artwork/$id'
+      fullPath: '/api/customer-artwork/$id'
+      preLoaderRoute: typeof ApiCustomerArtworkIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/media/$id': {
       id: '/api/media/$id'
       path: '/api/media/$id'
@@ -788,6 +808,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiArtworkIdRoute: ApiArtworkIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCatalogImageIdRoute: ApiCatalogImageIdRoute,
+  ApiCustomerArtworkIdRoute: ApiCustomerArtworkIdRoute,
   ApiMediaIdRoute: ApiMediaIdRoute,
   ApiNotificationsOrderEmailRoute: ApiNotificationsOrderEmailRoute,
   ApiStudioFileIdRoute: ApiStudioFileIdRoute,
