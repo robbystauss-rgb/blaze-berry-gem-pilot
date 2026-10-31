@@ -127,3 +127,20 @@ separation and unpaid/unapproved production holds before any real receipt.
 IMPLEMENTED on the feature branch: grouped owner navigation, real active attention counts and filtered production views, three independent order states, next safe action, primary financial summary, versioned production-file sizes, linked document/order timeline, and readable publishing/gallery/pricing failures. No synthetic revenue or new messaging service.
 
 VERIFIED: seven task/readiness integration tests, including all-time versus active counts, paid/unapproved versus paid/approved queues, and rejection of unpaid Ready for production. Browser comparisons against commit d3c5125 at 390px and 1440px have no horizontal overflow or page errors. Local evidence: screenshots/owner-workspace/{before,after}. Other staff continue to receive server-redacted financial/audit fields. Existing order, inventory, quotes and proof modules remain authoritative.
+
+## Separate review artifacts
+
+P0 is independently reviewable in [draft PR #10](https://github.com/robbystauss-rgb/blaze-berry-gem-pilot/pull/10), head b6a86c223b87bd4b74b949f1f100b93f49b5749a. Its receipt milestone is 4b23a76efc44c5336492a2ff2ea6b9505c04de9a. It needs migration 0018 only. Both GitHub CI jobs, including disposable PostgreSQL, passed for that exact head. Vercel returned zero deployments for it. The isolated checkout also passed typecheck, six payment tests and both default regression groups. It remains a draft and is not merged or live.
+
+The broader branch retains the same tested Git trees. GitHub publication used the connected account because command-line Git credentials were unavailable; commit metadata changed while tree contents were verified identical:
+
+| Milestone | Original local commit | Published equivalent |
+|---|---|---|
+| Receipt ledger correction | d4d8178 | 4b23a76efc44c5336492a2ff2ea6b9505c04de9a |
+| Customer profiles, vault and phone drafts | d3c5125 | ba8d451e948e4cce4fc063c01b190e7990f93f57 |
+| Owner readiness/workspace | af35b6c | 42e3e8f2d175cf6f53c5f0553ff8b3365ec00a97 |
+| Studio, image delivery and connected intake/gallery | 9449a02 | f4419cd7d1fd2af438957adfd47ac0373b4883c9 |
+
+Release sequence after explicit approval: back up and rehearse 0018, verify the P0 sandbox/provider cases, coordinate the compatible receipt-only application release, then privately reconcile order #4. Review/approve 0019 and the wider application separately after isolated Neon rehearsal, backfill identity review and photo review. If P0 merges first, refresh the wider PR against that approved main before release. Neither a PR nor passing CI authorizes production migration, merge, deployment or customer messaging.
+
+The final evidence report is [COMMERCE_UPGRADE_EVIDENCE.md](COMMERCE_UPGRADE_EVIDENCE.md). Local browser artifacts stay in ignored screenshots/ and artifacts/ directories; source customer art and test session credentials are never attached to public PRs.

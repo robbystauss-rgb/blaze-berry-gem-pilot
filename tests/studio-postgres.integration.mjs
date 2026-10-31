@@ -7,11 +7,12 @@ import { randomUUID, createHash } from "node:crypto";
 import pg from "pg";
 import { createServer } from "vite";
 import { PDFDocument } from "pdf-lib";
+import sharp from "sharp";
 import { previewDatabaseConfiguration } from "../scripts/preview-database.mjs";
 
 const url = process.env.REC_STUDIO_PG_VERIFY_URL;
 test(
-  "0016 PostgreSQL migration, transaction rollback, persisted proofs and financial holds",
+  "PostgreSQL migrations, persisted phone designs, receipt retries, proofs and financial holds",
   { skip: !url },
   async () => {
     const target = new URL(url);
@@ -128,6 +129,23 @@ test(
       await client.query("commit");
       assert.deepEqual(await fingerprint(), before);
       check("Additive 0017 rollback and commit preserve historical records");
+      for (const name of names.filter((name) => name >= "0018")) {
+        await client.query("begin");
+        await client.query(readFileSync("migrations/" + name, "utf8"));
+        await client.query("rollback");
+        await client.query("begin");
+        await client.query(readFileSync("migrations/" + name, "utf8"));
+        await client.query("insert into _migrations(name) values($1)", [name]);
+        await client.query("commit");
+      }
+      assert.equal(
+        (await client.query("select amount from commerce_payments where id='pg-old-payment'"))
+          .rows[0].amount,
+        1200,
+      );
+      check(
+        "0018/0019 rehearse transaction rollback, apply additively and preserve original payment",
+      );
       process.env.DATABASE_URL = url;
       server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
       const sql = await (await server.ssrLoadModule("/src/lib/db.ts")).getSql();
@@ -284,6 +302,130 @@ test(
       }
       check(
         "Invoice and both versioned proof PDFs reload from PostgreSQL as valid separate Letter documents",
+      );
+      const crm = await server.ssrLoadModule("/src/lib/commerce/customers.server.ts");
+      const schema = await server.ssrLoadModule("/src/lib/commerce/customer-schemas.ts");
+      const customerId = randomUUID(),
+        assetId = randomUUID(),
+        designId = randomUUID();
+      await crm.saveCustomer(
+        schema.saveCustomerSchema.parse({
+          id: customerId,
+          version: 0,
+          body: { name: "TEST PostgreSQL caller", email: null, phone: "+15045550129" },
+          reviewedDuplicate: true,
+        }),
+        owner,
+      );
+      const original = await sharp({
+        create: {
+          width: 900,
+          height: 600,
+          channels: 4,
+          background: { r: 0, g: 0, b: 0, alpha: 0.5 },
+        },
+      })
+        .png()
+        .toBuffer();
+      await crm.uploadCustomerArtwork(
+        {
+          id: assetId,
+          customerId,
+          name: "TEST ORIGINAL.png",
+          data: "data:image/png;base64," + original.toString("base64"),
+          provenance: "TEST ONLY owner-supplied original",
+        },
+        owner,
+      );
+      const configuration = {
+        orderType: "hat",
+        modelId: "112",
+        variantId: "112:black",
+        leatherette: "buckskin",
+        patchShape: "Circle",
+        patchSize: "medium",
+        physicalInches: { width: 2.5, height: 2.5 },
+        placement: "front-center",
+        patchPosition: { version: 2, anchor: { x: 0.5, y: 0.5 } },
+        patchText: "TEST",
+        quantity: 2,
+        notes: "TEST private preference",
+        previewSnapshot: null,
+      };
+      await crm.saveCustomerDesign(
+        {
+          id: designId,
+          customerId,
+          version: 0,
+          name: "TEST PostgreSQL exact 112",
+          configuration,
+          artworkAssetId: assetId,
+          note: "Original intake",
+        },
+        owner,
+      );
+      const price = await crm.quotePhoneOrder({ customerId, configuration }, owner);
+      const request = {
+        requestId: randomUUID(),
+        customerId,
+        designId,
+        revision: 1,
+        configuration,
+        artworkAssetId: assetId,
+        expectedTotal: price.totalCents,
+        expectedPriceRevision: price.priceRevision,
+        expectedPreviewSignature: price.previewSignature,
+        shipping: 0,
+        tax: 0,
+        chargesReviewed: true,
+      };
+      const drafts = await Promise.all([
+        crm.createPhoneOrder(request, owner),
+        crm.createPhoneOrder(request, owner),
+      ]);
+      assert.equal(drafts[0].id, drafts[1].id);
+      const receipt = {
+        id: drafts[0].id,
+        requestId: randomUUID(),
+        amount: price.totalCents,
+        method: "venmo",
+        reference: "TEST PG " + randomUUID(),
+        reason: "Independently verified TEST receipt only",
+        occurredAt: new Date().toISOString(),
+      };
+      const payments = await Promise.all([
+        mutations.mutate("payment.manual", receipt, owner),
+        mutations.mutate("payment.manual", receipt, owner),
+      ]);
+      assert.equal(
+        (await sql`select count(*)::int n from commerce_payments where order_id=${drafts[0].id}`)[0]
+          .n,
+        1,
+      );
+      assert.ok(payments.some((result) => result.duplicate));
+      assert.equal((await crm.readCustomer(customerId, owner)).profile.email, null);
+      assert.deepEqual(Buffer.from((await crm.customerArtwork(assetId, owner)).bytes), original);
+      await assert.rejects(
+        async () =>
+          mutations.mutate(
+            "order.update",
+            {
+              id: drafts[0].id,
+              version: (await core.orderById(sql, drafts[0].id)).version,
+              stage: "ready_for_production",
+            },
+            owner,
+          ),
+        /proof|approval/i,
+      );
+      const persisted = await client.query(
+        "select o.customer_email,encode(i.artwork,'hex') original from commerce_orders o join commerce_order_items i on i.order_id=o.id where o.id=$1",
+        [drafts[0].id],
+      );
+      assert.equal(persisted.rows[0].customer_email, null);
+      assert.equal(persisted.rows[0].original, original.toString("hex"));
+      check(
+        "Phone-only profile, private source and exact design persist through independent PostgreSQL connection; concurrent draft and receipt retries create one record; new proof remains required",
       );
       const snapshot = await sql.query(
         "select id,state,response,proof_version,encode(pdf,'hex') pdf from commerce_studio_documents order by id",

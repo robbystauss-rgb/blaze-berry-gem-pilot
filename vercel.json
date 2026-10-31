@@ -1,6 +1,16 @@
 {
-  "crons": [{ "path": "/api/notifications/order-email", "schedule": "0 12 * * *" }],
+  "crons": [
+    {
+      "path": "/api/notifications/order-email",
+      "schedule": "0 12 * * *"
+    }
+  ],
   "git": {
-    "deploymentEnabled": { "feat/signature-invoice-proof": false, "feat/studio-native-text": false }
+    "deploymentEnabled": {
+      "feat/signature-invoice-proof": false,
+      "feat/studio-native-text": false,
+      "codex/commerce-reliability-customer-vault": false,
+      "codex/manual-payment-hotfix": false
+    }
   }
 }
