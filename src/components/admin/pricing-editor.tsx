@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useEffect, useState } from "react";
 import {
   FAMILIES,
@@ -290,7 +291,7 @@ export function PromotionEditor() {
     try {
       setRows(await getPromotions());
     } catch (e) {
-      setError(String(e));
+      setError(ownerError(e));
     }
   }
   useEffect(() => {

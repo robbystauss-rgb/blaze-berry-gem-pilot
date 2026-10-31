@@ -121,3 +121,9 @@ until the reviewed correction is restored. Reconcile any in-flight provider
 action before re-enabling collection. Smoke-test role access, one sandbox partial
 receipt, duplicate retry, active-link blocking, invoice/proof secure-link
 separation and unpaid/unapproved production holds before any real receipt.
+
+## Owner workspace milestone
+
+IMPLEMENTED on the feature branch: grouped owner navigation, real active attention counts and filtered production views, three independent order states, next safe action, primary financial summary, versioned production-file sizes, linked document/order timeline, and readable publishing/gallery/pricing failures. No synthetic revenue or new messaging service.
+
+VERIFIED: seven task/readiness integration tests, including all-time versus active counts, paid/unapproved versus paid/approved queues, and rejection of unpaid Ready for production. Browser comparisons against commit d3c5125 at 390px and 1440px have no horizontal overflow or page errors. Local evidence: screenshots/owner-workspace/{before,after}. Other staff continue to receive server-redacted financial/audit fields. Existing order, inventory, quotes and proof modules remain authoritative.

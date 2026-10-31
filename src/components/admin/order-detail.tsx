@@ -1,3 +1,4 @@
+import { orderNextAction } from "@/lib/commerce/operations";
 import { ManualPaymentForm } from "./manual-payment-form";
 import { ownerError } from "@/lib/commerce/errors";
 import { saveOrderToVault, preparePhoneOrderInvoice } from "@/lib/commerce/customer-api";
@@ -124,6 +125,7 @@ export function OrderDetail({
     );
   const o = data.order;
   const production = access.role === "production";
+  const next = orderNextAction({ ...o, proof_status: data.proof.status });
   return (
     <div id="cc-order-print" className={`cc-order-detail print-${printMode}`}>
       <div className="cc-detail-toolbar">
@@ -165,23 +167,32 @@ export function OrderDetail({
               {new Date(o.created_at).toLocaleString()} · {label(o.source)}
             </p>
           </div>
-          <div className="cc-actions">
-            <Badge value={o.payment_status} />
-            <Badge value={data.proof.status} />
-            <Badge
-              value={
-                o.source === "stripe_history_review" && o.stage === "new"
-                  ? "historical_review_required"
-                  : o.stage
-              }
-            />
+          <div className="cc-order-states">
+            <span>
+              Financial
+              <Badge value={o.payment_status} />
+            </span>
+            <span>
+              Artwork approval
+              <Badge value={data.proof.status} />
+            </span>
+            <span>
+              Production / fulfillment
+              <Badge
+                value={
+                  o.source === "stripe_history_review" && o.stage === "new"
+                    ? "historical_review_required"
+                    : o.stage
+                }
+              />
+            </span>
           </div>
         </div>
         {!production && (
           <div className="cc-order-facts">
             <span>
               <small>Customer</small>
-              {o.customer_email}
+              {o.customer_email || "Phone-only customer · email not supplied"}
             </span>
             <span>
               <small>Shipping address</small>
@@ -196,6 +207,28 @@ export function OrderDetail({
           </div>
         )}
       </div>
+      <section className="cc-panel cc-order-next cc-no-print">
+        <div>
+          <p className="cc-eyebrow">NEXT SAFE ACTION</p>
+          <h2>{next.title}</h2>
+          <p>{next.detail}</p>
+        </div>
+        <a
+          className="cc-button"
+          href={
+            next.target === "proof" && access.role === "owner"
+              ? `/admin?section=proofs&orderId=${id}`
+              : `#order-${next.target}`
+          }
+        >
+          Review{" "}
+          {next.target === "financial"
+            ? "payment"
+            : next.target === "fulfillment"
+              ? "production"
+              : next.target}
+        </a>
+      </section>
       {data.proof.blocked && (
         <p className="cc-error" role="status">
           Artwork Approval Hold: the current proof must be approved before production. Payment does
@@ -243,185 +276,8 @@ export function OrderDetail({
         </p>
       )}
       <div className="cc-detail-grid">
-        <section className="cc-panel cc-no-print">
-          <h2>Production files</h2>
-          <p className="cc-help">
-            Save revised or approved files with an approval reference. Each upload remains in
-            history; the original customer artwork stays intact.
-          </p>
-          {data.productionFiles.length === 0 && <p>No production files saved.</p>}
-          {data.productionFiles.map((file) => (
-            <article className="cc-order-item" key={file.id}>
-              <h3>{file.name}</h3>
-              <p>{file.reason}</p>
-              <small>
-                {new Date(file.created_at).toLocaleString()} · {file.actor_id}
-              </small>
-              <button className="cc-button secondary" onClick={() => void downloadArtwork(file.id)}>
-                <Download size={16} />
-                Download production file
-              </button>
-            </article>
-          ))}
-          <form
-            className="cc-form"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const form = e.currentTarget;
-              const values = new FormData(form);
-              const file = values.get("productionFile");
-              if (!(file instanceof File) || !file.size) {
-                setError("Choose a production file.");
-                return;
-              }
-              if (file.size > MAX_NEW_UPLOAD_BYTES) {
-                setError("Upload a production file up to 3 MB.");
-                return;
-              }
-              setBusy(true);
-              setError("");
-              try {
-                const encoded = await new Promise<string>((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = () => resolve(String(reader.result));
-                  reader.onerror = reject;
-                  reader.readAsDataURL(file);
-                });
-                await uploadProductionFile({
-                  data: {
-                    orderId: id,
-                    name: file.name,
-                    data: encoded,
-                    reason: String(values.get("fileReason")),
-                    requestId: fileRequest,
-                  },
-                });
-                setFileRequest(crypto.randomUUID());
-                form.reset();
-                setSuccess("Production file saved. Original artwork preserved.");
-                await refresh();
-                await onChange();
-              } catch (error) {
-                setError(msg(error));
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            <Field name="productionFile" title="PNG, JPG, WebP, PDF or SVG (max 3 MB)">
-              <input
-                type="file"
-                name="productionFile"
-                accept="image/png,image/jpeg,image/webp,image/svg+xml,application/pdf"
-                required
-                disabled={busy}
-              />
-            </Field>
-            <Field name="fileReason" title="Revision / approval reference" required />
-            <button className="cc-button" disabled={busy}>
-              Save production file
-            </button>
-          </form>
-        </section>
-        <section className="cc-panel">
-          <h2>Original purchased specifications</h2>
-          <p className="cc-help">
-            These snapshots retain the customer’s original choices even when the catalog changes.
-          </p>
-          {data.items.map((item) => (
-            <article className="cc-order-item" key={item.id}>
-              <h3>{item.title}</h3>
-              <p>
-                {item.quantity} purchased · {item.fulfilled_quantity} to fulfill
-                {!production && (
-                  <span className="cc-financial"> · {money(item.unit_amount)} each</span>
-                )}
-              </p>
-              <dl className="cc-specs">
-                {Object.entries(item.specifications)
-                  .filter(
-                    ([key]) =>
-                      ![
-                        "customerName",
-                        "customerEmail",
-                        "snapshot_hash",
-                        "checkoutRequestId",
-                        "provider",
-                        "hasArtwork",
-                        "preview",
-                        "pricing",
-                        "previewVersion",
-                        "expectedPreview",
-                        "priceDefinition",
-                        "productImages",
-                      ].includes(key) &&
-                      !(
-                        key === "previewPlacement" &&
-                        item.specifications.preview &&
-                        typeof item.specifications.preview === "object" &&
-                        "anchor" in item.specifications.preview
-                      ),
-                  )
-                  .map(
-                    ([key, value]) =>
-                      value !== null &&
-                      value !== "" && (
-                        <div key={key}>
-                          <dt>{label(key.replace(/([a-z])([A-Z])/g, "$1_$2"))}</dt>
-                          <dd>
-                            {typeof value === "object" ? JSON.stringify(value) : String(value)}
-                          </dd>
-                        </div>
-                      ),
-                  )}
-              </dl>
-              {item.has_artwork && <ArtworkPreview id={item.id} />}
-              <SavedHatProof
-                specifications={item.specifications}
-                itemId={item.id}
-                hasArtwork={item.has_artwork}
-              />
-              {item.has_artwork && (
-                <button
-                  className="cc-button secondary cc-no-print"
-                  onClick={() => void downloadArtwork(item.id)}
-                >
-                  <Download size={16} />
-                  Download original artwork
-                </button>
-              )}
-              <small>Inventory mapping key: {item.product_key}</small>
-              {!production && o.customer_id && (
-                <button
-                  className="cc-button secondary cc-no-print"
-                  disabled={busy}
-                  onClick={async () => {
-                    const name = window.prompt("Name this customer's reusable design", item.title);
-                    if (!name?.trim()) return;
-                    setBusy(true);
-                    setError("");
-                    try {
-                      await saveOrderToVault({
-                        data: { itemId: item.id, designId: crypto.randomUUID(), name: name.trim() },
-                      });
-                      setSuccess(
-                        "Original artwork and exact configuration saved to this customer's private Design Vault. Future orders require current pricing and proof review.",
-                      );
-                    } catch (e) {
-                      setError(ownerError(e));
-                    } finally {
-                      setBusy(false);
-                    }
-                  }}
-                >
-                  Save this build to customer
-                </button>
-              )}
-            </article>
-          ))}
-        </section>
         {!production && (
-          <section className="cc-panel cc-financial">
+          <section id="order-financial" className="cc-panel cc-financial cc-priority-panel">
             <h2>Financial summary</h2>
             <dl className="cc-totals">
               {[
@@ -665,9 +521,190 @@ export function OrderDetail({
             )}
           </section>
         )}
+        <section id="order-files" className="cc-panel cc-no-print">
+          <h2>Production files</h2>
+          <p className="cc-help">
+            Save revised or approved files with an approval reference. Each upload remains in
+            history; the original customer artwork stays intact.
+          </p>
+          {data.productionFiles.length === 0 && <p>No production files saved.</p>}
+          {data.productionFiles.map((file) => (
+            <article className="cc-order-item" key={file.id}>
+              <h3>{file.name}</h3>
+              <p>{file.reason}</p>
+              <small>
+                {new Date(file.created_at).toLocaleString()} · {file.mime} ·{" "}
+                {(file.byte_size / 1024).toFixed(1)} KB
+              </small>
+              <button className="cc-button secondary" onClick={() => void downloadArtwork(file.id)}>
+                <Download size={16} />
+                Download production file
+              </button>
+            </article>
+          ))}
+          <form
+            className="cc-form"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const values = new FormData(form);
+              const file = values.get("productionFile");
+              if (!(file instanceof File) || !file.size) {
+                setError("Choose a production file.");
+                return;
+              }
+              if (file.size > MAX_NEW_UPLOAD_BYTES) {
+                setError("Upload a production file up to 3 MB.");
+                return;
+              }
+              setBusy(true);
+              setError("");
+              try {
+                const encoded = await new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(String(reader.result));
+                  reader.onerror = reject;
+                  reader.readAsDataURL(file);
+                });
+                await uploadProductionFile({
+                  data: {
+                    orderId: id,
+                    name: file.name,
+                    data: encoded,
+                    reason: String(values.get("fileReason")),
+                    requestId: fileRequest,
+                  },
+                });
+                setFileRequest(crypto.randomUUID());
+                form.reset();
+                setSuccess("Production file saved. Original artwork preserved.");
+                await refresh();
+                await onChange();
+              } catch (error) {
+                setError(msg(error));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <Field name="productionFile" title="PNG, JPG, WebP, PDF or SVG (max 3 MB)">
+              <input
+                type="file"
+                name="productionFile"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml,application/pdf"
+                required
+                disabled={busy}
+              />
+            </Field>
+            <Field name="fileReason" title="Revision / approval reference" minLength={5} required />
+            <p className="cc-help">
+              At least 5 characters. Identify the revision or approval this file belongs to.
+            </p>
+            <button className="cc-button" disabled={busy}>
+              Save production file
+            </button>
+          </form>
+        </section>
+        <section id="order-specifications" className="cc-panel">
+          <h2>Original purchased specifications</h2>
+          <p className="cc-help">
+            These snapshots retain the customer’s original choices even when the catalog changes.
+          </p>
+          {data.items.map((item) => (
+            <article className="cc-order-item" key={item.id}>
+              <h3>{item.title}</h3>
+              <p>
+                {item.quantity} purchased · {item.fulfilled_quantity} to fulfill
+                {!production && (
+                  <span className="cc-financial"> · {money(item.unit_amount)} each</span>
+                )}
+              </p>
+              <dl className="cc-specs">
+                {Object.entries(item.specifications)
+                  .filter(
+                    ([key]) =>
+                      ![
+                        "customerName",
+                        "customerEmail",
+                        "snapshot_hash",
+                        "checkoutRequestId",
+                        "provider",
+                        "hasArtwork",
+                        "preview",
+                        "pricing",
+                        "previewVersion",
+                        "expectedPreview",
+                        "priceDefinition",
+                        "productImages",
+                      ].includes(key) &&
+                      !(
+                        key === "previewPlacement" &&
+                        item.specifications.preview &&
+                        typeof item.specifications.preview === "object" &&
+                        "anchor" in item.specifications.preview
+                      ),
+                  )
+                  .map(
+                    ([key, value]) =>
+                      value !== null &&
+                      value !== "" && (
+                        <div key={key}>
+                          <dt>{label(key.replace(/([a-z])([A-Z])/g, "$1_$2"))}</dt>
+                          <dd>
+                            {typeof value === "object" ? JSON.stringify(value) : String(value)}
+                          </dd>
+                        </div>
+                      ),
+                  )}
+              </dl>
+              {item.has_artwork && <ArtworkPreview id={item.id} />}
+              <SavedHatProof
+                specifications={item.specifications}
+                itemId={item.id}
+                hasArtwork={item.has_artwork}
+              />
+              {item.has_artwork && (
+                <button
+                  className="cc-button secondary cc-no-print"
+                  onClick={() => void downloadArtwork(item.id)}
+                >
+                  <Download size={16} />
+                  Download original artwork
+                </button>
+              )}
+              <small>Inventory mapping key: {item.product_key}</small>
+              {!production && o.customer_id && (
+                <button
+                  className="cc-button secondary cc-no-print"
+                  disabled={busy}
+                  onClick={async () => {
+                    const name = window.prompt("Name this customer's reusable design", item.title);
+                    if (!name?.trim()) return;
+                    setBusy(true);
+                    setError("");
+                    try {
+                      await saveOrderToVault({
+                        data: { itemId: item.id, designId: crypto.randomUUID(), name: name.trim() },
+                      });
+                      setSuccess(
+                        "Original artwork and exact configuration saved to this customer's private Design Vault. Future orders require current pricing and proof review.",
+                      );
+                    } catch (e) {
+                      setError(ownerError(e));
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                >
+                  Save this build to customer
+                </button>
+              )}
+            </article>
+          ))}
+        </section>
       </div>
       <div className="cc-detail-grid cc-no-print">
-        <section className="cc-panel">
+        <section id="order-fulfillment" className="cc-panel">
           <h2>Production & fulfillment</h2>
           <p className="cc-help">
             {label(o.priority)} priority{o.tags.length ? " · " + o.tags.join(" · ") : ""}
@@ -814,8 +851,8 @@ export function OrderDetail({
           </form>
         </section>
       </div>
-      <section className="cc-panel cc-no-print">
-        <h2>Order history</h2>
+      <section id="order-history" className="cc-panel cc-no-print">
+        <h2>Order timeline</h2>
         <div className="cc-records">
           {data.audit.map((a) => (
             <div key={a.id}>

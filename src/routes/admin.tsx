@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { CommandCenter } from "@/components/admin/command-center";
+import { OPERATION_VIEWS } from "@/lib/commerce/operations";
 export const sections = [
   "overview",
   "orders",
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/admin")({
     section: z.enum(sections).default("overview"),
     orderId: z.string().uuid().optional(),
     customerId: z.string().uuid().optional(),
+    view: z.enum(OPERATION_VIEWS).optional(),
     query: z.string().max(200).optional(),
   }),
   head: () => ({

@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useEffect, useRef, useState } from "react";
 import { getMediaLibrary, saveMedia } from "@/lib/commerce/owner-api";
 import type { MediaRow } from "@/lib/commerce/media.server";
@@ -42,7 +43,7 @@ export function GalleryEditor() {
     try {
       setMedia(await getMediaLibrary());
     } catch (e) {
-      setError(String(e));
+      setError(ownerError(e));
     }
   }
   useEffect(() => {
