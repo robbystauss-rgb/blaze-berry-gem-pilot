@@ -116,9 +116,13 @@ export async function mutate(
             "delivered",
             "completed",
           ].includes(p.stage) &&
-          order.paid - order.refunded < order.total
+          (order.payment_status !== "paid" || order.paid - order.refunded < order.total)
         )
-          throw new Error("Full verified payment is required before production or shipment.");
+          throw new Error(
+            order.payment_status === "disputed"
+              ? "An open payment dispute requires finance review before production or shipment."
+              : "Full verified payment is required before production or shipment.",
+          );
         if (
           ["shipped", "delivered", "completed"].includes(order.stage) &&
           (p.stage === "canceled" || STAGES.indexOf(p.stage) < STAGES.indexOf(order.stage))

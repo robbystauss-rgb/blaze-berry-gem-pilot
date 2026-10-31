@@ -23,9 +23,9 @@ whose checkout has already been explicitly reconciled. Refund orders require
 finance review before collecting again. No prices or proof approvals change.
 
 VERIFIED locally: 50 existing commerce tests and 20 provider-boundary tests pass.
-Six dedicated payment tests cover validation, simultaneous/retried receipts,
+Seven dedicated payment tests cover validation, simultaneous/retried receipts,
 partial/full payments, immutable prices, permission and excess-amount failures,
-invoice creation/checkout conflicts, provider expiry and independent proof holds.
+invoice creation/checkout conflicts, provider expiry, open disputes and independent proof holds.
 The 390 × 844 browser journey checks inline errors, form recovery, payment save,
 refresh persistence, no horizontal overflow and no page errors. Screenshots and
 test output are in ignored `screenshots/manual-payment/` (synthetic data only).
@@ -64,3 +64,5 @@ receipt, duplicate retry, active-link blocking, invoice/proof secure-link
 separation and unpaid/unapproved production holds before any real receipt.
 
 This isolated P0 release contains migration 0018 only. Customer profiles/vault migration 0019 is in a separate draft PR. Automatic Vercel deployment is disabled for this branch. The unpaid Ready for production transition is also guarded. No live order or provider state has been changed.
+
+The financial stage gate requires reconciled paid status as well as sufficient net receipts. An open dispute blocks a funded order; resolving it never adds a receipt or approves artwork. The disposable PostgreSQL rehearsal now exercises concurrent external receipt retries and this dispute hold after the existing separate proof approval. Check the exact PR head CI outcome before any release approval.
