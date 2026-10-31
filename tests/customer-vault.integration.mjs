@@ -417,7 +417,7 @@ test("permissions fail closed and typed email/phone alone cannot claim a public 
     /verified existing account/,
   );
 });
-test("a genuine email enables existing Studio invoice draft and independently gated proof workflow", async () => {
+test("25-unit current-price phone order uses existing Studio invoice and independently gated proof workflow", async () => {
   const detail = await crm.readCustomer(customerId, owner),
     c = detail.profile;
   await crm.saveCustomer(
@@ -433,11 +433,12 @@ test("a genuine email enables existing Studio invoice draft and independently ga
     },
     owner,
   );
-  const next = await phoneDraft(customerId, config, { revision: 2 });
+  const next = await phoneDraft(customerId, { ...config, quantity: 25 }, { revision: 2 });
   const invoice = await crm.preparePhoneInvoice(next.id, owner);
   const record = await studio.studioOwnerDocument(invoice.id, owner);
   assert.equal(record.document.order_id, next.id);
   assert.equal(record.document.kind, "invoice");
+  assert.equal(record.document.body.lines[0].quantity, 25);
   assert.equal(record.document.state, "draft");
   assert.equal(record.financial.paid, 0);
   assert.equal((await read.readOrder(next.id, owner)).proof.blocked, true);
@@ -494,11 +495,12 @@ test("a genuine email enables existing Studio invoice draft and independently ga
     owner,
   );
   assert.equal(await studio.documentByToken(firstLink.path.split("/").at(-1)), null);
+  const currentTotal = (await core.orderById(sql, next.id)).total;
   await mutations(
     "payment.manual",
     {
       id: next.id,
-      amount: 3400,
+      amount: currentTotal,
       reference: "TEST-PHONE-VENMO-" + randomUUID(),
       reason: "TEST independent receipt verification",
       method: "venmo",
@@ -508,7 +510,7 @@ test("a genuine email enables existing Studio invoice draft and independently ga
     owner,
   );
   const paid = await read.readOrder(next.id, owner);
-  assert.equal(paid.order.paid, 3400);
+  assert.equal(paid.order.paid, currentTotal);
   assert.equal(paid.proof.blocked, true);
   await assert.rejects(
     () =>

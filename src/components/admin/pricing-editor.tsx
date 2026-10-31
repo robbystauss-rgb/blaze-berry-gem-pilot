@@ -314,7 +314,7 @@ export function PromotionEditor() {
       setP({ ...p, version: p.version + 1 });
       setMessage("Promotion saved.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to save.");
+      setError(ownerError(e, "Unable to save."));
     } finally {
       setBusy(false);
     }

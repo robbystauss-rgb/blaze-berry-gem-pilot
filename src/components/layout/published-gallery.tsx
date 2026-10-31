@@ -52,7 +52,7 @@ export function PublishedGallery({
                 .includes(query.toLowerCase()),
           )
           .slice(0, featured ? 4 : 100)
-          .map(({ key, published: p, media }) => {
+          .map(({ key, published: p, media, eligible, unavailableReason }) => {
             const cover = media.find((m) => m.id === p.coverId);
             return (
               <article className="published-work-card" key={key}>
@@ -65,14 +65,30 @@ export function PublishedGallery({
                   <p className="tech-label">{p.category}</p>
                   <h3>{p.title}</h3>
                   <p>{p.description}</p>
-                  <Link
-                    to="/order"
-                    search={
-                      p.family ? { family: p.family as FamilyId, type: "hat" } : { type: "hat" }
-                    }
-                  >
-                    Customize something similar →
-                  </Link>
+                  {eligible && p.configuration ? (
+                    <Link
+                      to="/order"
+                      search={{
+                        type: "hat",
+                        family: p.family as FamilyId,
+                        variant: p.configuration.variantId,
+                        material: p.configuration.material,
+                        shape: p.configuration.shape,
+                        size: p.configuration.size,
+                        source: "gallery",
+                      }}
+                    >
+                      Make one like this →
+                    </Link>
+                  ) : (
+                    <>
+                      <p>{unavailableReason}</p>
+                      <Link to="/quote-request">Ask about this example →</Link>
+                    </>
+                  )}
+                  <p className="text-xs">
+                    Product choices only. Add your own artwork; customer logos are not included.
+                  </p>
                   {p.mediaIds.length > 1 && (
                     <details>
                       <summary>View {p.mediaIds.length} project photos</summary>

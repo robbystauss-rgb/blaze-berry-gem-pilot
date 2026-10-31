@@ -1,3 +1,6 @@
+import { svgSafetyIssues } from "@/lib/artwork-readiness";
+import { physicalPatch } from "@/lib/patch-physical";
+import { artworkReadiness } from "./artwork-readiness.server";
 import { randomUUID, createHash } from "node:crypto";
 import { z } from "zod";
 import { getSql } from "@/lib/db";
@@ -21,18 +24,7 @@ export function decodeArtwork(data: string | undefined) {
   if (!bytes.length || bytes.length > MAX_NEW_UPLOAD_BYTES)
     throw new Error("Upload artwork up to 3 MB.");
   const svg = mime === "image/svg+xml" ? bytes.toString("utf8") : "";
-  const safeSvg =
-    /<svg[\s>]/i.test(svg) &&
-    !/<script|on\w+\s*=|<foreignObject|<!DOCTYPE|<!ENTITY|<\?xml-stylesheet|@import/i.test(svg) &&
-    Array.from(svg.matchAll(/\b(?:href|src)\s*=\s*["']([^"']*)["']/gi)).every(([, ref]) =>
-      ref.trim().startsWith("#"),
-    ) &&
-    Array.from(svg.matchAll(/url\s*\(([^)]*)\)/gi)).every(([, ref]) =>
-      ref
-        .trim()
-        .replace(/^["']|["']$/g, "")
-        .startsWith("#"),
-    );
+  const safeSvg = mime === "image/svg+xml" && svgSafetyIssues(svg).length === 0;
   const valid =
     mime === "image/png"
       ? bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
@@ -90,6 +82,12 @@ export async function createCheckoutOrder(
       : "Existing storefront quote; no added shipping/tax",
     pricing: quote.pricing,
     provider,
+    artworkReadiness: artwork
+      ? await artworkReadiness(
+          artwork,
+          physicalPatch(quote.build.patchShape, quote.build.patchSize),
+        )
+      : null,
     preview: await (await import("./preview-snapshot.server")).previewSnapshot(quote.build),
   };
   const hash = createHash("sha256")
@@ -149,6 +147,8 @@ export async function createCheckoutOrder(
     await tx`insert into commerce_order_items(id,order_id,product_key,title,quantity,fulfilled_quantity,unit_amount,specifications,artwork,artwork_type)
   values(${randomUUID()},${orderId},${quote.build.orderType + ":" + quote.build.family + ":" + quote.build.colorway},${quote.lineName},${quote.purchased},${quote.fulfilled},${Math.round(quote.unit * 100)},${JSON.stringify({ ...spec, snapshot_hash: hash, ...(photo ? { productImages: [photo] } : {}) })},${artwork?.bytes ?? null},${artwork?.mime ?? null})`;
     await reserveInventory(tx, orderId, "checkout");
+    if (spec.artworkReadiness && spec.artworkReadiness.status !== "Ready for review")
+      await notify(tx, `artwork-review:${orderId}`, "Artwork intake needs owner review", orderId);
     await audit(tx, "checkout", "order.created", "order", orderId, null, {
       provider,
       total: Math.round(quote.total * 100),

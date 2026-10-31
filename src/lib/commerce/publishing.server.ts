@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { gallerySelection } from "./gallery-build";
 import { z } from "zod";
 import { getSql } from "@/lib/db";
 import { audit, assertPermission } from "./core.server";
@@ -105,6 +106,10 @@ export async function saveDocument(raw: unknown, actor: { userId: string; role: 
           "This hat model is archived. Keep its project private for historical reference.",
         );
       if (g.family && !(g.family in FAMILIES)) throw Error("Choose a verified Richardson model.");
+      if (g.configuration && (p.action === "publish" || p.action === "revert") && !g.archived) {
+        const selection = gallerySelection(g.family, g.configuration);
+        await (await import("./pricing.server")).quoteSelection(selection, "", "", tx, null);
+      }
       const media = await tx<{
         id: string;
         alt: string;

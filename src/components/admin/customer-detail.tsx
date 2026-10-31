@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useState, useEffect } from "react";
 import { getCustomerDetail, mutateAdmin } from "@/lib/commerce/api";
 import { money } from "@/lib/commerce/types";
@@ -69,7 +70,7 @@ export function CustomerDetail({ email, open }: { email: string; open: (id: stri
             form.reset();
             await load();
           } catch (e) {
-            setError(e instanceof Error ? e.message : "Note could not be saved.");
+            setError(ownerError(e, "Note could not be saved."));
           } finally {
             setBusy(false);
           }

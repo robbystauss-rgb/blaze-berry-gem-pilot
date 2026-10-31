@@ -8,6 +8,7 @@ import { isRetiredHatModel } from "@/lib/catalog-lifecycle";
 import { physicalPatch } from "@/lib/patch-physical";
 import { assertPermission, audit, ORDER_SELECT, orderById, reserveInventory } from "./core.server";
 import { quoteSelection, reservePromotion } from "./pricing.server";
+import { artworkReadiness } from "./artwork-readiness.server";
 import { decodeArtwork } from "./checkout.server";
 import {
   normalizeCustomerPhone,
@@ -464,6 +465,9 @@ export async function createPhoneOrder(raw: unknown, actor: Actor) {
       customerDesignRevision: p.revision,
       sourceAssetId: p.artworkAssetId,
       sourceChecksum: artwork?.checksum ?? null,
+      artworkReadiness: artwork
+        ? await artworkReadiness(artwork, p.configuration.physicalInches)
+        : null,
       deliveryPreference: c.delivery_preference,
       instructions: p.configuration.notes,
       pricing: quote,

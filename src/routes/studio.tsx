@@ -77,7 +77,7 @@ function StudioPage() {
             Not connected to the shop
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-7 text-stage-muted">
-            The staging builder uses the 31 named material swatches from the approved source sheet
+            The builder uses the 31 named material swatches from the approved source sheet
             and keeps the two unnamed cards out. This Studio panel is for visual QA and catalog
             review; publishing to the live shop stays off.
           </p>

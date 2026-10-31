@@ -1,3 +1,5 @@
+import { ArtworkReadiness } from "@/components/build/artwork-readiness";
+import type { assessArtwork } from "@/lib/artwork-readiness";
 import { orderNextAction } from "@/lib/commerce/operations";
 import { ManualPaymentForm } from "./manual-payment-form";
 import { ownerError } from "@/lib/commerce/errors";
@@ -627,6 +629,7 @@ export function OrderDetail({
                         "customerName",
                         "customerEmail",
                         "snapshot_hash",
+                        "artworkReadiness",
                         "checkoutRequestId",
                         "provider",
                         "hasArtwork",
@@ -657,6 +660,16 @@ export function OrderDetail({
                       ),
                   )}
               </dl>
+              {item.specifications.artworkReadiness &&
+                typeof item.specifications.artworkReadiness === "object" &&
+                "metadata" in item.specifications.artworkReadiness &&
+                "messages" in item.specifications.artworkReadiness && (
+                  <ArtworkReadiness
+                    result={
+                      item.specifications.artworkReadiness as ReturnType<typeof assessArtwork>
+                    }
+                  />
+                )}
               {item.has_artwork && <ArtworkPreview id={item.id} />}
               <SavedHatProof
                 specifications={item.specifications}

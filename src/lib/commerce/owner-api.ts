@@ -131,11 +131,43 @@ export const getPublicDocument = createServerFn({ method: "GET" })
 export const getPublicGallery = createServerFn({ method: "GET" }).handler(async () => {
   const { getSql } = await import("@/lib/db");
   const sql = await getSql();
-  return sql<{
+  const projects = await sql<{
     key: string;
     published: import("zod").infer<typeof import("./owner-schemas").gallerySchema>;
     media: { id: string; alt: string; version: number }[];
   }>`select d.key,d.published,coalesce((select jsonb_agg(jsonb_build_object('id',m.id,'alt',m.alt,'version',m.version)) from commerce_media m where d.published->'mediaIds' @> to_jsonb(m.id) and not m.archived),'[]'::jsonb) as media from commerce_documents d where d.scope='gallery' and d.published->>'consent'='true' and d.published->>'archived'='false' and coalesce(d.published->>'family','')<>'112PM' and not exists(select 1 from commerce_media m where d.published->'mediaIds' @> to_jsonb(m.id) and md5(m.original)=any(${EXCLUDED_MEDIA_MD5}::text[])) order by d.updated_at desc limit 100`;
+  const { gallerySelection } = await import("./gallery-build"),
+    { quoteSelection } = await import("./pricing.server"),
+    { ownerError } = await import("./errors");
+  return Promise.all(
+    projects.map(async (project) => {
+      if (!project.published.configuration)
+        return {
+          ...project,
+          eligible: false,
+          unavailableReason: "Choose a fresh custom build or ask about this example.",
+        };
+      try {
+        await quoteSelection(
+          gallerySelection(project.published.family, project.published.configuration),
+          "",
+          "",
+          undefined,
+          null,
+        );
+        return { ...project, eligible: true, unavailableReason: "" };
+      } catch (error) {
+        return {
+          ...project,
+          eligible: false,
+          unavailableReason: ownerError(
+            error,
+            "This exact configuration needs an availability review. Request a quote.",
+          ),
+        };
+      }
+    }),
+  );
 });
 export const getStorefrontPreview = createServerFn({ method: "GET" })
   .middleware([authMiddleware])

@@ -21,8 +21,10 @@ mkdirSync(screenDir, { recursive: true });
 mkdirSync(artifactDir, { recursive: true });
 const manifest = JSON.parse(readFileSync(resolve(root, "src/data/crown-calibrations.json"), "utf8"));
 const displayPhotos = JSON.parse(readFileSync(resolve(root, "src/data/hat-display-images.json"), "utf8"));
-const deliveredPhoto = record => displayPhotos.records.find(r=>r.calibrationId===record.id)?.imageUrl ?? record.imageUrl;
-const samePhotoUrl = (url,record) => [record.imageUrl,deliveredPhoto(record)].some(path=>url.endsWith(path));
+const stagePhotos=JSON.parse(readFileSync(resolve(root,"src/data/hat-stage-renditions.json"),"utf8"));
+const fullPhoto = record => displayPhotos.records.find(r=>r.calibrationId===record.id)?.imageUrl ?? record.imageUrl;
+const deliveredPhoto = record => stagePhotos.records.find(r=>r.calibrationId===record.id)?.renditions.find(r=>r.width===1200)?.imageUrl ?? fullPhoto(record);
+const samePhotoUrl = (url,record) => [record.imageUrl,fullPhoto(record),...(stagePhotos.records.find(r=>r.calibrationId===record.id)?.renditions.map(r=>r.imageUrl)??[])].some(path=>url.endsWith(path));
 const catalog = JSON.parse(readFileSync(resolve(root, "src/data/master-catalog.json"), "utf8"));
 const patches = JSON.parse(readFileSync(resolve(root, "src/data/catalog-patches.json"), "utf8"));
 const effectiveModels = catalog.models.map((model) => ({ ...model, ...(patches.models[model.id] || {}) }));
@@ -90,11 +92,14 @@ async function failedBeforeHydration() {
 
 async function step(page, label) {
   await page.getByRole("button", { name: new RegExp(`^\\d{2} ${label}$`) }).click();
+  await page.getByRole("button", {name:new RegExp(`^\\d{2} ${label}$`)}).and(page.locator('[aria-current="step"]')).waitFor();
 }
 async function chooseModel(page, model) {
   await step(page, "Hat");
   await page.getByRole("button", { name: new RegExp(`^${model}\\s`) }).click();
+  await page.waitForFunction(model => JSON.parse(localStorage.getItem("rec-mama-order")).state.family===model,model);
   await step(page, "Color");
+  await page.locator('[id^="swatch-"]').first().waitFor();
 }
 async function chooseColor(page, colorway) {
   await page.locator(`[id=${JSON.stringify(`swatch-${colorway}`)}]`).click();

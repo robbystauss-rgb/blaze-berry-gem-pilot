@@ -7,6 +7,8 @@ import {
   limitedPhotoDetail,
   detailedDriveView,
   type HatDisplayImage,
+  matchingHatStageImages,
+  selectHatStageImage,
 } from "./hat-image-quality.ts";
 const photo: Calibration = {
   id: "112:black@" + "a".repeat(12),
@@ -42,6 +44,39 @@ test("larger rendition is bound to exact model, asset, calibration and immutable
   ])
     assert.equal(matchingHatDisplayImage(photo, { ...display, ...change }), null);
   assert.equal(matchingHatDisplayImage({ ...photo, id: "uploaded:other" }, display), null);
+});
+
+test("responsive photo delivery stays bound to source and satisfies fitted pixels, density and zoom", () => {
+  const candidates = [600, 1200, 1800, 2400].map((width, i) => ({
+    imageUrl: `/assets/hat-stage/${String(i).repeat(64)}.webp`,
+    sha256: String(i).repeat(64),
+    sourceSha256: display.sha256,
+    width,
+    height: Math.round((width * 5) / 6),
+    bytes: 1000,
+  }));
+  const verified = matchingHatStageImages(display, candidates);
+  assert.equal(verified.length, 4);
+  assert.equal(selectHatStageImage(display, verified, 390, 3, false)?.width, 1200);
+  assert.equal(selectHatStageImage(display, verified, 390, 3, true)?.width, 1800);
+  assert.equal(selectHatStageImage(display, verified, 864, 2, false)?.width, 1800);
+  assert.equal(selectHatStageImage(display, verified, 864, 2, true)?.width, 2400);
+  assert.equal(selectHatStageImage(display, verified, 0, 1, false)?.width, 1200);
+  assert.equal(
+    selectHatStageImage(display, verified, 9000, 4, true),
+    display,
+    "never invent source pixels",
+  );
+  for (const update of [
+    { sourceSha256: "f".repeat(64) },
+    { imageUrl: "/assets/other.webp" },
+    { width: 4000 },
+    { height: 490 },
+    { width: NaN },
+  ])
+    assert.equal(matchingHatStageImages(display, [{ ...candidates[0], ...update }]).length, 0);
+  assert.equal(hatImageDimensionsMatch(photo, display, 600, 500, verified), true);
+  assert.equal(hatImageDimensionsMatch(photo, display, 600, 499, verified), false);
 });
 test("larger images must preserve framing and genuine resolution; geometry and canonical identity are untouched", () => {
   const before = structuredClone(photo);

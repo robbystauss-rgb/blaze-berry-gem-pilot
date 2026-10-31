@@ -10,6 +10,55 @@ export type HatDisplayImage = {
   width: number;
   height: number;
 };
+export type HatStageImage = {
+  imageUrl: string;
+  sha256: string;
+  sourceSha256: string;
+  width: number;
+  height: number;
+  bytes: number;
+};
+/** Derivatives must preserve the framing of the already verified, identical source. */
+export function matchingHatStageImages(source: HatDisplayImage | null, images: HatStageImage[]) {
+  if (!source) return [];
+  return images
+    .filter(
+      (image) =>
+        image.sourceSha256 === source.sha256 &&
+        /^[a-f0-9]{64}$/.test(image.sha256) &&
+        image.imageUrl === `/assets/hat-stage/${image.sha256}.webp` &&
+        Number.isSafeInteger(image.width) &&
+        Number.isSafeInteger(image.height) &&
+        image.width > 0 &&
+        image.height > 0 &&
+        image.width < source.width &&
+        image.height < source.height &&
+        Math.abs(image.width * source.height - image.height * source.width) <=
+          Math.max(source.width, source.height),
+    )
+    .map((image) => ({ ...source, ...image }));
+}
+export function selectHatStageImage(
+  source: HatDisplayImage | null,
+  derivatives: HatDisplayImage[],
+  cssWidth: number,
+  pixelRatio: number,
+  zoom: boolean,
+) {
+  if (!source) return null;
+  // A useful initial rendition avoids an unconditional original download before layout.
+  const required =
+    cssWidth > 0 && Number.isFinite(cssWidth)
+      ? cssWidth *
+        Math.min(4, Math.max(1, Number.isFinite(pixelRatio) ? pixelRatio : 1)) *
+        (zoom ? 1.35 : 1)
+      : 1200;
+  return (
+    [...derivatives, source]
+      .sort((a, b) => a.width - b.width)
+      .find((image) => image.width >= required) ?? source
+  );
+}
 /** A larger rendering is allowed only for the identical calibrated photograph.
  * It never becomes a new calibration/order identity or supplies another view.
  */
@@ -39,10 +88,12 @@ export function hatImageDimensionsMatch(
   display: HatDisplayImage | null,
   width: number,
   height: number,
+  derivatives: HatDisplayImage[] = [],
 ) {
   return (
     (width === photo.sourceWidth && height === photo.sourceHeight) ||
-    (!!display && width === display.width && height === display.height)
+    (!!display && width === display.width && height === display.height) ||
+    derivatives.some((image) => image.width === width && image.height === height)
   );
 }
 export function limitedPhotoDetail(width: number, height: number) {

@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useState } from "react";
 import { stripeHistoryAction } from "@/lib/commerce/api";
 import { money } from "@/lib/commerce/types";
@@ -21,7 +22,7 @@ export function StripeHistory({
     try {
       setPreview(await stripeHistoryAction({ data: { action: "preview", ...range, cursor } }));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to reconcile.");
+      setError(ownerError(e, "Unable to reconcile."));
     } finally {
       setBusy(false);
     }
@@ -105,7 +106,7 @@ export function StripeHistory({
                       await refresh();
                       if (result.order) open(result.order.id);
                     } catch (e) {
-                      setError(e instanceof Error ? e.message : "Unable to import.");
+                      setError(ownerError(e, "Unable to import."));
                     } finally {
                       setBusy(false);
                     }

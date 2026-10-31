@@ -3,6 +3,7 @@ import { MASTER, drivePhoto, workDecision, type WorkDecision } from "@/lib/studi
 import { crownCalibration } from "./crown-calibration";
 import { isRetiredHatModel } from "./catalog-lifecycle";
 import { refreshedCatalogPhoto } from "./catalog-photo-refresh";
+import { hatStageImage } from "./hat-display-images";
 
 export type StageViews = { front: string | null; side: string | null; back: string | null };
 
@@ -42,7 +43,13 @@ export function stageThumb(family: FamilyId, colorway: string) {
   if (!model) return null;
   const needle = norm(colorway);
   const color = model.colorways.find((item) => norm(item.officialName) === needle);
-  return refreshedCatalogPhoto(family, color?.id) ?? drivePhoto(color?.views.front, 360);
+  const photo = crownCalibration(family, color?.views.front);
+  return (
+    refreshedCatalogPhoto(family, color?.id) ??
+    hatStageImage(photo, 200, 3, false)?.imageUrl ??
+    photo?.imageUrl ??
+    drivePhoto(color?.views.front, 360)
+  );
 }
 
 export function familyHero(family: FamilyId) {
@@ -50,8 +57,11 @@ export function familyHero(family: FamilyId) {
   if (!model) return null;
   const hero =
     model.colorways.find((c) => c.views.front === model.heroDriveId) ?? model.colorways[0];
+  const photo = crownCalibration(family, model.heroDriveId ?? hero?.views.front);
   return (
     refreshedCatalogPhoto(family, hero?.id) ??
+    hatStageImage(photo, 360, 3, false)?.imageUrl ??
+    photo?.imageUrl ??
     drivePhoto(model.heroDriveId ?? hero?.views.front, 900)
   );
 }

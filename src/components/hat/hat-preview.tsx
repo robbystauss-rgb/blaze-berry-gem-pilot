@@ -17,8 +17,6 @@ import {
   isCrownPosition,
   isFrontPlacement,
   legacyToCrown,
-  patchAspectRatio,
-  patchDimensions,
   type Calibration,
   type Point,
   type Rect,
@@ -36,7 +34,7 @@ import {
   type PhotoGeometry,
 } from "@/lib/patch-physical";
 import { PatchFace } from "./patch-face";
-import { hatDisplayImage } from "@/lib/hat-display-images";
+import { hatDisplayImage, hatStageImage, hatStageImages } from "@/lib/hat-display-images";
 import {
   detailedDriveView,
   hatImageDimensionsMatch,
@@ -58,33 +56,13 @@ type Props = {
   patchOnly?: boolean;
   /** When set, placement controls sit on the hat itself. */
   placementMode?: boolean;
-  onPlacement?: (placement: Placement) => void;
 };
 
-// Side/rear photography and patch-only cards retain their existing behavior.
-const LEGACY_VIEW_SIZE_PCT: Record<PatchSize, number> = { small: 22, medium: 30, large: 38 };
-
-const PLACE: Record<Placement, { left: number; top: number }> = {
-  "front-center": { left: 50, top: 44 },
-  "left-front": { left: 37, top: 46 },
-  "right-front": { left: 63, top: 46 },
-  side: { left: 62, top: 44 },
-  rear: { left: 50, top: 40 },
-};
-
-const HOT: Record<Placement, { left: string; top: string; label: string }> = {
-  "front-center": { left: "50%", top: "13%", label: "Center" },
-  "left-front": { left: "16%", top: "42%", label: "Left" },
-  "right-front": { left: "84%", top: "42%", label: "Right" },
-  side: { left: "84%", top: "68%", label: "Side" },
-  rear: { left: "16%", top: "68%", label: "Rear" },
-};
-
+// Uncalibrated angles remain reference photos. Placement presets live below the stage.
 const OFFSET_X_LIMIT = 18;
 const OFFSET_Y_LIMIT = 14;
 const SCALE_MIN = 0.75;
 const SCALE_MAX = 1.25;
-const SCALE_STEP = 0.1;
 
 type ViewName = "front" | "side" | "back";
 type PlacementTransform = { x: number; y: number; scale: number };
@@ -139,7 +117,6 @@ export function HatPreview({
   showCaption,
   patchOnly,
   placementMode,
-  onPlacement,
 }: Props) {
   const leather = getLeatherette(leatherette);
   const draft = useOrder();
@@ -226,14 +203,44 @@ export function HatPreview({
   const [failedRendition, setFailedRendition] = useState<string | null>(null);
   const [pixelRatio, setPixelRatio] = useState(1);
   const [imageBox, setImageBox] = useState<Rect>({ x: 0, y: 0, width: 0, height: 0 });
-  const rendition = hatDisplayImage(calibration);
+  const originalRendition = hatDisplayImage(calibration);
+  const verifiedRenditions = useMemo(() => hatStageImages(calibration), [calibration]);
+  const nativeWidth = calibration
+    ? (originalRendition?.width ?? calibration.sourceWidth)
+    : loadedImage?.src === src
+      ? loadedImage.width
+      : 0;
+  const nativeHeight = calibration
+    ? (originalRendition?.height ?? calibration.sourceHeight)
+    : loadedImage?.src === src
+      ? loadedImage.height
+      : 0;
+  const nativePaintedWidth =
+    nativeWidth && nativeHeight
+      ? Math.min(imageBox.width, (imageBox.height * nativeWidth) / nativeHeight)
+      : 0;
+  const densityLimited =
+    nativePaintedWidth > 0 && nativeWidth < nativePaintedWidth * pixelRatio * 1.35;
   const detailLimited = calibration
-    ? limitedPhotoDetail(
-        rendition?.width ?? calibration.sourceWidth,
-        rendition?.height ?? calibration.sourceHeight,
+    ? densityLimited ||
+      limitedPhotoDetail(
+        originalRendition?.width ?? calibration.sourceWidth,
+        originalRendition?.height ?? calibration.sourceHeight,
       )
-    : loadedImage?.src === src && limitedPhotoDetail(loadedImage.width, loadedImage.height);
+    : loadedImage?.src === src &&
+      (densityLimited || limitedPhotoDetail(loadedImage.width, loadedImage.height));
   const expanded = zoom && !detailLimited;
+  const paintedWidth =
+    calibration && imageBox.width > 0
+      ? Math.min(
+          imageBox.width,
+          (imageBox.height * calibration.sourceWidth) / calibration.sourceHeight,
+        )
+      : 0;
+  const rendition = useMemo(
+    () => hatStageImage(calibration, paintedWidth, pixelRatio, expanded),
+    [calibration, paintedWidth, pixelRatio, expanded],
+  );
   const preferredImageSrc = calibration
     ? (rendition?.imageUrl ?? src)
     : detailedDriveView(src, imageBox.width, pixelRatio, expanded);
@@ -241,7 +248,13 @@ export function HatPreview({
   const sourceReady =
     loadedImage?.src === src &&
     calibration?.imageUrl === src &&
-    hatImageDimensionsMatch(calibration, rendition, loadedImage.width, loadedImage.height);
+    hatImageDimensionsMatch(
+      calibration,
+      originalRendition,
+      loadedImage.width,
+      loadedImage.height,
+      verifiedRenditions,
+    );
   // Delivery pixel density never changes the saved source coordinate system.
   const imageRect =
     sourceReady && calibration
@@ -265,7 +278,9 @@ export function HatPreview({
     y: usesDraftTransform ? Number(draft.patchOffsetY) || 0 : 0,
     scale: usesDraftTransform ? Number(draft.patchScale) || 1 : 1,
   });
-  const [liveTransform, setLiveTransform] = useState<PlacementTransform>(storedTransform);
+  const [guides, setGuides] = useState(false);
+  const [adjustment, setAdjustment] = useState("");
+  const [undo, setUndo] = useState<{ photoId: string; anchor: Point } | null>(null);
   const [liveAnchor, setLiveAnchor] = useState<Point | null>(null);
   useEffect(() => {
     if (!usesDraftTransform || !sourceReady || !calibration || !photoGeometry || !calibratedFront)
@@ -363,8 +378,12 @@ export function HatPreview({
       if (
         usesDraftTransform &&
         (Math.abs(safe.x - wanted.x) > 1e-6 || Math.abs(safe.y - wanted.y) > 1e-6)
-      )
+      ) {
         draft.set("patchPosition", { version: 2, anchor: safe });
+        setAdjustment(
+          "Placement adjusted to fit this photograph. Review the patch position before ordering.",
+        );
+      }
       return;
     }
     if (!imageRect || !calibration) {
@@ -406,68 +425,28 @@ export function HatPreview({
     else if (shots.front) setView("front");
   }, [viewKey, placement, shots.front, shots.side, shots.back]);
 
-  useEffect(() => {
-    setLiveTransform(storedTransform);
-  }, [
-    draft.patchOffsetX,
-    draft.patchOffsetY,
-    draft.patchScale,
-    usesDraftTransform,
-    family,
-    colorway,
-    placement,
-  ]);
-
-  function saveTransform(next: PlacementTransform) {
-    const clean = cleanTransform(next);
-    setLiveTransform(clean);
-    if (usesDraftTransform) {
-      draft.patch({ patchOffsetX: clean.x, patchOffsetY: clean.y, patchScale: clean.scale });
-    }
-  }
-
-  function updateDrag(x: number, y: number, commit: boolean) {
-    const clean = cleanTransform({ x, y, scale: liveTransform.scale });
-    setLiveTransform(clean);
-    if (commit && usesDraftTransform) {
-      draft.patch({ patchOffsetX: clean.x, patchOffsetY: clean.y });
-    }
-  }
-
   function resetTransform() {
-    saveTransform({ x: 0, y: 0, scale: 1 });
-    if (isFrontPlacement(placement)) saveAnchor(DEFAULT_ANCHORS[placement], true);
+    if (usesDraftTransform) draft.patch({ patchOffsetX: 0, patchOffsetY: 0, patchScale: 1 });
+    if (isFrontPlacement(placement))
+      saveAnchor(photoGeometry?.anchor ?? DEFAULT_ANCHORS[placement], true);
   }
-
   function saveAnchor(anchor: Point, commit: boolean) {
     setLiveAnchor(anchor);
-    if (commit && usesDraftTransform) draft.set("patchPosition", { version: 2, anchor });
-  }
-
-  function resizePatch(delta: number) {
-    if (calibratedFront && usesDraftTransform) {
-      const sizes = ["small", "medium", "large"] as const;
-      const i = sizes.indexOf(size);
-      draft.patch({
-        patchSize: sizes[Math.max(0, Math.min(2, i + Math.sign(delta)))],
-        patchScale: 1,
-      });
-      return;
-    }
-    saveTransform({ ...liveTransform, scale: liveTransform.scale + delta });
-  }
-
-  function choosePlacement(id: Placement, blocked: boolean) {
-    if (blocked || !onPlacement) return;
-    onPlacement(id);
-    setLiveTransform({ x: 0, y: 0, scale: 1 });
-    if (family === draft.family && colorway === draft.colorway) {
-      draft.patch({ patchOffsetX: 0, patchOffsetY: 0, patchScale: 1 });
-      if (isFrontPlacement(id))
-        draft.set("patchPosition", { version: 2, anchor: DEFAULT_ANCHORS[id] });
+    if (commit && usesDraftTransform) {
+      if (calibration && isCrownPosition(draft.patchPosition))
+        setUndo({ photoId: calibration.id, anchor: draft.patchPosition.anchor });
+      draft.set("patchPosition", { version: 2, anchor });
+      setAdjustment("");
     }
   }
-
+  function resizePatch(direction: number) {
+    if (!calibratedFront || !usesDraftTransform) return;
+    const sizes = ["small", "medium", "large"] as const;
+    draft.patch({
+      patchSize: sizes[Math.max(0, Math.min(2, sizes.indexOf(size) + direction))],
+      patchScale: 1,
+    });
+  }
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     if (placementMode) return;
     drag.current = { x: event.clientX };
@@ -530,7 +509,7 @@ export function HatPreview({
               key={src}
               src={imageSrc ?? undefined}
               alt={`${FAMILIES[family].label} ${named || "model"} ${active}`}
-              className="stage-in h-full w-full object-contain object-center"
+              className="h-full w-full object-contain object-center"
               decoding="async"
               onLoad={(event) => {
                 if (
@@ -556,9 +535,40 @@ export function HatPreview({
               }}
             />
           )}
+          {guides && placementMode && calibratedFront && photoGeometry && imageRect && (
+            <svg
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-10 h-full w-full"
+              viewBox={`0 0 ${imageBox.width} ${imageBox.height}`}
+            >
+              <polygon
+                points={photoGeometry.polygon
+                  .map((point) => {
+                    const p = crownToDisplay(point, photoGeometry.bounds, imageRect);
+                    return p.x + "," + p.y;
+                  })
+                  .join(" ")}
+                fill="none"
+                stroke="#285855"
+                strokeWidth="1.5"
+                strokeDasharray="5 4"
+              />
+              <path
+                d={`M ${imageRect.x + imageRect.width / 2} ${imageRect.y} v ${imageRect.height}`}
+                stroke="#285855"
+                strokeWidth="1"
+                strokeDasharray="4 5"
+              />
+            </svg>
+          )}
           {!patchOnly &&
             showPatch &&
-            (!calibratedFront || (!invalidPosition && calibration && imageRect && liveAnchor)) && (
+            calibratedFront &&
+            photoGeometry &&
+            !invalidPosition &&
+            calibration &&
+            imageRect &&
+            liveAnchor && (
               <PatchOverlay
                 leather={leather}
                 shape={shape}
@@ -566,14 +576,12 @@ export function HatPreview({
                 placement={placement}
                 patchText={patchText}
                 artworkUrl={artworkUrl}
-                transform={liveTransform}
                 interactive={Boolean(placementMode && usesDraftTransform)}
-                onMove={updateDrag}
-                calibration={calibratedFront ? (calibration ?? undefined) : undefined}
-                imageRect={calibratedFront ? (imageRect ?? undefined) : undefined}
-                anchor={calibratedFront ? (liveAnchor ?? undefined) : undefined}
+                calibration={calibration}
+                imageRect={imageRect}
+                anchor={liveAnchor}
                 onAnchor={saveAnchor}
-                photoGeometry={calibratedFront ? (photoGeometry ?? undefined) : undefined}
+                photoGeometry={photoGeometry}
               />
             )}
           {!patchOnly && calibratedFront && src && !calibration && (
@@ -582,6 +590,20 @@ export function HatPreview({
               className="absolute bottom-16 left-4 right-4 rounded-2xl bg-stage-photo/94 p-3 text-center text-sm text-stage-ink"
             >
               Patch preview calibration unavailable for this photograph.
+            </p>
+          )}
+          {!patchOnly && !calibratedFront && src && failedImage === src && (
+            <p
+              role="status"
+              className="absolute left-4 right-4 bottom-16 rounded-2xl bg-stage-photo/95 p-3 text-center text-sm text-stage-ink"
+            >
+              This exact reference photo is unavailable. Choose another view or try again later.
+            </p>
+          )}
+          {!patchOnly && !calibratedFront && detailLimited && failedImage !== src && (
+            <p className="patch-scale-caption" data-photo-detail="limited">
+              Reference photo · detail limited at this screen density; a sharper original is needed
+              for zoom.
             </p>
           )}
           {!patchOnly &&
@@ -605,9 +627,18 @@ export function HatPreview({
               Saved placement format unavailable. Use Reset in Place to choose a new position.
             </p>
           )}
+          {adjustment && calibratedFront && (
+            <p
+              role="status"
+              className="absolute left-4 right-4 bottom-28 rounded-xl bg-stage-photo/95 p-2 text-center text-xs text-stage-ink"
+            >
+              {adjustment}
+            </p>
+          )}
           {!patchOnly && calibratedFront && photoGeometry && (
             <p className="patch-scale-caption">
               {dimensionLabel(shape, size)} ·{" "}
+              {shape === "Custom Die-Cut" && "Artwork bounding area · cutline prepared in proof · "}
               {photoGeometry.reference
                 ? "Owner-calibrated reference"
                 : "Estimated photo scale · final fit confirmed in proof"}
@@ -620,7 +651,8 @@ export function HatPreview({
           )}
           {!patchOnly && !calibratedFront && showPatch && (
             <p className="patch-scale-caption">
-              Uncalibrated view · final size and placement confirmed in proof
+              Reference photo only · this angle needs measured calibration before an attached
+              preview can be shown
               {detailLimited && (
                 <span className="block" data-photo-detail="limited">
                   Catalog photo · detail limited
@@ -630,38 +662,15 @@ export function HatPreview({
           )}
         </div>
         <div className="pointer-events-none absolute bottom-[14%] left-1/2 h-8 w-[46%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse,rgba(44,33,30,0.14),transparent_70%)]" />
-        {placementMode && onPlacement && !patchOnly && (
+        {placementMode && !patchOnly && (
           <>
-            <div className="pointer-events-none absolute inset-0 z-20">
-              {(Object.keys(HOT) as Placement[]).map((id) => {
-                const blocked = size === "large" && (id === "side" || id === "rear");
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => choosePlacement(id, blocked)}
-                    disabled={blocked}
-                    className={cn(
-                      "pointer-events-auto absolute min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full px-3 text-xs font-semibold shadow-[0_8px_22px_rgba(45,38,30,0.08)]",
-                      placement === id && !blocked
-                        ? "bg-primary text-primary-fg"
-                        : "bg-stage-photo/95 text-stage-ink ring-1 ring-stage-line",
-                      blocked && "cursor-not-allowed opacity-50",
-                    )}
-                    style={{ left: HOT[id].left, top: HOT[id].top }}
-                  >
-                    {HOT[id].label}
-                  </button>
-                );
-              })}
-            </div>
-            {showPatch && usesDraftTransform && (
+            {showPatch && usesDraftTransform && calibratedFront && (
               <div className="absolute left-1/2 top-14 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-stage-photo/94 p-1.5 shadow-[0_8px_24px_rgba(45,38,30,0.1)] ring-1 ring-stage-line backdrop-blur">
                 <button
                   type="button"
-                  onClick={() => resizePatch(-SCALE_STEP)}
-                  disabled={calibratedFront ? size === "small" : liveTransform.scale <= SCALE_MIN}
-                  className="min-h-10 min-w-10 rounded-full px-2 text-sm font-semibold disabled:opacity-40"
+                  onClick={() => resizePatch(-1)}
+                  disabled={size === "small"}
+                  className="min-h-11 min-w-11 rounded-full px-2 text-sm font-semibold disabled:opacity-40"
                   aria-label="Make patch smaller"
                 >
                   −
@@ -669,23 +678,48 @@ export function HatPreview({
                 <button
                   type="button"
                   onClick={resetTransform}
-                  className="min-h-10 rounded-full px-3 text-xs font-semibold"
+                  title="Center patch and reset placement"
+                  className="min-h-11 rounded-full px-3 text-xs font-semibold"
                 >
                   Reset
                 </button>
                 <button
                   type="button"
-                  onClick={() => resizePatch(SCALE_STEP)}
-                  disabled={calibratedFront ? size === "large" : liveTransform.scale >= SCALE_MAX}
-                  className="min-h-10 min-w-10 rounded-full px-2 text-sm font-semibold disabled:opacity-40"
+                  aria-pressed={guides}
+                  onClick={() => setGuides(!guides)}
+                  className="min-h-11 rounded-full px-2 text-xs font-semibold"
+                >
+                  Guides
+                </button>
+                <button
+                  type="button"
+                  disabled={!undo || undo.photoId !== calibration?.id}
+                  onClick={() => {
+                    if (undo && undo.photoId === calibration?.id) {
+                      setLiveAnchor(undo.anchor);
+                      draft.set("patchPosition", { version: 2, anchor: undo.anchor });
+                      setUndo(null);
+                    }
+                  }}
+                  className="min-h-11 rounded-full px-2 text-xs font-semibold disabled:opacity-40"
+                >
+                  Undo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => resizePatch(1)}
+                  disabled={size === "large"}
+                  className="min-h-11 min-w-11 rounded-full px-2 text-sm font-semibold disabled:opacity-40"
                   aria-label="Make patch larger"
                 >
                   +
                 </button>
               </div>
             )}
-            <p className="pointer-events-none absolute left-1/2 top-[6.6rem] z-30 -translate-x-1/2 rounded-full bg-stage-photo/88 px-3 py-1.5 text-center text-[11px] font-semibold text-stage-ink shadow-sm ring-1 ring-stage-line/80 backdrop-blur">
-              Drag the patch to place it
+            <p className="sr-only">
+              {calibratedFront
+                ? "Drag or use arrow keys to position the patch"
+                : "Choose a front view to preview placement"}
             </p>
           </>
         )}
@@ -736,9 +770,7 @@ function PatchOverlay({
   placement,
   patchText,
   artworkUrl,
-  transform,
   interactive,
-  onMove,
   calibration,
   imageRect,
   anchor,
@@ -751,218 +783,143 @@ function PatchOverlay({
   placement: Placement;
   patchText: string;
   artworkUrl?: string;
-  transform: PlacementTransform;
   interactive: boolean;
-  onMove: (x: number, y: number, commit: boolean) => void;
-  calibration?: Calibration;
-  imageRect?: Rect;
-  anchor?: Point;
+  calibration: Calibration;
+  imageRect: Rect;
+  anchor: Point;
   onAnchor: (anchor: Point, commit: boolean) => void;
-  photoGeometry?: PhotoGeometry;
+  photoGeometry: PhotoGeometry;
 }) {
   const drag = useRef<{
     pointerId: number;
-    startX: number;
-    startY: number;
-    offsetX: number;
-    offsetY: number;
-    lastX: number;
-    lastY: number;
-    width: number;
-    height: number;
-    bounds: Rect;
-    anchor?: Point;
-    lastAnchor?: Point;
+    x: number;
+    y: number;
+    anchor: Point;
+    last: Point;
   } | null>(null);
   const cleanupDrag = useRef<(() => void) | null>(null);
-  const latestGeometry = useRef({ calibration, imageRect, placement, photoGeometry, size, shape });
-  latestGeometry.current = { calibration, imageRect, placement, photoGeometry, size, shape };
-  const pct = LEGACY_VIEW_SIZE_PCT[size] * transform.scale;
-  const pos = PLACE[placement];
-  const geometry =
-    calibration && imageRect && anchor
-      ? {
-          ...crownToDisplay(anchor, photoGeometry?.bounds ?? calibration.bounds, imageRect),
-          ...(photoGeometry
-            ? physicalProjection(physicalPatch(shape, size), calibration, photoGeometry, imageRect)
-            : patchDimensions(
-                size,
-                patchAspectRatio(shape),
-                calibration.bounds,
-                imageRect,
-                transform.scale,
-              )),
-        }
-      : null;
-  const frame: CSSProperties = {
-    width: geometry ? geometry.width : `${pct}%`,
-    height: geometry?.height,
-    aspectRatio: photoGeometry
-      ? physicalPatch(shape, size).width / physicalPatch(shape, size).height
-      : patchAspectRatio(shape),
-    left: geometry ? geometry.x : `${pos.left + transform.x}%`,
-    top: geometry ? geometry.y : `${pos.top + transform.y}%`,
-    // Coordinate changes apply atomically; interpolation can briefly lose ratio on resize.
-    transition:
-      geometry || drag.current ? "none" : "left 180ms ease, top 180ms ease, width 180ms ease",
-    touchAction: interactive ? "none" : undefined,
+  const latest = useRef({
+    calibration,
+    imageRect,
+    photoGeometry,
+    size,
+    shape,
+    placement,
+    onAnchor,
+  });
+  latest.current = { calibration, imageRect, photoGeometry, size, shape, placement, onAnchor };
+  const geometry = {
+    ...crownToDisplay(anchor, photoGeometry.bounds, imageRect),
+    ...physicalProjection(physicalPatch(shape, size), calibration, photoGeometry, imageRect),
   };
   function limitAnchor(wanted: Point, safe: Point) {
-    const latest = latestGeometry.current,
-      g = latest.photoGeometry;
-    if (!g || !latest.calibration || !latest.imageRect) return wanted;
+    const value = latest.current,
+      g = value.photoGeometry;
     return constrainPatch(
       wanted,
       safe,
       physicalProjection(
-        physicalPatch(latest.shape, latest.size),
-        latest.calibration,
+        physicalPatch(value.shape, value.size),
+        value.calibration,
         g,
-        latest.imageRect,
+        value.imageRect,
       ),
       {
-        width: g.bounds.width * latest.imageRect.width,
-        height: g.bounds.height * latest.imageRect.height,
+        width: g.bounds.width * value.imageRect.width,
+        height: g.bounds.height * value.imageRect.height,
       },
       g,
     );
   }
-
+  useEffect(() => () => cleanupDrag.current?.(), []);
+  // A pointer gesture cannot carry deltas into another model, photo or physical size.
   useEffect(() => {
-    return () => cleanupDrag.current?.();
-  }, []);
-
+    cleanupDrag.current?.();
+    drag.current = null;
+  }, [calibration.id, shape, size, placement]);
   function startDrag(event: PointerEvent<HTMLDivElement>) {
     if (!interactive) return;
     event.preventDefault();
     event.stopPropagation();
     cleanupDrag.current?.();
     const parent = event.currentTarget.parentElement;
-    const bounds = parent?.getBoundingClientRect();
-    if (!bounds || !bounds.width || !bounds.height) return;
-
+    if (!parent) return;
     drag.current = {
       pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      offsetX: transform.x,
-      offsetY: transform.y,
-      lastX: transform.x,
-      lastY: transform.y,
-      width: bounds.width,
-      height: bounds.height,
-      bounds: { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height },
+      x: event.clientX,
+      y: event.clientY,
       anchor,
-      lastAnchor: anchor,
+      last: anchor,
     };
-
     function cleanup() {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", finish);
       window.removeEventListener("pointercancel", finish);
       cleanupDrag.current = null;
     }
-
-    function move(pointerEvent: globalThis.PointerEvent) {
-      const current = drag.current;
-      if (!current || current.pointerId !== pointerEvent.pointerId) return;
-      pointerEvent.preventDefault();
-      const latest = latestGeometry.current;
-      if (
-        current.anchor &&
-        latest.calibration &&
-        latest.imageRect &&
-        isFrontPlacement(latest.placement)
-      ) {
-        const rect = parent?.getBoundingClientRect();
-        if (!rect) return;
-        // Map viewport pointer delta through current zoom and current fitted geometry.
-        const width = parent?.clientWidth ?? 0;
-        const height = parent?.clientHeight ?? 0;
-        const next = dragAnchor(
-          current.anchor,
-          {
-            x: ((pointerEvent.clientX - current.startX) * width) / rect.width,
-            y: ((pointerEvent.clientY - current.startY) * height) / rect.height,
-          },
-          { width, height },
-          latest.photoGeometry?.bounds ?? latest.calibration.bounds,
-          latest.imageRect,
-          latest.placement,
-        );
-        const safe = limitAnchor(next, current.anchor);
-        current.lastAnchor = safe;
-        onAnchor(safe, false);
-        return;
-      }
-      const x = clamp(
-        current.offsetX + ((pointerEvent.clientX - current.startX) / current.width) * 100,
-        -OFFSET_X_LIMIT,
-        OFFSET_X_LIMIT,
+    function move(e: globalThis.PointerEvent) {
+      const current = drag.current,
+        value = latest.current;
+      if (!current || e.pointerId !== current.pointerId) return;
+      e.preventDefault();
+      const rect = parent!.getBoundingClientRect(),
+        width = parent!.clientWidth,
+        height = parent!.clientHeight;
+      if (!rect.width || !rect.height) return;
+      const next = dragAnchor(
+        current.anchor,
+        {
+          x: ((e.clientX - current.x) * width) / rect.width,
+          y: ((e.clientY - current.y) * height) / rect.height,
+        },
+        { width, height },
+        value.photoGeometry.bounds,
+        value.imageRect,
+        isFrontPlacement(value.placement) ? value.placement : "front-center",
       );
-      const y = clamp(
-        current.offsetY + ((pointerEvent.clientY - current.startY) / current.height) * 100,
-        -OFFSET_Y_LIMIT,
-        OFFSET_Y_LIMIT,
-      );
-      current.lastX = x;
-      current.lastY = y;
-      onMove(x, y, false);
+      current.last = limitAnchor(next, current.anchor);
+      value.onAnchor(current.last, false);
     }
-
-    function finish(pointerEvent: globalThis.PointerEvent) {
+    function finish(e: globalThis.PointerEvent) {
       const current = drag.current;
-      if (!current || current.pointerId !== pointerEvent.pointerId) return;
-      pointerEvent.preventDefault();
+      if (!current || e.pointerId !== current.pointerId) return;
+      e.preventDefault();
       drag.current = null;
       cleanup();
-      if (current.lastAnchor) onAnchor(current.lastAnchor, true);
-      else onMove(current.lastX, current.lastY, true);
+      latest.current.onAnchor(current.last, true);
     }
-
     cleanupDrag.current = cleanup;
     window.addEventListener("pointermove", move, { passive: false });
     window.addEventListener("pointerup", finish, { passive: false });
     window.addEventListener("pointercancel", finish, { passive: false });
   }
-
   function moveWithKeyboard(event: KeyboardEvent<HTMLDivElement>) {
-    if (!interactive) return;
-    const amount = event.shiftKey ? 3 : 1;
-    let x = transform.x;
-    let y = transform.y;
-    if (event.key === "ArrowLeft") x -= amount;
-    else if (event.key === "ArrowRight") x += amount;
-    else if (event.key === "ArrowUp") y -= amount;
-    else if (event.key === "ArrowDown") y += amount;
-    else return;
+    if (!interactive || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key))
+      return;
     event.preventDefault();
     event.stopPropagation();
-    if (anchor && calibration && imageRect && isFrontPlacement(placement)) {
-      const width = event.currentTarget.parentElement?.clientWidth ?? 0;
-      const height = event.currentTarget.parentElement?.clientHeight ?? 0;
-      onAnchor(
-        limitAnchor(
-          dragAnchor(
-            anchor,
-            { x: ((x - transform.x) * width) / 100, y: ((y - transform.y) * height) / 100 },
-            { width, height },
-            photoGeometry?.bounds ?? calibration.bounds,
-            imageRect,
-            placement,
-          ),
+    const amount = event.shiftKey ? 6 : 2;
+    const delta = {
+      x: event.key === "ArrowLeft" ? -amount : event.key === "ArrowRight" ? amount : 0,
+      y: event.key === "ArrowUp" ? -amount : event.key === "ArrowDown" ? amount : 0,
+    };
+    const parent = event.currentTarget.parentElement!;
+    onAnchor(
+      limitAnchor(
+        dragAnchor(
           anchor,
+          delta,
+          { width: parent.clientWidth, height: parent.clientHeight },
+          photoGeometry.bounds,
+          imageRect,
+          isFrontPlacement(placement) ? placement : "front-center",
         ),
-        true,
-      );
-    } else onMove(x, y, true);
+        anchor,
+      ),
+      true,
+    );
   }
-
   if (
-    photoGeometry &&
-    geometry &&
-    imageRect &&
-    anchor &&
     !patchFits(
       anchor,
       geometry,
@@ -990,14 +947,21 @@ function PatchOverlay({
           ? "z-30 cursor-grab touch-none select-none active:cursor-grabbing"
           : "z-10 pointer-events-none",
       )}
-      style={frame}
+      style={{
+        width: geometry.width,
+        height: geometry.height,
+        left: geometry.x,
+        top: geometry.y,
+        transition: "none",
+        touchAction: interactive ? "none" : undefined,
+      }}
       data-patch-overlay="true"
       data-patch-size={size}
-      data-patch-anchor={anchor ? JSON.stringify(anchor) : undefined}
+      data-patch-anchor={JSON.stringify(anchor)}
       data-physical-inches={JSON.stringify(physicalPatch(shape, size))}
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
-      aria-label={interactive ? "Drag patch to position it on the hat" : undefined}
+      aria-label={interactive ? "Position patch: drag or use arrow keys" : undefined}
       onPointerDown={startDrag}
       onDragStart={(event) => event.preventDefault()}
       onKeyDown={moveWithKeyboard}
@@ -1005,9 +969,7 @@ function PatchOverlay({
       <div
         className="physical-patch-mounted"
         style={{
-          transform: photoGeometry
-            ? `rotate(${photoGeometry.rotation}deg) skewX(${photoGeometry.skew}deg) scaleX(${photoGeometry.compression})`
-            : undefined,
+          transform: `rotate(${photoGeometry.rotation}deg) skewX(${photoGeometry.skew}deg) scaleX(${photoGeometry.compression})`,
         }}
       >
         <PatchFace material={leather.id} shape={shape} text={patchText} artwork={artworkUrl} />

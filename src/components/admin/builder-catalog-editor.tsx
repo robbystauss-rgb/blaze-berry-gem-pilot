@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useState } from "react";
 import { FAMILIES, FAMILY_ORDER, type FamilyId } from "@/lib/catalog";
 import { HAT_MODEL_LABELS, HAT_MODEL_BLURBS } from "@/lib/hat-models";
@@ -61,7 +62,7 @@ export function BuilderCatalogEditor({
             setMessage("Catalog content saved.");
             await refresh();
           } catch (e) {
-            setMessage(e instanceof Error ? e.message : "Unable to save.");
+            setMessage(ownerError(e, "Unable to save."));
           } finally {
             setBusy(false);
           }

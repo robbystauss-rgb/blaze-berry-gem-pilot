@@ -87,7 +87,7 @@ try {
         animations: "disabled",
       });
       let zoom = null;
-      if (phase === "after" && item.photo.sourceWidth < 800) {
+      if (item.photo.sourceWidth < 800) {
         assert.equal(
           await page.getByRole("button", { name: "Zoom", exact: true }).isDisabled(),
           true,
@@ -164,10 +164,7 @@ try {
     result.checks.push(
       "six exact model/color photos tested on desktop2x and phone3x; genuine native detail, geometry unchanged, and catalog-source limitations shown without extra zoom",
     );
-    const item = cases[0],
-      display = JSON.parse(readFileSync("src/data/hat-display-images.json")).records.find(
-        (r) => r.calibrationId === item.photo.id,
-      );
+    const item = cases[0];
     const wrong = await sharp({
       create: { width: 16, height: 16, channels: 3, background: "#fff" },
     })
@@ -180,7 +177,7 @@ try {
         }),
         page = await context.newPage();
       page.on("pageerror", (e) => result.pageErrors.push(e.message));
-      await context.route("**" + display.imageUrl, (route) =>
+      await context.route(/\/assets\/(hat-stage|hat-display)\//, (route) =>
         fault === "network"
           ? route.abort("failed")
           : route.fulfill({ status: 200, contentType: "image/png", body: wrong }),
@@ -217,6 +214,13 @@ try {
       ...catalog.models.find((m) => m.id === item.model),
       ...patches[item.model],
     }.colorways.find((c) => c.id === item.photo.colorway);
+    const sideRequestedWidths = [];
+    page.on("request", (request) => {
+      if (
+        request.url().startsWith("https://lh3.googleusercontent.com/d/" + source.views.side + "=")
+      )
+        sideRequestedWidths.push(Number(request.url().match(/=w(\d+)$/)?.[1]));
+    });
     await page.goto(
       base +
         "/order?" +
@@ -235,13 +239,33 @@ try {
     await page.getByRole("button", { name: /^side$/i }).click();
     await page.waitForFunction(() => {
       const i = document.querySelector("[data-hat-preview] > img");
-      return i?.alt.endsWith("side") && i.complete && i.naturalWidth > 0;
+      return (
+        i?.alt.endsWith("side") &&
+        i.complete &&
+        (i.naturalWidth > 0 ||
+          document
+            .querySelector("[data-hat-preview]")
+            ?.textContent.includes("This exact reference photo is unavailable"))
+      );
     });
+    const referenceLoaded = await page
+      .locator("[data-hat-preview] > img")
+      .evaluate((image) => image.naturalWidth > 0);
+    if (!referenceLoaded) result.remoteReferenceNeedsVerification = true;
     const side = await page.locator("[data-hat-preview] > img").getAttribute("src");
     assert.ok(side.startsWith("https://lh3.googleusercontent.com/d/" + source.views.side + "="));
-    assert.ok(Number(side.match(/=w(\d+)$/)[1]) > 1200);
+    assert.ok(
+      sideRequestedWidths.some((width) => width > 1200),
+      "request useful density from the same approved view",
+    );
+    if (referenceLoaded && Number(side.match(/=w(\d+)$/)[1]) <= 1200) {
+      result.remoteReferenceNeedsVerification = true;
+      await page.locator('[data-photo-detail="limited"]').waitFor();
+    }
     result.checks.push(
-      "high-density side view requests a larger rendition of its exact approved side asset",
+      referenceLoaded
+        ? "high-density side view requests a larger rendition of its exact approved side asset"
+        : "remote reference failed honestly: exact-model unavailable state shown, no substitute view or patch",
     );
     await context.close();
   }

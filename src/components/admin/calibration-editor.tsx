@@ -19,6 +19,8 @@ import {
   type Point,
   type PatchSize,
 } from "@/lib/crown-geometry";
+import type { PatchShape } from "@/lib/catalog";
+import { ownerError } from "@/lib/commerce/errors";
 import { PatchFace } from "@/components/hat/patch-face";
 import { hatDisplayImage } from "@/lib/hat-display-images";
 import { limitedPhotoDetail } from "@/lib/hat-image-quality";
@@ -43,12 +45,15 @@ export function CalibrationEditor() {
         setUploads(photos);
         setMedia(files);
       })
-      .catch((e) => setRegisterError(String(e)));
+      .catch((e) => setRegisterError(ownerError(e)));
   }, []);
-  const allPhotos = [...manifest.records, ...uploads] as Calibration[];
+  const allPhotos = [...manifest.records, ...uploads].filter((photo) =>
+    MASTER.models.some((model) => model.id === photo.modelId),
+  ) as Calibration[];
   const photo = allPhotos.find((r) => r.id === photoId) ?? (manifest.records[0] as Calibration);
   const [g, setG] = useState(() => defaultPhotoGeometry(photo)),
     [size, setSize] = useState<PatchSize>("medium"),
+    [shape, setShape] = useState<PatchShape>("Rounded Rectangle"),
     [mode, setMode] = useState<"boundary" | "reference" | "anchor">("boundary"),
     [draw, setDraw] = useState(false),
     [drawPoints, setDrawPoints] = useState<Point[]>([]),
@@ -74,7 +79,7 @@ export function CalibrationEditor() {
   const issues = photoGeometryIssues(photo, g);
   const measurement = referenceMeasurement(photo, g);
   const patch = !issues.length
-    ? physicalProjection(physicalPatch("Rounded Rectangle", size), photo, g, {
+    ? physicalProjection(physicalPatch(shape, size), photo, g, {
         x: 0,
         y: 0,
         width,
@@ -85,7 +90,7 @@ export function CalibrationEditor() {
     !issues.length &&
     patchFits(
       g.anchor,
-      physicalProjection(physicalPatch("Rounded Rectangle", s), photo, g, {
+      physicalProjection(physicalPatch(shape, s), photo, g, {
         x: 0,
         y: 0,
         width,
@@ -99,6 +104,21 @@ export function CalibrationEditor() {
     );
   const measuredPublished = state.rows.filter((r) => r.published?.reference).length;
   const estimatedPublished = state.rows.filter((r) => r.published && !r.published.reference).length;
+  const modelCoverage = allPhotos
+    .filter((p) => p.modelId === family)
+    .map((p) => {
+      const published = state.rows.find((row) => row.key === p.id)?.published;
+      const source = hatDisplayImage(p);
+      return {
+        photo: p,
+        source,
+        measured: !!published?.reference && !!referenceMeasurement(p, published)?.valid,
+        limited: limitedPhotoDetail(
+          source?.width ?? p.sourceWidth,
+          source?.height ?? p.sourceHeight,
+        ),
+      };
+    });
   const anchor = crownToSource(g.anchor, g.bounds);
   function sourcePoint(e: React.PointerEvent): Point {
     const b = svg.current!.getBoundingClientRect();
@@ -174,8 +194,8 @@ export function CalibrationEditor() {
         known. Each photo keeps its own draft, image hash and published history.
       </p>
       <p className="cc-help" data-calibration-coverage="true">
-        {manifest.records.length} exact catalog photos have visual crown bounds; those are not
-        physical measurements. {measuredPublished} published owner reference
+        {allPhotos.length} active exact photos have visual crown bounds; those are not physical
+        measurements. {measuredPublished} published owner reference
         {measuredPublished === 1 ? "" : "s"} · {estimatedPublished} published estimated calibration
         {estimatedPublished === 1 ? "" : "s"}. Physical accuracy requires a known length in this
         exact photograph, on the same crown plane as the patch.
@@ -220,6 +240,45 @@ export function CalibrationEditor() {
               </select>
             </label>
           </div>
+          <details className="cc-panel">
+            <summary>
+              {family} photo coverage · {modelCoverage.filter((r) => r.measured).length} measured ·{" "}
+              {modelCoverage.filter((r) => r.limited).length} limited-detail sources
+            </summary>
+            <p className="cc-help">
+              Visual crown bounds and the 7.5-inch fallback estimate are not measurements. Supply a
+              known length on each exact photograph before claiming physical accuracy. Historical
+              retired models are excluded from active coverage.
+            </p>
+            <div className="cc-table-wrap">
+              <table className="cc-table">
+                <thead>
+                  <tr>
+                    <th>Exact photograph</th>
+                    <th>Genuine pixels</th>
+                    <th>Review state</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {modelCoverage.map(({ photo: p, source, measured, limited }) => (
+                    <tr key={p.id}>
+                      <td>{p.colorway}</td>
+                      <td>
+                        {source?.width ?? p.sourceWidth} × {source?.height ?? p.sourceHeight}
+                      </td>
+                      <td>
+                        {limited
+                          ? "Higher-resolution original needed"
+                          : measured
+                            ? "Measured reference published"
+                            : "Estimated · measurement needed"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
           <details className="cc-panel">
             <summary>Add a verified front photo for this exact colorway</summary>
             <p>
@@ -284,7 +343,7 @@ export function CalibrationEditor() {
                   setPhotoId(p.id);
                   setVerified(false);
                 } catch (e) {
-                  setRegisterError(e instanceof Error ? e.message : "Could not register photo.");
+                  setRegisterError(ownerError(e, "Could not register photo."));
                 } finally {
                   setRegisterBusy(false);
                 }
@@ -360,7 +419,7 @@ export function CalibrationEditor() {
                       transform: `translate(-50%,-50%) rotate(${g.rotation}deg) skewX(${g.skew}deg) scaleX(${g.compression})`,
                     }}
                   >
-                    <PatchFace material="buckskin" shape="Rounded Rectangle" text="REC MAMA MADE" />
+                    <PatchFace material="buckskin" shape={shape} text="REC MAMA MADE" />
                   </div>
                 )}
                 <svg
@@ -418,6 +477,22 @@ export function CalibrationEditor() {
               <p id="calibration-keyboard-help" className="cc-help">
                 Drag a marker, or focus it and use arrow keys. Hold Shift for a larger adjustment.
               </p>
+              <label className="cc-field">
+                Test patch shape
+                <select value={shape} onChange={(e) => setShape(e.target.value as PatchShape)}>
+                  {[
+                    "Rounded Rectangle",
+                    "Circle",
+                    "Rectangle",
+                    "Oval",
+                    "Hexagon",
+                    "Shield",
+                    "Custom Die-Cut",
+                  ].map((value) => (
+                    <option key={value}>{value}</option>
+                  ))}
+                </select>
+              </label>
               <div className="cc-actions">
                 {(["small", "medium", "large"] as PatchSize[]).map((s) => (
                   <button
@@ -425,15 +500,15 @@ export function CalibrationEditor() {
                     className={`cc-button ${size === s ? "" : "secondary"}`}
                     onClick={() => setSize(s)}
                   >
-                    {s} · {dimensionLabel("Rounded Rectangle", s)} ·{" "}
+                    {s} · {dimensionLabel(shape, s)} ·{" "}
                     {fitsSize(s) ? "fits" : "outside usable area"}
                   </button>
                 ))}
               </div>
               {patch && !fitsSize(size) && (
                 <p role="status" className="cc-error">
-                  This rectangle extends beyond the usable area at the default anchor. Move the
-                  anchor, review the measured reference, or test a smaller size.
+                  This patch extends beyond the usable area at the default anchor. Move the anchor,
+                  review the measured reference, or test a smaller size.
                 </p>
               )}
               <p className="cc-help">
@@ -468,7 +543,7 @@ export function CalibrationEditor() {
                       setDraw(false);
                       setDrawError("");
                     } catch (e) {
-                      setDrawError(e instanceof Error ? e.message : "Review the usable boundary.");
+                      setDrawError(ownerError(e, "Review the usable boundary."));
                     }
                   }
                 }}
