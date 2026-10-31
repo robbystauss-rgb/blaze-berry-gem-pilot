@@ -163,6 +163,9 @@ export async function recordPayment(
     fee?: number | null;
     actor?: string;
     reason?: string;
+    method?: string;
+    requestId?: string;
+    requestFingerprint?: string;
   },
 ) {
   const order = await orderById(sql, input.orderId, true);
@@ -199,13 +202,13 @@ export async function recordPayment(
   if (input.kind === "payment" && order.paid + input.amount > order.total)
     throw new Error("Payment exceeds order balance; reconcile provider records.");
   const rows =
-    await sql`insert into commerce_payments(id,order_id,provider,reference,kind,amount,occurred_at,fee,actor_id,reason)
- values(${randomUUID()},${input.orderId},${input.provider},${input.reference},${input.kind},${input.amount},${input.occurredAt},${input.fee ?? null},${input.actor ?? null},${input.reason ?? null}) on conflict do nothing returning id`;
+    await sql`insert into commerce_payments(id,order_id,provider,reference,kind,amount,occurred_at,fee,actor_id,reason,method,request_id,request_fingerprint)
+ values(${randomUUID()},${input.orderId},${input.provider},${input.reference},${input.kind},${input.amount},${input.occurredAt},${input.fee ?? null},${input.actor ?? null},${input.reason ?? null},${input.method ?? null},${input.requestId ?? null},${input.requestFingerprint ?? null}) on conflict do nothing returning id`;
   if (!rows.length) return false;
   if (input.kind === "refund")
     await sql`update commerce_refund_requests set state='succeeded',updated_at=now() where provider_reference=${input.reference}`;
   if (input.kind === "payment") {
-    await sql`update commerce_checkouts set state='paid' where order_id=${input.orderId}`;
+    await sql`update commerce_checkouts set state='paid' where order_id=${input.orderId} and provider=${input.provider}`;
     if (order.paid + input.amount >= order.total) {
       await sql`update commerce_promotion_uses set state='redeemed' where order_id=${input.orderId} and state='reserved'`;
       if (order.stage === "canceled")
@@ -226,7 +229,15 @@ export async function recordPayment(
     "order",
     input.orderId,
     null,
-    { provider: input.provider, reference: input.reference, amount: input.amount },
+    {
+      provider: input.provider,
+      reference: input.reference,
+      amount: input.amount,
+      method: input.method ?? null,
+      occurredAt: input.occurredAt,
+      reason: input.reason ?? null,
+      requestId: input.requestId ?? null,
+    },
   );
   return true;
 }

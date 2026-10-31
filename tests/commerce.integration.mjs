@@ -1879,7 +1879,10 @@ test("voiding unpaid invoices preserves provider references and prevents a secon
     occurredAt: new Date().toISOString(),
     requestId: randomUUID(),
   };
-  await assert.rejects(() => mutations.mutate("payment.manual", receipt, owner), /Void the unpaid/);
+  await assert.rejects(
+    () => mutations.mutate("payment.manual", receipt, owner),
+    /Stripe invoice is active/,
+  );
   const provider = {
     id: reference,
     status: "open",

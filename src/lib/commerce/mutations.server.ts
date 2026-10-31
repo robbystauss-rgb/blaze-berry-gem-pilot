@@ -7,7 +7,6 @@ import {
   changeAllocation,
   adjustInventory,
   reserveInventory,
-  recordPayment,
   assertPermission,
   notify,
 } from "./core.server";
@@ -235,46 +234,8 @@ export async function mutate(
         return { id: p.requestId };
       }
       case "payment.manual": {
-        assertPermission(actor.role, "finance");
-        const p = z
-          .object({
-            id,
-            amount: cents.min(1),
-            reference: text.min(3).max(160),
-            reason: text.min(5).max(500),
-            occurredAt: z.string().datetime(),
-            requestId: id,
-          })
-          .parse(payload);
-        if (new Date(p.occurredAt) > new Date())
-          throw new Error("Manual payment date cannot be in the future.");
-        if (
-          (
-            await tx`select order_id from commerce_invoices where order_id=${p.id} and provider_id is not null and state<>'void'`
-          ).length
-        )
-          throw new Error(
-            "Void the unpaid provider invoice before recording a manual payment; do not leave an active payment link outstanding.",
-          );
-        if (
-          (
-            await tx`select order_id from commerce_checkouts where order_id=${p.id} and state='pending'`
-          ).length
-        )
-          throw new Error(
-            "An active checkout exists. Expire and reconcile it before recording a manual payment.",
-          );
-        await recordPayment(tx, {
-          orderId: p.id,
-          provider: "manual",
-          reference: p.reference,
-          kind: "payment",
-          amount: p.amount,
-          occurredAt: p.occurredAt,
-          actor: actor.userId,
-          reason: p.reason,
-        });
-        return { id: p.id };
+        const { recordManualPayment } = await import("./manual-payment.server");
+        return recordManualPayment(tx, payload, actor);
       }
       case "inventory.create": {
         assertPermission(actor.role, "inventory");

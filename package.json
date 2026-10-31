@@ -27,6 +27,7 @@
     "test:crowns": "node --experimental-strip-types --test src/lib/crown-geometry.test.ts src/lib/crown-calibration.test.ts src/lib/patch-physical.test.ts scripts/validate-crown-calibrations.test.mjs",
     "qa:crowns": "node scripts/qa-crown-builder.mjs",
     "test:commerce": "node --test tests/commerce.integration.mjs",
+    "test:manual-payments": "node --test tests/manual-payment.integration.mjs",
     "test:providers": "node --test tests/provider-boundaries.integration.mjs",
     "test:operations": "node --test --test-concurrency=1 tests/owner-operations.integration.mjs tests/content-pages.integration.mjs tests/owner-tasks.integration.mjs tests/quotes.integration.mjs tests/reorder.integration.mjs tests/order-organization.integration.mjs",
     "db:preview": "node scripts/preview-database.mjs",
