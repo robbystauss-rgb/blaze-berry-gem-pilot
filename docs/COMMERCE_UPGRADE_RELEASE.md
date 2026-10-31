@@ -126,7 +126,7 @@ separation and unpaid/unapproved production holds before any real receipt.
 
 IMPLEMENTED on the feature branch: grouped owner navigation, real active attention counts and filtered production views, three independent order states, next safe action, primary financial summary, versioned production-file sizes, linked document/order timeline, and readable publishing/gallery/pricing failures. No synthetic revenue or new messaging service.
 
-VERIFIED: seven task/readiness integration tests, including all-time versus active counts, paid/unapproved versus paid/approved queues, and rejection of unpaid Ready for production. Browser comparisons against commit d3c5125 at 390px and 1440px have no horizontal overflow or page errors. Local evidence: screenshots/owner-workspace/{before,after}. Other staff continue to receive server-redacted financial/audit fields. Existing order, inventory, quotes and proof modules remain authoritative.
+VERIFIED: eight task/readiness integration tests, including all-time versus active counts, paid/unapproved versus paid/approved queues, and rejection of unpaid Ready for production. Browser comparisons against commit d3c5125 at 390px and 1440px have no horizontal overflow or page errors. Local evidence: screenshots/owner-workspace/{before,after}. Other staff continue to receive server-redacted financial/audit fields. Existing order, inventory, quotes and proof modules remain authoritative.
 
 ## Separate review artifacts
 
@@ -144,3 +144,5 @@ The broader branch retains the same tested Git trees. GitHub publication used th
 Release sequence after explicit approval: back up and rehearse 0018, verify the P0 sandbox/provider cases, coordinate the compatible receipt-only application release, then privately reconcile order #4. Review/approve 0019 and the wider application separately after isolated Neon rehearsal, backfill identity review and photo review. If P0 merges first, refresh the wider PR against that approved main before release. Neither a PR nor passing CI authorizes production migration, merge, deployment or customer messaging.
 
 The final evidence report is [COMMERCE_UPGRADE_EVIDENCE.md](COMMERCE_UPGRADE_EVIDENCE.md). Local browser artifacts stay in ignored screenshots/ and artifacts/ directories; source customer art and test session credentials are never attached to public PRs.
+
+The broader PostgreSQL rehearsal passed at 27d6bca0f3a67bd51f90ebf00f0ce360e542b014. A final financial-readiness regression aligns the stage endpoint with the queue: an open dispute cannot advance a fully funded order, and resolving that dispute does not approve artwork or add a receipt. Consult the exact latest PR head checks before approval.

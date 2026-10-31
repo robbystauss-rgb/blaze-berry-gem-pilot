@@ -428,6 +428,22 @@ test(
       assert.ok(payments.some((result) => result.duplicate));
       assert.equal((await crm.readCustomer(customerId, owner)).profile.email, null);
       assert.deepEqual(Buffer.from((await crm.customerArtwork(assetId, owner)).bytes), original);
+      const disputeReference = "TEST-PG-dispute-" + randomUUID();
+      await sql`insert into commerce_disputes(reference,order_id,state) values(${disputeReference},${drafts[0].id},'needs_response')`;
+      await assert.rejects(
+        async () =>
+          mutations.mutate(
+            "order.update",
+            {
+              id: drafts[0].id,
+              version: (await core.orderById(sql, drafts[0].id)).version,
+              stage: "ready_for_production",
+            },
+            owner,
+          ),
+        /open payment dispute/,
+      );
+      await sql`update commerce_disputes set state='won' where reference=${disputeReference}`;
       await assert.rejects(
         async () =>
           mutations.mutate(

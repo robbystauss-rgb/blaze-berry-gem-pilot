@@ -14,11 +14,11 @@ All customer/order examples below are isolated TEST ONLY fixtures. This report c
 
 ## 2. Owner workspace and Customer 360
 
-**IMPLEMENTED:** grouped navigation; active attention counts linked to payment/proof/readiness filters; distinct financial/artwork/production states; next safe action; prominent financial summary; private original and versioned production files; linked Studio/order timeline; readable errors across owner editors. An unpaid order can no longer be marked Ready for production.
+**IMPLEMENTED:** grouped navigation; active attention counts linked to payment/proof/readiness filters; distinct financial/artwork/production states; next safe action; prominent financial summary; private original and versioned production files; linked Studio/order timeline; readable errors across owner editors. An unpaid order can no longer be marked Ready for production. The stage endpoint and queue also both hold a fully funded order with an open payment dispute until finance/provider resolution.
 
-**VERIFIED:** before/after desktop and 390-pixel screenshots, no horizontal overflow or browser exceptions: `screenshots/owner-workspace/{before,after}/`. Seven task/readiness tests separate all-time history from active tasks and enforce both gates. Existing delegated staff redactions and server permissions remain in force.
+**VERIFIED:** before/after desktop and 390-pixel screenshots, no horizontal overflow or browser exceptions: `screenshots/owner-workspace/{before,after}/`. Eight task/readiness tests separate all-time history from active tasks and enforce both gates. Existing delegated staff redactions and server permissions remain in force.
 
-**IMPLEMENTED:** persistent UUID/customer-number profiles independent of checkout; real optional email and normalized phone with explicit country context; name/phone/email/customer/order search; duplicate review, reviewed linking, archive/restore, notes/preferences and record export. Historical per-order profiles are not silently merged by shared email. Public accounts cannot claim a profile by typing contact details; reviewed associations require a verified existing account and staff-administration permission.
+**IMPLEMENTED:** persistent UUID/customer-number profiles independent of checkout; real optional email and normalized phone with explicit country context; name/phone/email/customer/order search with sensitive queries in POST bodies; duplicate review, reviewed linking, archive/restore, notes/preferences and record export. Historical per-order profiles are not silently merged by shared email. Public accounts cannot claim a profile by typing contact details; reviewed associations require a verified existing account and staff-administration permission.
 
 **IMPLEMENTED:** multiple private designs/revisions, exact model/colorway ids, nominal inches, material/shape, text, normalized placement, quantity and notes; immutable original bytes/checksum/MIME/dimensions/provenance; separate safe raster previews; direct private uploads and original-order-art capture. New phone drafts copy genuine source bytes, calculate current published prices/availability and freeze current photo/calibration. New proof approval is required. Genuine email is required only for existing document/provider paths that need it; phone-only profiles/drafts do not invent email or create public logins.
 
@@ -40,6 +40,8 @@ All customer/order examples below are isolated TEST ONLY fixtures. This report c
 |---|---:|---:|---:|---:|
 | Phone 390px, density 3 | 3000px / 430,560 bytes | 1200px / 113,392 bytes | 1170px | 74% |
 | Desktop 1440px, density 2 | 3000px / 430,560 bytes | 1800px / 190,388 bytes | 1728px | 56% |
+
+The byte figures above describe the selected rendition file, not total page transfer or field Core Web Vitals. Initial server rendering may choose 1200px before client layout selects a larger rendition.
 
 Delivery derivatives are generated from retained exact sources during the build, validated by SHA-256/decoded dimensions/framing and excluded from Git as reproducible output. Source originals and derivative provenance remain retained. No source is upscaled, fabricated, replaced with another model or altered for production.
 
@@ -64,9 +66,9 @@ Evidence-ranked customer friction at baseline: (1) model-only gallery links requ
 
 ## 5. Regression and safety
 
-**VERIFIED:** P0 [PR #10](https://github.com/robbystauss-rgb/blaze-berry-gem-pilot/pull/10) passed both CI jobs, including disposable PostgreSQL, at head b6a86c223b87bd4b74b949f1f100b93f49b5749a. Vercel returned zero deployments. The wider PostgreSQL CRM rehearsal has separate CI coverage. Its current commit-specific outcome is shown in PR #11 checks; passing CI never authorizes a release.
+**VERIFIED:** P0 [PR #10](https://github.com/robbystauss-rgb/blaze-berry-gem-pilot/pull/10) passed both CI jobs, including disposable PostgreSQL, at head b6a86c223b87bd4b74b949f1f100b93f49b5749a. Vercel returned zero deployments. The wider PostgreSQL CRM rehearsal passed both CI jobs at 27d6bca0f3a67bd51f90ebf00f0ce360e542b014, including canonical contact edits, immutable source storage, concurrent phone drafts/receipts and independent proof holds. Later commit-specific outcomes are shown in PR #11 checks; passing CI never authorizes a release.
 
-**VERIFIED locally:** default regression suites (234 + 55 tests), commerce 50, providers 20, Studio 19, external receipts 6, customer vault/backfill 9, operations 44, catalog retirement/media 17, intake 4, photo selection 6, geometry 38; counts overlap across script groups and are not a unique-test total. Typecheck and build pass. Lint has no errors; existing warnings are tracked in local logs. Browser fixtures use no real provider credentials, send no real email/text and perform no production writes.
+**VERIFIED locally:** default regression suites (234 + 55 tests), commerce 50, providers 20, Studio 19, external receipts 6, customer vault/backfill 9, operations 45, catalog retirement/media 17, intake 4, photo selection 6, geometry 38; counts overlap across script groups and are not a unique-test total. Typecheck and build pass. Lint has no errors; existing warnings are tracked in local logs. Browser fixtures use no real provider credentials, send no real email/text and perform no production writes.
 
 **IMPLEMENTED:** additive migrations `0018_manual_payment_receipts.sql` and `0019_customer_design_vault.sql`; populated historical migration regression; immutable receipts/art/revisions/history; development-only durable-test-storage hook that refuses production/Vercel; build asset provenance gates; PR CI coverage and an opt-in disposable PostgreSQL rehearsal expanded to profile/art/draft/receipt concurrency.
 

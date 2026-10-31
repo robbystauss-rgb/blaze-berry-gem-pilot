@@ -15,7 +15,7 @@ const quoteInput = z.object({
   email: z.string().max(254).default(""),
 });
 const scope = z.enum(["calibration", "gallery", "storefront", "pricing", "content"]);
-export const searchBusiness = createServerFn({ method: "GET" })
+export const searchBusiness = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(z.string().trim().min(2).max(80))
   .handler(async ({ context, data }) => {

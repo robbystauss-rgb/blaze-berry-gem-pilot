@@ -8,7 +8,8 @@ const uuid = z.string().uuid();
 async function actor(userId: string, bearer?: string) {
   return (await import("./access.server")).requireAccess(userId, "customers", bearer);
 }
-export const searchCustomerProfiles = createServerFn({ method: "GET" })
+// Names, phone numbers and email queries belong in a private request body.
+export const searchCustomerProfiles = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(z.string().max(200))
   .handler(async ({ data, context }) =>
