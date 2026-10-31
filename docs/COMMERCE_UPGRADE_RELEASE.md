@@ -23,7 +23,7 @@ whose checkout has already been explicitly reconciled. Refund orders require
 finance review before collecting again. No prices or proof approvals change.
 
 VERIFIED locally: 50 existing commerce tests and 20 provider-boundary tests pass.
-Six dedicated payment tests cover validation, simultaneous/retried receipts,
+Seven dedicated payment tests cover validation, simultaneous/retried receipts,
 partial/full payments, immutable prices, permission and excess-amount failures,
 invoice creation/checkout conflicts, provider expiry and independent proof holds.
 The 390 × 844 browser journey checks inline errors, form recovery, payment save,

@@ -8,7 +8,7 @@ All customer/order examples below are isolated TEST ONLY fixtures. This report c
 
 **IMPLEMENTED:** shared field validation; explicit Venmo/cash/bank/Zelle/other method; local date/time conversion; integer cents; saving lock; retry-stable request recovery; transactional receipt/reference checks; private actor/method/time/reference/note audit; ledger-derived paid/remaining confirmation; explicit provider-confirmed eligible Stripe checkout expiry and existing unpaid invoice void workflow. Manual receipts never counterfeit processor events. Proof remains independent.
 
-**VERIFIED:** six receipt integration tests; partial/full and concurrent retry coverage; invalid/future/excess amounts, roles, invoice claims and checkout conflicts. Phone-sized browser validation and refresh recovery are in `screenshots/manual-payment/` locally.
+**VERIFIED:** seven receipt integration tests; partial/full and concurrent retry coverage; invalid/future/excess amounts, roles, invoice claims, checkout conflicts and dispute holds. Phone-sized browser validation and refresh recovery are in `screenshots/manual-payment/` locally.
 
 **NEEDS VERIFICATION:** live order #4, the genuine Venmo receipt, current provider obligations and current production role. No production DB/provider credentials or authenticated browser access were available. Follow the private owner confirmation steps in [COMMERCE_UPGRADE_RELEASE.md](COMMERCE_UPGRADE_RELEASE.md); never add a second receipt without inspecting history.
 

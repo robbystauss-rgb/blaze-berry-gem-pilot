@@ -268,6 +268,34 @@ test(
       check(
         "Separate proof v1 revision and current v2 approval persist; stale link revoked and unpaid production remains held",
       );
+      const studioReceipt = {
+        id: orderId,
+        amount: (await core.orderById(sql, orderId)).total,
+        method: "venmo",
+        reference: "TEST-PG-receipt-" + randomUUID(),
+        reason: "TEST ONLY independently verified external receipt",
+        occurredAt: new Date(Date.now() - 60000).toISOString(),
+        requestId: randomUUID(),
+      };
+      const studioPayments = await Promise.all([
+        mutations.mutate("payment.manual", studioReceipt, owner),
+        mutations.mutate("payment.manual", studioReceipt, owner),
+      ]);
+      assert.equal(studioPayments[0].receiptId, studioPayments[1].receiptId);
+      assert.ok(studioPayments.some((payment) => payment.duplicate));
+      assert.equal(
+        (await sql`select count(*)::int n from commerce_payments where order_id=${orderId}`)[0].n,
+        1,
+      );
+      const studioDisputeReference = "TEST-PG-dispute-" + randomUUID();
+      await sql`insert into commerce_disputes(reference,order_id,state) values(${studioDisputeReference},${orderId},'needs_response')`;
+      await assert.rejects(advance, /open payment dispute/);
+      await sql`update commerce_disputes set state='won' where reference=${studioDisputeReference}`;
+      await advance();
+      assert.equal((await core.orderById(sql, orderId)).stage, "engraving");
+      check(
+        "Concurrent external receipt retries persist once; an open dispute holds production until resolution while proof approval remains independent",
+      );
       const texting = await server.ssrLoadModule("/src/lib/commerce/studio-text.server.ts");
       const contactBefore = await texting.readStudioContact(invoiceId, owner);
       await texting.saveStudioContact(

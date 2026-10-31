@@ -99,7 +99,17 @@ test("valid Venmo persists exactly once across retries, new request ids, refresh
 test("partial and full receipts preserve original prices and cannot approve required artwork", async () => {
   const id = await draft();
   await sql`insert into commerce_proof_controls(order_id,required) values(${id},true)`;
-  const before = (await read.readOrder(id, owner)).items;
+  const unpaid = await read.readOrder(id, owner);
+  await assert.rejects(
+    () =>
+      mutate(
+        "order.update",
+        { id, version: unpaid.order.version, stage: "ready_for_production" },
+        owner,
+      ),
+    /Full verified payment/,
+  );
+  const before = unpaid.items;
   const partial = await mutate(
     "payment.manual",
     receipt(id, { amount: 1201, method: "cash" }),
@@ -170,6 +180,25 @@ test("Stripe invoice claim without provider id and pending checkout both block e
     /checkout can still collect/,
   );
   assert.equal((await core.orderById(sql, id)).paid, 0);
+});
+
+test("an open dispute holds a funded order without changing its receipt or approving artwork", async () => {
+  const id = await draft();
+  await mutate("payment.manual", receipt(id), owner);
+  const reference = "TEST-dispute-" + randomUUID();
+  await sql`insert into commerce_disputes(reference,order_id,state) values(${reference},${id},'needs_response')`;
+  const advance = async (stage) =>
+    mutate("order.update", { id, version: (await core.orderById(sql, id)).version, stage }, owner);
+  for (const stage of ["ready_for_production", "engraving", "completed"])
+    await assert.rejects(() => advance(stage), /open payment dispute/);
+  assert.equal((await core.orderById(sql, id)).stage, "new");
+  await sql`update commerce_disputes set state='won' where reference=${reference}`;
+  await sql`insert into commerce_proof_controls(order_id,required) values(${id},true)`;
+  await assert.rejects(() => advance("ready_for_production"), /proof|approval/i);
+  const detail = await read.readOrder(id, owner);
+  assert.equal(detail.order.paid, 6000);
+  assert.equal(detail.payments.length, 1);
+  assert.equal(detail.proof.blocked, true);
 });
 test("provider-confirmed Stripe checkout expiry disables collection and preserves order for offline receipt", async () => {
   const id = await draft(),
