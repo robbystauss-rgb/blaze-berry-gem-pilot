@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useState, useEffect } from "react";
 import { getBearerToken } from "@/lib/auth/client";
 import { ArrowUp, ArrowDown, X, Eye } from "lucide-react";
@@ -170,7 +171,7 @@ export function ProductEditor({
               const result = await uploadProductImage({ data });
               setImages((previous) => [...previous, result.url]);
             } catch (e) {
-              setError(e instanceof Error ? e.message : "Image upload failed.");
+              setError(ownerError(e, "Image upload failed."));
             } finally {
               setUploading(false);
             }

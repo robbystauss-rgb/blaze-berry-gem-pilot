@@ -45,11 +45,13 @@ export function PatchFace({
       className="physical-patch-face"
       data-patch-material="laser-cut"
       data-surface={leather.surface}
+      data-cutline={shape === "Custom Die-Cut" ? "review" : undefined}
       style={{
         ...style,
         clipPath: patchClip(shape),
-        backgroundColor: leather.hex,
-        backgroundImage: leather.texture ? `url(${leather.texture})` : undefined,
+        backgroundColor: shape === "Custom Die-Cut" ? "transparent" : leather.hex,
+        backgroundImage:
+          shape !== "Custom Die-Cut" && leather.texture ? `url(${leather.texture})` : undefined,
         color: leather.ink,
       }}
     >

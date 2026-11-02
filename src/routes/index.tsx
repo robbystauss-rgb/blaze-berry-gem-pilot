@@ -113,7 +113,13 @@ function Home() {
                 to="/actual-work"
                 className={buttonVariants({ variant: "outline", size: "lg" })}
               >
-                See finished work
+                Shop finished examples
+              </Link>
+              <Link
+                to="/quote-request"
+                className={buttonVariants({ variant: "outline", size: "lg" })}
+              >
+                Group / business quote
               </Link>
             </div>
           </div>
@@ -258,9 +264,8 @@ function Home() {
               Actual material samples. No fake swatches.
             </h2>
             <p className="mt-5 max-w-[58ch] text-sm leading-7 text-bark">
-              The staging builder uses the 31 named swatches taken from your real “My leatherette
-              options.PNG” source sheet. The two unnamed cards remain excluded until they can be
-              identified.
+              Explore 31 named material swatches from our photographed sample sheet. The finish and
+              engraving contrast are confirmed in your proof.
             </p>
             <Link
               to="/order"

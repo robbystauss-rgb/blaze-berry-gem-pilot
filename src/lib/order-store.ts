@@ -16,6 +16,8 @@ import { isRetiredHatModel } from "./catalog-lifecycle";
 import type { ReorderSettings } from "./commerce/reorder-types";
 
 export type OrderDraft = {
+  /** Product-only example identity; no customer artwork or private capability. */
+  galleryPrefillKey?: string;
   customerName: string;
   customerEmail: string;
   orderType: OrderType;

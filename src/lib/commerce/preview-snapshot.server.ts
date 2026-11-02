@@ -11,7 +11,21 @@ import {
   type PhotoGeometry,
 } from "@/lib/patch-physical";
 import { publishedDocument } from "./publishing.server";
-export async function previewSnapshot(build: PaymentBuild) {
+export async function previewSnapshot(
+  build: Pick<
+    PaymentBuild,
+    | "family"
+    | "colorway"
+    | "patchShape"
+    | "patchSize"
+    | "placement"
+    | "orderType"
+    | "previewVersion"
+    | "expectedPreview"
+    | "previewPlacement"
+  >,
+  connection?: import("@/lib/db").Sql,
+) {
   const dimensions = physicalPatch(build.patchShape, build.patchSize);
   if (build.orderType !== "hat" || !isFrontPlacement(build.placement))
     return {
@@ -25,10 +39,11 @@ export async function previewSnapshot(build: PaymentBuild) {
     throw Error("Exact product photograph needs calibration before this preview can be saved.");
   const replacement = await (
     await import("./hat-photos.server")
-  ).publishedHatPhoto(base.modelId, base.colorway);
+  ).publishedHatPhoto(base.modelId, base.colorway, connection);
   const photo = replacement?.photo ?? base;
   const saved =
-    replacement?.geometry ?? (await publishedDocument<PhotoGeometry>("calibration", photo.id));
+    replacement?.geometry ??
+    (await publishedDocument<PhotoGeometry>("calibration", photo.id, connection));
   const geometry = saved?.imageVersion === photo.sha256 ? saved : defaultPhotoGeometry(photo);
   if (build.previewVersion === 3) {
     const expected = z

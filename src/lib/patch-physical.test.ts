@@ -85,6 +85,49 @@ test("affine mount and inverse round-trip both coordinates across supported orie
       }
 });
 
+test("the same 2.5-inch circle retains its physical ratio across a synthetic crop and display density", () => {
+  // Synthetic re-framing of the same retained photo; no real ruler is claimed.
+  const original = records.find((photo) => photo.modelId === "112")!;
+  const base = {
+    ...defaultPhotoGeometry(original),
+    reference: {
+      start: { x: 0.3, y: 0.3 },
+      end: { x: 0.6, y: 0.3 },
+      inches: 3,
+    },
+  };
+  const cropped = {
+    ...original,
+    sourceWidth: original.sourceWidth * 0.8,
+    sourceHeight: original.sourceHeight * 0.8,
+  };
+  const cropGeometry = {
+    ...base,
+    reference: {
+      start: { x: (0.3 - 0.1) / 0.8, y: (0.3 - 0.1) / 0.8 },
+      end: { x: (0.6 - 0.1) / 0.8, y: (0.3 - 0.1) / 0.8 },
+      inches: 3,
+    },
+  };
+  for (const width of [320, 390, 864]) {
+    const a = physicalProjection({ width: 2.5, height: 2.5 }, original, base, {
+      x: 0,
+      y: 0,
+      width,
+      height: (width * original.sourceHeight) / original.sourceWidth,
+    });
+    const b = physicalProjection({ width: 2.5, height: 2.5 }, cropped, cropGeometry, {
+      x: 0,
+      y: 0,
+      width: width * 0.8,
+      height: (width * 0.8 * cropped.sourceHeight) / cropped.sourceWidth,
+    });
+    close(a.width, b.width, "same photographed patch span after matching crop zoom");
+    close(a.height, b.height);
+    for (const density of [1, 2, 3]) close(a.width / density, b.width / density);
+  }
+});
+
 test("unversioned frozen order geometry keeps legacy reference projection and identity", () => {
   const photo = records[0],
     geometry = defaultPhotoGeometry(photo);

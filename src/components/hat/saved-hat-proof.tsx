@@ -19,10 +19,14 @@ export function SavedHatProof({
   specifications: s,
   itemId,
   hasArtwork,
+  artworkPath,
+  compact = false,
 }: {
   specifications: Record<string, Json>;
   itemId: string;
   hasArtwork: boolean;
+  artworkPath?: string;
+  compact?: boolean;
 }) {
   const snapshot = s.preview as unknown as Snapshot | undefined;
   const [artwork, setArtwork] = useState<string>(),
@@ -37,7 +41,7 @@ export function SavedHatProof({
     if (hasArtwork) {
       setArtworkReady(false);
       const token = getBearerToken();
-      void fetch("/api/artwork/" + itemId, {
+      void fetch(artworkPath ?? "/api/artwork/" + itemId, {
         headers: token ? { Authorization: "Bearer " + token } : {},
       })
         .then((r) => {
@@ -59,7 +63,7 @@ export function SavedHatProof({
       alive = false;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [itemId, hasArtwork]);
+  }, [itemId, hasArtwork, artworkPath]);
   if (!snapshot?.photo || snapshot.version !== 3) return null;
   const { photo, geometry: g, physicalInches: physical, anchor } = snapshot;
   const pos = crownToSource(anchor, g.bounds),
@@ -184,7 +188,7 @@ export function SavedHatProof({
   }
   return (
     <div className="cc-order-proof">
-      <h4>Saved customer mockup</h4>
+      {!compact && <h4>Saved customer mockup</h4>}
       <div
         className="saved-hat-proof"
         style={{ aspectRatio: `${photo.sourceWidth}/${photo.sourceHeight}` }}
@@ -225,13 +229,15 @@ export function SavedHatProof({
         Preview effects are separate from the unmodified production artwork. This frozen photo and
         calibration remain with the order.
       </p>
-      <button
-        className="cc-button secondary cc-no-print"
-        disabled={!artworkReady}
-        onClick={() => void download()}
-      >
-        {artworkReady ? "Download composite mockup" : "Loading original for mockup…"}
-      </button>
+      {!compact && (
+        <button
+          className="cc-button secondary cc-no-print"
+          disabled={!artworkReady}
+          onClick={() => void download()}
+        >
+          {artworkReady ? "Download composite mockup" : "Loading original for mockup…"}
+        </button>
+      )}
       {error && (
         <p role="alert" className="cc-error">
           {error}

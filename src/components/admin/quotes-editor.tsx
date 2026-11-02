@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Copy, FileText, ExternalLink, Trash2 } from "lucide-react";
 import { getQuotes, quoteOwnerAction, saveEstimate } from "@/lib/commerce/quotes-api";
@@ -39,7 +40,7 @@ const empty = (): Estimate => ({
   totalsConfirmed: false,
 });
 const message = (e: unknown) =>
-  e instanceof Error ? e.message : "The action could not be completed.";
+  ownerError(e, "The action could not be completed.");
 
 export function QuotesEditor({ onOpenOrder, onChange }: Props) {
   const [data, setData] = useState<Awaited<ReturnType<typeof getQuotes>> | null>(null),

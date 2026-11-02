@@ -3,6 +3,74 @@
   display: grid;
   gap: 24px;
 }
+.cc-nav-group > p {
+  margin: 1rem 0.5rem 0.4rem;
+  font-size: 0.65rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.cc-attention-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.cc-attention-grid > a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  text-decoration: none;
+}
+.cc-attention-grid > a:hover {
+  border-color: var(--color-wine);
+}
+.cc-attention-grid strong {
+  font-size: 2rem;
+  font-family: var(--font-display);
+}
+.cc-attention-grid span {
+  font-weight: 700;
+}
+.cc-attention-grid small {
+  color: var(--color-muted);
+}
+.cc-order-next {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  border-left: 3px solid var(--color-wine);
+}
+.cc-order-next p {
+  max-width: 60ch;
+}
+.cc-priority-panel {
+  grid-column: 1/-1;
+}
+.cc-next-step-label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+.cc-order-detail section[id] {
+  scroll-margin-top: 1rem;
+}
+@media (max-width: 760px) {
+  .cc-order-next {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cc-order-next .cc-button {
+    align-self: flex-start;
+  }
+}
 .cc-quick-actions {
   display: flex;
   flex-wrap: wrap;

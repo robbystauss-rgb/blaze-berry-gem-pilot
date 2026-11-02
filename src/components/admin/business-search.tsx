@@ -69,12 +69,8 @@ export function BusinessSearch() {
                   </li>
                 ))}
                 {data.customers.map((c) => (
-                  <li key={c.customer_email}>
-                    <a
-                      href={
-                        "/admin?section=customers&query=" + encodeURIComponent(c.customer_email)
-                      }
-                    >
+                  <li key={c.id}>
+                    <a href={"/admin?section=customers&customerId=" + encodeURIComponent(c.id)}>
                       Customer · {c.customer_name}
                     </a>
                   </li>

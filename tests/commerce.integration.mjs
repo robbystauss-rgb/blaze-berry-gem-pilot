@@ -228,6 +228,12 @@ test("media preserves private originals and alpha, strips public metadata, and r
     consent: false,
     archived: false,
     family: "112",
+    configuration: {
+      variantId: "112:black",
+      material: "buckskin",
+      shape: "Circle",
+      size: "medium",
+    },
   };
   const key = randomUUID();
   await publishing.saveDocument(
@@ -251,6 +257,19 @@ test("media preserves private originals and alpha, strips public metadata, and r
     owner,
   );
   assert.equal(await media.mediaIsPublished(id), true);
+  const published = await publishing.publishedDocument("gallery", key, sql);
+  assert.deepEqual(published.configuration, project.configuration);
+  const { gallerySelection } = await server.ssrLoadModule("/src/lib/commerce/gallery-build.ts");
+  const selection = gallerySelection(published.family, published.configuration);
+  assert.equal(selection.colorway, "Black");
+  assert.equal(selection.patchShape, "Circle");
+  assert.equal(selection.patchSize, "medium");
+  assert.ok(!("artworkDataUrl" in selection));
+  assert.throws(() => gallerySelection("112PM", published.configuration), /unavailable/);
+  assert.throws(
+    () => gallerySelection("112", { ...published.configuration, variantId: "112:not-a-color" }),
+    /unavailable/,
+  );
   await assert.rejects(
     () => media.editMedia({ id, version: 2, alt: "Test", tags: [], archive: true }, owner),
     /in use/,
@@ -1495,7 +1514,19 @@ test("catalog text overlays preserve existing builder models, pricing and histor
 test("custom checkout freezes artwork, exact options and placement without counting pending money", async () => {
   const checkout = await server.ssrLoadModule("/src/lib/commerce/checkout.server.ts");
   const png =
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aYwoAAAAASUVORK5CYII=";
+    "data:image/png;base64," +
+    (
+      await sharp({
+        create: {
+          width: 900,
+          height: 600,
+          channels: 4,
+          background: { r: 0, g: 0, b: 0, alpha: 0.5 },
+        },
+      })
+        .png()
+        .toBuffer()
+    ).toString("base64");
   assert.throws(
     () => checkout.decodeArtwork("data:image/png;base64," + Buffer.from("fake").toString("base64")),
     /content/,
@@ -2360,7 +2391,19 @@ test("order-email cron rejects missing and forged credentials without exposing p
 test("a real custom order and verified payment enqueue distinct once-only alerts with stored artwork and full payment references", async () => {
   const checkout = await server.ssrLoadModule("/src/lib/commerce/checkout.server.ts");
   const png =
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aYwoAAAAASUVORK5CYII=";
+    "data:image/png;base64," +
+    (
+      await sharp({
+        create: {
+          width: 900,
+          height: 600,
+          channels: 4,
+          background: { r: 0, g: 0, b: 0, alpha: 0.5 },
+        },
+      })
+        .png()
+        .toBuffer()
+    ).toString("base64");
   const id = await checkout.createCheckoutOrder(
     {
       build: {

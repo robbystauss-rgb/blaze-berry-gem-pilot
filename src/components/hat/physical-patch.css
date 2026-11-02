@@ -17,6 +17,14 @@
   background-position: center;
   container-type: inline-size;
 }
+.physical-patch-face[data-cutline="review"] {
+  clip-path: none !important;
+  outline: 1px dashed #8b7854;
+  outline-offset: -1px;
+}
+.physical-patch-face[data-cutline="review"] .physical-patch-shading {
+  display: none;
+}
 .physical-patch-shading {
   position: absolute;
   inset: 0;

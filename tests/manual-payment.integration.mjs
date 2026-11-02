@@ -100,7 +100,15 @@ test("partial and full receipts preserve original prices and cannot approve requ
   const id = await draft();
   await sql`insert into commerce_proof_controls(order_id,required) values(${id},true)`;
   const unpaid = await read.readOrder(id, owner);
-  await assert.rejects(() => mutate("order.update", {id, version:unpaid.order.version, stage:"ready_for_production"}, owner), /Full verified payment/);
+  await assert.rejects(
+    () =>
+      mutate(
+        "order.update",
+        { id, version: unpaid.order.version, stage: "ready_for_production" },
+        owner,
+      ),
+    /Full verified payment/,
+  );
   const before = unpaid.items;
   const partial = await mutate(
     "payment.manual",

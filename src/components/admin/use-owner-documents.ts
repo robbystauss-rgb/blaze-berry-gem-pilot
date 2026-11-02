@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { ownerError } from "@/lib/commerce/errors";
 import { getOwnerDocuments, updateOwnerDocument } from "@/lib/commerce/owner-api";
 import type { DocumentRow, OwnerScope } from "@/lib/commerce/owner-schemas";
 export function useOwnerDocuments<T>(scope: OwnerScope) {
@@ -19,7 +20,7 @@ export function useOwnerDocuments<T>(scope: OwnerScope) {
       setLoaded(true);
       setError("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to load drafts.");
+      setError(ownerError(e, "Unable to load drafts. Retry after checking your connection."));
     } finally {
       setLoading(false);
     }
@@ -70,7 +71,7 @@ export function useOwnerDocuments<T>(scope: OwnerScope) {
       );
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to save.");
+      setError(ownerError(e));
       return false;
     } finally {
       setBusy(false);

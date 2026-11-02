@@ -112,7 +112,11 @@ export const getMerchantAccess = createServerFn({ method: "GET" })
     const actor = await membership(context.userId, context.bearerToken);
     return {
       ...actor,
-      storage: process.env.DATABASE_URL ? "postgres" : "ephemeral development database",
+      storage: process.env.DATABASE_URL
+        ? "postgres"
+        : process.env.REC_TEST_DATABASE_DIR
+          ? "durable local test database"
+          : "ephemeral development database",
     };
   });
 export const getAdminData = createServerFn({ method: "GET" })

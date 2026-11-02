@@ -7,10 +7,11 @@
     "nf3": "0.3.17"
   },
   "scripts": {
-    "fix:rec-assets": "node scripts/apply-rec-builder-fixes.mjs && node scripts/apply-rec-deeplink-qa.mjs",
+    "fix:rec-assets": "node scripts/apply-rec-builder-fixes.mjs && node scripts/apply-rec-deeplink-qa.mjs && node scripts/build-hat-stage-renditions.mjs",
     "dev": "npm run fix:rec-assets && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js dev --host 0.0.0.0 --port 8080",
     "build": "node scripts/release-database.mjs && node scripts/release-owner-completion.mjs && node scripts/release-studio-text.mjs && npm run fix:rec-assets && npm run check:assets && npm run check:crowns && npm run check:hat-images && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js build && node scripts/package-preview-runtime.mjs",
     "db:migrate": "node scripts/migrate.mjs",
+    "release:commerce": "node scripts/release-commerce-upgrade.mjs",
     "build:dev": "npm run fix:rec-assets && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js build --mode development",
     "preview": "npm run fix:rec-assets && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js preview",
     "preview:restart": "node scripts/preview.mjs restart",
@@ -22,12 +23,15 @@
     "format": "prettier --write .",
     "check:assets": "node scripts/validate-rec-assets.mjs && node scripts/validate-catalog-photo-refresh.mjs",
     "check:crowns": "node scripts/validate-crown-calibrations.mjs",
-    "check:hat-images": "node scripts/validate-hat-display-images.mjs",
+    "check:hat-images": "node scripts/validate-hat-display-images.mjs && node scripts/validate-hat-stage-renditions.mjs",
     "test:hat-images": "node --experimental-strip-types --test src/lib/hat-image-quality.test.ts scripts/hat-source-pixel-proof.test.mjs",
     "test:crowns": "node --experimental-strip-types --test src/lib/crown-geometry.test.ts src/lib/crown-calibration.test.ts src/lib/patch-physical.test.ts scripts/validate-crown-calibrations.test.mjs",
     "qa:crowns": "node scripts/qa-crown-builder.mjs",
     "test:commerce": "node --test tests/commerce.integration.mjs",
     "test:manual-payments": "node --test tests/manual-payment.integration.mjs",
+    "test:customer-vault": "node --test --test-concurrency=1 tests/customer-vault-migration.integration.mjs tests/customer-vault.integration.mjs",
+    "qa:customer-vault:server": "node scripts/with-app-env.mjs node scripts/customer-qa-server.mjs",
+    "qa:customer-vault": "node scripts/qa-customer-vault.mjs",
     "test:providers": "node --test tests/provider-boundaries.integration.mjs",
     "test:operations": "node --test --test-concurrency=1 tests/owner-operations.integration.mjs tests/content-pages.integration.mjs tests/owner-tasks.integration.mjs tests/quotes.integration.mjs tests/reorder.integration.mjs tests/order-organization.integration.mjs",
     "db:preview": "node scripts/preview-database.mjs",
@@ -42,7 +46,8 @@
     "qa:studio": "node scripts/qa-studio.mjs",
     "release:studio": "node scripts/release-studio-documents.mjs",
     "release:studio-text": "node scripts/release-studio-text.mjs",
-    "qa:studio:built": "node scripts/qa-studio-built.mjs"
+    "qa:studio:built": "node scripts/qa-studio-built.mjs",
+    "test:artwork": "node --test tests/artwork-readiness.integration.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",

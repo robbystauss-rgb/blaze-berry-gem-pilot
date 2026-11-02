@@ -11,21 +11,23 @@ const hasSource = (text) => source.replace(/\s+/g, "").includes(text.replace(/\s
 function replaceOnce(oldText, newText, label) {
   if (hasSource(newText)) return;
   if (!source.includes(oldText)) {
-    throw new Error(`[REC Mama Made] Could not apply QA fix: ${label}. Builder source changed and needs review.`);
+    throw new Error(
+      `[REC Mama Made] Could not apply QA fix: ${label}. Builder source changed and needs review.`,
+    );
   }
   source = source.replace(oldText, newText);
   changed = true;
 }
 
 replaceOnce(
-  '  const colorway = prefillPending && initialColor !== undefined ? initialColor : draft.colorway;',
+  "  const colorway = prefillPending && initialColor !== undefined ? initialColor : draft.colorway;",
   '  const colorway = prefillPending\n    ? initialColor !== undefined\n      ? initialColor\n      : initialFamily\n        ? ""\n        : draft.colorway\n    : draft.colorway;',
   "clear stale color on family-only deep links",
 );
 
 replaceOnce(
-  '    orderType,\n    tier: draft.tier,\n    quantity: qty,\n    family: familyId,',
-  '    orderType,\n    tier: family.tier,\n    quantity: qty,\n    family: familyId,',
+  "    orderType,\n    tier: draft.tier,\n    quantity: qty,\n    family: familyId,",
+  "    orderType,\n    tier: family.tier,\n    quantity: qty,\n    family: familyId,",
   "derive pricing tier from the effective hat family",
 );
 
@@ -35,12 +37,12 @@ replaceOnce(
   "remove hat color from patch-only heading",
 );
 
-if(!hasSource('family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"'))
-  throw new Error('[REC Mama Made] Review copy must use the effective family tier.');
+if (!hasSource('family.tier === "premium" ? "Premium hat + patch" : "Standard hat + patch"'))
+  throw new Error("[REC Mama Made] Review copy must use the effective family tier.");
 
 replaceOnce(
-  '  const missingDesign = !draft.patchText.trim() && !draft.artworkDataUrl;\n  const continueLabel =',
-  '  const missingDesign = !draft.patchText.trim() && !draft.artworkDataUrl;\n  const missingColor = !patchOnly && !colorway;\n  const continueLabel =',
+  "  const missingDesign = !draft.patchText.trim() && !draft.artworkDataUrl;\n  const continueLabel =",
+  "  const missingDesign = !draft.patchText.trim() && !draft.artworkDataUrl;\n  const missingColor = !patchOnly && !colorway;\n  const continueLabel =",
   "track missing hat color",
 );
 
@@ -50,20 +52,38 @@ replaceOnce(
   "show missing color on review",
 );
 
-if(!hasSource('const ready = !missingColor && Boolean(draft.customerName.trim()) && emailOk && !missingDesign && !!serverQuote && !quoteError && previewReady;'))
-  throw new Error('[REC Mama Made] Required choices and a server-validated quote must gate payment.');
+if (
+  !hasSource(
+    "const ready = !uploading && !missingColor && Boolean(draft.customerName.trim()) && emailOk && !missingDesign && !!serverQuote && !quoteError && previewReady;",
+  )
+)
+  throw new Error(
+    "[REC Mama Made] Required choices and a server-validated quote must gate payment.",
+  );
 
-if (!source.includes('disabled={next ? !canAdvance : !ready}') || !source.includes('else if (!next && ready) focusPayment();')) {
-  throw new Error("[REC Mama Made] Desktop advance/payment guard is missing. Builder source changed and needs review.");
+if (
+  !source.includes("disabled={next ? !canAdvance : !ready}") ||
+  !source.includes("else if (!next && ready) focusPayment();")
+) {
+  throw new Error(
+    "[REC Mama Made] Desktop advance/payment guard is missing. Builder source changed and needs review.",
+  );
 }
 
-if (!source.includes('disabled={active === "review" ? !ready : !canAdvance}') || !source.includes('else if (active === "review" && ready) focusPayment();')) {
-  throw new Error("[REC Mama Made] Mobile advance/payment guard is missing. Builder source changed and needs review.");
+if (
+  !source.includes('disabled={active === "review" ? !ready : !canAdvance}') ||
+  !source.includes('else if (active === "review" && ready) focusPayment();')
+) {
+  throw new Error(
+    "[REC Mama Made] Mobile advance/payment guard is missing. Builder source changed and needs review.",
+  );
 }
 
 if (changed) {
   fs.writeFileSync(file, source);
   console.log("[REC Mama Made] Applied deep-link pricing, patch-only, and required-step QA fixes.");
 } else {
-  console.log("[REC Mama Made] Deep-link pricing, patch-only, and required-step QA fixes already applied.");
+  console.log(
+    "[REC Mama Made] Deep-link pricing, patch-only, and required-step QA fixes already applied.",
+  );
 }

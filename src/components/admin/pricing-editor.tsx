@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useEffect, useState } from "react";
 import {
   FAMILIES,
@@ -290,7 +291,7 @@ export function PromotionEditor() {
     try {
       setRows(await getPromotions());
     } catch (e) {
-      setError(String(e));
+      setError(ownerError(e));
     }
   }
   useEffect(() => {
@@ -313,7 +314,7 @@ export function PromotionEditor() {
       setP({ ...p, version: p.version + 1 });
       setMessage("Promotion saved.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to save.");
+      setError(ownerError(e, "Unable to save."));
     } finally {
       setBusy(false);
     }

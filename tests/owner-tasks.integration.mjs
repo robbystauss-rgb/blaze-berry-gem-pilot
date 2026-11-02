@@ -183,11 +183,97 @@ test("orders placed and order trend follow the report period while backlog count
   assert.equal(result.metrics.awaiting_payment, 2);
   assert.equal(result.metrics.completed, 2);
   assert.equal(
+    result.metrics.attention_awaiting_payment,
+    0,
+    "closed unpaid history is separate from active payment work",
+  );
+  assert.equal(
     result.trend.reduce((sum, day) => sum + day.orders, 0),
     1,
   );
   assert.equal(
     result.trend.reduce((sum, day) => sum + day.collected, 0),
     0,
+  );
+});
+
+test("production attention views reconcile receipts independently from proof and reject unpaid readiness", async () => {
+  const read = await server.ssrLoadModule("/src/lib/commerce/read.server.ts"),
+    mutations = await server.ssrLoadModule("/src/lib/commerce/mutations.server.ts");
+  const ids = [randomUUID(), randomUUID(), randomUUID()];
+  for (const id of ids)
+    await sql`insert into commerce_orders(id,customer_name,customer_email,source,subtotal,total) values(${id},'TEST ONLY readiness','ready@example.invalid','test_fixture',2000,2000)`;
+  await sql`insert into commerce_proof_controls(order_id,required) values(${ids[1]},true)`;
+  for (const id of ids.slice(1))
+    await sql`insert into commerce_payments(id,order_id,provider,kind,amount,reference,occurred_at) values(${randomUUID()},${id},'manual','payment',2000,${randomUUID()},now())`;
+  const query = async (status) =>
+    read.readAdmin({ section: "production", search: "", page: 0, status }, owner, sql);
+  assert.deepEqual(
+    (await query("needs_payment")).orders.filter((o) => ids.includes(o.id)).map((o) => o.id),
+    [ids[0]],
+  );
+  assert.deepEqual(
+    (await query("needs_proof")).orders.filter((o) => ids.includes(o.id)).map((o) => o.id),
+    [ids[1]],
+  );
+  assert.deepEqual(
+    (await query("ready_to_make")).orders.filter((o) => ids.includes(o.id)).map((o) => o.id),
+    [ids[2]],
+  );
+  for (const [id, message] of [
+    [ids[0], /Full verified payment/],
+    [ids[1], /proof|approval/i],
+  ])
+    await assert.rejects(
+      () =>
+        mutations.mutate("order.update", { id, version: 1, stage: "ready_for_production" }, owner),
+      message,
+    );
+  await mutations.mutate(
+    "order.update",
+    { id: ids[2], version: 1, stage: "ready_for_production" },
+    owner,
+  );
+  assert.equal(
+    (await sql`select stage from commerce_orders where id=${ids[2]}`)[0].stage,
+    "ready_for_production",
+  );
+});
+
+test("an open dispute holds a fully funded order in both the queue and stage endpoint", async () => {
+  const read = await server.ssrLoadModule("/src/lib/commerce/read.server.ts"),
+    mutations = await server.ssrLoadModule("/src/lib/commerce/mutations.server.ts");
+  const id = randomUUID(),
+    reference = "TEST-ONLY-dispute-" + randomUUID();
+  await sql`insert into commerce_orders(id,customer_name,customer_email,source,subtotal,total) values(${id},'TEST ONLY disputed funds','dispute@example.invalid','test_fixture',2000,2000)`;
+  await sql`insert into commerce_payments(id,order_id,provider,kind,amount,reference,occurred_at) values(${randomUUID()},${id},'manual','payment',2000,${randomUUID()},now())`;
+  await sql`insert into commerce_disputes(reference,order_id,state) values(${reference},${id},'needs_response')`;
+  const query = () =>
+    read.readAdmin(
+      { section: "production", search: "", page: 0, status: "ready_to_make" },
+      owner,
+      sql,
+    );
+  assert.equal(
+    (await query()).orders.some((order) => order.id === id),
+    false,
+  );
+  for (const stage of ["ready_for_production", "engraving", "completed"])
+    await assert.rejects(
+      () => mutations.mutate("order.update", { id, version: 1, stage }, owner),
+      /open payment dispute/,
+    );
+  assert.equal((await sql`select stage from commerce_orders where id=${id}`)[0].stage, "new");
+  await sql`update commerce_disputes set state='won' where reference=${reference}`;
+  assert.equal(
+    (await query()).orders.some((order) => order.id === id),
+    true,
+  );
+  await mutations.mutate("order.update", { id, version: 1, stage: "ready_for_production" }, owner);
+  assert.equal(
+    (await sql`select sum(amount)::int amount from commerce_payments where order_id=${id}`)[0]
+      .amount,
+    2000,
+    "resolution never fabricates or duplicates a receipt",
   );
 });

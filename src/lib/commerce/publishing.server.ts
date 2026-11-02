@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { gallerySelection } from "./gallery-build";
 import { z } from "zod";
 import { getSql } from "@/lib/db";
 import { audit, assertPermission } from "./core.server";
@@ -42,8 +43,12 @@ export async function readDocuments(scope: OwnerScope) {
     }>`select id,key,revision,created_at,actor_id from commerce_document_revisions where scope=${scope} order by created_at desc limit 100`,
   };
 }
-export async function publishedDocument<T>(scope: OwnerScope, key: string): Promise<T | null> {
-  const sql = await getSql();
+export async function publishedDocument<T>(
+  scope: OwnerScope,
+  key: string,
+  connection?: import("@/lib/db").Sql,
+): Promise<T | null> {
+  const sql = connection ?? (await getSql());
   const [row] = await sql<{
     published: T | null;
   }>`select published from commerce_documents where scope=${scope} and key=${key}`;
@@ -101,6 +106,10 @@ export async function saveDocument(raw: unknown, actor: { userId: string; role: 
           "This hat model is archived. Keep its project private for historical reference.",
         );
       if (g.family && !(g.family in FAMILIES)) throw Error("Choose a verified Richardson model.");
+      if (g.configuration && (p.action === "publish" || p.action === "revert") && !g.archived) {
+        const selection = gallerySelection(g.family, g.configuration);
+        await (await import("./pricing.server")).quoteSelection(selection, "", "", tx, null);
+      }
       const media = await tx<{
         id: string;
         alt: string;

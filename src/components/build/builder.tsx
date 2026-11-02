@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { DEFAULT_ANCHORS, isFrontPlacement } from "@/lib/crown-geometry";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check } from "lucide-react";
 import { HatPreview, ShapeMark } from "@/components/hat/hat-preview";
 import { CheckoutPanel } from "@/components/build/checkout-panel";
@@ -22,7 +23,10 @@ import type { PaymentBuild } from "@/lib/payments";
 import { familyHero, stageThumb } from "@/lib/stage-photos";
 import { MASTER } from "@/lib/studio-store";
 import { cn } from "@/lib/utils";
-import { dimensionLabel } from "@/lib/patch-physical";
+import { inspectArtworkFile } from "@/lib/artwork-intake";
+import { assessArtwork, type ArtworkMetadata } from "@/lib/artwork-readiness";
+import { ArtworkReadiness } from "./artwork-readiness";
+import { dimensionLabel, physicalPatch } from "@/lib/patch-physical";
 import { quoteBuilder } from "@/lib/commerce/owner-api";
 import { usePriceBook, minimumPrice } from "@/lib/commerce/use-pricebook";
 import { MAX_NEW_UPLOAD_BYTES } from "@/lib/upload-limits";
@@ -81,6 +85,10 @@ export function Builder({
   initialOrderType,
   initialFamily,
   initialColor,
+  initialMaterial,
+  initialShape,
+  initialSize,
+  fromExample,
   paymentState,
   stripeSessionId,
 }: {
@@ -88,12 +96,20 @@ export function Builder({
   initialOrderType?: "hat" | "patch";
   initialFamily?: FamilyId;
   initialColor?: string;
+  initialMaterial?: string;
+  initialShape?: PatchShape;
+  initialSize?: PatchSize;
+  fromExample?: boolean;
   paymentState?: "stripe-success" | "stripe-canceled";
   stripeSessionId?: string;
 }) {
   const draft = useOrder();
-  const [prefillPending, setPrefillPending] = useState(() =>
-    Boolean(initialOrderType || initialFamily || initialColor),
+  const galleryKey = fromExample
+    ? JSON.stringify([initialFamily, initialColor, initialMaterial, initialShape, initialSize])
+    : undefined;
+  const resumeExample = !!galleryKey && draft.galleryPrefillKey === galleryKey;
+  const [prefillPending, setPrefillPending] = useState(
+    () => Boolean(initialOrderType || initialFamily || initialColor) && !resumeExample,
   );
   const orderType = prefillPending && initialOrderType ? initialOrderType : draft.orderType;
   const familyId = prefillPending && initialFamily ? initialFamily : draft.family;
@@ -109,7 +125,11 @@ export function Builder({
   const [step, setStep] = useState<StepId>(
     focus ?? (draft.reorderNotice ? "review" : patchOnly ? "material" : "hat"),
   );
+  const uploadGeneration = useRef(0);
+  const [uploading, setUploading] = useState(false);
   const [warn, setWarn] = useState("");
+  const [colorFilter, setColorFilter] = useState("");
+  useEffect(() => setColorFilter(""), [familyId]);
   const [drawer, setDrawer] = useState(false);
   const [materialOpen, setMaterialOpen] = useState(false);
   const active: StepId = steps.includes(step) ? step : (steps[0] ?? "hat");
@@ -213,13 +233,49 @@ export function Builder({
         : "Updating quote…";
 
   useEffect(() => {
-    if (initialFamily && draft.family !== initialFamily) draft.setFamily(initialFamily);
-    if (initialOrderType && draft.orderType !== initialOrderType)
-      draft.set("orderType", initialOrderType);
-    if (initialColor !== undefined && draft.colorway !== initialColor)
-      draft.set("colorway", initialColor);
+    const current = useOrder.getState();
+    // Hydration's first React snapshot may still be the SSR defaults. Read the
+    // already restored browser store before applying an example a second time.
+    if (galleryKey && useOrder.getState().galleryPrefillKey === galleryKey) {
+      setPrefillPending(false);
+      return;
+    }
+    if (initialFamily && current.family !== initialFamily) current.setFamily(initialFamily);
+    if (initialOrderType && current.orderType !== initialOrderType)
+      current.set("orderType", initialOrderType);
+    if (initialColor !== undefined && current.colorway !== initialColor)
+      current.set("colorway", initialColor);
+    if (fromExample)
+      current.patch({
+        galleryPrefillKey: galleryKey,
+        leatherette: initialMaterial!,
+        patchShape: initialShape!,
+        patchSize: initialSize!,
+        artworkDataUrl: "",
+        patchText: "",
+        patchPosition: undefined,
+        previewIdentity: undefined,
+        patchOffsetX: 0,
+        patchOffsetY: 0,
+        patchScale: 1,
+        placement: "front-center",
+        quantity: 1,
+        promo: "",
+        reorderNotice:
+          "Example product choices loaded. Add your own artwork; customer logos and previous discounts are not included.",
+      });
     setPrefillPending(false);
-  }, [initialColor, initialFamily, initialOrderType]);
+  }, [
+    initialColor,
+    initialFamily,
+    initialOrderType,
+    initialMaterial,
+    initialShape,
+    initialSize,
+    fromExample,
+    resumeExample,
+    galleryKey,
+  ]);
 
   useEffect(() => {
     if (!PATCH_SHAPES.includes(draft.patchShape as PatchShape))
@@ -227,7 +283,7 @@ export function Builder({
   }, [draft.patchShape, draft]);
 
   useEffect(() => {
-    if (!patchOnly && !isReadyFamily(familyId)) draft.setFamily("112");
+    if (!patchOnly && !isReadyFamily(familyId)) useOrder.getState().setFamily("112");
   }, [familyId, patchOnly]);
 
   useEffect(() => {
@@ -312,8 +368,14 @@ export function Builder({
     setDrawer(false);
   }
 
+  const [artworkCheck, setArtworkCheck] = useState<{
+    source: string;
+    metadata: ArtworkMetadata;
+  } | null>(null);
   async function onUpload(file: File | undefined) {
     if (!file) return;
+    const generation = ++uploadGeneration.current;
+    setUploading(false);
     if (file.size > MAX_NEW_UPLOAD_BYTES) {
       setWarn("Please choose a file up to 3 MB. Original bytes and transparency are preserved.");
       return;
@@ -324,7 +386,11 @@ export function Builder({
       return;
     }
     try {
+      setUploading(true);
+      const metadata = await inspectArtworkFile(file);
       const result = await resizeImage(file);
+      if (generation !== uploadGeneration.current) return;
+      setArtworkCheck({ source: result.url, metadata });
       draft.set("artworkDataUrl", result.url);
       const longest = Math.max(result.width, result.height);
       setWarn(
@@ -332,8 +398,15 @@ export function Builder({
           ? "This image may be too small for clean engraving. We’ll review it before production."
           : "",
       );
-    } catch {
-      setWarn("Could not read that file.");
+    } catch (error) {
+      if (generation !== uploadGeneration.current) return;
+      setWarn(
+        error instanceof Error
+          ? error.message
+          : "Could not read that file. Your previous artwork is preserved.",
+      );
+    } finally {
+      if (generation === uploadGeneration.current) setUploading(false);
     }
   }
 
@@ -343,7 +416,13 @@ export function Builder({
       return;
     }
     setWarn("");
-    draft.set("placement", id);
+    draft.patch({
+      placement: id,
+      patchOffsetX: 0,
+      patchOffsetY: 0,
+      patchScale: 1,
+      patchPosition: isFrontPlacement(id) ? { version: 2, anchor: DEFAULT_ANCHORS[id] } : undefined,
+    });
   }
 
   const next = steps[index + 1];
@@ -353,6 +432,7 @@ export function Builder({
     draft.placement === "rear" ||
     (draft.previewIdentity?.family === familyId && draft.previewIdentity?.colorway === colorway);
   const ready =
+    !uploading &&
     !missingColor &&
     Boolean(draft.customerName.trim()) &&
     emailOk &&
@@ -415,7 +495,6 @@ export function Builder({
             artworkUrl={draft.artworkDataUrl || undefined}
             patchOnly={patchOnly}
             placementMode={active === "position"}
-            onPlacement={choosePlacement}
           />
         </div>
       </div>
@@ -455,6 +534,7 @@ export function Builder({
               key={id}
               type="button"
               onClick={() => setStep(id)}
+              aria-current={active === id ? "step" : undefined}
               className={cn(
                 "min-h-11 shrink-0 rounded-full px-3 text-sm font-semibold",
                 id === active ? "bg-primary text-primary-fg" : "text-stage-muted",
@@ -499,7 +579,7 @@ export function Builder({
           )}
 
           {active === "hat" && (
-            <div className="flex gap-3 overflow-x-auto px-5 py-4 sm:px-6">
+            <div className="grid grid-cols-2 gap-3 px-5 py-4 sm:flex sm:overflow-x-auto sm:px-6">
               {FAMILY_ORDER.filter(isReadyFamily).map((id) => {
                 const item = FAMILIES[id];
                 const photo = familyHero(id);
@@ -510,8 +590,9 @@ export function Builder({
                     key={id}
                     type="button"
                     onClick={() => draft.setFamily(id)}
+                    aria-pressed={on}
                     className={cn(
-                      "w-44 shrink-0 overflow-hidden rounded-2xl bg-white text-left shadow-[0_10px_28px_rgba(45,38,30,0.05)] ring-1 transition-transform duration-150",
+                      "w-full min-w-0 shrink-0 overflow-hidden rounded-2xl sm:w-44 bg-white text-left shadow-[0_10px_28px_rgba(45,38,30,0.05)] ring-1 transition-transform duration-150",
                       on ? "ring-2 ring-primary" : "ring-stage-line hover:-translate-y-0.5",
                     )}
                   >
@@ -556,43 +637,55 @@ export function Builder({
                 {colors.length ? `${colors.length} colors` : "No colors listed yet"} · tap one and
                 the hat changes
               </p>
+              <label className="mx-5 block text-sm font-semibold sm:mx-6">
+                Find exact color
+                <input
+                  type="search"
+                  value={colorFilter}
+                  onChange={(e) => setColorFilter(e.target.value)}
+                  placeholder="Search this model’s colors"
+                  className="mt-2 w-full rounded-xl bg-stage px-3 py-3 text-base ring-1 ring-stage-line"
+                />
+              </label>
               <div className="flex gap-3 overflow-x-auto px-5 py-4 sm:px-6">
-                {colors.map((name) => {
-                  const thumb = stageThumb(familyId, name);
-                  const on = colorway === name;
-                  return (
-                    <button
-                      key={name}
-                      id={`swatch-${name}`}
-                      type="button"
-                      onClick={() => draft.set("colorway", name)}
-                      className={cn(
-                        "w-36 shrink-0 overflow-hidden rounded-2xl bg-white text-left shadow-[0_10px_28px_rgba(45,38,30,0.05)] ring-1",
-                        on ? "ring-2 ring-primary" : "ring-stage-line",
-                      )}
-                    >
-                      <span className="product-card-stage grid aspect-[4/3] place-items-center p-2.5">
-                        {thumb ? (
-                          <img
-                            src={thumb}
-                            alt=""
-                            className="h-auto max-h-[84%] w-auto max-w-[92%] object-contain"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        ) : (
-                          <span className="grid h-full place-items-center text-xs text-stage-muted">
-                            No photo yet
-                          </span>
+                {colors
+                  .filter((name) => name.toLowerCase().includes(colorFilter.trim().toLowerCase()))
+                  .map((name) => {
+                    const thumb = stageThumb(familyId, name);
+                    const on = colorway === name;
+                    return (
+                      <button
+                        key={name}
+                        id={`swatch-${name}`}
+                        type="button"
+                        onClick={() => draft.set("colorway", name)}
+                        className={cn(
+                          "w-36 shrink-0 overflow-hidden rounded-2xl bg-white text-left shadow-[0_10px_28px_rgba(45,38,30,0.05)] ring-1",
+                          on ? "ring-2 ring-primary" : "ring-stage-line",
                         )}
-                      </span>
-                      <span className="flex min-h-14 items-start justify-between gap-1 px-3 py-2.5 text-xs font-semibold leading-5">
-                        <span>{name}</span>
-                        {on && <Check className="size-3.5 shrink-0 text-primary" />}
-                      </span>
-                    </button>
-                  );
-                })}
+                      >
+                        <span className="product-card-stage grid aspect-[4/3] place-items-center p-2.5">
+                          {thumb ? (
+                            <img
+                              src={thumb}
+                              alt=""
+                              className="h-auto max-h-[84%] w-auto max-w-[92%] object-contain"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <span className="grid h-full place-items-center text-xs text-stage-muted">
+                              No photo yet
+                            </span>
+                          )}
+                        </span>
+                        <span className="flex min-h-14 items-start justify-between gap-1 px-3 py-2.5 text-xs font-semibold leading-5">
+                          <span>{name}</span>
+                          {on && <Check className="size-3.5 shrink-0 text-primary" />}
+                        </span>
+                      </button>
+                    );
+                  })}
               </div>
             </div>
           )}
@@ -737,6 +830,11 @@ export function Builder({
               </label>
               <label className="block min-w-0 rounded-xl bg-stage px-3 py-3 ring-1 ring-stage-line">
                 <span className="text-sm font-semibold">Upload artwork</span>
+                {uploading && (
+                  <span className="block text-xs" role="status">
+                    Checking the original file…
+                  </span>
+                )}
                 <span className="mt-1 block text-xs leading-5 text-stage-muted">
                   PNG, JPG, WEBP, SVG, or PDF
                 </span>
@@ -747,16 +845,56 @@ export function Builder({
                   onChange={(event) => void onUpload(event.target.files?.[0])}
                 />
               </label>
-              <p className="text-sm leading-6 text-stage-muted md:col-span-2">
-                No REC Mama Made designs are in the library yet.
-              </p>
+              {draft.artworkDataUrl && (
+                <div className="md:col-span-2">
+                  {artworkCheck?.source === draft.artworkDataUrl ? (
+                    <ArtworkReadiness
+                      result={assessArtwork(
+                        artworkCheck.metadata,
+                        physicalPatch(shape, draft.patchSize),
+                      )}
+                    />
+                  ) : (
+                    <p className="text-sm leading-6 text-stage-muted">
+                      Saved original retained. The owner will review this artwork; upload again to
+                      run current intake checks.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {active === "position" && (
             <div className="px-5 py-5 sm:px-6">
+              <div
+                className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
+                role="group"
+                aria-label="Patch placement"
+              >
+                {PLACEMENTS.map((option) => (
+                  <button
+                    type="button"
+                    key={option.id}
+                    aria-pressed={draft.placement === option.id}
+                    disabled={tooLarge(draft.patchSize, option.id)}
+                    onClick={() => choosePlacement(option.id)}
+                    className={cn(
+                      "min-h-11 rounded-xl px-3 py-2 text-sm font-semibold ring-1 ring-stage-line disabled:opacity-40",
+                      draft.placement === option.id
+                        ? "bg-primary text-primary-fg"
+                        : "bg-stage text-stage-ink",
+                    )}
+                  >
+                    {option.label}
+                    {option.id === "side" || option.id === "rear" ? " patch" : ""}
+                  </button>
+                ))}
+              </div>
               <p className="max-w-xl text-sm leading-6 text-stage-ink">
-                Tap a spot on the hat. The patch moves there.
+                Drag the patch on the front photo, or focus it and use arrow keys. Use Reset to
+                center it and Guides to check the usable area. Size controls select actual patch
+                dimensions. Side and rear photos are reference views awaiting calibration.
                 {draft.placement
                   ? ` Now: ${PLACEMENTS.find((item) => item.id === draft.placement)?.label}.`
                   : ""}

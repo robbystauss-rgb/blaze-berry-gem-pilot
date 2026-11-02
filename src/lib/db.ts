@@ -130,7 +130,11 @@ async function createPgliteSql(): Promise<Sql> {
   // data survives source edits (it resets on dev-server restart).
   globalRef.__pgliteInstance__ ??= (async () => {
     const { PGlite } = await import("@electric-sql/pglite");
+    const testDataDir = process.env.REC_TEST_DATABASE_DIR;
+    if (testDataDir && (process.env.NODE_ENV === "production" || process.env.VERCEL))
+      throw new Error("A local test database directory is not permitted in production.");
     const pg = new PGlite({
+      ...(testDataDir ? { dataDir: testDataDir } : {}),
       parsers: {
         [OID_INT8]: Number,
         [OID_DATE]: identity,

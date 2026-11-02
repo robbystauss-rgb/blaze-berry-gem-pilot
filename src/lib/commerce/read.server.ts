@@ -1,5 +1,6 @@
 import { getSql, type Sql } from "@/lib/db";
 import { ORDER_SELECT, orderById } from "./core.server";
+import { OPERATION_FILTERS } from "./operations";
 import type {
   Role,
   OrderRow,
@@ -131,8 +132,14 @@ export async function readAdmin(
   }
   if (["orders", "production", "payments"].includes(input.section)) {
     const production = input.section === "production";
+    const stateFilter =
+      input.section === "payments"
+        ? `o.id in (select id from (${ORDER_SELECT}) financial where financial.payment_status=$3)`
+        : Object.hasOwn(OPERATION_FILTERS, input.status)
+          ? OPERATION_FILTERS[input.status].replace("ORDER_QUERY", ORDER_SELECT)
+          : "o.stage=$3";
     const where = `where ($1='' or o.customer_name ilike $2 or o.customer_email ilike $2 or o.number::text ilike $2 or o.tags::text ilike $2 or exists(select 1 from commerce_order_items i where i.order_id=o.id and (i.title ilike $2 or i.specifications::text ilike $2)))
-   and ($3='' or ${input.section === "payments" ? `o.id in (select id from (${ORDER_SELECT}) financial where financial.payment_status=$3)` : "o.stage=$3"}) and ($4::timestamptz is null or o.created_at>=$4) and ($5::timestamptz is null or o.created_at<$5)
+   and ($3='' or ${stateFilter}) and ($4::timestamptz is null or o.created_at>=$4) and ($5::timestamptz is null or o.created_at<$5)
    and (not $6 or o.stage not in ('completed','canceled','shipped','delivered')) and ($7::text is null or o.assigned_to=$7) and ($8='' or o.priority=$8)`;
     const params = [
       input.search,
@@ -205,15 +212,10 @@ export async function readAdmin(
   }
   if (input.section === "customers") {
     result.customers =
-      await sql<CustomerRow>`select lower(o.customer_email) as email,max(o.customer_name) as name,count(*)::int as order_count,
-  coalesce(sum(p.paid),0)::int as paid,coalesce(sum(p.refunded),0)::int as refunded,count(*) filter(where o.stage not in ('completed','canceled'))::int as open_orders,
-  count(*) filter(where i.state in ('open','draft','creating'))::int as unpaid_invoices from commerce_orders o
-  left join(select order_id,sum(amount) filter(where kind='payment') as paid,sum(amount) filter(where kind='refund') as refunded from commerce_payments group by order_id)p on p.order_id=o.id
-  left join commerce_invoices i on i.order_id=o.id where o.customer_name ilike ${search} or o.customer_email ilike ${search}
-  group by lower(o.customer_email) order by max(o.created_at) desc limit 50 offset ${input.page * 50}`;
+      await sql<CustomerRow>`select c.id,c.number,c.email,c.name,c.phone,count(o.id)::int as order_count,coalesce(sum(p.paid),0)::int as paid,coalesce(sum(p.refunded),0)::int as refunded,count(o.id) filter(where o.stage not in ('completed','canceled'))::int as open_orders,count(o.id) filter(where i.state in ('open','draft','creating'))::int as unpaid_invoices from commerce_customers c left join commerce_orders o on o.customer_id=c.id or o.customer_id in(select id from commerce_customers where merged_into=c.id) left join(select order_id,sum(amount) filter(where kind='payment') as paid,sum(amount) filter(where kind='refund') as refunded from commerce_payments group by order_id)p on p.order_id=o.id left join commerce_invoices i on i.order_id=o.id where c.merged_into is null and (c.name ilike ${search} or c.email ilike ${search} or c.phone ilike ${search} or c.number::text ilike ${search}) group by c.id order by c.updated_at desc limit 50 offset ${input.page * 50}`;
     const [count] = await sql<{
       count: number;
-    }>`select count(distinct lower(customer_email))::int as count from commerce_orders where customer_name ilike ${search} or customer_email ilike ${search}`;
+    }>`select count(*)::int as count from commerce_customers where merged_into is null and (name ilike ${search} or email ilike ${search} or phone ilike ${search} or number::text ilike ${search})`;
     result.total = count.count;
   }
   if (input.section === "website")
@@ -279,7 +281,10 @@ export async function readAdmin(
     const [invoices] = await sql<{
       open_invoices: number;
     }>`select count(*)::int as open_invoices from commerce_invoices where state in ('open','draft','creating')`;
-    result.metrics = { ...metrics, ...counts, ...stock, ...invoices };
+    const [attention] = await sql.query<Record<string, number>>(
+      `select count(*) filter(where paid-refunded<total)::int as attention_awaiting_payment, count(*) filter(where proof_status not in ('approved','not_required'))::int as awaiting_proof, count(*) filter(where paid-refunded>=total and payment_status='paid' and proof_status in ('approved','not_required') and stage in ('new','artwork_review','customer_approval','ready_for_production'))::int as ready_to_make, count(*) filter(where payment_status in ('failed','disputed','partially_refunded','refunded'))::int as payment_exceptions from (${ORDER_SELECT}) work where stage not in ('canceled','completed','delivered','shipped')`,
+    );
+    result.metrics = { ...metrics, ...counts, ...stock, ...invoices, ...attention };
     result.trend = await sql<AdminData["trend"][number]>`with daily as (
       select (occurred_at at time zone 'America/Chicago')::date::text as day,
         coalesce(sum(amount) filter(where kind='payment'),0)::int as collected,
@@ -309,7 +314,7 @@ export async function readOrder(id: string, actor: { userId: string; role: Role 
   const notes =
     await sql<NoteRow>`select id,actor_id,body,created_at from commerce_notes where order_id=${id} order by created_at`;
   const audit =
-    await sql<AuditRow>`select a.*,coalesce(u.name,a.actor_id) as actor_name from commerce_audit a left join "user" u on u.id=a.actor_id where resource_type='order' and resource_id=${id} order by created_at`;
+    await sql<AuditRow>`select a.*,coalesce(u.name,a.actor_id) as actor_name from commerce_audit a left join "user" u on u.id=a.actor_id where (resource_type='order' and resource_id=${id}) or (resource_type='studio_document' and resource_id in(select id from commerce_studio_documents where order_id=${id})) order by created_at`;
   const payments =
     actor.role === "owner"
       ? await sql<PaymentRow>`select * from commerce_payments where order_id=${id} order by occurred_at`
@@ -348,14 +353,17 @@ export async function readOrder(id: string, actor: { userId: string; role: Role 
       actor_id: string;
       reason: string;
       created_at: string;
-    }>`select id,name,mime,actor_id,reason,created_at from commerce_production_files where order_id=${id} order by created_at desc`,
+      byte_size: number;
+    }>`select id,name,mime,actor_id,reason,created_at,octet_length(bytes)::int as byte_size from commerce_production_files where order_id=${id} order by created_at desc`,
     notes,
     audit:
       actor.role === "production"
         ? audit
             .filter((a) => a.action.startsWith("order."))
             .map((a) => ({ ...a, before_value: null, after_value: null }))
-        : audit,
+        : actor.role === "owner"
+          ? audit
+          : audit.map((a) => ({ ...a, before_value: null, after_value: null })),
     payments,
     invoice: invoice ?? null,
     checkouts:

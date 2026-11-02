@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { galleryBuildSchema } from "./gallery-build";
 import { isConvexPolygon, pointInPolygon } from "@/lib/patch-physical";
 import type { Json } from "./types";
 const point = z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) });
@@ -47,6 +48,7 @@ export const gallerySchema = z
     consent: z.boolean(),
     archived: z.boolean(),
     family: z.string().max(12).default(""),
+    configuration: galleryBuildSchema.nullable().default(null),
   })
   .refine((p) => p.mediaIds.includes(p.coverId), "Cover must belong to this project");
 export const storefrontSchema = z.object({

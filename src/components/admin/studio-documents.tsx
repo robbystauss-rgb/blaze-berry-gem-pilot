@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useState, useEffect, useCallback } from "react";
 import {
   getStudioDocuments,
@@ -99,7 +100,7 @@ export function StudioDocuments({
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Action failed. Please try again.");
+      setError(ownerError(e, "Action failed. Please try again."));
     } finally {
       setBusy(false);
     }
@@ -131,7 +132,7 @@ export function StudioDocuments({
       setInvoice((v) => ({
         ...v,
         customerName: result.order.customer_name,
-        customerEmail: result.order.customer_email,
+        customerEmail: result.order.customer_email ?? "",
         shipping: result.order.shipping,
         tax: result.order.tax,
         discount: result.order.discount,

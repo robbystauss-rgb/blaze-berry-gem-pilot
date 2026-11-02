@@ -1,8 +1,11 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useEffect, useRef, useState } from "react";
 import { getMediaLibrary, saveMedia } from "@/lib/commerce/owner-api";
 import type { MediaRow } from "@/lib/commerce/media.server";
 import { gallerySchema } from "@/lib/commerce/owner-schemas";
 import type { z } from "zod";
+import { MASTER } from "@/lib/studio-store";
+import { LEATHERETTES, PATCH_SHAPES } from "@/lib/catalog";
 import { FAMILY_ORDER } from "@/lib/catalog";
 import { PublishingControls } from "./publishing-controls";
 import { useOwnerDocuments } from "./use-owner-documents";
@@ -19,6 +22,7 @@ const blank = (): Project => ({
   consent: false,
   archived: false,
   family: "",
+  configuration: null,
 });
 export function GalleryEditor() {
   const state = useOwnerDocuments<Project>("gallery");
@@ -42,7 +46,7 @@ export function GalleryEditor() {
     try {
       setMedia(await getMediaLibrary());
     } catch (e) {
-      setError(String(e));
+      setError(ownerError(e));
     }
   }
   useEffect(() => {
@@ -69,7 +73,7 @@ export function GalleryEditor() {
       await refresh();
       setStatus("Photos uploaded privately. Add alt text and select photos for a project.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed.");
+      setError(ownerError(e, "Upload failed."));
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";
@@ -107,7 +111,7 @@ export function GalleryEditor() {
       await refresh();
       setStatus(archive ? "Photo archived." : "Photo saved. The source original is preserved.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to save.");
+      setError(ownerError(e, "Unable to save."));
     } finally {
       setBusy(false);
     }
@@ -357,7 +361,9 @@ export function GalleryEditor() {
               <select
                 aria-label="Customize a similar model"
                 value={project.family}
-                onChange={(e) => setProject({ ...project, family: e.target.value })}
+                onChange={(e) =>
+                  setProject({ ...project, family: e.target.value, configuration: null })
+                }
               >
                 <option value="">Any custom hat</option>
                 {FAMILY_ORDER.map((f) => (
@@ -365,6 +371,115 @@ export function GalleryEditor() {
                 ))}
               </select>
             </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={!!project.configuration}
+                disabled={!project.family}
+                onChange={(e) =>
+                  setProject({
+                    ...project,
+                    configuration: e.target.checked
+                      ? {
+                          variantId: "",
+                          material: "buckskin",
+                          shape: "Rounded Rectangle",
+                          size: "medium",
+                        }
+                      : null,
+                  })
+                }
+              />{" "}
+              Link verified product choices to Make one like this
+            </label>
+            {project.configuration && (
+              <fieldset className="cc-form">
+                <legend>Example configuration · customer artwork is excluded</legend>
+                <label className="cc-field">
+                  Exact example color
+                  <select
+                    aria-label="Exact example color"
+                    value={project.configuration.variantId}
+                    onChange={(e) =>
+                      setProject({
+                        ...project,
+                        configuration: { ...project.configuration!, variantId: e.target.value },
+                      })
+                    }
+                  >
+                    <option value="">Choose the actual photographed color</option>
+                    {MASTER.models
+                      .find((m) => m.id === project.family)
+                      ?.colorways.map((color) => (
+                        <option key={color.id} value={color.id}>
+                          {color.officialName}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label className="cc-field">
+                  Example material
+                  <select
+                    aria-label="Example material"
+                    value={project.configuration.material}
+                    onChange={(e) =>
+                      setProject({
+                        ...project,
+                        configuration: { ...project.configuration!, material: e.target.value },
+                      })
+                    }
+                  >
+                    {LEATHERETTES.map((material) => (
+                      <option key={material.id} value={material.id}>
+                        {material.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="cc-field">
+                  Example patch shape
+                  <select
+                    aria-label="Example patch shape"
+                    value={project.configuration.shape}
+                    onChange={(e) =>
+                      setProject({
+                        ...project,
+                        configuration: { ...project.configuration!, shape: e.target.value },
+                      })
+                    }
+                  >
+                    {PATCH_SHAPES.map((shape) => (
+                      <option key={shape}>{shape}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="cc-field">
+                  Example patch size
+                  <select
+                    aria-label="Example patch size"
+                    value={project.configuration.size}
+                    onChange={(e) =>
+                      setProject({
+                        ...project,
+                        configuration: {
+                          ...project.configuration!,
+                          size: e.target.value as "small" | "medium" | "large",
+                        },
+                      })
+                    }
+                  >
+                    {["small", "medium", "large"].map((size) => (
+                      <option key={size}>{size}</option>
+                    ))}
+                  </select>
+                </label>
+                <p className="cc-help">
+                  Confirm these are the actual product choices in the photos. Publication checks
+                  current availability and pricing. Logos, customer names, original uploads and old
+                  discounts are never included in the link.
+                </p>
+              </fieldset>
+            )}
             <label>
               <input
                 type="checkbox"

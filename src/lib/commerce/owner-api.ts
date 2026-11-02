@@ -15,12 +15,13 @@ const quoteInput = z.object({
   email: z.string().max(254).default(""),
 });
 const scope = z.enum(["calibration", "gallery", "storefront", "pricing", "content"]);
-export const searchBusiness = createServerFn({ method: "GET" })
+export const searchBusiness = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(z.string().trim().min(2).max(80))
   .handler(async ({ context, data }) => {
     const { requireAccess } = await import("./access.server");
     await requireAccess(context.userId, "orders", context.bearerToken);
+    await requireAccess(context.userId, "customers", context.bearerToken);
     const { getSql } = await import("@/lib/db");
     const sql = await getSql(),
       search = "%" + data + "%";
@@ -35,9 +36,10 @@ export const searchBusiness = createServerFn({ method: "GET" })
         title: string;
       }>`select id,title from commerce_products where title ilike ${search} order by updated_at desc limit 3`,
       sql<{
+        id: string;
         customer_email: string;
         customer_name: string;
-      }>`select distinct customer_email,customer_name from commerce_orders where customer_email ilike ${search} or customer_name ilike ${search} limit 3`,
+      }>`select id,coalesce(email,'') as customer_email,name as customer_name from commerce_customers where merged_into is null and (email ilike ${search} or name ilike ${search} or phone ilike ${search} or phone_normalized like ${"%" + data.replace(/\D/g, "") + "%"} and ${data.replace(/\D/g, "")}<>'' or number::text=${data}) limit 5`,
     ]);
     return { orders, products, customers };
   });
@@ -129,11 +131,43 @@ export const getPublicDocument = createServerFn({ method: "GET" })
 export const getPublicGallery = createServerFn({ method: "GET" }).handler(async () => {
   const { getSql } = await import("@/lib/db");
   const sql = await getSql();
-  return sql<{
+  const projects = await sql<{
     key: string;
     published: import("zod").infer<typeof import("./owner-schemas").gallerySchema>;
     media: { id: string; alt: string; version: number }[];
   }>`select d.key,d.published,coalesce((select jsonb_agg(jsonb_build_object('id',m.id,'alt',m.alt,'version',m.version)) from commerce_media m where d.published->'mediaIds' @> to_jsonb(m.id) and not m.archived),'[]'::jsonb) as media from commerce_documents d where d.scope='gallery' and d.published->>'consent'='true' and d.published->>'archived'='false' and coalesce(d.published->>'family','')<>'112PM' and not exists(select 1 from commerce_media m where d.published->'mediaIds' @> to_jsonb(m.id) and md5(m.original)=any(${EXCLUDED_MEDIA_MD5}::text[])) order by d.updated_at desc limit 100`;
+  const { gallerySelection } = await import("./gallery-build"),
+    { quoteSelection } = await import("./pricing.server"),
+    { ownerError } = await import("./errors");
+  return Promise.all(
+    projects.map(async (project) => {
+      if (!project.published.configuration)
+        return {
+          ...project,
+          eligible: false,
+          unavailableReason: "Choose a fresh custom build or ask about this example.",
+        };
+      try {
+        await quoteSelection(
+          gallerySelection(project.published.family, project.published.configuration),
+          "",
+          "",
+          undefined,
+          null,
+        );
+        return { ...project, eligible: true, unavailableReason: "" };
+      } catch (error) {
+        return {
+          ...project,
+          eligible: false,
+          unavailableReason: ownerError(
+            error,
+            "This exact configuration needs an availability review. Request a quote.",
+          ),
+        };
+      }
+    }),
+  );
 });
 export const getStorefrontPreview = createServerFn({ method: "GET" })
   .middleware([authMiddleware])

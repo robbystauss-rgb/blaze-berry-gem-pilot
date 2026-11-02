@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Plus, Check, Pencil, Archive, RefreshCw } from "lucide-react";
@@ -8,7 +9,7 @@ import {
 } from "@/lib/commerce/owner-tasks-api";
 import type { OwnerTask } from "@/lib/commerce/owner-tasks.server";
 const errorMessage = (e: unknown) =>
-  e instanceof Error ? e.message : "Unable to load business tasks.";
+  ownerError(e, "Unable to load business tasks.");
 const dueLabel = (date: string) =>
   new Date(date + "T12:00:00Z").toLocaleDateString("en-US", { timeZone: "America/Chicago" });
 type TaskForm = {

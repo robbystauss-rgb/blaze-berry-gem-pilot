@@ -9,6 +9,7 @@
     "deploymentEnabled": {
       "feat/signature-invoice-proof": false,
       "feat/studio-native-text": false,
+      "codex/commerce-reliability-customer-vault": false,
       "codex/manual-payment-hotfix": false
     }
   }

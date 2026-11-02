@@ -1,3 +1,4 @@
+import { ownerError } from "@/lib/commerce/errors";
 import { useState } from "react";
 import { Download, Upload } from "lucide-react";
 import {
@@ -17,7 +18,7 @@ function download(name: string, text: string) {
   URL.revokeObjectURL(url);
 }
 const message = (e: unknown) =>
-  e instanceof Error ? e.message : "Unable to process this inventory file.";
+  ownerError(e, "Unable to process this inventory file.");
 export function InventoryCsv({ onApplied }: { onApplied: (message: string) => Promise<void> }) {
   const [csv, setCsv] = useState(""),
     [reason, setReason] = useState(""),

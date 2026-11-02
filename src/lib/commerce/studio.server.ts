@@ -8,6 +8,7 @@ import {
   reserveInventory,
   notify,
   ORDER_SELECT,
+  ensureOrderCustomer,
 } from "./core.server";
 import {
   saveStudioSchema,
@@ -99,6 +100,10 @@ export async function saveStudio(raw: unknown, actor: Actor) {
       subtotal = totals.subtotal;
       total = totals.total;
       if (order) {
+        if (!order.customer_email)
+          throw Error(
+            "Add a genuine customer email through the phone-order customer profile before preparing this invoice. The internal draft remains saved.",
+          );
         if (order.paid > 0 || order.stage === "canceled")
           throw Error("Use an unpaid, uncanceled order.");
         const items = await tx<{
@@ -359,6 +364,10 @@ export async function actOnStudio(raw: unknown, actor: Actor) {
       return { path: `/${d.kind === "invoice" ? "invoice" : "design-proof"}/${token}` };
     }
     if (d.state !== "draft") throw Error("Only a draft may be issued. Refresh before continuing.");
+    if (order && !order.customer_email)
+      throw Error(
+        "This phone-only order remains an internal draft. Add a genuine customer email before issuing a secure invoice or proof under the current document requirements.",
+      );
     const sender = await businessSender(tx),
       token = randomBytes(32).toString("base64url");
     let expires: string;
@@ -381,6 +390,7 @@ export async function actOnStudio(raw: unknown, actor: Actor) {
           await tx`insert into commerce_order_items(id,order_id,product_key,title,quantity,fulfilled_quantity,unit_amount,specifications) values(${randomUUID()},${orderId},${l.productKey || `studio:${d.id}:${l.id}`},${l.title},${l.quantity},${l.quantity},${l.unitAmount},${JSON.stringify({ instructions: l.specifications, studioInvoiceId: d.id, terms: b.terms })})`;
         }
         await reserveInventory(tx, orderId, actor.userId);
+        await ensureOrderCustomer(tx, orderId);
         order = await orderById(tx, orderId, true);
         d.order_id = orderId;
       } else {

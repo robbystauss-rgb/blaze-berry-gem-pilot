@@ -63,7 +63,9 @@ import { UserButton } from "@/lib/auth/gates";
 import { FAMILIES, colorsForFamily } from "@/lib/catalog";
 import { OrderDetail } from "./order-detail";
 import { ProductEditor } from "./product-editor";
-import { CustomerDetail } from "./customer-detail";
+import { CustomersWorkspace } from "./customers-workspace";
+import { ownerError } from "@/lib/commerce/errors";
+import { OPERATION_VIEWS, orderNextAction } from "@/lib/commerce/operations";
 import { BuilderCatalogEditor } from "./builder-catalog-editor";
 import { CalibrationEditor } from "./calibration-editor";
 import { GalleryEditor } from "./gallery-editor";
@@ -112,7 +114,7 @@ const DESCRIPTION: Record<Section, string> = {
   production: "Custom work, organized around the way you make it.",
   inventory: "Real stock counts, commitments and material movements.",
   products: "Manage ordinary merchandise without opening source code.",
-  customers: "Customer purchase history and internal notes.",
+  customers: "Customer profiles, private artwork and exact designs ready for the next call.",
   website: "Publish routine store content through authorized database updates.",
   activity: "Trusted history of changes made to your business.",
   notifications: "Orders and inventory that need your attention.",
@@ -125,8 +127,17 @@ const DESCRIPTION: Record<Section, string> = {
   promotions: "Manage custom-builder offers, eligibility and recorded redemptions.",
   content: "Preview, publish and revert your homepage content.",
 };
-const errorText = (e: unknown) =>
-  e instanceof Error ? e.message : "Something went wrong. Please try again.";
+const NAV_GROUPS = [
+  { title: "Run the shop", ids: ["overview", "orders", "production", "customers"] },
+  { title: "Invoices, proofs & payments", ids: ["quotes", "invoices", "payments", "proofs"] },
+  { title: "Products & studio", ids: ["products", "inventory", "calibration", "gallery"] },
+  { title: "Pricing & storefront", ids: ["pricing", "promotions", "content", "website"] },
+  {
+    title: "Reports, settings & security",
+    ids: ["reports", "notifications", "activity", "staff", "security"],
+  },
+];
+const errorText = ownerError;
 export function Badge({ value }: { value: string }) {
   return (
     <span
@@ -152,6 +163,7 @@ export function Field({
   value,
   required = false,
   children,
+  minLength,
 }: {
   name: string;
   title: string;
@@ -159,19 +171,27 @@ export function Field({
   value?: string | number;
   required?: boolean;
   children?: ReactNode;
+  minLength?: number;
 }) {
   return (
     <label className="cc-field">
       {title}
       {children ??
         (type === "textarea" ? (
-          <textarea name={name} defaultValue={value} required={required} rows={4} />
+          <textarea
+            name={name}
+            defaultValue={value}
+            required={required}
+            minLength={minLength}
+            rows={4}
+          />
         ) : (
           <input
             name={name}
             type={type}
             defaultValue={value}
             required={required}
+            minLength={minLength}
             min={type === "number" ? 0 : undefined}
             step={type === "number" ? "any" : undefined}
           />
@@ -276,7 +296,7 @@ function csvDownload(name: string, rows: Record<string, unknown>[]) {
 }
 
 export function CommandCenter() {
-  const { section, orderId, query } = Route.useSearch();
+  const { section, orderId, customerId, query, view } = Route.useSearch();
   const navigate = useNavigate({ from: "/admin" });
   const [access, setAccess] = useState<Awaited<ReturnType<typeof getMerchantAccess>> | null>(null);
   const [accessError, setAccessError] = useState("");
@@ -305,7 +325,6 @@ export function CommandCenter() {
   const [busy, setBusy] = useState(false);
   const [product, setProduct] = useState<ProductRow | null>(null);
   const [inventory, setInventory] = useState<InventoryRow | null>(null);
-  const [customer, setCustomer] = useState<string | null>(null);
   const refreshAccess = useCallback(
     () =>
       getMerchantAccess()
@@ -391,10 +410,10 @@ export function CommandCenter() {
   useEffect(() => {
     const timer = setTimeout(() => void load(), search ? 250 : 0);
     return () => clearTimeout(timer);
-  }, [load]);
+  }, [load, search]);
   useEffect(() => {
     setSearch(query ?? "");
-    setStatus("");
+    setStatus(view ?? "");
     setPriorityFilter("");
     setPage(0);
     setEditor(null);
@@ -403,7 +422,7 @@ export function CommandCenter() {
     setTo("");
     setNavOpen(false);
     setData(null);
-  }, [section, query]);
+  }, [section, query, view]);
   useEffect(() => {
     const timer = setInterval(() => {
       if (!busy && !editor) void load();
@@ -472,18 +491,32 @@ export function CommandCenter() {
           <X />
         </button>
         <nav aria-label="Merchant navigation">
-          {NAV.filter(
-            (n) => n.permission === "security" || PERMISSIONS[access.role].includes(n.permission),
-          ).map((n) => (
-            <Link
-              key={n.id}
-              to="/admin"
-              search={{ section: n.id }}
-              className={section === n.id ? "active" : ""}
-            >
-              <n.icon size={18} />
-              <span>{n.name}</span>
-            </Link>
+          {NAV_GROUPS.filter((group) =>
+            NAV.some(
+              (n) =>
+                group.ids.includes(n.id) &&
+                (n.permission === "security" || PERMISSIONS[access.role].includes(n.permission)),
+            ),
+          ).map((group) => (
+            <div className="cc-nav-group" key={group.title}>
+              <p>{group.title}</p>
+              {NAV.filter(
+                (n) =>
+                  n.permission === "security" || PERMISSIONS[access.role].includes(n.permission),
+              )
+                .filter((n) => group.ids.includes(n.id))
+                .map((n) => (
+                  <Link
+                    key={n.id}
+                    to="/admin"
+                    search={{ section: n.id }}
+                    className={section === n.id ? "active" : ""}
+                  >
+                    <n.icon size={18} />
+                    <span>{n.name}</span>
+                  </Link>
+                ))}
+            </div>
           ))}
         </nav>
         <div className="cc-sidebar-foot">
@@ -534,10 +567,15 @@ export function CommandCenter() {
             </div>
             <div className="cc-heading-actions">
               {section === "orders" && !orderId && (
-                <button className="cc-button" onClick={() => setEditor("draft")}>
-                  <Plus size={17} />
-                  Create draft order
-                </button>
+                <>
+                  <a className="cc-button" href="/admin?section=customers">
+                    New Phone Order
+                  </a>
+                  <button className="cc-button secondary" onClick={() => setEditor("draft")}>
+                    <Plus size={17} />
+                    Create draft order
+                  </button>
+                </>
               )}
               {section === "products" && (
                 <button
@@ -561,9 +599,11 @@ export function CommandCenter() {
           </div>
           {access.storage !== "postgres" && (
             <div className="cc-notice">
-              Development workspace · Local records reset when the server restarts. Production
-              requires persistent PostgreSQL. No live customer messages or charges are part of this
-              test environment.
+              Test workspace ·{" "}
+              {access.storage === "durable local test database"
+                ? "Records persist in isolated test storage."
+                : "Local records reset when the server restarts."}{" "}
+              No live customer messages or charges are part of this test environment.
             </div>
           )}
           {error && (
@@ -622,6 +662,13 @@ export function CommandCenter() {
               key={section}
               kind={section === "invoices" ? "invoice" : "proof"}
               initialOrderId={orderId}
+            />
+          ) : section === "customers" ? (
+            <CustomersWorkspace
+              initialId={customerId}
+              externalSearch={search}
+              owner={access.role === "owner"}
+              openOrder={openOrder}
             />
           ) : section === "quotes" ? (
             <QuotesEditor onOpenOrder={openOrder} />
@@ -714,7 +761,7 @@ export function CommandCenter() {
                                 ]
                               : section === "activity"
                                 ? ["order", "product", "inventory", "content", "staff", "customer"]
-                                : STAGES
+                                : [...OPERATION_VIEWS, ...STAGES]
                         ).map((s) => (
                           <option key={s} value={s}>
                             {label(s)}
@@ -948,36 +995,6 @@ export function CommandCenter() {
                           />
                         )}
                       </>
-                    )}
-                    {section === "customers" && (
-                      <div className="cc-panel">
-                        {data.customers.length ? (
-                          <div className="cc-records">
-                            {data.customers.map((c) => (
-                              <div key={c.email}>
-                                <div>
-                                  <button className="cc-link" onClick={() => setCustomer(c.email)}>
-                                    {c.name}
-                                  </button>
-                                  <small>{c.email}</small>
-                                </div>
-                                <span>
-                                  {c.order_count} orders
-                                  <small>
-                                    {money(c.paid - c.refunded)} net collected · {c.open_orders}{" "}
-                                    open · {c.unpaid_invoices} unpaid invoices
-                                  </small>
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <Empty
-                            title="No customers recorded yet"
-                            body="The directory is populated by genuine order records."
-                          />
-                        )}
-                      </div>
                     )}
                     {section === "website" && <ContentPagesEditor />}
                     {section === "activity" && (
@@ -1570,17 +1587,6 @@ export function CommandCenter() {
           )}
         </Modal>
       )}
-      {customer && (
-        <Modal title="Customer history" close={() => setCustomer(null)}>
-          <CustomerDetail
-            email={customer}
-            open={(id) => {
-              setCustomer(null);
-              openOrder(id);
-            }}
-          />
-        </Modal>
-      )}
     </div>
   );
 }
@@ -1604,6 +1610,44 @@ function Overview({ data, openOrder }: { data: AdminData; openOrder: (id: string
   const m = data.metrics;
   return (
     <>
+      <section className="cc-panel cc-attention">
+        <div className="cc-panel-heading">
+          <div>
+            <p className="cc-eyebrow">TODAY'S NEXT STEPS</p>
+            <h2>Needs attention</h2>
+          </div>
+          <a href="/admin?section=customers" className="cc-button">
+            New Phone Order
+          </a>
+        </div>
+        <div className="cc-attention-grid">
+          {[
+            [
+              "Payment outstanding",
+              m.attention_awaiting_payment ?? 0,
+              "/admin?section=production&view=needs_payment",
+            ],
+            [
+              "Current proof needed",
+              m.awaiting_proof ?? 0,
+              "/admin?section=production&view=needs_proof",
+            ],
+            ["Ready to make", m.ready_to_make ?? 0, "/admin?section=production&view=ready_to_make"],
+            ["Payment exceptions", m.payment_exceptions ?? 0, "/admin?section=payments"],
+            ["Low stock", m.low_stock, "/admin?section=inventory"],
+          ].map(([title, count, href]) => (
+            <a key={title} href={String(href)}>
+              <strong>{Number(count)}</strong>
+              <span>{title}</span>
+              <small>Review actual records →</small>
+            </a>
+          ))}
+        </div>
+        <p className="cc-help">
+          All open work. Payment, artwork approval and production stay separate; readiness never
+          advances a stage automatically.
+        </p>
+      </section>
       <div className="cc-metrics">
         {[
           ["Collected in period", money(m.collected)],
@@ -1813,19 +1857,14 @@ function OrderList({
                 {!!o.tags.length && <small>Tags: {o.tags.join(" · ")}</small>}
               </td>
               <td data-label={production ? "Production" : "Payment"}>
-                <Badge
-                  value={
-                    production
-                      ? o.source === "stripe_history_review" && o.stage === "new"
-                        ? "historical_review_required"
-                        : o.stage
-                      : o.payment_status
-                  }
-                />
+                <small>Financial</small>
+                <Badge value={o.payment_status} />
                 {!production && <b>{money(o.total)}</b>}
+                <small>Artwork approval</small>
                 {o.proof_status && <Badge value={o.proof_status} />}
               </td>
               <td data-label="Status">
+                <small>Production / fulfillment</small>
                 <Badge
                   value={
                     o.source === "stripe_history_review" && o.stage === "new"
@@ -1833,6 +1872,7 @@ function OrderList({
                       : o.stage
                   }
                 />
+                <p className="cc-next-step-label">{orderNextAction(o).title}</p>
                 {o.due_at && <small>Due {new Date(o.due_at).toLocaleDateString()}</small>}
                 {o.priority !== "normal" && <small>{label(o.priority)} priority</small>}
                 {o.tracking && (
