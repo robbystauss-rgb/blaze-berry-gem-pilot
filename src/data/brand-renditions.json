@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "original": "/brand/rec-mama-made-louisiana-logo.jpeg",
+  "sourceSha256": "4063c568df5e9f63a19d1cb59e323c2358c882a02786e0457bef3b50319f2029",
+  "sourceWidth": 1536,
+  "sourceHeight": 1536,
+  "images": [
+    {
+      "imageUrl": "/assets/brand/b522aa9c16061790d9e087f26b7629fe06df7d61915d518e68df095f5707dd88.webp",
+      "sha256": "b522aa9c16061790d9e087f26b7629fe06df7d61915d518e68df095f5707dd88",
+      "width": 128,
+      "height": 128,
+      "bytes": 8130
+    },
+    {
+      "imageUrl": "/assets/brand/f38ed71d918709c39b004e9eed93986be37e3a8cc51294f1b8870415987bdf05.webp",
+      "sha256": "f38ed71d918709c39b004e9eed93986be37e3a8cc51294f1b8870415987bdf05",
+      "width": 256,
+      "height": 256,
+      "bytes": 25956
+    },
+    {
+      "imageUrl": "/assets/brand/ffb342f1132d3bcd97f19cc63da3efc8e5a8c2108f20153a20b1d4a3471d47dd.webp",
+      "sha256": "ffb342f1132d3bcd97f19cc63da3efc8e5a8c2108f20153a20b1d4a3471d47dd",
+      "width": 512,
+      "height": 512,
+      "bytes": 82070
+    },
+    {
+      "imageUrl": "/assets/brand/d124a03de13e666158a8b346b04b9e7c27a9efb6378cb0d8f3c608b4e9b136a4.webp",
+      "sha256": "d124a03de13e666158a8b346b04b9e7c27a9efb6378cb0d8f3c608b4e9b136a4",
+      "width": 768,
+      "height": 768,
+      "bytes": 155586
+    },
+    {
+      "imageUrl": "/assets/brand/b7abbd32c70d3ef2b56d0ccf2e988ec5fd793e56e7e1dd2b5d8ae0c6102aa460.webp",
+      "sha256": "b7abbd32c70d3ef2b56d0ccf2e988ec5fd793e56e7e1dd2b5d8ae0c6102aa460",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 229460
+    }
+  ]
+}

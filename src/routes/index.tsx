@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BadgeCheck, Box, Layers3, ScanLine, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { brandLogo } from "@/lib/brand-images";
 import { buttonVariants } from "@/components/ui/button";
 import { type FamilyId } from "@/lib/catalog";
 import { HAT_MODEL_LABELS, hatModelPath } from "@/lib/hat-models";
@@ -65,16 +66,25 @@ function Home() {
   const work = useStudio((state) => state.work);
   const photos = galleryWork(work);
   const [frame, setFrame] = useState(0);
+  const stage = useRef<HTMLDivElement>(null);
+  const [stageVisible, setStageVisible] = useState(false);
 
   useEffect(() => {
-    if (photos.length < 2) return;
+    if (!stage.current) return;
+    const observer = new IntersectionObserver(([entry]) => setStageVisible(entry.isIntersecting));
+    observer.observe(stage.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (photos.length < 2 || !stageVisible || content.heroMediaId) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(
       () => setFrame((value) => (value + 1) % Math.min(photos.length, 4)),
       5200,
     );
     return () => window.clearInterval(id);
-  }, [photos.length]);
+  }, [photos.length, stageVisible, content.heroMediaId]);
 
   const current = photos[frame] ?? photos[0];
 
@@ -89,7 +99,9 @@ function Home() {
         <div className="site-container relative z-10 pt-6 sm:pt-10">
           <div className="mx-auto max-w-5xl text-center">
             <img
-              src="/brand/rec-mama-made-louisiana-logo.jpeg"
+              src={brandLogo.src}
+              srcSet={brandLogo.srcSet}
+              sizes="(min-width: 640px) 320px, 256px"
               alt="REC Mama Made Louisiana wildflower logo, signed Eliecia Stauss"
               width={1536}
               height={1536}
@@ -124,7 +136,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="home-reveal-stage mx-auto mt-10 max-w-5xl sm:mt-14">
+          <div ref={stage} className="home-reveal-stage mx-auto mt-10 max-w-5xl sm:mt-14">
             <div className="home-reveal-orbit home-reveal-orbit-one" />
             <div className="home-reveal-orbit home-reveal-orbit-two" />
             {content.heroMediaId ? (
@@ -132,6 +144,8 @@ function Home() {
                 src={"/api/media/" + content.heroMediaId}
                 alt="REC Mama Made finished custom work"
                 className="home-owner-hero"
+                loading="lazy"
+                fetchPriority="low"
                 style={{ objectPosition: `${content.focalX}% ${content.focalY}%` }}
               />
             ) : current ? (
@@ -141,6 +155,8 @@ function Home() {
                 alt="Finished REC Mama Made custom hat"
                 className="stage-in relative z-10 mx-auto h-auto max-h-[min(58vh,620px)] w-auto max-w-[92%] object-contain"
                 decoding="async"
+                loading="lazy"
+                fetchPriority="low"
               />
             ) : (
               <p className="relative z-10 text-sm text-bark">Finished work is loading.</p>
@@ -225,8 +241,8 @@ function Home() {
                       src={photo}
                       alt={`${id} ${HAT_MODEL_LABELS[id]}`}
                       className="relative z-10 h-auto max-h-[78%] w-auto max-w-[86%] object-contain transition-transform duration-300 group-hover:scale-[1.03]"
-                      loading="eager"
-                      fetchPriority="high"
+                      loading="lazy"
+                      fetchPriority="low"
                       decoding="async"
                     />
                   ) : (

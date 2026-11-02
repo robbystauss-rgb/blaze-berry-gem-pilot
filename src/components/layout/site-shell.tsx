@@ -10,6 +10,7 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { FeaturedProducts } from "./featured-products";
 import { usePriceBook, minimumPrice, minimumPatchPrice } from "@/lib/commerce/use-pricebook";
 import { footerLinksSchema, parsePublicField } from "@/lib/commerce/content-fields";
+import { brandLogo } from "@/lib/brand-images";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -71,10 +72,11 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <Link
             to="/"
             className="group flex min-w-0 items-center gap-2.5 sm:gap-3"
-            aria-label="REC Mama Made home"
           >
             <img
-              src="/brand/rec-mama-made-louisiana-logo.jpeg"
+              src={brandLogo.src}
+              srcSet={brandLogo.srcSet}
+              sizes="48px"
               alt=""
               width={1536}
               height={1536}
@@ -195,7 +197,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
             <div>
               <Link to="/" aria-label="REC Mama Made home" className="inline-flex">
                 <img
-                  src="/brand/rec-mama-made-louisiana-logo.jpeg"
+                  src={brandLogo.src}
+                  srcSet={brandLogo.srcSet}
+                  sizes="144px"
                   alt="REC Mama Made Louisiana wildflower logo"
                   width={1536}
                   height={1536}
