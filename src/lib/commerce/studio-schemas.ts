@@ -58,6 +58,7 @@ export const saveStudioSchema = z.discriminatedUnion("kind", [
       id: z.string().uuid(),
       version: z.number().int().min(0),
       orderId: z.string().uuid().nullable(),
+      customerId: z.string().uuid().nullable().optional(),
       body: invoiceBodySchema,
     })
     .strict(),
@@ -96,6 +97,7 @@ export const answerProofSchema = z
 export type InvoiceBody = z.infer<typeof invoiceBodySchema>;
 export type ProofBody = z.infer<typeof proofBodySchema>;
 export type StudioRow = {
+  customer_id?: string | null;
   id: string;
   kind: "invoice" | "proof";
   number: number;

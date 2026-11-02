@@ -29,6 +29,7 @@
     "qa:crowns": "node scripts/qa-crown-builder.mjs",
     "test:commerce": "node --test tests/commerce.integration.mjs",
     "test:manual-payments": "node --test tests/manual-payment.integration.mjs",
+    "test:document-customers": "node --test tests/document-customer.integration.mjs",
     "test:customer-vault": "node --test --test-concurrency=1 tests/customer-vault-migration.integration.mjs tests/customer-vault.integration.mjs",
     "qa:customer-vault:server": "node scripts/with-app-env.mjs node scripts/customer-qa-server.mjs",
     "qa:customer-vault": "node scripts/qa-customer-vault.mjs",

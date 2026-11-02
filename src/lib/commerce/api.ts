@@ -66,7 +66,7 @@ export const requireStudioAccess = createServerFn({ method: "GET" })
     const { requireAccess } = await import("./access.server");
     return requireAccess(context.userId, "products", context.bearerToken);
   });
-export const getCustomerDetail = createServerFn({ method: "GET" })
+export const getCustomerDetail = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(z.email())
   .handler(async ({ data, context }) => {
@@ -119,7 +119,7 @@ export const getMerchantAccess = createServerFn({ method: "GET" })
           : "ephemeral development database",
     };
   });
-export const getAdminData = createServerFn({ method: "GET" })
+export const getAdminData = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(
     z.object({

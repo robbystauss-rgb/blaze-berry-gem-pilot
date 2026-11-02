@@ -9,7 +9,7 @@ import {
   requestQuoteSchema,
 } from "./quote-schemas";
 
-export const getQuotes = createServerFn({ method: "GET" })
+export const getQuotes = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(z.string().trim().max(100).default(""))
   .handler(async ({ data, context }) => {

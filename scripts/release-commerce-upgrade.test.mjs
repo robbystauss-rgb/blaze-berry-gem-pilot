@@ -1,6 +1,8 @@
-import { test } from "node:test";
+import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdtemp, writeFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve, sep } from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import {
   COMMERCE_TARGET,
@@ -24,6 +26,23 @@ const env = {
   REC_COMMERCE_BACKUP_REFERENCE: "backup-TEST-RESTORED",
 };
 const entries = [...COMMERCE_BASELINE, ...COMMERCE_MIGRATIONS];
+let approvedDirectory;
+before(async () => {
+  approvedDirectory = await mkdtemp(join(tmpdir(), "rec-commerce-release-test-"));
+  for (const name of entries)
+    await writeFile(
+      join(approvedDirectory, name),
+      await readFile(new URL("../migrations/" + name, import.meta.url)),
+    );
+});
+after(async () => {
+  const target = resolve(approvedDirectory);
+  assert.ok(
+    target.startsWith(resolve(tmpdir()) + sep) &&
+      target.split(sep).at(-1).startsWith("rec-commerce-release-test-"),
+  );
+  await rm(target, { recursive: true, force: true });
+});
 
 test("commerce release is inert by default and requires commit, project, scope and verified backup", async () => {
   const connect = () => {
@@ -95,6 +114,7 @@ test("scoped releases retain original art and ledger, create private snapshots a
       insert into commerce_payments(id,order_id,provider,reference,kind,amount,occurred_at) values('test-receipt','test-original','manual','TEST-original-receipt','payment',900,now())`);
     const logs = [];
     const options = (patch = {}) => ({
+      directory: approvedDirectory,
       env: { ...env, ...patch },
       connect: async () => client,
       log: (...parts) => logs.push(parts.join(" ")),

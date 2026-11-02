@@ -500,6 +500,33 @@ export function CustomersWorkspace({
           {tab === "orders" && (
             <section className="cc-panel">
               <h2>Order history & current work</h2>
+              {data.quotes.length > 0 && (
+                <div className="cc-records" aria-label="Customer estimates">
+                  {data.quotes.map((q) => (
+                    <article key={q.id}>
+                      <a className="cc-link" href="/admin?section=quotes">
+                        Estimate #{q.number}
+                      </a>
+                      <span>
+                        {label(q.state)} · {money(q.total)}
+                      </span>
+                    </article>
+                  ))}
+                </div>
+              )}
+              {data.documents
+                .filter((d) => !d.order_id)
+                .map((d) => (
+                  <p key={d.id}>
+                    <a
+                      className="cc-link"
+                      href={`/admin?section=${d.kind === "invoice" ? "invoices" : "proofs"}`}
+                    >
+                      {label(d.kind)} draft
+                    </a>{" "}
+                    · {label(d.state)}
+                  </p>
+                ))}
               <p className="cc-help">
                 Original prices, payments and proofs remain with each order. A repeat creates a new
                 order.

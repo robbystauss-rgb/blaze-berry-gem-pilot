@@ -476,6 +476,7 @@ export function Builder({
 
   return (
     <div className="safe-grid lg:grid lg:min-h-[calc(100dvh-5.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)]">
+      <h1 className="sr-only">Design your custom hat or patch</h1>
       <div className="relative min-h-[52vh] overflow-hidden bg-[radial-gradient(90%_70%_at_50%_32%,#fff_0%,#f6f1ea_58%,#e8e0d4_100%)] lg:sticky lg:top-[5.5rem] lg:h-[calc(100dvh-5.5rem)]">
         <p className="absolute left-5 top-4 z-20 text-[10px] font-semibold tracking-[0.15em] text-stage-muted uppercase sm:text-[11px]">
           Customization preview

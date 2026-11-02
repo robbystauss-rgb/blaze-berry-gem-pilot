@@ -13,6 +13,7 @@ import {
 import { money, label } from "@/lib/commerce/types";
 import { QuoteSummary } from "@/components/quotes/quote-summary";
 import "./quotes.css";
+import { DocumentCustomerPicker } from "./document-customer-picker";
 
 type Props = { onOpenOrder?: (id: string) => void; onChange?: () => void | Promise<void> };
 const future = () => new Date(Date.now() + 14 * 86_400_000).toISOString();
@@ -39,12 +40,12 @@ const empty = (): Estimate => ({
   availabilityConfirmed: false,
   totalsConfirmed: false,
 });
-const message = (e: unknown) =>
-  ownerError(e, "The action could not be completed.");
+const message = (e: unknown) => ownerError(e, "The action could not be completed.");
 
 export function QuotesEditor({ onOpenOrder, onChange }: Props) {
   const [data, setData] = useState<Awaited<ReturnType<typeof getQuotes>> | null>(null),
     [search, setSearch] = useState("");
+  const [customerId, setCustomerId] = useState<string | null>(null);
   const [selected, setSelected] = useState<OwnerQuote | null>(null),
     [id, setId] = useState<string>(() => crypto.randomUUID()),
     [body, setBody] = useState<Estimate>(empty),
@@ -86,6 +87,7 @@ export function QuotesEditor({ onOpenOrder, onChange }: Props) {
   function edit(row: OwnerQuote) {
     setSelected(row);
     setId(row.id);
+    setCustomerId(row.customer_id ?? null);
     setBody(structuredClone(row.body));
     setRequestId(row.request_id ?? undefined);
     setSharePath("");
@@ -94,6 +96,7 @@ export function QuotesEditor({ onOpenOrder, onChange }: Props) {
     setSuccess("");
   }
   function start(source?: OwnerQuote | QuoteRequest) {
+    setCustomerId(source && "body" in source ? (source.customer_id ?? null) : null);
     setSelected(null);
     setId(crypto.randomUUID());
     setSharePath("");
@@ -128,7 +131,9 @@ export function QuotesEditor({ onOpenOrder, onChange }: Props) {
     setError("");
     setSuccess("");
     try {
-      await saveEstimate({ data: { id, version: selected?.version ?? 0, body, requestId } });
+      await saveEstimate({
+        data: { id, version: selected?.version ?? 0, body, requestId, customerId },
+      });
       const next = await refresh(),
         row = next.quotes.find((q) => q.id === id);
       if (row) {
@@ -351,6 +356,23 @@ export function QuotesEditor({ onOpenOrder, onChange }: Props) {
           )}
         </div>
       </div>
+      {!preview && (
+        <DocumentCustomerPicker
+          customerId={customerId}
+          name={body.customerName}
+          email={body.customerEmail}
+          disabled={busy || readonly}
+          choose={(profile) => {
+            setCustomerId(profile?.id ?? null);
+            if (profile)
+              setBody((value) => ({
+                ...value,
+                customerName: profile.name,
+                customerEmail: profile.email ?? "",
+              }));
+          }}
+        />
+      )}
       {preview ? (
         <QuoteSummary quote={previewQuote} />
       ) : (

@@ -13,7 +13,7 @@ async function linkedProfile(sql: Sql, id: string) {
     id: string;
     phone_normalized: string;
     version: number;
-  }>`select c.id,c.phone_normalized,c.version from commerce_studio_documents d join commerce_orders o on o.id=d.order_id join commerce_customers source on source.id=o.customer_id join commerce_customers c on c.id=coalesce(source.merged_into,source.id) where d.id=${id}`;
+  }>`select c.id,c.phone_normalized,c.version from commerce_studio_documents d left join commerce_orders o on o.id=d.order_id join commerce_customers source on source.id=coalesce(o.customer_id,d.customer_id) join commerce_customers c on c.id=coalesce(source.merged_into,source.id) where d.id=${id}`;
   return row;
 }
 async function contactKey(sql: Sql, id: string) {

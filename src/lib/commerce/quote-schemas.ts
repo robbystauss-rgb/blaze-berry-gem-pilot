@@ -57,6 +57,7 @@ export const saveEstimateSchema = z
     version: z.number().int().min(0),
     body: estimateSchema,
     requestId: z.string().uuid().optional(),
+    customerId: z.string().uuid().nullable().optional(),
   })
   .strict();
 export const quoteActionSchema = z
@@ -94,6 +95,7 @@ export type Estimate = z.infer<typeof estimateSchema>;
 export type EstimateLine = z.infer<typeof quoteLineSchema>;
 export type QuoteState = "draft" | "issued" | "accepted" | "declined" | "revoked";
 export type OwnerQuote = {
+  customer_id?: string | null;
   id: string;
   number: number;
   state: QuoteState;
