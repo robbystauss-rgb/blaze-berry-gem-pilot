@@ -10,9 +10,9 @@
   --color-surface-2: #eeeae4;
   --color-fg: #1d1d1f;
   --color-muted: #626262;
-  --color-subtle: #858585;
-  --color-primary: #b9955f;
-  --color-primary-2: #c7a46b;
+  --color-subtle: #6c6c6c;
+  --color-primary: #80613a;
+  --color-primary-2: #6d5030;
   --color-primary-fg: #ffffff;
   --color-champagne: #c7a46b;
   --color-blush: #b8898f;
@@ -474,7 +474,7 @@
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #9a7d50;
+    color: var(--color-primary);
   }
 
   .hairline-card {

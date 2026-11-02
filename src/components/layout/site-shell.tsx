@@ -72,7 +72,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <Link
             to="/"
             className="group flex min-w-0 items-center gap-2.5 sm:gap-3"
-            aria-label="REC Mama Made home"
           >
             <img
               src={brandLogo.src}
