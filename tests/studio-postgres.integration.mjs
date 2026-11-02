@@ -494,6 +494,102 @@ test(
       check(
         "Phone-only profile, private source and exact design persist through independent PostgreSQL connection; concurrent draft and receipt retries create one record; new proof remains required",
       );
+      const linkedCustomer = randomUUID();
+      await crm.saveCustomer(
+        {
+          id: linkedCustomer,
+          version: 0,
+          body: { name: "TEST document customer", email: "linked@example.invalid" },
+          reviewedDuplicate: true,
+        },
+        owner,
+      );
+      const linkedInvoiceId = randomUUID();
+      const linkedBody = {
+        ...(await studio.studioOwnerDocument(invoiceId, owner)).document.body,
+        customerName: "TEST document customer",
+        customerEmail: "linked@example.invalid",
+      };
+      await studio.saveStudio(
+        {
+          id: linkedInvoiceId,
+          kind: "invoice",
+          version: 0,
+          orderId: null,
+          customerId: linkedCustomer,
+          body: linkedBody,
+        },
+        owner,
+      );
+      const linkedInvoice = await studio.actOnStudio(
+        { id: linkedInvoiceId, version: 1, action: "issue" },
+        owner,
+      );
+      const linkedView = await studio.viewStudio(linkedInvoice.path.split("/").at(-1));
+      assert.equal(linkedView.document.customer_id, undefined);
+      assert.equal(
+        (
+          await client.query("select customer_id from commerce_orders where id=$1", [
+            linkedView.document.order_id,
+          ])
+        ).rows[0].customer_id,
+        linkedCustomer,
+      );
+      const quotesModule = await server.ssrLoadModule("/src/lib/commerce/quotes.server.ts");
+      const linkedQuoteId = randomUUID();
+      await quotesModule.saveQuote(
+        {
+          id: linkedQuoteId,
+          version: 0,
+          customerId: linkedCustomer,
+          body: {
+            customerName: linkedBody.customerName,
+            customerEmail: linkedBody.customerEmail,
+            title: "TEST linked estimate",
+            lines: linkedBody.lines,
+            shipping: 0,
+            tax: 0,
+            terms: "TEST ONLY",
+            privateNotes: "",
+            expiresAt: new Date(Date.now() + 86400000).toISOString(),
+            totalsConfirmed: true,
+            availabilityConfirmed: true,
+          },
+        },
+        owner,
+      );
+      const linkedQuote = await quotesModule.actOnQuote(
+        { id: linkedQuoteId, version: 1, action: "issue" },
+        owner,
+      );
+      const linkedToken = linkedQuote.path.split("/").at(-1);
+      const linkedPublic = await quotesModule.publicQuote(linkedToken);
+      assert.equal(linkedPublic.customer_id, undefined);
+      await quotesModule.respondToQuote({
+        token: linkedToken,
+        version: linkedPublic.version,
+        action: "accept",
+      });
+      assert.equal(
+        (
+          await client.query(
+            "select o.customer_id from commerce_quotes q join commerce_orders o on o.id=q.order_id where q.id=$1",
+            [linkedQuoteId],
+          )
+        ).rows[0].customer_id,
+        linkedCustomer,
+      );
+      assert.equal(
+        (
+          await client.query(
+            "select count(*)::int n from commerce_customers where email='linked@example.invalid'",
+          )
+        ).rows[0].n,
+        1,
+      );
+      check(
+        "Explicit customer association survives invoice issue and quote acceptance in PostgreSQL, stays out of public responses, and creates no duplicate identity",
+      );
       const snapshot = await sql.query(
         "select id,state,response,proof_version,encode(pdf,'hex') pdf from commerce_studio_documents order by id",
       );

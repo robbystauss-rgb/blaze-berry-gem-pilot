@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { getSql, type Sql } from "@/lib/db";
 import { assertPermission, audit, notify, reserveInventory } from "./core.server";
 import type { Role } from "./types";
+import { documentCustomer } from "./document-customer.server";
 import {
   estimateSchema,
   saveEstimateSchema,
@@ -16,7 +17,7 @@ import {
 } from "./quote-schemas";
 
 type Actor = { userId: string; role: Role };
-const selectQuote = `select id,number,state,body,subtotal,total,version,created_at,updated_at,issued_at,responded_at,order_id,request_id,
+const selectQuote = `select id,number,state,body,subtotal,total,version,created_at,updated_at,issued_at,responded_at,order_id,request_id,customer_id,
  (body->>'expiresAt')::timestamptz<=clock_timestamp() as expired from commerce_quotes`;
 const hash = (token: string) => createHash("sha256").update(token).digest("hex");
 async function lock(sql: Sql, id: string) {
@@ -57,6 +58,12 @@ export async function saveQuote(input: unknown, actor: Actor) {
   const sql = await getSql();
   return sql.transaction(async (tx) => {
     const row = await lock(tx, data.id);
+    const customerId = await documentCustomer(
+      tx,
+      data.customerId === undefined ? row?.customer_id : data.customerId,
+      body,
+      actor.role,
+    );
     if (row) {
       current(row, data.version);
       if (row.state !== "draft")
@@ -74,6 +81,7 @@ export async function saveQuote(input: unknown, actor: Actor) {
       }
       await tx`insert into commerce_quotes(id,body,subtotal,total,actor_id,request_id) values(${data.id},${JSON.stringify(body)},${totals.subtotal},${totals.total},${actor.userId},${data.requestId ?? null})`;
     }
+    await tx`update commerce_quotes set customer_id=${customerId} where id=${data.id}`;
     await audit(
       tx,
       actor.userId,
@@ -81,7 +89,7 @@ export async function saveQuote(input: unknown, actor: Actor) {
       "quote",
       data.id,
       row ? { version: row.version } : null,
-      { version: (row?.version ?? 0) + 1, total: totals.total },
+      { version: (row?.version ?? 0) + 1, total: totals.total, customerId },
     );
     return { id: data.id, version: (row?.version ?? 0) + 1 };
   });
@@ -111,6 +119,7 @@ export async function actOnQuote(input: unknown, actor: Actor) {
     if (!["draft", "issued"].includes(row.state))
       throw Error("Only a draft or active issued quote can receive a review link.");
     if (row.expired) throw Error("Choose a future expiration before issuing this quote.");
+    if (row.state === "draft") await documentCustomer(tx, row.customer_id, row.body, actor.role);
     if (!row.body.availabilityConfirmed || !row.body.totalsConfirmed)
       throw Error(
         "Confirm product availability and the complete shipping/tax total before issuing.",
@@ -201,6 +210,8 @@ export async function respondToQuote(input: unknown) {
     const orderId = randomUUID();
     await tx`insert into commerce_orders(id,customer_name,customer_email,source,subtotal,shipping,tax,total)
       values(${orderId},${row.body.customerName},${row.body.customerEmail},'accepted_quote',${row.subtotal},${row.body.shipping},${row.body.tax},${row.total})`;
+    if (row.customer_id)
+      await tx`update commerce_orders set customer_id=${row.customer_id} where id=${orderId}`;
     for (const line of row.body.lines) {
       const specifications = {
         quoteId: row.id,

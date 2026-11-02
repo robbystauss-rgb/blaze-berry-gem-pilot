@@ -7,10 +7,12 @@ export function CustomerProfileEditor({
   profile,
   onSaved,
   cancel,
+  initial,
 }: {
   profile?: CustomerProfile;
   onSaved: (id: string) => Promise<void>;
   cancel: () => void;
+  initial?: { name?: string; email?: string };
 }) {
   const [id] = useState(() => profile?.id ?? crypto.randomUUID());
   const [busy, setBusy] = useState(false),
@@ -87,7 +89,7 @@ export function CustomerProfileEditor({
           <input
             name="name"
             aria-label="Customer name"
-            defaultValue={profile?.name}
+            defaultValue={profile?.name ?? initial?.name}
             required
             maxLength={120}
             autoComplete="name"
@@ -119,7 +121,7 @@ export function CustomerProfileEditor({
             name="email"
             aria-label="Customer email (optional)"
             type="email"
-            defaultValue={profile?.email ?? ""}
+            defaultValue={profile?.email ?? initial?.email ?? ""}
             autoComplete="email"
           />
         </label>

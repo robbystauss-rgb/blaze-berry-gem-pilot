@@ -26,6 +26,7 @@ import { studioPdf, appendStudioStatement } from "./studio-pdf.server";
 import { money, label } from "./types";
 import { businessMidnight, shiftBusinessDay } from "./business-dates";
 import { assertMediaPublicationAllowed } from "./media-policy.server";
+import { documentCustomer } from "./document-customer.server";
 type Actor = { userId: string; role: Role };
 export const STUDIO_SELECT =
   "select id,kind,number,order_id,state,body,sender,subtotal,total,version,proof_version,expires_at,issued_at,responded_at,response,created_at,(select i.state from commerce_invoices i where i.order_id=commerce_studio_documents.order_id) as provider_state from commerce_studio_documents";
@@ -89,6 +90,15 @@ export async function saveStudio(raw: unknown, actor: Actor) {
       if (p.kind === "proof") initialOnly(order.stage);
     }
     const previous = await lockDoc(tx, p.id);
+    const [association] = await tx<{
+      customer_id: string | null;
+    }>`select customer_id from commerce_studio_documents where id=${p.id}`;
+    const customerId =
+      p.kind === "invoice" && p.customerId !== undefined
+        ? p.customerId
+        : (order?.customer_id ?? association?.customer_id ?? null);
+    if (order && customerId && order.customer_id !== customerId)
+      throw Error("Choose the customer already linked to this order.");
     if (previous && (previous.kind !== p.kind || previous.order_id !== p.orderId))
       throw Error("Document association cannot change.");
     if (previous?.state !== undefined && previous.state !== "draft")
@@ -156,10 +166,12 @@ export async function saveStudio(raw: unknown, actor: Actor) {
         )[0].next;
       await tx`insert into commerce_proof_controls(order_id,required) values(${p.orderId},true) on conflict(order_id) do update set required=true,updated_at=now()`;
     }
+    if (!order && p.kind === "invoice") await documentCustomer(tx, customerId, p.body, actor.role);
     if (previous)
       await tx`update commerce_studio_documents set body=${JSON.stringify(body)},subtotal=${subtotal},total=${total},version=version+1,updated_at=now() where id=${p.id}`;
     else
       await tx`insert into commerce_studio_documents(id,kind,order_id,body,subtotal,total,proof_version,actor_id) values(${p.id},${p.kind},${p.orderId},${JSON.stringify(body)},${subtotal},${total},${proofVersion},${actor.userId})`;
+    await tx`update commerce_studio_documents set customer_id=${customerId} where id=${p.id}`;
     await audit(
       tx,
       actor.userId,
@@ -167,7 +179,7 @@ export async function saveStudio(raw: unknown, actor: Actor) {
       "studio_document",
       p.id,
       previous ? { version: previous.version } : null,
-      { version: p.version + 1, total },
+      { version: p.version + 1, total, customerId },
     );
     return { id: p.id, version: p.version + 1 };
   });
@@ -196,6 +208,10 @@ export async function studioOwnerDocument(id: string, actor: Actor) {
   const sql = await getSql();
   const [doc] = await sql.query<StudioRow>(STUDIO_SELECT + " where id=$1", [id]);
   if (!doc) throw Error("Document not found.");
+  const [association] = await sql<{
+    customer_id: string | null;
+  }>`select customer_id from commerce_studio_documents where id=${id}`;
+  doc.customer_id = association?.customer_id ?? null;
   return {
     document: doc,
     contact: await (await import("./studio-text.server")).readStudioContact(id, actor, sql),
@@ -380,7 +396,13 @@ export async function actOnStudio(raw: unknown, actor: Actor) {
         throw Error("Choose a future due date.");
       if (!order) {
         const orderId = randomUUID();
+        const [association] = await tx<{
+          customer_id: string | null;
+        }>`select customer_id from commerce_studio_documents where id=${d.id}`;
+        const customerId = await documentCustomer(tx, association?.customer_id, b, actor.role);
         await tx`insert into commerce_orders(id,customer_name,customer_email,source,subtotal,discount,shipping,tax,total) values(${orderId},${b.customerName},${b.customerEmail},'studio_invoice',${d.subtotal},${b.discount},${b.shipping},${b.tax},${d.total})`;
+        if (customerId)
+          await tx`update commerce_orders set customer_id=${customerId} where id=${orderId}`;
         for (const l of b.lines) {
           if (l.productKey) {
             const [rule] =

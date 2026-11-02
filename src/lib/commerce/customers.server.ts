@@ -178,7 +178,16 @@ export async function readCustomer(id: string, actor: Actor) {
             kind: string;
             state: string;
             order_id: string;
-          }>`select id,kind,state,order_id from commerce_studio_documents where order_id in(select id from commerce_orders where customer_id=any(${group}::text[])) order by created_at desc limit 100`
+          }>`select id,kind,state,order_id from commerce_studio_documents where customer_id=any(${group}::text[]) or order_id in(select id from commerce_orders where customer_id=any(${group}::text[])) order by created_at desc limit 100`
+        : [],
+    quotes:
+      actor.role === "owner"
+        ? await sql<{
+            id: string;
+            number: number;
+            state: string;
+            total: number;
+          }>`select id,number,state,total from commerce_quotes where customer_id=any(${group}::text[]) order by updated_at desc limit 100`
         : [],
     history: await sql<{
       id: string;

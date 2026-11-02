@@ -45,6 +45,7 @@ jobs:
       - run: npm run test:studio
       - run: npm run test:manual-payments
       - run: npm run test:customer-vault
+      - run: npm run test:document-customers
       - run: npm run test:artwork
       - run: npm run test:operations
       - run: npm run test:catalog-retirement

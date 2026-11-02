@@ -1,5 +1,7 @@
 # Commerce upgrade — review and release holds
 
+Status update: the original upgrade was subsequently merged and published through PRs #10/#11 under the owner's authorization. The sections below preserve the original pre-release record. See [CUSTOMER_CONTINUITY_RELEASE.md](CUSTOMER_CONTINUITY_RELEASE.md) for the follow-through release and remaining evidence requirements. Private operational records are retained outside Git.
+
 Baseline: `bbb2f83bf57726bbc4aaa7cb62d80dc041a50c5d` (main inspected 2026-10-30).
 Feature branch: `codex/commerce-reliability-customer-vault`.
 

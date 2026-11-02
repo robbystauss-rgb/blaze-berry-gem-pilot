@@ -10,7 +10,7 @@ export function CustomerDetail({ email, open }: { email: string; open: (id: stri
   const load = () =>
     getCustomerDetail({ data: email })
       .then(setData)
-      .catch((e) => setError(e.message));
+      .catch((e) => setError(ownerError(e, "Customer history could not load. Please try again.")));
   useEffect(() => {
     void load();
   }, [email]);

@@ -13,6 +13,7 @@ import {
 import type { StudioRow, InvoiceBody, ProofBody } from "@/lib/commerce/studio-schemas";
 import { money, label } from "@/lib/commerce/types";
 import { StudioTextActions } from "./studio-text-actions";
+import { DocumentCustomerPicker } from "./document-customer-picker";
 type Data = Awaited<ReturnType<typeof getStudioDocuments>>;
 type Detail = Awaited<ReturnType<typeof getStudioDetail>>;
 const emptyInvoice = (): InvoiceBody => ({
@@ -67,6 +68,7 @@ export function StudioDocuments({
     [id, setId] = useState<string>(() => crypto.randomUUID()),
     [version, setVersion] = useState(0),
     [orderId, setOrderId] = useState<string | null>(null),
+    [customerId, setCustomerId] = useState<string | null>(null),
     [invoice, setInvoice] = useState<InvoiceBody>(emptyInvoice),
     [proof, setProof] = useState<ProofBody>(emptyProof),
     [search, setSearch] = useState(""),
@@ -113,6 +115,7 @@ export function StudioDocuments({
       setId(d.id);
       setVersion(d.version);
       setOrderId(d.order_id);
+      setCustomerId(d.customer_id ?? null);
       setPath("");
       setRequestId(crypto.randomUUID());
       if (kind === "invoice") setInvoice(d.body as InvoiceBody);
@@ -123,6 +126,7 @@ export function StudioDocuments({
   const chooseOrder = useCallback(
     async (value: string) => {
       setOrderId(value || null);
+      setCustomerId(null);
       if (!value || kind !== "invoice") return;
       const result = await getStudioOrder({ data: value });
       if (result.existingId) {
@@ -157,9 +161,10 @@ export function StudioDocuments({
     setInvoice(emptyInvoice());
     setProof(emptyProof());
     setOrderId(null);
+    setCustomerId(null);
     void reload()
       .then(() => (initialOrderId ? chooseOrder(initialOrderId) : undefined))
-      .catch((e) => setError(e.message));
+      .catch((e) => setError(ownerError(e, "Documents could not load. Please try again.")));
   }, [initialOrderId, reload, chooseOrder]);
   function newDraft(previous?: StudioRow) {
     setId(crypto.randomUUID());
@@ -168,6 +173,7 @@ export function StudioDocuments({
     setPath("");
     setRequestId(crypto.randomUUID());
     setOrderId(previous?.order_id ?? null);
+    setCustomerId(previous?.customer_id ?? null);
     if (kind === "invoice") setInvoice(previous ? (previous.body as InvoiceBody) : emptyInvoice());
     else
       setProof(
@@ -178,7 +184,7 @@ export function StudioDocuments({
     const result = await saveStudioDocument({
       data:
         kind === "invoice"
-          ? { kind, id, version, orderId, body: invoice }
+          ? { kind, id, version, orderId, customerId, body: invoice }
           : { kind, id, version, orderId: orderId!, body: proof },
     });
     await reload();
@@ -368,6 +374,28 @@ export function StudioDocuments({
             ? "Issued contents are frozen. Use a new proof version or void/replacement invoice for changes."
             : "Save the draft before opening its customer preview or PDF."}
         </p>
+        {kind === "invoice" && !orderId && (
+          <DocumentCustomerPicker
+            customerId={customerId}
+            name={invoice.customerName}
+            email={invoice.customerEmail}
+            disabled={busy || locked}
+            choose={(profile) => {
+              setCustomerId(profile?.id ?? null);
+              if (profile)
+                setInvoice((value) => ({
+                  ...value,
+                  customerName: profile.name,
+                  customerEmail: profile.email ?? "",
+                  billingAddress: Object.values(profile.address).filter(Boolean).join("\n"),
+                  shippingAddress:
+                    profile.delivery_preference === "shipping"
+                      ? Object.values(profile.address).filter(Boolean).join("\n")
+                      : value.shippingAddress,
+                }));
+            }}
+          />
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();

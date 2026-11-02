@@ -1,6 +1,6 @@
 # Commerce upgrade: implementation evidence and release decision
 
-All customer/order examples below are isolated TEST ONLY fixtures. This report contains no real receipt, customer record, private artwork or secure document capability. Production is unchanged.
+All customer/order examples below are isolated TEST ONLY fixtures. This report contains no real receipt, customer record, private artwork or secure document capability. The original report below records pre-release evidence. The main upgrade was subsequently published through PRs #10/#11; follow-through evidence and remaining source requirements are recorded in [CUSTOMER_CONTINUITY_RELEASE.md](CUSTOMER_CONTINUITY_RELEASE.md).
 
 ## 1. Venmo / external receipts
 
