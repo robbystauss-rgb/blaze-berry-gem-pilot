@@ -358,6 +358,13 @@ export async function readOrder(id: string, actor: { userId: string; role: Role 
         : audit,
     payments,
     invoice: invoice ?? null,
+    checkouts:
+      actor.role === "owner"
+        ? await sql<{
+            provider: string;
+            state: string;
+          }>`select provider,state from commerce_checkouts where order_id=${id}`
+        : [],
     proof: await (await import("./proof-hold.server")).proofReadiness(sql, id),
   };
 }

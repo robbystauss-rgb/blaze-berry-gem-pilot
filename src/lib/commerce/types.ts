@@ -68,6 +68,7 @@ export type OrderRow = {
   created_at: string;
   customer_name: string;
   customer_email: string;
+  currency: string;
   source: string;
   total: number;
   subtotal: number;
@@ -168,6 +169,9 @@ export type PaymentRow = {
   fee: number | null;
   occurred_at: string;
   reason: string | null;
+  method: string | null;
+  recorded_at: string;
+  actor_id: string | null;
 };
 export type NoteRow = { id: string; actor_id: string; body: string; created_at: string };
 export type CustomerRow = {

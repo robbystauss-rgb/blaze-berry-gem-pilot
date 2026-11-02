@@ -1,3 +1,5 @@
+import { ManualPaymentForm } from "./manual-payment-form";
+import { ownerError } from "@/lib/commerce/errors";
 import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Printer, Download } from "lucide-react";
 import {
@@ -13,7 +15,7 @@ import { Badge, Field } from "./command-center";
 import { getBearerToken } from "@/lib/auth/client";
 import { SavedHatProof } from "@/components/hat/saved-hat-proof";
 import { MAX_NEW_UPLOAD_BYTES } from "@/lib/upload-limits";
-const msg = (e: unknown) => (e instanceof Error ? e.message : "Unable to save changes.");
+const msg = ownerError;
 export function OrderDetail({
   id,
   access,
@@ -80,7 +82,7 @@ export function OrderDetail({
       setSuccess(
         action === "void"
           ? "Provider confirmed the unpaid invoice was voided. The order remains unpaid."
-          : result.testMode
+          : "testMode" in result && result.testMode
             ? "Test invoice action accepted. Stripe does not send customer email in test mode."
             : "Invoice action submitted to Stripe. Email delivery is not confirmed.",
       );
@@ -374,6 +376,7 @@ export function OrderDetail({
                 ["Collected", o.paid],
                 ["Refunded", o.refunded],
                 ["Net collected", o.paid - o.refunded],
+                ["Remaining balance", Math.max(0, o.total - o.paid + o.refunded)],
               ].map(([k, v]) => (
                 <div key={k}>
                   <dt>{k}</dt>
@@ -436,68 +439,87 @@ export function OrderDetail({
                 </div>
                 <p className="cc-help">
                   Requires verified REC Mama Made Stripe branding and sender. Sending requires
-                  review. Paid totals are updated from trusted processor events.
+                  review. Totals come from the ledger: trusted processor events or your verified
+                  external receipts.
                 </p>
+                <div id="payment-link-safety" className="cc-payment-safety">
+                  {!!data.invoice && data.invoice.state !== "void" && (
+                    <p className="cc-error" role="status">
+                      Stripe invoice {label(data.invoice.state)}: external payment recording is
+                      blocked. Review Invoice actions above. Void only an unpaid open invoice with
+                      Stripe confirmation. The Signature Studio Invoice is a separate document.
+                    </p>
+                  )}
+                  {data.checkouts
+                    .filter((c) => c.state === "pending")
+                    .map((c) => (
+                      <div key={c.provider}>
+                        <p className="cc-error">
+                          An active {label(c.provider)} checkout may still collect money. Expire and
+                          reconcile it before recording an external receipt.
+                        </p>
+                        {c.provider === "stripe" ? (
+                          <button
+                            type="button"
+                            className="cc-button secondary"
+                            disabled={busy}
+                            onClick={async () => {
+                              if (
+                                !window.confirm(
+                                  "Ask Stripe to expire this unpaid checkout? Any payment attempt will block this action for finance review.",
+                                )
+                              )
+                                return;
+                              setBusy(true);
+                              setError("");
+                              try {
+                                await invoiceAction({
+                                  data: { orderId: id, action: "expire_checkout" },
+                                });
+                                setSuccess(
+                                  "Stripe confirmed checkout expiry. Review and record the external receipt below.",
+                                );
+                                await refresh();
+                              } catch (e) {
+                                setError(msg(e));
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            Expire and reconcile Stripe checkout
+                          </button>
+                        ) : (
+                          <p className="cc-help">
+                            Finance must reconcile the PayPal authorization and capture in the
+                            provider account. This screen cannot safely close that checkout.
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                </div>
                 <button
                   className="cc-button secondary"
-                  disabled={
-                    busy ||
-                    o.paid >= o.total ||
-                    (!!data.invoice?.provider_id && data.invoice.state !== "void")
-                  }
+                  disabled={busy || o.paid >= o.total || o.refunded > 0}
                   onClick={() => setManual(!manual)}
                 >
                   Record verified manual payment
                 </button>
                 {manual && (
-                  <form
-                    className="cc-form"
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      const f = new FormData(e.currentTarget);
-                      if (
-                        !window.confirm(
-                          "Confirm this money was actually received. This creates an audited financial record.",
-                        )
-                      )
-                        return;
-                      if (
-                        await save("payment.manual", {
-                          id,
-                          amount: Math.round(Number(f.get("amount")) * 100),
-                          reference: String(f.get("reference")),
-                          reason: String(f.get("reason")),
-                          occurredAt: new Date(String(f.get("date"))).toISOString(),
-                          requestId: crypto.randomUUID(),
-                        })
-                      )
-                        setManual(false);
+                  <ManualPaymentForm
+                    orderId={id}
+                    remaining={Math.max(0, o.total - o.paid + o.refunded)}
+                    blocked={
+                      (!!data.invoice && data.invoice.state !== "void") ||
+                      data.checkouts.some((c) => c.state === "pending")
+                    }
+                    onSaved={async (message) => {
+                      setSuccess(message);
+                      setManual(false);
+                      await refresh();
+                      await onChange();
                     }}
-                  >
-                    <Field
-                      name="amount"
-                      title="Actual received amount ($)"
-                      type="number"
-                      value={(o.total - o.paid) / 100}
-                      required
-                    />
-                    <Field
-                      name="reference"
-                      title="Unique bank / Venmo / cash receipt reference"
-                      required
-                    />
-                    <Field
-                      name="date"
-                      title="Received at"
-                      type="datetime-local"
-                      value={dateValue(new Date().toISOString())}
-                      required
-                    />
-                    <Field name="reason" title="Verification and reason" type="textarea" required />
-                    <button className="cc-button" disabled={busy}>
-                      Record payment
-                    </button>
-                  </form>
+                  />
                 )}
                 {o.paid > o.refunded &&
                   data.payments.some(
@@ -750,7 +772,10 @@ export function OrderDetail({
         </div>
         {data.payments.map((p) => (
           <p key={p.id} className="cc-help">
-            {label(p.kind)} · {money(p.amount)} · {p.provider} · {p.reference}
+            {label(p.kind)} · {money(p.amount)} · {p.method ? label(p.method) : p.provider} ·{" "}
+            {p.reference} · {new Date(p.occurred_at).toLocaleString()}
+            <br />
+            {p.reason}
           </p>
         ))}
       </section>

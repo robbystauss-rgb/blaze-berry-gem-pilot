@@ -98,7 +98,9 @@ export async function processStripeEvent(event: Stripe.Event, stripe: Stripe) {
         event.type === "checkout.session.expired" ||
         event.type === "checkout.session.async_payment_failed"
       ) {
-        if (!order.paid) {
+        const pending =
+          await tx`select order_id from commerce_checkouts where order_id=${id} and state='pending'`;
+        if (!order.paid && pending.length) {
           await changeAllocation(tx, id, "release", "stripe");
           await tx`update commerce_checkouts set state=${event.type === "checkout.session.expired" ? "expired" : "failed"} where order_id=${id}`;
           await tx`update commerce_orders set stage='canceled',version=version+1 where id=${id} and stage='new'`;

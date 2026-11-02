@@ -253,10 +253,19 @@ export const retryOrderEmails = createServerFn({ method: "POST" })
   });
 export const invoiceAction = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(z.object({ orderId: uuid, action: z.enum(["create", "send", "resend", "void"]) }))
+  .validator(
+    z.object({
+      orderId: uuid,
+      action: z.enum(["create", "send", "resend", "void", "expire_checkout"]),
+    }),
+  )
   .handler(async ({ data, context }) => {
     const { requireAccess } = await import("./access.server");
-    await requireAccess(context.userId, "finance", context.bearerToken);
+    const actor = await requireAccess(context.userId, "finance", context.bearerToken);
+    if (data.action === "expire_checkout") {
+      const { expireCheckoutForOfflinePayment } = await import("./checkout-safety.server");
+      return expireCheckoutForOfflinePayment(data.orderId, actor);
+    }
     if (data.action === "void") {
       const { voidInvoice } = await import("./invoice-void.server");
       return voidInvoice(data.orderId, context.userId);
