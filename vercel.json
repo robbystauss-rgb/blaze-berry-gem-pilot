@@ -11,7 +11,8 @@
       "feat/studio-native-text": false,
       "codex/commerce-reliability-customer-vault": false,
       "codex/manual-payment-hotfix": false,
-      "codex/commerce-follow-through": false
+      "codex/commerce-follow-through": false,
+      "codex/storefront-image-priority": false
     }
   }
 }

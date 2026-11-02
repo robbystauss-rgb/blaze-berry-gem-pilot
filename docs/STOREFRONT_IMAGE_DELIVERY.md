@@ -1,0 +1,9 @@
+# Homepage image delivery follow-through
+
+Observed public trace: the homepage's largest contentful image was the approved 1536px logo (814,530 bytes). It competed with a 3,268,992-byte finished-work photograph and four eager/high-priority model-card photographs. Automatic gallery rotation also ran while the stage was offscreen. A single throttled mobile lab sample measured 15.176s LCP and 0.00095 cumulative layout shift; that is not field Core Web Vitals or a real iPhone measurement.
+
+The approved logo now has build-generated, content-addressed WebP sizes. The source JPEG remains unchanged; source/derivative hashes, dimensions and framing are verified during asset preparation. Responsive `srcset` and `sizes` provide adequate source density in the header, homepage and footer. The 390px/DPR3 and 1440px/DPR2 browser samples both selected a 768px/155,586-byte image for the 256px and 320px homepage logo respectively, about 81% less than the original. No upscaling was observed.
+
+Images below the introduction use lazy/low-priority delivery. The real-photo carousel rotates only while its stage is visible and respects reduced motion. Image identity, photographic provenance, styling, models, checkout contracts, financial records and public business claims are unchanged. No measurements, new photography or customer artwork are fabricated.
+
+Verification: source/derivative checks, typecheck, lint, production build, phone/desktop browser screenshots, adequate density/byte assertions, offscreen rotation check, no horizontal overflow and no uncaught page errors. Performance samples and detailed traces stay in ignored artifacts; release notes must distinguish single lab samples from field performance. This change requires no database migration. Rollback is the preceding application deployment while retaining originals and existing schema.

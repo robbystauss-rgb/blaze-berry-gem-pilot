@@ -7,7 +7,7 @@
     "nf3": "0.3.17"
   },
   "scripts": {
-    "fix:rec-assets": "node scripts/apply-rec-builder-fixes.mjs && node scripts/apply-rec-deeplink-qa.mjs && node scripts/build-hat-stage-renditions.mjs",
+    "fix:rec-assets": "node scripts/apply-rec-builder-fixes.mjs && node scripts/apply-rec-deeplink-qa.mjs && node scripts/build-hat-stage-renditions.mjs && node scripts/build-brand-renditions.mjs && node scripts/validate-brand-renditions.mjs",
     "dev": "npm run fix:rec-assets && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js dev --host 0.0.0.0 --port 8080",
     "build": "node scripts/release-database.mjs && node scripts/release-owner-completion.mjs && node scripts/release-studio-text.mjs && npm run fix:rec-assets && npm run check:assets && npm run check:crowns && npm run check:hat-images && node scripts/with-app-env.mjs node node_modules/vite/bin/vite.js build && node scripts/package-preview-runtime.mjs",
     "db:migrate": "node scripts/migrate.mjs",
